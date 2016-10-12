@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!-- node that renders Grid Screen
+    handles bookmark buttons
+    handles start of video playback
+ -->
+<component name="Favorites" extends="Group" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+
+        <!-- Grid Favorites Content Node -->
+        <field id="content" type="node" alias="Grid.content" onChange="OnContentChange"/>
+
+        <!-- Row item selection handler -->
+        <field id="rowItemSelected" type="intarray" alwaysnotify="true" alias="Grid.rowItemSelected"/>
+
+        <!-- Row item focused handler -->
+        <field id="itemFocused" type="intarray" alwaysnotify="true" alias="Grid.rowItemFocused" onChange="OnItemFocused"/>
+
+        <!-- Flag denies favorites screen close if any children are opened.-->
+        <field id="isChildrensVisible" type="bool" alwaysnotify="true" />
+
+        <!-- Interface to focused item (Content Node) -->
+        <field id="focusedContent"  type="node"/>
+
+        <!-- Alias to Results Video Title Text label -->
+        <field id="VideoTitleText"  type="string" alias="VideoTitle.text"/>
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/Favorites/Favorites.brs" />
+
+    <children>
+
+        <Rectangle
+            id="AppBackground"
+            color="0xffffff"
+            width="1280"
+            height="720"
+            translation="[0,0]" />
+
+        <!-- Custom fonts -->
+        <Label>
+            <Font id="RowListFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="18"/>
+        </Label>
+
+
+        <!-- Favorites grid -->
+        <RowList
+            id="Grid"
+            focusBitmapUri="pkg:/images/focus_grid.9.png"
+            translation="[-60, 250]"
+            itemSize="[1327, 218]"
+            numRows="2"
+            itemSpacing="[13, 0]"
+            focusXOffset="[147]"
+            rowFocusAnimationStyle="fixedFocusWrap"
+            rowItemSize="[[262, 147]]"
+            rowItemSpacing="[[16.5, 3]]"
+            showRowLabel="true"
+            showRowCounter="true"
+            rowLabelOffset="[[147, 20]]"
+            rowLabelFont="dictionary:RowListFont"
+            rowLabelColor="0x333333" />
+
+        <Label
+            id="VideoTitle"
+            color="0x777777"
+            text=""
+            translation="[100,460]">
+            <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="18" />
+        </Label>
+
+        <!-- Overhang logo -->
+        <Poster
+            id="PosterOverhang"
+            translation="[100, 36]"
+            uri="pkg:/images/overhangLogo.png"
+            width="80"
+            height="60" />
+
+        <Poster
+            id="BackgroundDown"
+            translation="[0, 650]"
+            width="2000"
+            height="95" />
+
+        <!-- Details Screen with Play button -->
+        <DetailsScreen
+            id="FavoritesDetailsScreen"
+            visible="false"/>
+
+        <Label
+            id="ResultsString"
+            color="0x777777"
+            text=""
+            translation="[100,500]">
+            <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20" />
+        </Label>
+    </children>
+</component>

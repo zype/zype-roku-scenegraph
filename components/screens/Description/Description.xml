@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********--> 
+
+<!-- 
+    node - description of the content item
+    -->
+<component name="Description" extends="LayoutGroup" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+        <!-- Alias to Title label -->
+        <field id="Title"           type="node" alias=""/>
+
+        <!-- Alias to Description label -->
+        <field id="Description"     type="node" alias=""/>
+
+        <!-- Alias to ReleaseDate label -->
+        <field id="ReleaseDate"     type="node" alias=""/>
+
+        <!-- Content node -->
+        <field id="Content"         type="node" onChange="OnContentChanged"/>
+    </interface>
+    
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/Description/Description.brs" />
+    
+    <children>
+        <Label
+            id="Title"
+            wrap="true"
+            width="475"
+            maxLines="2"
+            color="0x333333"
+            lineSpacing="0"
+            text="">
+            <Font role="font" uri="pkg:/fonts/Roboto-Medium.ttf" size="30" />
+        </Label>
+            
+        <Label
+            id="ReleaseDate"
+            color="0x8c8b8b"
+            visible="false"
+            text="">
+            <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="16" />
+        </Label>
+            
+        <Label
+            id="Description"
+            color="0x333333"
+            wrap="true"
+            width="475"
+            height="100"
+            lineSpacing="4"
+            text="">
+            <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="19" />
+        </Label>
+    </children>
+
+</component> 

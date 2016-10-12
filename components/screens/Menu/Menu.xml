@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Zype.  All Rights Reserved. **********-->
+
+<!--
+    node - menu
+-->
+<component name="Menu" extends="Group" initialFocus="MenuButtons">
+    <interface>
+        <!-- Button press handler -->
+        <field id="itemSelected" type="integer" alwaysnotify="true" alias="MenuButtons.itemSelected" onChange="onItemSelected" />
+
+        <!-- Row List Content Node -->
+        <!--<field id="content" type="node" alias="RowList.content" onChange="onContentChange"/>-->
+
+        <!-- Row item selection handler -->
+        <!--<field id="rowItemSelected" type="intarray" alwaysnotify="true" alias="RowList.rowItemSelected"/>-->
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/Menu/Menu.brs" />
+
+    <children>
+        <!-- Custom fonts -->
+        <Label>
+            <Font id="MenuFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="22"/>
+        </Label>
+
+        <!-- Background Shade -->
+        <Rectangle
+            id = "Shade"
+            width="600"
+            height="720"
+            color="0xEEEEEE"
+            opacity="0.8"
+            translation="[700,0]"
+            />
+
+        <!-- Menu buttons -->
+        <LabelList
+            id="MenuButtons"
+            translation="[800,120]"
+            color="0x333333FF"
+            focusedColor="0x333333FF"
+            numRows="5"
+            vertFocusAnimationStyle="floatingFocus"
+            itemSize="[300, 35]"
+            font="dictionary:MenuFont"
+            textHorizAlign="center"
+            focusedFont="dictionary:MenuFont"
+            focusBitmapUri="pkg:/images/button-focus.png"
+            />
+
+        <!--Menu grid -->
+        <!--<RowList
+            id="RowList"
+            focusBitmapUri="pkg:/images/focus_grid.9.png"
+            translation="[-60, 400]"
+            itemSize="[1327, 218]"
+            numRows="1"
+            itemSpacing="[13, 0]"
+            focusXOffset="[147]"
+            rowFocusAnimationStyle="fixedFocusWrap"
+            rowItemSize="[[262, 147]]"
+            rowItemSpacing="[[16.5, 3]]"
+            showRowLabel="true"
+            showRowCounter="true"
+            rowLabelOffset="[[147, 20]]"
+            />-->
+    </children>
+
+</component>

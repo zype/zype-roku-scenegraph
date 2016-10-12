@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!-- node that renders Grid Screen
+    handles bookmark buttons
+    handles start of video playback
+ -->
+<component name="InfoScreen" extends="Group">
+    <interface>
+        <!-- Alias to Info label -->
+        <field id="Info"  type="node" alias=""/>
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/InfoScreen/InfoScreen.brs" />
+
+    <children>
+        <!-- Main Background -->
+        <Rectangle
+            id="AppBackground"
+            color="0xffffff"
+            width="1280"
+            height="720"
+            translation="[0,0]" />
+
+        <Poster
+            id="PosterOverhang"
+            translation="[100, 36]"
+            uri="pkg:/images/overhangLogo.png"
+            width="80"
+            height="60" />
+
+        <Label
+            id="Info"
+            color="0x333333"
+            wrap="true"
+            width="900"
+            lineSpacing="5"
+            text=""
+            translation="[190,150]">
+            <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="19" />
+        </Label>
+    </children>
+</component>

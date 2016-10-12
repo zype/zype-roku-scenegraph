@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!-- node that renders DeviceLinking
+ -->
+<component name="DeviceLinking" extends="Group">
+    <interface>
+
+        <!-- Alias to PIN label -->
+        <field id="Pin" type="node" alias=""/>
+
+        <!-- WRITE-ONLY. Shows/hides the component on the scene.
+        True = show; False = hide. -->
+        <field id="show" type="boolean"     onChange="On_show"            alwaysNotify="true"/>
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/DeviceLinking/DeviceLinking.brs" />
+
+    <children>
+
+    <!-- Background Shade -->
+    <Rectangle
+        id = "Shade"
+        width="1280"
+        height="720"
+        color="0xFFFFFFFF"
+        opacity="1"
+        translation="[0,0]"
+        />
+
+    <!-- Linking PIN -->
+    <Label
+        id="LinkText"
+        color="0x333333"
+        translation="[60,60]"
+        text=""/>
+
+    <!-- Linking PIN -->
+    <Label
+        id="Pin"
+        color="0x333333"
+        translation="[60,100]"
+        text=""/>
+
+    </children>
+</component>

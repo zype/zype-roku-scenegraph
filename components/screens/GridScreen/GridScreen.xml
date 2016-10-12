@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!-- node that renders Grid Screen
+    handles bookmark buttons
+    handles start of video playback
+ -->
+<component name="GridScreen" extends="Group" initialFocus="RowList" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+        <!-- Grid Content Node -->
+        <field id="content" type="node" alias="RowList.content" onChange="onContentChange"/>
+
+        <!-- Row item selection handler -->
+        <field id="rowItemSelected" type="intarray" alwaysnotify="true" alias="RowList.rowItemSelected"/>
+
+        <!-- Row item focused handler -->
+        <field id="itemFocused" type="intarray" alias="RowList.rowItemFocused" onChange="OnItemFocused"/>
+
+        <!-- Interface to focused item (Content Node) -->
+        <field id="focusedContent"  type="node"/>
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/GridScreen/GridScreen.brs" />
+
+
+    <children>
+        <FadingBackground
+            id="Background"
+            width="1280"
+            height="720"
+            color="0xAAAAAA"
+            ShadeOpacity="0.8" />
+
+        <!-- Custom fonts -->
+        <Label>
+            <Font id="RowListFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="18"/>
+        </Label>
+
+        <RowList
+            id="RowList"
+            focusBitmapUri="pkg:/images/focus_grid.9.png"
+            translation="[-60, 410]"
+            itemSize="[1327, 218]"
+            numRows="2"
+            itemSpacing="[0,0]"
+            focusXOffset="[147]"
+            rowFocusAnimationStyle="fixedFocusWrap"
+            rowItemSize="[[262, 147]]"
+            rowItemSpacing="[[16.5, 3]]"
+            showRowLabel="true"
+            showRowCounter="true"
+            rowLabelOffset="[[147, 20]]"
+            rowLabelFont="dictionary:RowListFont"
+            rowLabelColor="0x333333" />
+        <!-- Overhang logo -->
+        <Group id="Overhang">
+            <Poster
+                id="PosterOverhang"
+                translation="[100, 36]"
+                uri="pkg:/images/overhangLogo.png"
+                width="80"
+                height="60" />
+
+            <Label
+                id="OptionsLabel"
+                translation="[726, 58]"
+                width="400"
+                horizAlign="right"
+                text="Options"
+                color="0x333333">
+                <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="21" />
+            </Label>
+
+            <Poster
+                id="OptionsIcon"
+                blendColor="#0aabf5"
+                enableColorBlending="false"
+                translation="[1139, 53]"
+                width="24"
+                height="24"
+                uri="pkg:/images/options.png" />
+        </Group>
+
+        <Poster
+            id="BackgroundDown"
+            translation="[0, 650]"
+            width="2000"
+            height="95" />
+
+        <Description
+            id="Description"
+            translation="[106, 140]"
+            itemSpacings="[7,17]" />
+    </children>
+</component>

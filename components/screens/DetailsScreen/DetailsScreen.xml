@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!--
+    node that renders details screen
+    handles start of video playback
+ -->
+<component name="DetailsScreen" extends="Group" initialFocus="Buttons" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+
+    <interface>
+        <!-- Button press handler -->
+        <field id="itemSelected" type="integer" alwaysnotify="true" alias="Buttons.itemSelected" onChange="onItemSelected" />
+
+        <!-- Playback flag -->
+        <field id="videoPlayerVisible" type="bool" alwaysnotify="true" alias="VideoPlayer.visible"  onChange="onVideoVisibleChange" />
+
+        <!-- Content fields -->
+        <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
+
+        <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/DetailsScreen/DetailsScreen.brs" />
+
+    <children>
+        <!-- Main Background -->
+        <Rectangle
+            id="AppBackground"
+            color="0xFFFFFF"
+            width="1280"
+            height="720"
+            translation="[0,0]" />
+
+        <!--Background poster.-->
+        <Poster
+            id="Background"
+            width="900"
+            height="550"
+            translation="[430,0]"
+            />
+
+        <!-- Gradient Balck Overlay -->
+        <Poster
+            id="thumbOverlay-details"
+            uri="pkg:/images/WhiteOverlay.png"
+            width="1280"
+            height="720"
+            translation="[0, 0]"
+        />
+
+        <!--<Rectangle
+            id = "Shade"
+            width="1280"
+            height="720"
+            color="0x000000"
+            opacity="0.5"
+            />-->
+
+        <!-- Custom fonts -->
+        <Label>
+            <Font id="ButtonFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="22"/>
+        </Label>
+
+        <!--Control buttons.-->
+        <LabelList
+            id="Buttons"
+            translation="[106,550]"
+            color="0x333333"
+            focusedColor="0x333333"
+            numRows="5"
+            vertFocusAnimationStyle="floatingFocus"
+            itemSize="[350, 45]"
+            textHorizAlign="center"
+            font="dictionary:ButtonFont"
+            focusedFont="dictionary:ButtonFont"
+            focusBitmapUri="pkg:/images/button-focus.png"
+            />
+
+        <!--Black hud at bottom of the Details Screen.-->
+        <!--<Rectangle
+            id="testRectangle"
+            color="0x000000FF"
+            width="1280"
+            height="251"
+            translation="[0, 462]" />-->
+
+        <!--Item description.-->
+        <Description
+            id="Description"
+            translation="[106, 140]"
+            itemSpacings="[7,17]" />
+
+        <!--Item poster.-->
+        <!--<Poster
+            id="Poster"
+            translation="[60, 495]"
+            width="317"
+            height="178"
+            />-->
+
+        <!-- Overhang -->
+        <Group
+            id="Overhang">
+            <Poster
+               id="PosterOverhang"
+               translation="[100, 36]"
+               uri="pkg:/images/overhangLogo.png"
+               width="80"
+               height="60" />
+           <Group
+               id="Optionslabel">
+           <Label
+               translation="[726, 58]"
+               width="400"
+               horizAlign="right"
+               text="Options"
+               color="0x333333">
+               <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="21" />
+            </Label>
+
+           <Poster id="OptionsIcon"
+               blendColor="#0aabf5"
+               enableColorBlending="false"
+               translation="[1139, 53]"
+               width="24"
+               height="24"
+               uri="pkg:/images/options.png"/>
+           </Group>
+        </Group>
+
+        <!--Playback node.-->
+        <Video
+            id="VideoPlayer"
+            visible="false"
+            translation="[0, 0]"
+            width="1280"
+            height="720"/>
+
+    </children>
+</component>
