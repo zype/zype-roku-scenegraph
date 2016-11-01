@@ -9,6 +9,15 @@ Sub RunUserInterface()
     screen.SetMessagePort(m.port)
     screen.Show()
 
+    m.store = CreateObject("roChannelStore")
+    m.store.FakeServer(true)
+    m.store.SetMessagePort(m.port)
+    m.purchasedItems = []
+    m.productsCatalog = []
+    
+    getUserPurchases()
+    getProductsCatalog()
+
     m.scene.gridContent = ParseContent(GetContent())
     ' m.scene.gridContent = ParseContent(GetPlaylistsAsRows("579116fc6689bc0d1d00f092"))
 
@@ -83,11 +92,20 @@ Sub RunUserInterface()
 
                 print "THIS IS THE CONTENT"; lclScreen.content
 
-                if lclScreen.content.onAir = false
-                    playRegularVideo(lclScreen)
+                detailScreenIdFull = lclScreen.content.id
+                detailScreenIdObj = detailScreenIdFull.tokenize(":")
+                detailScreenId = detailScreenIdObj[0]
+                _isSubscribed = isSubscribed(detailScreenId)
+
+                if(_isSubscribed)
+                    playVideoButton(lclScreen)
+
+                ' Monthly subscription button was clicked
                 else
-                    playLiveVideo(lclScreen)
+                    monthlySubscription(lclScreen)
+
                 end if
+
             else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" and msg.getData() = 1 then
                 print "[Main] Add to favorites"
 
@@ -105,20 +123,20 @@ Sub RunUserInterface()
                 end if
 
                 print lclSreen
+                
+                detailScreenIdFull = lclScreen.content.id
+                detailScreenIdObj = detailScreenIdFull.tokenize(":")
+                detailScreenId = detailScreenIdObj[0]
+                _isSubscribed = isSubscribed(detailScreenId)
 
-                deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-                if HasUDID() = true and deviceLinking.linked = true
-                    favs = GetFavoritesIDs()
-                    print "Consumer ID: "; deviceLinking.consumer_id
-                    oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-                    if lclScreen.content.inFavorites = false
-                        CreateVideoFavorite(deviceLinking.consumer_id, {"access_token": oauth.access_token, "video_id": lclScreen.content.id })
-                        lclScreen.content.inFavorites = true
-                    else
-                        DeleteVideoFavorite(deviceLinking.consumer_id, favs[lclScreen.content.id], {"access_token": oauth.access_token, "video_id": lclScreen.content.id, "_method": "delete"})
-                        lclScreen.content.inFavorites = false
-                    end if
+                if(_isSubscribed)
+                    markFavoriteButton(lclScreen)
+
+                ' Yearly subscription button was pressed
+                else
+                    yearlySubscription(lclScreen)
                 end if
+
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
@@ -256,7 +274,7 @@ end sub
 
 sub playVideo(screen as Object, auth As Object)
 
-    ' print "FUNC: PlayVideo: ", screen.content
+    print "FUNC: PlayVideo: ", screen.content
     playerInfo = GetPlayerInfo(screen.content.id, auth)
 
     screen.content.stream = playerInfo.stream
@@ -280,7 +298,7 @@ end sub
 
 sub playVideoWithAds(screen as Object, auth as Object)
 
-    ' print "FUNC: PlayVideo: ", screen.content
+    print "FUNC: PlayVideoWithAds: ", screen.content
     playerInfo = GetPlayerInfo(screen.content.id, auth)
 
     screen.content.stream = playerInfo.stream
@@ -316,6 +334,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
             playContent = adIface.showAds(adPods)
         end if
     end if
+
 
     if playContent then
         m.loadingIndicator.control = "stop"
@@ -415,7 +434,6 @@ Function ParseContent(list As Object)
     RowItems = createObject("RoSGNode","ContentNode")
 
     ' videoObject = createObject("RoSGNode", "VideoNode")
-
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
         row.Title = rowAA.Title
@@ -428,7 +446,14 @@ Function ParseContent(list As Object)
                 item[key] = itemAA[key]
             end for
 
-            ' print item
+            ' Get the ID element from itemAA and check if the product against that id was subscribed
+            if(isSubscribed(itemAA["id"]))
+                isSub = "True"
+            else
+                isSub = "False"
+            end if
+
+            item["id"] = item["id"] + ":" + isSub
 
             row.appendChild(item)
         end for
@@ -436,6 +461,7 @@ Function ParseContent(list As Object)
         RowItems.appendChild(row)
     end for
 
+    print RowItems.metadata
     return RowItems
 End Function
 
@@ -548,3 +574,221 @@ function GetPlaylistsAsRows(parent_id as String)
 
     return list
 end function
+
+
+'/////////////////////////////////////////////////
+' Get a list of items in the product catalog
+Function getProductsCatalog()
+    m.store.GetCatalog()
+    while (true)
+        msg = wait(0, m.port)
+        if (type(msg) = "roChannelStoreEvent")
+            if (msg.isRequestSucceeded())
+                response = msg.GetResponse()
+                for each item in response
+                    m.productsCatalog.Push({
+                        Title: item.name
+                        code: item.code
+                        cost: item.cost
+                        description: item.description
+                        productType: item.productType
+                    })
+                end for
+                exit while
+            else if (msg.isRequestFailed())
+                print "***** Failure: " + msg.GetStatusMessage() + " Status Code: " + stri(msg.GetStatus()) + " *****"
+            end if
+        end if
+    end while
+End Function
+
+'/////////////////////////////////////////////////
+' Get a list of items that the user has purchased
+Function getUserPurchases() as void
+    m.store.GetPurchases()
+    while (true)
+        msg = wait(0, m.port)
+        if (type(msg) = "roChannelStoreEvent")
+            if (msg.isRequestSucceeded())
+                response = msg.GetResponse()
+                for each item in response
+                    m.purchasedItems.Push({
+                        Title: item.name
+                        code: item.code
+                        cost: item.cost
+                    })
+                end for
+                exit while
+            else if (msg.isRequestFailed())
+                print "***** Failure: " + msg.GetStatusMessage() + " Status Code: " + stri(msg.GetStatus()) + " *****"
+            end if
+        end if
+    end while
+
+End Function
+
+' ///////////////////////////////////////////////////////////////////////////////////
+' Checks from the list of purchased items if the user was subscribed to a product
+Function isSubscribed(id) as boolean
+    monthlyCode = id + "_m"
+    yearlyCode = id + "_y"
+    owned = false
+    for each pi in m.purchasedItems
+        ' Current item on Detail Screen is either subscribed monthly or yearly
+	    if (monthlyCode = pi.code or yearlyCode = pi.code)
+	        owned = true
+		    exit for
+	    end if
+	end for
+    return owned
+End Function
+
+Function isValidProduct(code)
+    valid = false
+    for each item in m.productsCatalog
+	    if (code = item.code)
+	        valid = true
+		    exit for
+	    end if
+	end for
+    return valid
+End Function
+
+'///////////////////////////////////
+' LabelList click handlers go here
+'///////////////////////////////////
+Function monthlySubscription(lclScreen)
+    id = lclScreen.content.id.tokenize(":")
+    makePurchase(lclScreen.content.title, id[0] + "_m")
+End Function
+
+Function yearlySubscription(lclScreen)
+    id = lclScreen.content.id.tokenize(":")
+    makePurchase(lclScreen.content.title, id[0] + "_y")
+End Function
+
+Function playVideoButton(lclScreen)
+    if lclScreen.content.onAir = false
+        playRegularVideo(lclScreen)
+    else
+        playLiveVideo(lclScreen)
+    end if
+End Function
+
+Function markFavoriteButton(lclScreen)
+    deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+    if HasUDID() = true and deviceLinking.linked = true
+        favs = GetFavoritesIDs()
+        print "Consumer ID: "; deviceLinking.consumer_id
+        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+        if lclScreen.content.inFavorites = false
+            CreateVideoFavorite(deviceLinking.consumer_id, {"access_token": oauth.access_token, "video_id": lclScreen.content.id })
+            lclScreen.content.inFavorites = true
+        else
+            DeleteVideoFavorite(deviceLinking.consumer_id, favs[lclScreen.content.id], {"access_token": oauth.access_token, "video_id": lclScreen.content.id, "_method": "delete"})
+            lclScreen.content.inFavorites = false
+        end if
+    end if
+End Function
+
+'///////////////////////////////////////////////
+' Make Purchase
+Function makePurchase(title, code) as void
+    if(isValidProduct(code) = false)
+        invalidProductDialog(title)
+        return
+    end if
+    result = m.store.GetUserData()
+    if (result = invalid)
+        return
+    end if
+    order = [{
+        code: code
+        qty: 1        
+    }]
+    
+    val = m.store.SetOrder(order)
+    res = m.store.DoOrder()
+
+    purchaseDetails = invalid
+    error = {}
+    while (true)
+        msg = wait(0, m.port)
+        if (type(msg) = "roChannelStoreEvent")
+            if(msg.isRequestSucceeded())
+                ' purchaseDetails can be used for any further processing of the transactional information returned from roku store.
+                purchaseDetails = msg.GetResponse()
+            else
+                error.status = msg.GetStatus()
+                error.statusMessage = msg.GetStatusMessage()
+            end if
+            exit while
+        end if
+    end while
+
+    if (res = true)
+        orderStatusDialog(true, title)
+    else
+        orderStatusDialog(false, title)
+    end if
+End Function
+
+'///////////////////////////////////////////////
+' Order Status Dialog
+Function orderStatusDialog(success as boolean, item as string) as void
+    dialog = CreateObject("roMessageDialog")
+    port = CreateObject("roMessagePort")
+    dialog.SetMessagePort(port)
+    if (success = true)
+        dialog.SetTitle("Order Completed Successfully")
+        str = "Your Purchase of '" + item + "' Completed Successfully"
+    else
+        dialog.SetTitle("Order Failed")
+        str = "Your Purchase of '" + item + "' Failed"
+    end if
+    
+    dialog.SetText(str)
+    dialog.AddButton(1, "OK")
+    dialog.EnableBackButton(true)
+    dialog.Show()
+
+    while true
+        dlgMsg = wait(0, dialog.GetMessagePort())
+        If type(dlgMsg) = "roMessageDialogEvent"
+            if dlgMsg.isButtonPressed()
+                if dlgMsg.GetIndex() = 1
+                    exit while
+                end if
+            else if dlgMsg.isScreenClosed()
+                exit while
+            end if
+        end if
+    end while
+
+End Function
+
+Function invalidProductDialog(title)
+    dialog = CreateObject("roMessageDialog")
+    port = CreateObject("roMessagePort")
+    dialog.SetMessagePort(port)
+    dialog.SetTitle("Invalid Product")
+    str = "The product '" + title + "' is not available at the moment"
+
+    dialog.SetText(str)
+    dialog.AddButton(1, "OK")
+    dialog.EnableBackButton(true)
+    dialog.Show()
+
+    while true
+        dlgMsg = wait(0, dialog.GetMessagePort())
+        If type(dlgMsg) = "roMessageDialogEvent"
+            if dlgMsg.isButtonPressed()
+                if dlgMsg.GetIndex() = 1
+                    exit while
+                end if
+            else if dlgMsg.isScreenClosed()
+                exit while
+            end if
+        end if
+    end while
+End Function

@@ -14,6 +14,8 @@ Function Init()
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
 
+    m.canWatchVideo = false
+
 End Function
 
 ' set proper focus to buttons if Details opened and stops Video if Details closed
@@ -57,13 +59,10 @@ End Sub
 
 ' on Button press handler
 Sub onItemSelected()
-    ' first button is Play
+    ' first button pressed
     if m.top.itemSelected = 0
-        ' m.videoPlayer.visible = true
-        ' m.videoPlayer.setFocus(true)
-        ' m.videoPlayer.control = "play"
-        ? "[DetailsScreen] Play button selected"
         m.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+    ' second button pressed
     else if m.top.itemSelected = 1
         ? "[DetailsScreen] Favorite button selected"
     end if
@@ -72,8 +71,19 @@ End Sub
 ' Content change handler
 Sub OnContentChange()
     if m.top.content<>invalid then
-    
-        AddButtons()
+        idParts = m.top.content.id.tokenize(":")
+
+        if(idParts[1] = "True")
+            m.canWatchVideo = true
+        else
+            m.canWatchVideo = false
+        end if
+
+        if(m.canWatchVideo)
+            AddButtons()
+        else
+            AddPaymentButtons()
+        end if
 
         m.description.content   = m.top.content
         ' m.description.Description.width = "770"
@@ -97,6 +107,18 @@ Sub AddButtons()
         end if
 
 
+        for each button in btns
+            result.push({title : button})
+        end for
+        m.buttons.content = ContentList2SimpleNode(result)
+    end if
+End Sub
+
+Sub AddPaymentButtons()
+    if m.top.content <> invalid then
+        ' create buttons
+        result = []
+        btns = ["Subscribe at $9.99 / month", "Subscribe at $99.99 / year"]
         for each button in btns
             result.push({title : button})
         end for
