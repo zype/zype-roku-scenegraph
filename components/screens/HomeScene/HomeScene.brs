@@ -60,6 +60,7 @@ Function OnRowItemSelected()
         m.contentStack.push(m.gridScreen.content)
         m.top.playlistItemSelected = true
     else
+        ? "[HomeScene] Detail Screen"
         m.gridScreen.visible = "false"
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
@@ -230,6 +231,9 @@ Function OnKeyEvent(key, press) as Boolean
                 ' if Device Linking is visible - it must be last element
                 search = m.screenStack.pop()
                 search.show = false
+
+                m.deviceLinking.show = false
+                m.deviceLinking.setFocus(false)
 
                 ' after Device Linking screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                 ' open last screen before search and focus it

@@ -70,10 +70,11 @@ End Sub
 
 ' Content change handler
 Sub OnContentChange()
+    print "Content: "; m.top.content
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
-        if(idParts[1] = "True")
+        if(m.top.content.subscriptionRequired = false OR idParts[1] = "True")
             m.canWatchVideo = true
         else
             m.canWatchVideo = false
@@ -82,7 +83,7 @@ Sub OnContentChange()
         if(m.canWatchVideo)
             AddButtons()
         else
-            AddPaymentButtons()
+            AddActionButtons()
         end if
 
         m.description.content   = m.top.content
@@ -114,11 +115,11 @@ Sub AddButtons()
     end if
 End Sub
 
-Sub AddPaymentButtons()
+Sub AddActionButtons()
     if m.top.content <> invalid then
         ' create buttons
         result = []
-        btns = ["Subscribe at $9.99 / month", "Subscribe at $99.99 / year"]
+        btns = ["Subscribe", "Sign In"]
         for each button in btns
             result.push({title : button})
         end for

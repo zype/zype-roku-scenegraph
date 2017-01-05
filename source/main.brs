@@ -59,7 +59,7 @@ Sub RunUserInterface()
         msg = wait(0, m.port)
         msgType = type(msg)
         print "------------------"
-        print "msg = "; msg
+        'print "msg = "; msg
 
         if msgType = "roSGNodeEvent"
             if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
@@ -95,21 +95,25 @@ Sub RunUserInterface()
                 detailScreenIdFull = lclScreen.content.id
                 detailScreenIdObj = detailScreenIdFull.tokenize(":")
                 detailScreenId = detailScreenIdObj[0]
-                _isSubscribed = isSubscribed(detailScreenId)
+                '_isSubscribed = isSubscribed(detailScreenId)
+                _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
 
-                if(_isSubscribed)
-                    playVideoButton(lclScreen)
+                ' if(_isSubscribed)
+                '     playVideoButton(lclScreen)
 
-                ' Monthly subscription button was clicked
-                else
-                    monthlySubscription(lclScreen)
+                ' ' Monthly subscription button was clicked
+                ' else
+                '     monthlySubscription(lclScreen)
 
-                end if
+                ' end if
+
+                handleButtonEvents(1, _isSubscribed, lclScreen)
+
 
             else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" and msg.getData() = 1 then
                 print "[Main] Add to favorites"
 
-                print msg.getNode()
+                'print msg.getNode()
 
                 if msg.getNode() = "FavoritesDetailsScreen"
                     lclScreen = m.favoritesDetailsScreen
@@ -122,25 +126,29 @@ Sub RunUserInterface()
                     lclScreen = m.detailsScreen
                 end if
 
-                print lclSreen
+                print lclScreen
                 
                 detailScreenIdFull = lclScreen.content.id
                 detailScreenIdObj = detailScreenIdFull.tokenize(":")
                 detailScreenId = detailScreenIdObj[0]
-                _isSubscribed = isSubscribed(detailScreenId)
+                '_isSubscribed = isSubscribed(detailScreenId)
+                _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
 
-                if(_isSubscribed)
-                    markFavoriteButton(lclScreen)
+                ' if(_isSubscribed)
+                '     markFavoriteButton(lclScreen)
 
-                ' Yearly subscription button was pressed
-                else
-                    yearlySubscription(lclScreen)
-                end if
+                ' ' Yearly subscription button was pressed
+                ' else
+                '     yearlySubscription(lclScreen)
+                ' end if
+
+                handleButtonEvents(2, _isSubscribed, lclScreen)
+
 
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
-                print m.videoPlayer
+                'print m.videoPlayer
                 GetLimitStreamObject().played = GetLimitStreamObject().played + 1
                 print  GetLimitStreamObject().played
                 if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
@@ -274,7 +282,7 @@ end sub
 
 sub playVideo(screen as Object, auth As Object)
 
-    print "FUNC: PlayVideo: ", screen.content
+    'print "FUNC: PlayVideo: ", screen.content
     playerInfo = GetPlayerInfo(screen.content.id, auth)
 
     screen.content.stream = playerInfo.stream
@@ -298,7 +306,7 @@ end sub
 
 sub playVideoWithAds(screen as Object, auth as Object)
 
-    print "FUNC: PlayVideoWithAds: ", screen.content
+    'print "FUNC: PlayVideoWithAds: ", screen.content
     playerInfo = GetPlayerInfo(screen.content.id, auth)
 
     screen.content.stream = playerInfo.stream
@@ -446,8 +454,10 @@ Function ParseContent(list As Object)
                 item[key] = itemAA[key]
             end for
 
+            print "***********************************************"
+            print itemAA
             ' Get the ID element from itemAA and check if the product against that id was subscribed
-            if(isSubscribed(itemAA["id"]))
+            if(isSubscribed(itemAA["subscriptionrequired"]))
                 isSub = "True"
             else
                 isSub = "False"
@@ -629,42 +639,162 @@ End Function
 
 ' ///////////////////////////////////////////////////////////////////////////////////
 ' Checks from the list of purchased items if the user was subscribed to a product
-Function isSubscribed(id) as boolean
-    monthlyCode = id + "_m"
-    yearlyCode = id + "_y"
-    owned = false
+Function isSubscribed(subscriptionRequired) as boolean
+    if(subscriptionRequired = false)
+        return true
+    end if
+
+    subscribed = false
+
     for each pi in m.purchasedItems
-        ' Current item on Detail Screen is either subscribed monthly or yearly
-	    if (monthlyCode = pi.code or yearlyCode = pi.code)
-	        owned = true
-		    exit for
-	    end if
-	end for
-    return owned
+        if(pi.code = "svod-monthly" OR pi.code = "svod-yearly") ' Means the user has subscribed to atleast one of these
+            subscribed = true
+            exit for
+        end if
+    end for
+    return subscribed
+    ' monthlyCode = id + "_m"
+    ' yearlyCode = id + "_y"
+    ' owned = false
+    ' for each pi in m.purchasedItems
+    '     ' Current item on Detail Screen is either subscribed monthly or yearly
+	'     if (monthlyCode = pi.code or yearlyCode = pi.code)
+	'         owned = true
+	' 	    exit for
+	'     end if
+	' end for
+    ' return owned
 End Function
 
-Function isValidProduct(code)
-    valid = false
-    for each item in m.productsCatalog
-	    if (code = item.code)
-	        valid = true
-		    exit for
-	    end if
-	end for
-    return valid
-End Function
 
 '///////////////////////////////////
 ' LabelList click handlers go here
 '///////////////////////////////////
-Function monthlySubscription(lclScreen)
-    id = lclScreen.content.id.tokenize(":")
-    makePurchase(lclScreen.content.title, id[0] + "_m")
+
+Function handleButtonEvents(index, _isSubscribed, lclScreen)
+    print "Handle Event: "; isSubscribed
+    if(isLoggedIn() OR lclScreen.content.subscriptionRequired = false)    ' Play / Favorite buttons
+        print "LoggedIn"
+        ' This is going to be the Play button
+        if(index = 1 and (_isSubscribed = true OR lclScreen.content.subscriptionRequired = false))
+        'if(index = 1 and _isSubscribed)
+            print "LoggedIn If: "
+            playVideoButton(lclScreen)
+        
+        else if(index = 2)  ' This is going to be the favorites button
+            print "LoggedIn Else If: "
+        end if
+
+    else    ' Subscribe / Sign In buttons
+        print "Handle Else: "
+        if(index = 1)   ' Subscribe
+            print "Handle Else -> If"
+            ShowPackagesDialog()
+
+        else            ' Sign In
+            print "Handle Else -> else"
+            ShowSignInOptionsDialog()
+        end if
+    end if
 End Function
 
-Function yearlySubscription(lclScreen)
-    id = lclScreen.content.id.tokenize(":")
-    makePurchase(lclScreen.content.title, id[0] + "_y")
+Function isLoggedIn()
+    deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+    if HasUDID() = true and deviceLinking.linked = true
+        return true
+    end if
+    'return true
+    return false
+End Function
+
+Function ShowPackagesDialog()
+    plans = GetPlans({})
+
+    screen = CreateObject("roMessageDialog")
+    screen.SetMessagePort(m.port)
+    screen.SetTitle("Subscribe")
+    screen.SetText("Please select your preferred subscription plan to continue")
+
+    'screen.AddButton(1, "Link Device to Existing Account")
+    'screen.AddButton(2, "Restore Roku Purchase")
+
+    index = 1
+    for each plan in plans
+        print "Plan: "; plan
+        if(plan.active = true)
+            screen.AddButton(index, plan.name + " at " + plan.amount + " " + plan.currency)
+        end if
+        index = index + 1
+    end for
+
+    screen.EnableBackButton(true)
+    screen.Show()
+
+    while true
+        msg = wait(0, m.port)
+        if type(msg) = "roMessageDialogEvent"
+            if msg.isScreenClosed() then 'ScreenClosed event'
+                'print "Closing video screen"
+                exit while
+            else if msg.isButtonPressed() then
+                HandlePackagesEvents(msg.GetIndex(), plans)
+            else
+                'print "Unknown event: "; msg.GetType(); " msg: "; msg.GetMessage()
+            end if
+        end if
+    end while
+End Function
+
+Function HandlePackagesEvents(index, plans)
+    if(index = 1)
+        print "Monthly Plan"
+        monthlySubscription(plans, index, m.store, m.port, m.productsCatalog)
+
+    else if(index = 2)
+        print "Yearly Plan"
+        yearlySubscription(plans, index, m.store, m.port, m.productsCatalog)
+    end if
+End Function
+
+Function ShowSignInOptionsDialog()
+    print "ShowSignInOptionsDialog"
+    screen = CreateObject("roMessageDialog")
+    screen.SetMessagePort(m.port)
+    screen.SetTitle("Sign In")
+    screen.SetText("Please select your preferred method to sign in")
+    screen.AddButton(1, "Link Device to Existing Account")
+    screen.AddButton(2, "Restore Roku Purchase")
+    screen.EnableBackButton(true)
+    screen.Show()
+
+    while true
+        msg = wait(0, m.port)
+        if type(msg) = "roMessageDialogEvent"
+            if msg.isScreenClosed() then 'ScreenClosed event'
+                'print "Closing video screen"
+                exit while
+            else if msg.isButtonPressed() then
+                HandleSignInButtonEvents(msg.GetIndex(), screen)
+            else
+                'print "Unknown event: "; msg.GetType(); " msg: "; msg.GetMessage()
+            end if
+        end if
+    end while
+End Function
+
+Function HandleSignInButtonEvents(buttonIndex, screen)
+    if(buttonIndex = 1) ' Link Device
+        print "Link Device Button Pressed"
+
+        screen.Close()
+
+        ' show and focus Device Linking
+        m.deviceLinking.show = true
+        m.deviceLinking.setFocus(true)
+
+    else if(buttonIndex = 2)    ' Restore Roku Purchase
+        print "Restore Roku Purchase Button Pressed"
+    end if
 End Function
 
 Function playVideoButton(lclScreen)
@@ -691,104 +821,104 @@ Function markFavoriteButton(lclScreen)
     end if
 End Function
 
-'///////////////////////////////////////////////
-' Make Purchase
-Function makePurchase(title, code) as void
-    if(isValidProduct(code) = false)
-        invalidProductDialog(title)
-        return
-    end if
-    result = m.store.GetUserData()
-    if (result = invalid)
-        return
-    end if
-    order = [{
-        code: code
-        qty: 1        
-    }]
+' '///////////////////////////////////////////////
+' ' Make Purchase
+' Function makePurchase(title, code) as void
+'     if(isValidProduct(code) = false)
+'         invalidProductDialog(title)
+'         return
+'     end if
+'     result = m.store.GetUserData()
+'     if (result = invalid)
+'         return
+'     end if
+'     order = [{
+'         code: code
+'         qty: 1        
+'     }]
     
-    val = m.store.SetOrder(order)
-    res = m.store.DoOrder()
+'     val = m.store.SetOrder(order)
+'     res = m.store.DoOrder()
 
-    purchaseDetails = invalid
-    error = {}
-    while (true)
-        msg = wait(0, m.port)
-        if (type(msg) = "roChannelStoreEvent")
-            if(msg.isRequestSucceeded())
-                ' purchaseDetails can be used for any further processing of the transactional information returned from roku store.
-                purchaseDetails = msg.GetResponse()
-            else
-                error.status = msg.GetStatus()
-                error.statusMessage = msg.GetStatusMessage()
-            end if
-            exit while
-        end if
-    end while
+'     purchaseDetails = invalid
+'     error = {}
+'     while (true)
+'         msg = wait(0, m.port)
+'         if (type(msg) = "roChannelStoreEvent")
+'             if(msg.isRequestSucceeded())
+'                 ' purchaseDetails can be used for any further processing of the transactional information returned from roku store.
+'                 purchaseDetails = msg.GetResponse()
+'             else
+'                 error.status = msg.GetStatus()
+'                 error.statusMessage = msg.GetStatusMessage()
+'             end if
+'             exit while
+'         end if
+'     end while
 
-    if (res = true)
-        orderStatusDialog(true, title)
-    else
-        orderStatusDialog(false, title)
-    end if
-End Function
+'     if (res = true)
+'         orderStatusDialog(true, title)
+'     else
+'         orderStatusDialog(false, title)
+'     end if
+' End Function
 
-'///////////////////////////////////////////////
-' Order Status Dialog
-Function orderStatusDialog(success as boolean, item as string) as void
-    dialog = CreateObject("roMessageDialog")
-    port = CreateObject("roMessagePort")
-    dialog.SetMessagePort(port)
-    if (success = true)
-        dialog.SetTitle("Order Completed Successfully")
-        str = "Your Purchase of '" + item + "' Completed Successfully"
-    else
-        dialog.SetTitle("Order Failed")
-        str = "Your Purchase of '" + item + "' Failed"
-    end if
+' '///////////////////////////////////////////////
+' ' Order Status Dialog
+' Function orderStatusDialog(success as boolean, item as string) as void
+'     dialog = CreateObject("roMessageDialog")
+'     port = CreateObject("roMessagePort")
+'     dialog.SetMessagePort(port)
+'     if (success = true)
+'         dialog.SetTitle("Order Completed Successfully")
+'         str = "Your Purchase of '" + item + "' Completed Successfully"
+'     else
+'         dialog.SetTitle("Order Failed")
+'         str = "Your Purchase of '" + item + "' Failed"
+'     end if
     
-    dialog.SetText(str)
-    dialog.AddButton(1, "OK")
-    dialog.EnableBackButton(true)
-    dialog.Show()
+'     dialog.SetText(str)
+'     dialog.AddButton(1, "OK")
+'     dialog.EnableBackButton(true)
+'     dialog.Show()
 
-    while true
-        dlgMsg = wait(0, dialog.GetMessagePort())
-        If type(dlgMsg) = "roMessageDialogEvent"
-            if dlgMsg.isButtonPressed()
-                if dlgMsg.GetIndex() = 1
-                    exit while
-                end if
-            else if dlgMsg.isScreenClosed()
-                exit while
-            end if
-        end if
-    end while
+'     while true
+'         dlgMsg = wait(0, dialog.GetMessagePort())
+'         If type(dlgMsg) = "roMessageDialogEvent"
+'             if dlgMsg.isButtonPressed()
+'                 if dlgMsg.GetIndex() = 1
+'                     exit while
+'                 end if
+'             else if dlgMsg.isScreenClosed()
+'                 exit while
+'             end if
+'         end if
+'     end while
 
-End Function
+' End Function
 
-Function invalidProductDialog(title)
-    dialog = CreateObject("roMessageDialog")
-    port = CreateObject("roMessagePort")
-    dialog.SetMessagePort(port)
-    dialog.SetTitle("Invalid Product")
-    str = "The product '" + title + "' is not available at the moment"
+' Function invalidProductDialog(title)
+'     dialog = CreateObject("roMessageDialog")
+'     port = CreateObject("roMessagePort")
+'     dialog.SetMessagePort(port)
+'     dialog.SetTitle("Invalid Product")
+'     str = "The product '" + title + "' is not available at the moment"
 
-    dialog.SetText(str)
-    dialog.AddButton(1, "OK")
-    dialog.EnableBackButton(true)
-    dialog.Show()
+'     dialog.SetText(str)
+'     dialog.AddButton(1, "OK")
+'     dialog.EnableBackButton(true)
+'     dialog.Show()
 
-    while true
-        dlgMsg = wait(0, dialog.GetMessagePort())
-        If type(dlgMsg) = "roMessageDialogEvent"
-            if dlgMsg.isButtonPressed()
-                if dlgMsg.GetIndex() = 1
-                    exit while
-                end if
-            else if dlgMsg.isScreenClosed()
-                exit while
-            end if
-        end if
-    end while
-End Function
+'     while true
+'         dlgMsg = wait(0, dialog.GetMessagePort())
+'         If type(dlgMsg) = "roMessageDialogEvent"
+'             if dlgMsg.isButtonPressed()
+'                 if dlgMsg.GetIndex() = 1
+'                     exit while
+'                 end if
+'             else if dlgMsg.isScreenClosed()
+'                 exit while
+'             end if
+'         end if
+'     end while
+' End Function

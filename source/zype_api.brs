@@ -236,6 +236,7 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
     data = response.response
   end if
 
+  'print "GetAppConfigs: "; data
   return data
 End Function
 
@@ -570,3 +571,39 @@ function DeleteVideoFavorite(consumer_id as String, video_favorite_id as String,
 
   return false
 end function
+
+
+'*************************
+' Get Subscription Plans
+'*************************
+Function GetPlans(urlParams = {} as Object)
+  url = GetApiConfigs().endpoint + "plans"
+  params = AppendAppKeyToParams(urlParams)
+  response = MakeRequest(url, params)
+  'print url
+  print "Plans Response: "; response
+  if response <> invalid
+    data = response.response
+  else if response = invalid
+    data = invalid
+  end if
+
+  return data
+End Function
+
+'****************************
+' Get Subscription Plan By ID
+'****************************
+Function GetPlan(id as String, urlParams as Object)
+  url = GetApiConfigs().endpoint + "plans/" + id
+  params = AppendAppKeyToParams(urlParams)
+  response = MakeRequest(url, params)
+  print url
+  if response <> invalid
+    data = response.response
+  else if response = invalid
+    data = invalid
+  end if
+
+  return data
+End Function

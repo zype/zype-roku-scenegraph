@@ -76,6 +76,19 @@
             focusedFont="dictionary:ButtonFont"
             focusBitmapUri="pkg:/images/button-focus.png"
             />
+        <LabelList
+            id="SubscriptionButtons"
+            translation="[106,550]"
+            color="0x333333"
+            focusedColor="0x333333"
+            numRows="5"
+            vertFocusAnimationStyle="floatingFocus"
+            itemSize="[350, 45]"
+            textHorizAlign="center"
+            font="dictionary:ButtonFont"
+            focusedFont="dictionary:ButtonFont"
+            focusBitmapUri="pkg:/images/button-focus.png"
+            />
 
         <!--Black hud at bottom of the Details Screen.-->
         <!--<Rectangle
