@@ -14,12 +14,13 @@ Sub RunUserInterface()
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
+    m.app = GetAppConfigs()
     
     getUserPurchases()
     getProductsCatalog()
 
-    m.scene.gridContent = ParseContent(GetContent())
-    ' m.scene.gridContent = ParseContent(GetPlaylistsAsRows("579116fc6689bc0d1d00f092"))
+    'm.scene.gridContent = ParseContent(GetContent())
+    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
 
 
     m.infoScreen = m.scene.findNode("InfoScreen")
@@ -98,17 +99,7 @@ Sub RunUserInterface()
                 '_isSubscribed = isSubscribed(detailScreenId)
                 _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
 
-                ' if(_isSubscribed)
-                '     playVideoButton(lclScreen)
-
-                ' ' Monthly subscription button was clicked
-                ' else
-                '     monthlySubscription(lclScreen)
-
-                ' end if
-
                 handleButtonEvents(1, _isSubscribed, lclScreen)
-
 
             else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" and msg.getData() = 1 then
                 print "[Main] Add to favorites"
@@ -134,16 +125,7 @@ Sub RunUserInterface()
                 '_isSubscribed = isSubscribed(detailScreenId)
                 _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
 
-                ' if(_isSubscribed)
-                '     markFavoriteButton(lclScreen)
-
-                ' ' Yearly subscription button was pressed
-                ' else
-                '     yearlySubscription(lclScreen)
-                ' end if
-
                 handleButtonEvents(2, _isSubscribed, lclScreen)
-
 
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
@@ -653,19 +635,7 @@ Function isSubscribed(subscriptionRequired) as boolean
         end if
     end for
     return subscribed
-    ' monthlyCode = id + "_m"
-    ' yearlyCode = id + "_y"
-    ' owned = false
-    ' for each pi in m.purchasedItems
-    '     ' Current item on Detail Screen is either subscribed monthly or yearly
-	'     if (monthlyCode = pi.code or yearlyCode = pi.code)
-	'         owned = true
-	' 	    exit for
-	'     end if
-	' end for
-    ' return owned
 End Function
-
 
 '///////////////////////////////////
 ' LabelList click handlers go here
@@ -693,7 +663,9 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
 
         else            ' Sign In
             print "Handle Else -> else"
-            ShowSignInOptionsDialog()
+            'ShowSignInOptionsDialog()
+            m.deviceLinking.show = true
+            m.deviceLinking.setFocus(true)
         end if
     end if
 End Function
@@ -714,9 +686,6 @@ Function ShowPackagesDialog()
     screen.SetMessagePort(m.port)
     screen.SetTitle("Subscribe")
     screen.SetText("Please select your preferred subscription plan to continue")
-
-    'screen.AddButton(1, "Link Device to Existing Account")
-    'screen.AddButton(2, "Restore Roku Purchase")
 
     index = 1
     for each plan in plans
@@ -746,14 +715,14 @@ Function ShowPackagesDialog()
 End Function
 
 Function HandlePackagesEvents(index, plans)
-    if(index = 1)
-        print "Monthly Plan"
-        monthlySubscription(plans, index, m.store, m.port, m.productsCatalog)
+    ' if(index = 1)
+    '     print "Monthly Plan"
+        startSubscriptionWizard(plans, index, m.store, m.port, m.productsCatalog)
 
-    else if(index = 2)
-        print "Yearly Plan"
-        yearlySubscription(plans, index, m.store, m.port, m.productsCatalog)
-    end if
+    ' else if(index = 2)
+    '     print "Yearly Plan"
+    '     yearlySubscription(plans, index, m.store, m.port, m.productsCatalog)
+    ' end if
 End Function
 
 Function ShowSignInOptionsDialog()
@@ -820,105 +789,3 @@ Function markFavoriteButton(lclScreen)
         end if
     end if
 End Function
-
-' '///////////////////////////////////////////////
-' ' Make Purchase
-' Function makePurchase(title, code) as void
-'     if(isValidProduct(code) = false)
-'         invalidProductDialog(title)
-'         return
-'     end if
-'     result = m.store.GetUserData()
-'     if (result = invalid)
-'         return
-'     end if
-'     order = [{
-'         code: code
-'         qty: 1        
-'     }]
-    
-'     val = m.store.SetOrder(order)
-'     res = m.store.DoOrder()
-
-'     purchaseDetails = invalid
-'     error = {}
-'     while (true)
-'         msg = wait(0, m.port)
-'         if (type(msg) = "roChannelStoreEvent")
-'             if(msg.isRequestSucceeded())
-'                 ' purchaseDetails can be used for any further processing of the transactional information returned from roku store.
-'                 purchaseDetails = msg.GetResponse()
-'             else
-'                 error.status = msg.GetStatus()
-'                 error.statusMessage = msg.GetStatusMessage()
-'             end if
-'             exit while
-'         end if
-'     end while
-
-'     if (res = true)
-'         orderStatusDialog(true, title)
-'     else
-'         orderStatusDialog(false, title)
-'     end if
-' End Function
-
-' '///////////////////////////////////////////////
-' ' Order Status Dialog
-' Function orderStatusDialog(success as boolean, item as string) as void
-'     dialog = CreateObject("roMessageDialog")
-'     port = CreateObject("roMessagePort")
-'     dialog.SetMessagePort(port)
-'     if (success = true)
-'         dialog.SetTitle("Order Completed Successfully")
-'         str = "Your Purchase of '" + item + "' Completed Successfully"
-'     else
-'         dialog.SetTitle("Order Failed")
-'         str = "Your Purchase of '" + item + "' Failed"
-'     end if
-    
-'     dialog.SetText(str)
-'     dialog.AddButton(1, "OK")
-'     dialog.EnableBackButton(true)
-'     dialog.Show()
-
-'     while true
-'         dlgMsg = wait(0, dialog.GetMessagePort())
-'         If type(dlgMsg) = "roMessageDialogEvent"
-'             if dlgMsg.isButtonPressed()
-'                 if dlgMsg.GetIndex() = 1
-'                     exit while
-'                 end if
-'             else if dlgMsg.isScreenClosed()
-'                 exit while
-'             end if
-'         end if
-'     end while
-
-' End Function
-
-' Function invalidProductDialog(title)
-'     dialog = CreateObject("roMessageDialog")
-'     port = CreateObject("roMessagePort")
-'     dialog.SetMessagePort(port)
-'     dialog.SetTitle("Invalid Product")
-'     str = "The product '" + title + "' is not available at the moment"
-
-'     dialog.SetText(str)
-'     dialog.AddButton(1, "OK")
-'     dialog.EnableBackButton(true)
-'     dialog.Show()
-
-'     while true
-'         dlgMsg = wait(0, dialog.GetMessagePort())
-'         If type(dlgMsg) = "roMessageDialogEvent"
-'             if dlgMsg.isButtonPressed()
-'                 if dlgMsg.GetIndex() = 1
-'                     exit while
-'                 end if
-'             else if dlgMsg.isScreenClosed()
-'                 exit while
-'             end if
-'         end if
-'     end while
-' End Function

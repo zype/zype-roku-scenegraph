@@ -20,6 +20,12 @@ Function makePurchase(title, code, store, port, products) as void
     
     val = store.SetOrder(order)
     res = store.DoOrder()
+    _data = {} 
+
+    _data.userData = result
+    _data.order = order
+    _data.value = val
+    _data.result = res
 
     purchaseDetails = invalid
     error = {}
@@ -29,6 +35,12 @@ Function makePurchase(title, code, store, port, products) as void
             if(msg.isRequestSucceeded())
                 ' purchaseDetails can be used for any further processing of the transactional information returned from roku store.
                 purchaseDetails = msg.GetResponse()
+                _data.response = purchaseDetails
+                ' print "Data.UserData: "; _data.userData
+                ' print "Data.Order[0]: "; _data.order[0]
+                ' print "Data.Response[0]: "; _data.response[0]
+                finalData = PrepareConsumerData(_data)
+                print "finalData: "; finalData
             else
                 error.status = msg.GetStatus()
                 error.statusMessage = msg.GetStatusMessage()
@@ -61,17 +73,29 @@ End Function
 
 ' The logic for the following two functions can be combined and made dynamic. To-Do
 
-Function monthlySubscription(plans, index, store, port, productsCatalog)
-    'id = lclScreen.content.id.tokenize(":")
-    'makePurchase(lclScreen.content.title, "svod-monthly", store, port, productsCatalog)
+Function startSubscriptionWizard(plans, index, store, port, productsCatalog)
     print "plans: "; plans[index - 1]
     ' 584ac20e70d7637d5da333de
     makePurchase(plans[index - 1].name, plans[index - 1]._id, store, port, productsCatalog)
 End Function
 
-Function yearlySubscription(plans, index, store, port, productsCatalog)
-    'id = lclScreen.content.id.tokenize(":")
-    print "plans: "; plans[index - 1]
-    ' 584ac20e70d7637d5da333df
-    makePurchase(plans[index - 1].name, plans[index - 1]._id, store, port, productsCatalog)
+Function PrepareConsumerData(data)
+    d = {}
+    d.city = data.userData.city
+    d.country = data.userData.country
+    d.email = data.userData.email
+    d.firstname = data.userData.firstname
+    d.lastname = data.userData.lastname
+    d.phone = data.userData.phone
+    d.state = data.userData.state
+    d.street1 = data.userData.street1
+    d.street2 = data.userData.street2
+    d.zip = data.userData.zip
+    d.amount = data.response[0].amount
+    d.code = data.response[0].code
+    d.freeTrialQuantity = data.response[0].freeTrialQuantity
+    d.purchaseId = data.response[0].purchaseId
+    d.qty = data.response[0].qty
+    d.total = data.response[0].total
+    return d
 End Function

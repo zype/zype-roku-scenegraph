@@ -229,16 +229,30 @@ Function OnKeyEvent(key, press) as Boolean
 
             else if m.deviceLinking.visible = true
                 ' if Device Linking is visible - it must be last element
-                search = m.screenStack.pop()
-                search.show = false
+                print "m.screenStack: "; m.screenStack
+                print "m.screenStack[0]: "; m.screenStack[0]
+                print "m.screenStack[1]: "; m.screenStack[1]
+                print "m.detailsScreen.visible: "; m.detailsScreen.visible
+
+                ' If link device was launched from detail screen, do not run the following two lines.
+                if (m.detailsScreen.visible = false)
+                    search = m.screenStack.pop()
+                    search.show = false
+                end if
 
                 m.deviceLinking.show = false
                 m.deviceLinking.setFocus(false)
+
+                print "m.screenStack: "; m.screenStack
+                print "m.screenStack[0]: "; m.screenStack[0]
+                print "m.screenStack[1]: "; m.screenStack[1]
+                'm.detailsScreen.setFocus(true)
 
                 ' after Device Linking screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                 ' open last screen before search and focus it
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)
+                
                 result = true
             end if
 

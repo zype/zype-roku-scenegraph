@@ -27,6 +27,8 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         ? "key == ";  key
         if key = "options" then
             result = true
+        else if key = "back" then
+            print "Back button from Device Linking Screen"
         end if
     end if
     return result

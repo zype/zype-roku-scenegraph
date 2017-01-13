@@ -236,7 +236,7 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
     data = response.response
   end if
 
-  'print "GetAppConfigs: "; data
+  print "GetAppConfigs: "; data
   return data
 End Function
 
@@ -599,6 +599,19 @@ Function GetPlan(id as String, urlParams as Object)
   params = AppendAppKeyToParams(urlParams)
   response = MakeRequest(url, params)
   print url
+  if response <> invalid
+    data = response.response
+  else if response = invalid
+    data = invalid
+  end if
+
+  return data
+End Function
+
+Function SaveSubscriptionData(_data, urlParams as Object)
+  url = GetApiConfigs().endpoint + "save-subscription/"
+  params = AppendAppKeyToParams(urlParams)
+  response = MakePostRequest(url, _data)
   if response <> invalid
     data = response.response
   else if response = invalid

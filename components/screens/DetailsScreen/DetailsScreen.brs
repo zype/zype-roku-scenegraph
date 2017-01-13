@@ -15,6 +15,7 @@ Function Init()
     m.background        =   m.top.findNode("Background")
 
     m.canWatchVideo = false
+    m.buttons.setFocus(true)
 
 End Function
 
@@ -119,7 +120,8 @@ Sub AddActionButtons()
     if m.top.content <> invalid then
         ' create buttons
         result = []
-        btns = ["Subscribe", "Sign In"]
+        'btns = ["Subscribe", "Sign In"]
+        btns = ["Subscribe", "Link Device"]
         for each button in btns
             result.push({title : button})
         end for
