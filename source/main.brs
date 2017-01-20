@@ -18,10 +18,12 @@ Sub RunUserInterface()
     
     getUserPurchases()
     getProductsCatalog()
-
+    TestStoreFunction(1)
     'm.scene.gridContent = ParseContent(GetContent())
     m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
-
+    m.plans = GetPlans({})
+    m.scene.SubscriptionPlans = m.plans
+    'print "Type: "; type(m.productsCatalog)
 
     m.infoScreen = m.scene.findNode("InfoScreen")
     m.infoScreenText = m.infoScreen.findNode("Info")
@@ -40,6 +42,8 @@ Sub RunUserInterface()
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.detailsScreen.observeField("itemSelected", m.port)
+    m.detailsScreen.SubscriptionPlans = m.plans
+    m.detailsScreen.productsCatalog = m.productsCatalog
 
     m.scene.observeField("SearchString", m.port)
 
@@ -54,7 +58,7 @@ Sub RunUserInterface()
     ' print pl
 
     LoadLimitStream() ' Load LimitStream Object
-    print GetLimitStreamObject()
+    'print GetLimitStreamObject()
 
     while(true)
         msg = wait(0, m.port)
@@ -70,7 +74,7 @@ Sub RunUserInterface()
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id))
 
                 rowList = m.gridScreen.findNode("RowList")
-                print rowList
+                'print rowList
                 m.loadingIndicator.control = "stop"
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
                 m.loadingIndicator.control = "start"
@@ -91,7 +95,7 @@ Sub RunUserInterface()
                     lclScreen = m.detailsScreen
                 end if
 
-                print "THIS IS THE CONTENT"; lclScreen.content
+                'print "THIS IS THE CONTENT"; lclScreen.content
 
                 detailScreenIdFull = lclScreen.content.id
                 detailScreenIdObj = detailScreenIdFull.tokenize(":")
@@ -117,7 +121,7 @@ Sub RunUserInterface()
                     lclScreen = m.detailsScreen
                 end if
 
-                print lclScreen
+                'print lclScreen
                 
                 detailScreenIdFull = lclScreen.content.id
                 detailScreenIdObj = detailScreenIdFull.tokenize(":")
@@ -132,7 +136,7 @@ Sub RunUserInterface()
                 ' print GetLimitStreamObject().limit
                 'print m.videoPlayer
                 GetLimitStreamObject().played = GetLimitStreamObject().played + 1
-                print  GetLimitStreamObject().played
+                'print  GetLimitStreamObject().played
                 if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
                     if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
                         m.videoPlayer.visible = false
@@ -203,7 +207,7 @@ Sub RunUserInterface()
 End Sub
 
 sub playLiveVideo(screen as Object)
-    print "THE KEY: "; GetApiConfigs()
+    'print "THE KEY: "; GetApiConfigs()
     if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
         playVideo(screen, {"app_key": GetApiConfigs().app_key})
     else
@@ -306,7 +310,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
     playContent = true
     if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
         adIface = Roku_Ads() 'RAF initialize
-        print "Roku_Ads library version: " + adIface.getLibVersion()
+        'print "Roku_Ads library version: " + adIface.getLibVersion()
         adIface.setAdPrefs(true, 2)
         adIface.setDebugOutput(true) 'for debug pupropse
 
@@ -354,7 +358,7 @@ function GetSearchContent(SearchString as String)
     videos = []
     for each video in GetVideos(params)
         video.inFavorites = favs.DoesExist(video._id)
-        print video
+        'print video
         videos.push(CreateVideoObject(video))
     end for
     row.ContentList = videos
@@ -397,7 +401,7 @@ function GetFavoritesContent()
 
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
     if HasUDID() = true and deviceLinking.linked = true
-        print "Consumer ID: "; deviceLinking.consumer_id
+        'print "Consumer ID: "; deviceLinking.consumer_id
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         videoFavorites = GetVideoFavorites(deviceLinking.consumer_id, {"access_token": oauth.access_token, "per_page": "100"})
 
@@ -422,7 +426,7 @@ end function
 Function ParseContent(list As Object)
 
     RowItems = createObject("RoSGNode","ContentNode")
-
+    
     ' videoObject = createObject("RoSGNode", "VideoNode")
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
@@ -437,7 +441,7 @@ Function ParseContent(list As Object)
             end for
 
             print "***********************************************"
-            print itemAA
+            'print itemAA
             ' Get the ID element from itemAA and check if the product against that id was subscribed
             if(isSubscribed(itemAA["subscriptionrequired"]))
                 isSub = "True"
@@ -453,7 +457,7 @@ Function ParseContent(list As Object)
         RowItems.appendChild(row)
     end for
 
-    print RowItems.metadata
+    'print RowItems.metadata
     return RowItems
 End Function
 
@@ -475,7 +479,7 @@ Function GetContent()
         videos = []
         for each video in GetVideos(params)
             video.inFavorites = favs.DoesExist(video._id)
-            print video
+            'print video
             videos.push(CreateVideoObject(video))
         end for
 
@@ -499,7 +503,7 @@ function GetPlaylistContent(playlist_id as String)
         videos = []
         for each video in GetPlaylistVideos(pl._id)
             video.inFavorites = favs.DoesExist(video._id)
-            print video
+            'print video
             videos.push(CreateVideoObject(video))
         end for
         row.ContentList = videos
@@ -548,7 +552,7 @@ function GetPlaylistsAsRows(parent_id as String)
             videos = []
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
                 video.inFavorites = favs.DoesExist(video._id)
-                print video
+                'print video
                 videos.push(CreateVideoObject(video))
             end for
             row.ContentList = videos
@@ -562,11 +566,8 @@ function GetPlaylistsAsRows(parent_id as String)
         list.push(row)
     end for
 
-
-
     return list
 end function
-
 
 '/////////////////////////////////////////////////
 ' Get a list of items in the product catalog
@@ -629,12 +630,30 @@ Function isSubscribed(subscriptionRequired) as boolean
     subscribed = false
 
     for each pi in m.purchasedItems
-        if(pi.code = "svod-monthly" OR pi.code = "svod-yearly") ' Means the user has subscribed to atleast one of these
+        if(isPlanPurchased(pi.code)) ' Means the user has subscribed to atleast one of these
             subscribed = true
             exit for
         end if
     end for
     return subscribed
+End Function
+
+' ///////////////////////////////////////////////////////////////////////////////////
+' Check to see if the purchased product returned from roku store matches one of the 
+' subscription plans we have. Plan ID is being used as the roku product code here.
+Function isPlanPurchased(code)
+    plans = GetPlans({})
+    isPurchased = false
+    print "Plans: ";plans
+    for each p in plans
+        print "p._id: ";p._id 
+        if(p._id = code)
+            isPurchased = true
+            exit for
+        end if
+    end for
+    'print "isPurchased: "; isPurchased
+    return isPurchased
 End Function
 
 '///////////////////////////////////
@@ -644,6 +663,7 @@ End Function
 Function handleButtonEvents(index, _isSubscribed, lclScreen)
     print "Handle Event: "; isSubscribed
     if(isLoggedIn() OR lclScreen.content.subscriptionRequired = false)    ' Play / Favorite buttons
+        m.detailsScreen.SubscriptionButtonsShown = false
         print "LoggedIn"
         ' This is going to be the Play button
         if(index = 1 and (_isSubscribed = true OR lclScreen.content.subscriptionRequired = false))
@@ -657,15 +677,29 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
 
     else    ' Subscribe / Sign In buttons
         print "Handle Else: "
+        m.detailsScreen.SubscriptionButtonsShown = true
         if(index = 1)   ' Subscribe
-            print "Handle Else -> If"
-            ShowPackagesDialog()
+            if(m.detailsScreen.SubscriptionPackagesShown = false)
+                ' All subscription button code goes here
+                print "Subscription Button Clicked"
+                m.detailsScreen.SubscriptionPackagesShown = true
+            else
+                ' First package was selected by the user. Start the wizard.
+                print "First package button clicked"
+                startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
+                'm.detailsScreen.SubscriptionPackagesShown = false
+            end if
 
-        else            ' Sign In
-            print "Handle Else -> else"
-            'ShowSignInOptionsDialog()
-            m.deviceLinking.show = true
-            m.deviceLinking.setFocus(true)
+        else            ' Device Linking
+            if(m.detailsScreen.SubscriptionPackagesShown = false)
+                print "Device Linking Button Clicked"
+                'ShowSignInOptionsDialog()
+                m.deviceLinking.show = true
+                m.deviceLinking.setFocus(true)
+            else
+                print "Second package button clicked"
+                startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
+            end if
         end if
     end if
 End Function
@@ -679,76 +713,8 @@ Function isLoggedIn()
     return false
 End Function
 
-Function ShowPackagesDialog()
-    plans = GetPlans({})
-
-    screen = CreateObject("roMessageDialog")
-    screen.SetMessagePort(m.port)
-    screen.SetTitle("Subscribe")
-    screen.SetText("Please select your preferred subscription plan to continue")
-
-    index = 1
-    for each plan in plans
-        print "Plan: "; plan
-        if(plan.active = true)
-            screen.AddButton(index, plan.name + " at " + plan.amount + " " + plan.currency)
-        end if
-        index = index + 1
-    end for
-
-    screen.EnableBackButton(true)
-    screen.Show()
-
-    while true
-        msg = wait(0, m.port)
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed() then 'ScreenClosed event'
-                'print "Closing video screen"
-                exit while
-            else if msg.isButtonPressed() then
-                HandlePackagesEvents(msg.GetIndex(), plans)
-            else
-                'print "Unknown event: "; msg.GetType(); " msg: "; msg.GetMessage()
-            end if
-        end if
-    end while
-End Function
-
 Function HandlePackagesEvents(index, plans)
-    ' if(index = 1)
-    '     print "Monthly Plan"
-        startSubscriptionWizard(plans, index, m.store, m.port, m.productsCatalog)
-
-    ' else if(index = 2)
-    '     print "Yearly Plan"
-    '     yearlySubscription(plans, index, m.store, m.port, m.productsCatalog)
-    ' end if
-End Function
-
-Function ShowSignInOptionsDialog()
-    print "ShowSignInOptionsDialog"
-    screen = CreateObject("roMessageDialog")
-    screen.SetMessagePort(m.port)
-    screen.SetTitle("Sign In")
-    screen.SetText("Please select your preferred method to sign in")
-    screen.AddButton(1, "Link Device to Existing Account")
-    screen.AddButton(2, "Restore Roku Purchase")
-    screen.EnableBackButton(true)
-    screen.Show()
-
-    while true
-        msg = wait(0, m.port)
-        if type(msg) = "roMessageDialogEvent"
-            if msg.isScreenClosed() then 'ScreenClosed event'
-                'print "Closing video screen"
-                exit while
-            else if msg.isButtonPressed() then
-                HandleSignInButtonEvents(msg.GetIndex(), screen)
-            else
-                'print "Unknown event: "; msg.GetType(); " msg: "; msg.GetMessage()
-            end if
-        end if
-    end while
+    startSubscriptionWizard(plans, index, m.store, m.port, m.productsCatalog)
 End Function
 
 Function HandleSignInButtonEvents(buttonIndex, screen)

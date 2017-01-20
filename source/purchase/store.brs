@@ -44,6 +44,7 @@ Function makePurchase(title, code, store, port, products) as void
             else
                 error.status = msg.GetStatus()
                 error.statusMessage = msg.GetStatusMessage()
+                print "Error: ";error
             end if
             exit while
         end if
@@ -71,8 +72,6 @@ Function isValidProduct(code, products)
     return valid
 End Function
 
-' The logic for the following two functions can be combined and made dynamic. To-Do
-
 Function startSubscriptionWizard(plans, index, store, port, productsCatalog)
     print "plans: "; plans[index - 1]
     ' 584ac20e70d7637d5da333de
@@ -98,4 +97,8 @@ Function PrepareConsumerData(data)
     d.qty = data.response[0].qty
     d.total = data.response[0].total
     return d
+End Function
+
+Function TestStoreFunction(a)
+    print "Testing Store Function: "; a
 End Function

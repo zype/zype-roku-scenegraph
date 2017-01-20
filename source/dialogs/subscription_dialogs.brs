@@ -22,11 +22,11 @@ Function orderStatusDialog(success as boolean, item as string) as void
         If type(dlgMsg) = "roMessageDialogEvent"
             if dlgMsg.isButtonPressed()
                 if dlgMsg.GetIndex() = 1
-                    RunUserInterface()
+                    'RunUserInterface()
                     exit while
                 end if
             else if dlgMsg.isScreenClosed()
-                RunUserInterface()
+                'RunUserInterface()
                 exit while
             end if
         end if

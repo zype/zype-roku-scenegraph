@@ -67,6 +67,7 @@ Function OnRowItemSelected()
         m.detailsScreen.visible = "true"
         m.screenStack.push(m.detailsScreen)
     end if
+    print "Subscription Plans: "; m.top.SubscriptionPlans
 End Function
 
 ' On Menu Button Selected

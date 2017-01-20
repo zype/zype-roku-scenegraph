@@ -17,11 +17,26 @@
         <!-- Content fields -->
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
 
+        <!-- Subscription Buttons Shown -->
+        <field id="SubscriptionButtonsShown" type="bool" />
+
+        <!-- Subscription Packages Shown -->
+        <field id="SubscriptionPackagesShown" type="bool" />
+
+        <!-- Subscription Plans -->
+        <field id="SubscriptionPlans" type="roArray" />
+
+        <!-- Products Catalog -->
+        <field id="ProductsCatalog" type="roArray" />
+
         <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
     </interface>
 
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/DetailsScreen/DetailsScreen.brs" />
+
+    <!-- store functions -->
+    <script type="text/brightscript" uri="pkg:/source/purchase/store.brs" />
 
     <children>
         <!-- Main Background -->

@@ -4,6 +4,7 @@
  ' configures buttons for Details screen
 Function Init()
     ? "[DetailsScreen] init"
+    'TestStoreFunction(2)
 
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
@@ -16,12 +17,15 @@ Function Init()
 
     m.canWatchVideo = false
     m.buttons.setFocus(true)
+    'm.plans = GetPlans({})
+
 
 End Function
 
 ' set proper focus to buttons if Details opened and stops Video if Details closed
 Sub onVisibleChange()
     ? "[DetailsScreen] onVisibleChange"
+    'print "[DetailsScreen] m.top.SubscriptionButtonsShown; "; m.top.SubscriptionButtonsShown
     if m.top.visible = true then
         m.buttons.jumpToItem = 0
         m.buttons.setFocus(true)
@@ -63,15 +67,32 @@ Sub onItemSelected()
     ' first button pressed
     if m.top.itemSelected = 0
         m.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+
+        if(m.top.SubscriptionPackagesShown = true)  ' If packages are shown and one of them was clicked, start wizard.
+            ' Subscription Wizard
+            print "Subscription Wizard"
+        else
+            if(m.top.SubscriptionButtonsShown = false)
+                print "====== Play Button was clicked"
+            else
+                print "====== Subscription button clicked"
+                AddPackagesButtons()
+                'm.top.SubscriptionPackagesShown = true
+                print "Subscription Plans++: "; m.top.SubscriptionPlans[0]
+            end if
+        end if
+
     ' second button pressed
     else if m.top.itemSelected = 1
         ? "[DetailsScreen] Favorite button selected"
     end if
+    print "[DetailsScreen] m.top.SubscriptionButtonsShown; "; m.top.SubscriptionButtonsShown
 End Sub
 
 ' Content change handler
 Sub OnContentChange()
     print "Content: "; m.top.content
+    m.top.SubscriptionPackagesShown = false
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
@@ -83,8 +104,10 @@ Sub OnContentChange()
 
         if(m.canWatchVideo)
             AddButtons()
+            m.top.SubscriptionButtonsShown = false
         else
             AddActionButtons()
+            m.top.SubscriptionButtonsShown = true
         end if
 
         m.description.content   = m.top.content
@@ -122,6 +145,25 @@ Sub AddActionButtons()
         result = []
         'btns = ["Subscribe", "Sign In"]
         btns = ["Subscribe", "Link Device"]
+        for each button in btns
+            result.push({title : button})
+        end for
+        m.buttons.content = ContentList2SimpleNode(result)
+    end if
+End Sub
+
+Sub AddPackagesButtons()
+    if m.top.content <> invalid then
+        ' create buttons
+        result = []
+        btns = []
+        'btns = ["Subscribe", "Sign In"]
+        'btns = ["Subscribe", "Link Device"]
+
+        for each plan in m.top.SubscriptionPlans
+           btns.push(plan["name"] + " at " + plan["amount"] + " " + plan["currency"])
+        end for
+        
         for each button in btns
             result.push({title : button})
         end for
