@@ -246,10 +246,12 @@ sub playRegularVideo(screen as Object)
             oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
             if oauth <> invalid
 
-                ' print lclScreen.content.id
+                print screen.content.id
+                idParts = screen.content.id.tokenize(":")
+                id = idParts[0]
                 ' playVideo(lclScreen, oauth.access_token)
 
-                if IsEntitled(screen.content.id, {"access_token": oauth.access_token}) = true
+                if IsEntitled(id, {"access_token": oauth.access_token}) = true
                     playVideo(screen, {"access_token": oauth.access_token})
                 else
                     dialog = createObject("roSGNode", "Dialog")
