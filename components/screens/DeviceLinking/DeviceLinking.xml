@@ -9,6 +9,9 @@
         <!-- Alias to PIN label -->
         <field id="Pin" type="node" alias=""/>
 
+        <!-- Device linking url -->
+        <field id="DeviceLinkingURL" type="string" />
+
         <!-- WRITE-ONLY. Shows/hides the component on the scene.
         True = show; False = hide. -->
         <field id="show" type="boolean"     onChange="On_show"            alwaysNotify="true"/>

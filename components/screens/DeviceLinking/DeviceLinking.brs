@@ -6,7 +6,7 @@ Function Init()
     ? "[DeviceLinking] Init"
 
     m.linkText = m.top.findNode("LinkText")
-    m.linkText.text = "Please, visit havoc.com to link your device!"
+    'm.linkText.text = "Please, visit havoc.com to link your device!"
 
     di = CreateObject("roDeviceInfo")
     m.pin = m.top.findNode("Pin")
@@ -18,6 +18,7 @@ sub On_show()
 
     m.top.visible = m.top.show
     m.top.setFocus(m.top.show)
+    m.linkText.text = "Please visit " + m.top.DeviceLinkingURL + " to link your device!"
 end sub
 
 function onKeyEvent(key as String, press as Boolean) as Boolean

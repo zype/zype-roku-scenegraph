@@ -52,6 +52,8 @@ Sub RunUserInterface()
     m.scene.observeField("playlistItemSelected", m.port)
 
     m.deviceLinking = m.scene.findNode("DeviceLinking")
+    'm.deviceLinking.DeviceLinkingText = "Please visit " + m.app.device_link_url + " to link your device!"
+    m.deviceLinking.DeviceLinkingURL = m.app.device_link_url
     m.deviceLinking.observeField("show", m.port)
 
     ' pl = CreatePlaylistObject(GetPlaylists({"id": "57928ae4e7b34c2c06000005"})[0])
@@ -673,6 +675,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         
         else if(index = 2)  ' This is going to be the favorites button
             print "LoggedIn Else If: "
+            markFavoriteButton(lclScreen)
         end if
 
     else    ' Subscribe / Sign In buttons
@@ -741,16 +744,21 @@ Function playVideoButton(lclScreen)
 End Function
 
 Function markFavoriteButton(lclScreen)
+    print "lclScreen: ";lclScreen.content
+    idParts = lclScreen.content.id.tokenize(":")
+    id = idParts[0]
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
     if HasUDID() = true and deviceLinking.linked = true
         favs = GetFavoritesIDs()
         print "Consumer ID: "; deviceLinking.consumer_id
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         if lclScreen.content.inFavorites = false
-            CreateVideoFavorite(deviceLinking.consumer_id, {"access_token": oauth.access_token, "video_id": lclScreen.content.id })
+            print "CreateVideoFavorite"
+            CreateVideoFavorite(deviceLinking.consumer_id, {"access_token": oauth.access_token, "video_id": id })
             lclScreen.content.inFavorites = true
         else
-            DeleteVideoFavorite(deviceLinking.consumer_id, favs[lclScreen.content.id], {"access_token": oauth.access_token, "video_id": lclScreen.content.id, "_method": "delete"})
+            print "DeleteVideoFavorite"
+            DeleteVideoFavorite(deviceLinking.consumer_id, favs[id], {"access_token": oauth.access_token, "video_id": id, "_method": "delete"})
             lclScreen.content.inFavorites = false
         end if
     end if
