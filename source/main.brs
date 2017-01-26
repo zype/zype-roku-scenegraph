@@ -8,9 +8,10 @@ Sub RunUserInterface()
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
     screen.Show()
+    m.app = GetAppConfigs()
 
     m.scene.gridContent = ParseContent(GetContent())
-    ' m.scene.gridContent = ParseContent(GetPlaylistsAsRows("579116fc6689bc0d1d00f092"))
+    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
 
 
     m.infoScreen = m.scene.findNode("InfoScreen")
@@ -82,6 +83,7 @@ Sub RunUserInterface()
                 end if
 
                 print "THIS IS THE CONTENT"; lclScreen.content
+                print "Meta Data: "; lclScreen.content.MetaData
 
                 if lclScreen.content.onAir = false
                     playRegularVideo(lclScreen)
@@ -272,6 +274,7 @@ sub playVideo(screen as Object, auth As Object)
     end if
 
     m.loadingIndicator.control = "stop"
+    print "[Main] Before Video Playing: "; screen.content
     print "[Main] Playing video"
     m.videoPlayer.visible = true
     m.videoPlayer.setFocus(true)
@@ -283,47 +286,61 @@ sub playVideoWithAds(screen as Object, auth as Object)
     ' print "FUNC: PlayVideo: ", screen.content
     playerInfo = GetPlayerInfo(screen.content.id, auth)
 
+    print "screen.content.streamFormat: "; type(screen.content.streamFormat)
     screen.content.stream = playerInfo.stream
     screen.content.streamFormat = playerInfo.streamFormat
     screen.content.url = playerInfo.url
 
-    ' show loading indicator before requesting ad and playing video
-    m.loadingIndicator.control = "start"
-    m.VideoPlayer = screen.findNode("VideoPlayer")
+    ' If video source is not available
+    if(screen.content.streamFormat = "(null)")
+        dialog = createObject("roSGNode", "Dialog")
+        dialog.title = "Error!"
+        dialog.optionsDialog = true
+        dialog.message = "We're sorry, that video is no longer available. Please try another video."
+        dialog.buttons = ["OK"]
+        dialog.focusButton = 0
+        m.scene.dialog = dialog
+    else 
+        ' show loading indicator before requesting ad and playing video
+        m.loadingIndicator.control = "start"
+        m.VideoPlayer = screen.findNode("VideoPlayer")
 
-    if playerInfo.on_air = true
-        m.VideoPlayer.observeField("position", m.port)
-    end if
-
-    playContent = true
-    if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-        adIface = Roku_Ads() 'RAF initialize
-        print "Roku_Ads library version: " + adIface.getLibVersion()
-        adIface.setAdPrefs(true, 2)
-        adIface.setDebugOutput(true) 'for debug pupropse
-
-        ' Normally, would set publisher's ad URL here.
-        ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
-        adIface.setAdUrl("")
-
-        'Returns available ad pod(s) scheduled for rendering or invalid, if none are available.
-        adPods = adIface.getAds()
+        if playerInfo.on_air = true
+            m.VideoPlayer.observeField("position", m.port)
+        end if
 
         playContent = true
-        'render pre-roll ads
-        if adPods <> invalid and adPods.count() > 0 then
+        if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
+            adIface = Roku_Ads() 'RAF initialize
+            print "Roku_Ads library version: " + adIface.getLibVersion()
+            adIface.setAdPrefs(true, 2)
+            adIface.setDebugOutput(true) 'for debug pupropse
+
+            ' Normally, would set publisher's ad URL here.
+            ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
+            adIface.setAdUrl("")
+
+            'Returns available ad pod(s) scheduled for rendering or invalid, if none are available.
+            adPods = adIface.getAds()
+
+            playContent = true
+            'render pre-roll ads
+            if adPods <> invalid and adPods.count() > 0 then
+                m.loadingIndicator.control = "stop"
+                playContent = adIface.showAds(adPods)
+            end if
+        end if
+
+        if playContent then
             m.loadingIndicator.control = "stop"
-            playContent = adIface.showAds(adPods)
+            print "[Main] Before Video Playing: "; screen.content
+            print "[Main] Playing video"
+            m.videoPlayer.visible = true
+            m.videoPlayer.setFocus(true)
+            m.videoPlayer.control = "play"
         end if
     end if
 
-    if playContent then
-        m.loadingIndicator.control = "stop"
-        print "[Main] Playing video"
-        m.videoPlayer.visible = true
-        m.videoPlayer.setFocus(true)
-        m.videoPlayer.control = "play"
-    end if
 end sub
 
 sub SearchQuery(SearchString as String)
