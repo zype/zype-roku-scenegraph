@@ -98,7 +98,3 @@ Function PrepareConsumerData(data)
     d.total = data.response[0].total
     return d
 End Function
-
-Function TestStoreFunction(a)
-    print "Testing Store Function: "; a
-End Function

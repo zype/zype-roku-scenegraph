@@ -18,7 +18,7 @@ Sub RunUserInterface()
     
     getUserPurchases()
     getProductsCatalog()
-    TestStoreFunction(1)
+
     'm.scene.gridContent = ParseContent(GetContent())
     m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.plans = GetPlans({})
