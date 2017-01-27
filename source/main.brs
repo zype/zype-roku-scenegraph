@@ -265,20 +265,31 @@ sub playVideo(screen as Object, auth As Object)
     screen.content.streamFormat = playerInfo.streamFormat
     screen.content.url = playerInfo.url
 
-    ' show loading indicator before requesting ad and playing video
-    m.loadingIndicator.control = "start"
-    m.VideoPlayer = screen.findNode("VideoPlayer")
+    ' If video source is not available
+    if(screen.content.streamFormat = "(null)")
+        dialog = createObject("roSGNode", "Dialog")
+        dialog.title = "Error!"
+        dialog.optionsDialog = true
+        dialog.message = "We're sorry, that video is no longer available. Please try another video."
+        dialog.buttons = ["OK"]
+        dialog.focusButton = 0
+        m.scene.dialog = dialog
+    else
+        ' show loading indicator before requesting ad and playing video
+        m.loadingIndicator.control = "start"
+        m.VideoPlayer = screen.findNode("VideoPlayer")
 
-    if screen.content.onAir = true
-        m.VideoPlayer.observeField("position", m.port)
+        if screen.content.onAir = true
+            m.VideoPlayer.observeField("position", m.port)
+        end if
+
+        m.loadingIndicator.control = "stop"
+        print "[Main] Before Video Playing: "; screen.content
+        print "[Main] Playing video"
+        m.videoPlayer.visible = true
+        m.videoPlayer.setFocus(true)
+        m.videoPlayer.control = "play"
     end if
-
-    m.loadingIndicator.control = "stop"
-    print "[Main] Before Video Playing: "; screen.content
-    print "[Main] Playing video"
-    m.videoPlayer.visible = true
-    m.videoPlayer.setFocus(true)
-    m.videoPlayer.control = "play"
 end sub
 
 sub playVideoWithAds(screen as Object, auth as Object)
