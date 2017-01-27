@@ -750,6 +750,7 @@ Function markFavoriteButton(lclScreen)
     idParts = lclScreen.content.id.tokenize(":")
     id = idParts[0]
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+    'deviceLinking.linked = false
     if HasUDID() = true and deviceLinking.linked = true
         favs = GetFavoritesIDs()
         print "Consumer ID: "; deviceLinking.consumer_id
@@ -763,5 +764,13 @@ Function markFavoriteButton(lclScreen)
             DeleteVideoFavorite(deviceLinking.consumer_id, favs[id], {"access_token": oauth.access_token, "video_id": id, "_method": "delete"})
             lclScreen.content.inFavorites = false
         end if
+    else
+        ' Means device is not linked. Show a message dialog
+        dialog = createObject("roSGNode", "Dialog")
+        dialog.title = "Link Your Device"
+        dialog.optionsDialog = true
+        dialog.message = "Please link your device in order to add this video to favorites."
+        dialog.buttons = ["OK"]
+        m.scene.dialog = dialog
     end if
 End Function
