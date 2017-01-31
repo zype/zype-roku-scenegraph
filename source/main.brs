@@ -44,6 +44,7 @@ Sub RunUserInterface()
     m.detailsScreen.observeField("itemSelected", m.port)
     m.detailsScreen.SubscriptionPlans = m.plans
     m.detailsScreen.productsCatalog = m.productsCatalog
+    m.detailsScreen.isLoggedIn = isLoggedIn()
 
     m.scene.observeField("SearchString", m.port)
 
@@ -186,6 +187,9 @@ Sub RunUserInterface()
 
                                 if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked then
                                     pin.text = "You are linked!"
+                                    idParts = m.detailsScreen.content.id.tokenize(":")
+                                    m.detailsScreen.content.id = idParts[0] + ":" + idParts[1]
+                                    m.detailsScreen.isLoggedIn = true
                                     exit while
                                 end if
                             end if
@@ -603,6 +607,7 @@ End Function
 ' Get a list of items that the user has purchased
 Function getUserPurchases() as void
     m.store.GetPurchases()
+    m.purchasedItems = []
     while (true)
         msg = wait(0, m.port)
         if (type(msg) = "roChannelStoreEvent")
@@ -666,7 +671,7 @@ End Function
 
 Function handleButtonEvents(index, _isSubscribed, lclScreen)
     print "Handle Event: "; isSubscribed
-    if(isLoggedIn() OR lclScreen.content.subscriptionRequired = false)    ' Play / Favorite buttons
+    if((isLoggedIn() AND _isSubscribed = true) OR lclScreen.content.subscriptionRequired = false)    ' Play / Favorite buttons
         m.detailsScreen.SubscriptionButtonsShown = false
         print "LoggedIn"
         ' This is going to be the Play button
@@ -691,8 +696,14 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
             else
                 ' First package was selected by the user. Start the wizard.
                 print "First package button clicked"
-                startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
+                result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
                 'm.detailsScreen.SubscriptionPackagesShown = false
+
+                ' if(result = true)
+                '     idParts = m.detailsScreen.content.id.tokenize(":")
+                '     m.detailsScreen.content.id = idParts[0] + ":True"
+                '     getUserPurchases()  ' Update the user purchased inventory
+                ' end if
             end if
 
         else            ' Device Linking
@@ -703,7 +714,13 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                 m.deviceLinking.setFocus(true)
             else
                 print "Second package button clicked"
-                startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
+                result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
+
+                ' if(result = true)
+                '     idParts = m.detailsScreen.content.id.tokenize(":")
+                '     m.detailsScreen.content.id = idParts[0] + ":True"
+                '     getUserPurchases()  ' Update the user purchased inventory
+                ' end if
             end if
         end if
     end if
@@ -718,24 +735,24 @@ Function isLoggedIn()
     return false
 End Function
 
-Function HandlePackagesEvents(index, plans)
-    startSubscriptionWizard(plans, index, m.store, m.port, m.productsCatalog)
-End Function
+' Function HandlePackagesEvents(index, plans)
+'     startSubscriptionWizard(plans, index, m.store, m.port, m.productsCatalog)
+' End Function
 
-Function HandleSignInButtonEvents(buttonIndex, screen)
-    if(buttonIndex = 1) ' Link Device
-        print "Link Device Button Pressed"
+' Function HandleSignInButtonEvents(buttonIndex, screen)
+'     if(buttonIndex = 1) ' Link Device
+'         print "Link Device Button Pressed"
 
-        screen.Close()
+'         screen.Close()
 
-        ' show and focus Device Linking
-        m.deviceLinking.show = true
-        m.deviceLinking.setFocus(true)
+'         ' show and focus Device Linking
+'         m.deviceLinking.show = true
+'         m.deviceLinking.setFocus(true)
 
-    else if(buttonIndex = 2)    ' Restore Roku Purchase
-        print "Restore Roku Purchase Button Pressed"
-    end if
-End Function
+'     else if(buttonIndex = 2)    ' Restore Roku Purchase
+'         print "Restore Roku Purchase Button Pressed"
+'     end if
+' End Function
 
 Function playVideoButton(lclScreen)
     if lclScreen.content.onAir = false

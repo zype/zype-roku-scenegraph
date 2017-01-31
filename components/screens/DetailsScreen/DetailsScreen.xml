@@ -17,6 +17,9 @@
         <!-- Content fields -->
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
 
+        <!-- If User is Logged In -->
+        <field id="isLoggedIn" type="bool"  alwaysnotify="true" onChange="OnContentChange"/>
+
         <!-- Subscription Buttons Shown -->
         <field id="SubscriptionButtonsShown" type="bool" />
 

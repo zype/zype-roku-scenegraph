@@ -4,14 +4,14 @@
 ' 1) Monthly Subscription 
 ' 2) Yearly Subscription
 
-Function makePurchase(title, code, store, port, products) as void
+Function makePurchase(title, code, store, port, products)
     if(isValidProduct(code, products) = false)
         invalidProductDialog(title)
-        return
+        return false
     end if
     result = store.GetUserData()
     if (result = invalid)
-        return
+        return false
     end if
     order = [{
         code: code
@@ -20,6 +20,7 @@ Function makePurchase(title, code, store, port, products) as void
     
     val = store.SetOrder(order)
     res = store.DoOrder()
+    success = false
     _data = {} 
 
     _data.userData = result
@@ -36,12 +37,14 @@ Function makePurchase(title, code, store, port, products) as void
                 ' purchaseDetails can be used for any further processing of the transactional information returned from roku store.
                 purchaseDetails = msg.GetResponse()
                 _data.response = purchaseDetails
+                success = true
                 ' print "Data.UserData: "; _data.userData
                 ' print "Data.Order[0]: "; _data.order[0]
                 ' print "Data.Response[0]: "; _data.response[0]
                 finalData = PrepareConsumerData(_data)
                 print "finalData: "; finalData
             else
+                success = false
                 error.status = msg.GetStatus()
                 error.statusMessage = msg.GetStatusMessage()
                 print "Error: ";error
@@ -50,11 +53,12 @@ Function makePurchase(title, code, store, port, products) as void
         end if
     end while
 
-    if (res = true)
+    if (success = true)
         orderStatusDialog(true, title)
     else
         orderStatusDialog(false, title)
     end if
+    return success
 End Function
 
 ' /////////////////////////////////////
@@ -75,7 +79,7 @@ End Function
 Function startSubscriptionWizard(plans, index, store, port, productsCatalog)
     print "plans: "; plans[index - 1]
     ' 584ac20e70d7637d5da333de
-    makePurchase(plans[index - 1].name, plans[index - 1]._id, store, port, productsCatalog)
+    return makePurchase(plans[index - 1].name, plans[index - 1]._id, store, port, productsCatalog)
 End Function
 
 Function PrepareConsumerData(data)

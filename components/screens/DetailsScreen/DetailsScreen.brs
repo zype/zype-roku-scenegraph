@@ -96,7 +96,7 @@ Sub OnContentChange()
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
-        if(m.top.content.subscriptionRequired = false OR idParts[1] = "True")
+        if(m.top.content.subscriptionRequired = false OR (idParts[1] = "True" AND m.top.isLoggedIn))
             m.canWatchVideo = true
         else
             m.canWatchVideo = false
