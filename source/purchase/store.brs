@@ -79,7 +79,8 @@ End Function
 Function startSubscriptionWizard(plans, index, store, port, productsCatalog)
     print "plans: "; plans[index - 1]
     ' 584ac20e70d7637d5da333de
-    return makePurchase(plans[index - 1].name, plans[index - 1]._id, store, port, productsCatalog)
+    'return makePurchase(plans[index - 1].name, plans[index - 1]._id, store, port, productsCatalog)
+    return makePurchase(productsCatalog[index - 1].title, plans[index - 1]._id, store, port, productsCatalog)
 End Function
 
 Function PrepareConsumerData(data)

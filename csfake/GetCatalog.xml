@@ -16,7 +16,7 @@
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
                         <inStock>true</inStock>
                         <maxQty>8</maxQty>
-                        <name>Monthly Subscription</name>
+                        <name>Monthly Subscription1</name>
                         <productType>MonthlySub</productType>
                         <purchaseDate>0001-01-01T00:00:00</purchaseDate>
                         <purchaseId i:nil="true"/>
@@ -36,7 +36,7 @@
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
                         <inStock>true</inStock>
                         <maxQty>8</maxQty>
-                        <name>Yearly Subscription</name>
+                        <name>Yearly Subscription1</name>
                         <productType>YearlySub</productType>
                         <purchaseDate>0001-01-01T00:00:00</purchaseDate>
                         <purchaseId i:nil="true"/>

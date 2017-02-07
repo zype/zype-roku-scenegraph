@@ -575,20 +575,39 @@ end function
 
 '*************************
 ' Get Subscription Plans
+' ----------------------
+' If in_app_purchase is true then get the prices and plans from Roku Store.
+' If in_app_purchase is false then get the prices and plans from zype API.
 '*************************
-Function GetPlans(urlParams = {} as Object)
-  url = GetApiConfigs().endpoint + "plans"
-  params = AppendAppKeyToParams(urlParams)
-  response = MakeRequest(url, params)
-  'print url
-  print "Plans Response: "; response
-  if response <> invalid
-    data = response.response
-  else if response = invalid
-    data = invalid
-  end if
+Function GetPlans(urlParams = {} as Object, in_app_purchase = true, productsCatalog = [])
 
-  return data
+  print "m.productsCatalog: "; productsCatalog[0]
+  if(in_app_purchase = true)
+    plans = []
+    for each plan in productsCatalog
+      plans.push({
+        _id: plan.code
+        name: plan.title
+        amount: plan.cost
+        description: plan.description
+      })
+    end for
+    print "m.productsCatalog: "; plans
+    return plans
+  else
+    url = GetApiConfigs().endpoint + "plans"
+    params = AppendAppKeyToParams(urlParams)
+    response = MakeRequest(url, params)
+    'print url
+    print "Plans Response: "; response
+    if response <> invalid
+      data = response.response
+    else if response = invalid
+      data = invalid
+    end if
+    print "GetPlans: "; data[0]
+    return data
+  end if
 End Function
 
 '****************************

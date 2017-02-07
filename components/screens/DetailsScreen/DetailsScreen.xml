@@ -20,6 +20,12 @@
         <!-- If User is Logged In -->
         <field id="isLoggedIn" type="bool"  alwaysnotify="true" onChange="OnContentChange"/>
 
+        <!-- If User is Logged In via Native SVOD -->
+        <field id="isLoggedInViaNativeSVOD" type="bool"/>
+
+        <!-- If User is Logged In via Universal SVOD -->
+        <field id="isLoggedInViaUniversalSVOD" type="bool"/>
+
         <!-- Subscription Buttons Shown -->
         <field id="SubscriptionButtonsShown" type="bool" />
 
@@ -33,6 +39,19 @@
         <field id="ProductsCatalog" type="roArray" />
 
         <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
+
+        <!-- No Authentication Enabled -->
+        <field id="NoAuthenticationEnabled" type="bool" />
+
+        <!-- Only Native SVOD -->
+        <field id="OnlyNativeSVOD" type="bool" />
+
+        <!-- BothActive -->
+        <field id="BothActive" type="bool" />
+
+        <!-- isDeviceLinked -->
+        <field id="isDeviceLinked" type="bool" />
+
     </interface>
 
     <!-- main handler -->

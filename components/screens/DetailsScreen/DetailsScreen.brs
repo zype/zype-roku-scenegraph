@@ -78,7 +78,7 @@ Sub onItemSelected()
                 print "====== Subscription button clicked"
                 AddPackagesButtons()
                 'm.top.SubscriptionPackagesShown = true
-                print "Subscription Plans++: "; m.top.SubscriptionPlans[0]
+                'print "Subscription Plans++: "; m.top.SubscriptionPlans[0]
             end if
         end if
 
@@ -96,7 +96,8 @@ Sub OnContentChange()
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
-        if(m.top.content.subscriptionRequired = false OR (idParts[1] = "True" AND m.top.isLoggedIn))
+        'if(m.top.content.subscriptionRequired = false OR (idParts[1] = "True" AND m.top.isLoggedIn))
+        if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn OR m.top.NoAuthenticationEnabled = true)
             m.canWatchVideo = true
         else
             m.canWatchVideo = false
@@ -124,11 +125,14 @@ Sub AddButtons()
         ' create buttons
         result = []
 
-        btns = []
-        if m.top.content.inFavorites = true
-            btns = ["Play", "Unfavorite"]
-        else
-            btns = ["Play", "Favorite"]
+        btns = ["Play"]
+
+        if(m.top.BothActive AND m.top.isDeviceLinked)
+            if m.top.content.inFavorites = true
+                btns.push("Unfavorite")
+            else
+                btns.push("Favorite")
+            end if
         end if
 
 
@@ -144,7 +148,10 @@ Sub AddActionButtons()
         ' create buttons
         result = []
         'btns = ["Subscribe", "Sign In"]
-        btns = ["Subscribe", "Link Device"]
+        btns = ["Subscribe"]', "Link Device"]
+        if(m.top.BothActive)
+            btns.push("Link Device")
+        end if
         for each button in btns
             result.push({title : button})
         end for
@@ -160,8 +167,10 @@ Sub AddPackagesButtons()
         'btns = ["Subscribe", "Sign In"]
         'btns = ["Subscribe", "Link Device"]
 
-        for each plan in m.top.SubscriptionPlans
-           btns.push(plan["name"] + " at " + plan["amount"] + " " + plan["currency"])
+        'for each plan in m.top.SubscriptionPlans
+        for each plan in m.top.ProductsCatalog
+           'btns.push(plan["name"] + " at " + plan["amount"] + " " + plan["currency"])
+           btns.push(plan["title"] + " at " + plan["cost"])
         end for
         
         for each button in btns
