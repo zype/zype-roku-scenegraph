@@ -96,8 +96,13 @@ Sub OnContentChange()
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
+        print "+++++++++++++++++++++++++++++++++++++++++"
+        print "m.top.content.subscriptionRequired: "; m.top.content.subscriptionRequired
+        print "m.top.isLoggedIn: "; m.top.isLoggedIn
+        print "m.top.NoAuthenticationEnabled: "; m.top.NoAuthenticationEnabled
+        print "+++++++++++++++++++++++++++++++++++++++++"
         'if(m.top.content.subscriptionRequired = false OR (idParts[1] = "True" AND m.top.isLoggedIn))
-        if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn OR m.top.NoAuthenticationEnabled = true)
+        if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
             m.canWatchVideo = true
         else
             m.canWatchVideo = false

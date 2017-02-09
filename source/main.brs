@@ -242,10 +242,11 @@ end sub
 
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
-    if screen.content.subscriptionRequired = true AND m.detailsScreen.isLoggedIn <> true
+    'if screen.content.subscriptionRequired = true AND m.detailsScreen.isLoggedIn <> true
+    if screen.content.subscriptionRequired = true OR m.detailsScreen.NoAuthenticationEnabled = true
         print "SUBSCRIPTION REQUIRED"
-        if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-            print "You do not have access! Please, link you device!"
+        if (m.app.device_linking = true AND (HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false))
+            print "You do not have access! Please, link your device!"
 
             dialog = createObject("roSGNode", "Dialog")
             dialog.title = "Link Device"
