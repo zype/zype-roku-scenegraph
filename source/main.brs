@@ -15,7 +15,7 @@ Sub RunUserInterface()
     m.purchasedItems = []
     m.productsCatalog = []
     m.app = GetAppConfigs()
-    
+
     getUserPurchases()
     getProductsCatalog()
 
@@ -131,7 +131,7 @@ Sub RunUserInterface()
                 end if
 
                 'print lclScreen
-                
+
                 detailScreenIdFull = lclScreen.content.id
                 detailScreenIdObj = detailScreenIdFull.tokenize(":")
                 detailScreenId = detailScreenIdObj[0]
@@ -193,8 +193,13 @@ Sub RunUserInterface()
 
                                 if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked then
                                     pin.text = "You are linked!"
-                                    idParts = m.detailsScreen.content.id.tokenize(":")
-                                    m.detailsScreen.content.id = idParts[0] + ":" + idParts[1]
+
+                                    ' Only do this if content was set. Content.id is not set if they go directly to Device Linking without opening the Details Screen on a video
+                                    if m.detailsScreen.content <> invalid
+                                      idParts = m.detailsScreen.content.id.tokenize(":")
+                                      m.detailsScreen.content.id = idParts[0] + ":" + idParts[1]
+                                    end if
+
                                     m.detailsScreen.isLoggedIn = true
                                     exit while
                                 end if
@@ -240,44 +245,34 @@ sub playLiveVideo(screen as Object)
     end if
 end sub
 
+' Play button should only appear in the following scenarios:
+'     1- No subscription required for video
+'     2- NSVOD only and user has already purchased a native subscription
+'     3- Both NSVOD and USVOD. User either purchased a native subscription or is linked
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
-    'if screen.content.subscriptionRequired = true AND m.detailsScreen.isLoggedIn <> true
-    if screen.content.subscriptionRequired = true OR m.detailsScreen.NoAuthenticationEnabled = true
+
+    ' Video requires subscription, device linking is true and user does not have native subscription
+    if screen.content.subscriptionRequired = true AND m.app.device_linking = true AND isSubscribed(true) = false
         print "SUBSCRIPTION REQUIRED"
-        if (m.app.device_linking = true AND (HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false))
-            print "You do not have access! Please, link your device!"
 
-            dialog = createObject("roSGNode", "Dialog")
-            dialog.title = "Link Device"
-            dialog.optionsDialog = true
-            dialog.message = "Press * To Dismiss. And link your device using the options."
-            m.scene.dialog = dialog
+        consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+
+        ' Check if consumer is linked and has subscription
+        if consumer.linked = true AND consumer.subscription_count > 0
+          playVideo(screen, {"app_key": GetApiConfigs().app_key})
         else
-            oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-            if oauth <> invalid
-
-                print screen.content.id
-                idParts = screen.content.id.tokenize(":")
-                id = idParts[0]
-                ' playVideo(lclScreen, oauth.access_token)
-
-                if IsEntitled(id, {"access_token": oauth.access_token}) = true
-                    playVideo(screen, {"access_token": oauth.access_token})
-                else
-                    dialog = createObject("roSGNode", "Dialog")
-                    dialog.title = "Subscription Required"
-                    dialog.optionsDialog = true
-                    dialog.message = "You are not subscribed to watch this content. Press * To Dismiss."
-                    m.scene.dialog = dialog
-                end if
-            else
-                print "No OAuth available"
-            end if
+          dialog = createObject("roSGNode", "Dialog")
+          dialog.title = "Subscription Required"
+          dialog.optionsDialog = true
+          dialog.message = "You are not subscribed to watch this content. Press * To Dismiss."
+          m.scene.dialog = dialog
         end if
+
+    ' Has purchased native subscription or video does not require subscription
     else
         print "FREE VIDEO"
-        playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
+        playVideo(screen, {"app_key": GetApiConfigs().app_key})
     end if
 end sub
 
@@ -441,7 +436,7 @@ end function
 Function ParseContent(list As Object)
 
     RowItems = createObject("RoSGNode","ContentNode")
-    
+
     ' videoObject = createObject("RoSGNode", "VideoNode")
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
@@ -655,7 +650,7 @@ Function isSubscribed(subscriptionRequired) as boolean
 End Function
 
 ' ///////////////////////////////////////////////////////////////////////////////////
-' Check to see if the purchased product returned from roku store matches one of the 
+' Check to see if the purchased product returned from roku store matches one of the
 ' subscription plans we have. Plan ID is being used as the roku product code here.
 Function isPlanPurchased(code)
     print "isPlanPurchased"
@@ -665,8 +660,8 @@ Function isPlanPurchased(code)
     isPurchased = false
     print "Plans: ";plans
     for each p in plans
-        'print "p._id: ";p._id 
-        print "p.code: ";p.code 
+        'print "p._id: ";p._id
+        print "p.code: ";p.code
         'if(p._id = code)
         if(p.code = code)
             isPurchased = true
@@ -693,7 +688,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         'if(index = 1 and _isSubscribed)
             print "LoggedIn If: "
             playVideoButton(lclScreen)
-        
+
         else if(index = 2)  ' This is going to be the favorites button
             print "LoggedIn Else If: "
             markFavoriteButton(lclScreen)
@@ -877,7 +872,7 @@ Function isAuthViaUniversalSVOD()
         return false
     end if
 
-    if(HasUDID() = true and deviceLinking.subscription_count > 0)
+    if(HasUDID() = true)
         return true
     end if
 
