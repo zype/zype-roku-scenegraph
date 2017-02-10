@@ -237,6 +237,7 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
   end if
 
   print "GetAppConfigs: "; data
+  'data.device_linking = true
   return data
 End Function
 

@@ -201,6 +201,7 @@ Sub RunUserInterface()
                                     end if
 
                                     m.detailsScreen.isLoggedIn = true
+                                    m.detailsScreen.isDeviceLinked = true
                                     exit while
                                 end if
                             end if
