@@ -25,6 +25,9 @@ Sub RunUserInterface()
     'm.scene.SubscriptionPlans = m.plans
     'print "Type: "; type(m.productsCatalog)
 
+    m.LoadingScreen = m.scene.findNode("LoadingScreen")
+    print "m.LoadingScreen: "; m.LoadingScreen
+
     m.infoScreen = m.scene.findNode("InfoScreen")
     m.infoScreenText = m.infoScreen.findNode("Info")
     m.infoScreenText.text = GetAppConfigs().info_text
@@ -706,7 +709,9 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
             else
                 ' First package was selected by the user. Start the wizard.
                 print "First package button clicked"
+                StartLoader()
                 result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
+                EndLoader()
                 'm.detailsScreen.SubscriptionPackagesShown = false
 
                  if(result = true)
@@ -725,7 +730,10 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                 m.deviceLinking.setFocus(true)
             else
                 print "Second package button clicked"
+
+                StartLoader()
                 result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
+                EndLoader()
 
                  if(result = true)
                     m.detailsScreen.isLoggedIn = true
@@ -736,6 +744,18 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
             end if
         end if
     end if
+End Function
+
+Function StartLoader()
+    print "m.LoadingScreen: "; m.LoadingScreen
+    m.LoadingScreen.show = true
+    m.LoadingScreen.setFocus(true)
+End Function
+
+Function EndLoader()
+    m.LoadingScreen.show = false
+    m.LoadingScreen.setFocus(false)
+    m.detailsScreen.setFocus(true)
 End Function
 
 Function InitAuthenticationParams()
@@ -786,25 +806,6 @@ Function isLoggedIn()
     end if
     return false
 End Function
-
-' Function HandlePackagesEvents(index, plans)
-'     startSubscriptionWizard(plans, index, m.store, m.port, m.productsCatalog)
-' End Function
-
-' Function HandleSignInButtonEvents(buttonIndex, screen)
-'     if(buttonIndex = 1) ' Link Device
-'         print "Link Device Button Pressed"
-
-'         screen.Close()
-
-'         ' show and focus Device Linking
-'         m.deviceLinking.show = true
-'         m.deviceLinking.setFocus(true)
-
-'     else if(buttonIndex = 2)    ' Restore Roku Purchase
-'         print "Restore Roku Purchase Button Pressed"
-'     end if
-' End Function
 
 Function playVideoButton(lclScreen)
     if lclScreen.content.onAir = false

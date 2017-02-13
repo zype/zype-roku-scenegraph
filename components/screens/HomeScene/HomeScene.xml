@@ -64,6 +64,12 @@
             visible="false"
             />
 
+        <!-- Loading Screen -->
+        <LoadingScreen
+            id="LoadingScreen"
+            visible="false"
+            />
+
         <!--Search screen.-->
         <Search
             id="Search"

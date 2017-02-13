@@ -582,7 +582,7 @@ end function
 '*************************
 Function GetPlans(urlParams = {} as Object, in_app_purchase = true, productsCatalog = [])
 
-  print "m.productsCatalog: "; productsCatalog[0]
+  'print "m.productsCatalog: "; productsCatalog[0]
   if(in_app_purchase = true)
     plans = []
     for each plan in productsCatalog
@@ -593,20 +593,20 @@ Function GetPlans(urlParams = {} as Object, in_app_purchase = true, productsCata
         description: plan.description
       })
     end for
-    print "m.productsCatalog: "; plans
+    'print "m.productsCatalog: "; plans
     return plans
   else
     url = GetApiConfigs().endpoint + "plans"
     params = AppendAppKeyToParams(urlParams)
     response = MakeRequest(url, params)
     'print url
-    print "Plans Response: "; response
+    'print "Plans Response: "; response
     if response <> invalid
       data = response.response
     else if response = invalid
       data = invalid
     end if
-    print "GetPlans: "; data[0]
+    'print "GetPlans: "; data[0]
     return data
   end if
 End Function
