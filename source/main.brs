@@ -259,7 +259,7 @@ sub playRegularVideo(screen as Object)
         print "SUBSCRIPTION REQUIRED"
 
         ' Check if consumer is linked and has subscription
-        if consumer.linked = true AND consumer.subscription_count > 0
+        if consumer.subscription_count > 0
           playVideo(screen, {"app_key": GetApiConfigs().app_key})
         else
           dialog = createObject("roSGNode", "Dialog")
