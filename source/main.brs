@@ -252,12 +252,11 @@ end sub
 '     3- Both NSVOD and USVOD. User either purchased a native subscription or is linked
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
+    consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
 
     ' Video requires subscription, device linking is true and user does not have native subscription
-    if screen.content.subscriptionRequired = true AND m.app.device_linking = true AND isSubscribed(true) = false
+    if screen.content.subscriptionRequired = true AND m.app.device_linking = true AND consumer.linked = true
         print "SUBSCRIPTION REQUIRED"
-
-        consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
 
         ' Check if consumer is linked and has subscription
         if consumer.linked = true AND consumer.subscription_count > 0
