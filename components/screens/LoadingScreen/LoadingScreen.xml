@@ -26,10 +26,31 @@
         />
 
     <!-- Loading Text -->
-    <Label
+    <!--<Label
         id="LoadingText"
         color="0xFFFFFF"
         translation="[350,350]"
-        text="Communicating with Roku servers... Please Wait!"/>
+        text="Communicating with Roku servers... Please Wait!"/>-->
+
+
+    <LoadingIndicator
+          id="loadingIndicator1"
+          imageUri="pkg:/components/screens/LoadingIndicator/loader.png"
+          clockwise="true"
+          spinInterval="2"
+          fadeInterval="0.5"
+          spacing="20"
+          imageWidth="100"
+          text="Communicating with Roku servers... Please Wait!"
+          textColor="0xFFFFFF"
+          width="1280"
+          height="720"
+          centered="false"
+          translation="[0, 0]"
+          textPadding="10"
+          font="dictionary:loadingIndicatorFont"
+          backgroundColor="0xEEEEEE"
+          backgroundOpacity="0"/>
+
     </children>
 </component>

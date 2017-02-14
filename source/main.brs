@@ -42,6 +42,7 @@ Sub RunUserInterface()
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
     m.loadingIndicator = m.scene.findNode("loadingIndicator")
+    m.loadingIndicator1 = m.scene.findNode("loadingIndicator1")
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.detailsScreen.observeField("itemSelected", m.port)
@@ -749,9 +750,11 @@ Function StartLoader()
     print "m.LoadingScreen: "; m.LoadingScreen
     m.LoadingScreen.show = true
     m.LoadingScreen.setFocus(true)
+    m.loadingIndicator1.control = "start"
 End Function
 
 Function EndLoader()
+    m.loadingIndicator1.control = "stop"
     m.LoadingScreen.show = false
     m.LoadingScreen.setFocus(false)
     m.detailsScreen.setFocus(true)
