@@ -21,7 +21,9 @@ REM     GetZObjects
 REM     GetVideo
 REM     GetVideos
 REM     GetCategory
-REM
+REM     GetPlans
+REM     GetPlan
+REM     SaveSubscriptionData  (Work in progress)
 
 '******************************************************
 'Get API configurations
@@ -579,6 +581,8 @@ end function
 ' ----------------------
 ' If in_app_purchase is true then get the prices and plans from Roku Store.
 ' If in_app_purchase is false then get the prices and plans from zype API.
+'
+' The way it is setup right now, it always loads the prices and plans from Roku Store
 '*************************
 Function GetPlans(urlParams = {} as Object, in_app_purchase = true, productsCatalog = [])
 
@@ -628,6 +632,10 @@ Function GetPlan(id as String, urlParams as Object)
   return data
 End Function
 
+'**********************************************************************************
+' This is a work in progress. This function is supposed to send back consumer data
+' after the successful native store purchase
+'**********************************************************************************
 Function SaveSubscriptionData(_data, urlParams as Object)
   url = GetApiConfigs().endpoint + "save-subscription/"
   params = AppendAppKeyToParams(urlParams)

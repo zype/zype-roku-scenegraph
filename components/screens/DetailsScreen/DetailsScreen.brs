@@ -152,7 +152,6 @@ Sub AddActionButtons()
     if m.top.content <> invalid then
         ' create buttons
         result = []
-        'btns = ["Subscribe", "Sign In"]
         btns = ["Subscribe"]', "Link Device"]
         if(m.top.BothActive)
             btns.push("Link Device")
@@ -169,9 +168,6 @@ Sub AddPackagesButtons()
         ' create buttons
         result = []
         btns = []
-        'btns = ["Subscribe", "Sign In"]
-        'btns = ["Subscribe", "Link Device"]
-
         'for each plan in m.top.SubscriptionPlans
         for each plan in m.top.ProductsCatalog
            'btns.push(plan["name"] + " at " + plan["amount"] + " " + plan["currency"])

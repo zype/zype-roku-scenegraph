@@ -26,7 +26,6 @@ Sub RunUserInterface()
     'print "Type: "; type(m.productsCatalog)
 
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
-    print "m.LoadingScreen: "; m.LoadingScreen
 
     m.infoScreen = m.scene.findNode("InfoScreen")
     m.infoScreenText = m.infoScreen.findNode("Info")
@@ -110,9 +109,9 @@ Sub RunUserInterface()
 
                 'print "THIS IS THE CONTENT"; lclScreen.content
 
-                detailScreenIdFull = lclScreen.content.id
-                detailScreenIdObj = detailScreenIdFull.tokenize(":")
-                detailScreenId = detailScreenIdObj[0]
+                ' detailScreenIdFull = lclScreen.content.id
+                ' detailScreenIdObj = detailScreenIdFull.tokenize(":")
+                ' detailScreenId = detailScreenIdObj[0]
                 '_isSubscribed = isSubscribed(detailScreenId)
                 _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
 
@@ -136,9 +135,9 @@ Sub RunUserInterface()
 
                 'print lclScreen
 
-                detailScreenIdFull = lclScreen.content.id
-                detailScreenIdObj = detailScreenIdFull.tokenize(":")
-                detailScreenId = detailScreenIdObj[0]
+                ' detailScreenIdFull = lclScreen.content.id
+                ' detailScreenIdObj = detailScreenIdFull.tokenize(":")
+                ' detailScreenId = detailScreenIdObj[0]
                 '_isSubscribed = isSubscribed(detailScreenId)
                 _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
 
@@ -343,7 +342,6 @@ sub playVideoWithAds(screen as Object, auth as Object)
         end if
     end if
 
-
     if playContent then
         m.loadingIndicator.control = "stop"
         print "[Main] Playing video"
@@ -471,7 +469,6 @@ Function ParseContent(list As Object)
         RowItems.appendChild(row)
     end for
 
-    'print RowItems.metadata
     return RowItems
 End Function
 
@@ -479,7 +476,6 @@ Function GetContent()
     rowTitles = GetCategory(GetAppConfigs().category_id).values
     categoryTitle = GetCategory(GetAppConfigs().category_id).title
     query = "category[" + categoryTitle + "]"
-
 
     favs = GetFavoritesIDs()
 
@@ -511,13 +507,11 @@ function GetPlaylistContent(playlist_id as String)
 
     if pl.playlist_item_count > 0 then
         list = []
-
         row = {}
         row.title = pl.title
         videos = []
         for each video in GetPlaylistVideos(pl._id)
             video.inFavorites = favs.DoesExist(video._id)
-            'print video
             videos.push(CreateVideoObject(video))
         end for
         row.ContentList = videos
@@ -657,22 +651,14 @@ End Function
 ' Check to see if the purchased product returned from roku store matches one of the
 ' subscription plans we have. Plan ID is being used as the roku product code here.
 Function isPlanPurchased(code)
-    print "isPlanPurchased"
-    print "products: "; m.productsCatalog[0]
-    'plans = GetPlans({}, m.app.in_app_purchase, m.productsCatalog)
     plans = m.productsCatalog   ' Using this one instead of the above one to get products from Roku Store instead of Zype API
     isPurchased = false
-    print "Plans: ";plans
     for each p in plans
-        'print "p._id: ";p._id
-        print "p.code: ";p.code
-        'if(p._id = code)
         if(p.code = code)
             isPurchased = true
             exit for
         end if
     end for
-    'print "isPurchased: "; isPurchased
     return isPurchased
 End Function
 
@@ -685,38 +671,30 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
     'if((isLoggedIn() AND _isSubscribed = true) OR lclScreen.content.subscriptionRequired = false)    ' Play / Favorite buttons
     if(m.detailsScreen.NoAuthenticationEnabled = true OR m.detailsScreen.isLoggedIn OR lclScreen.content.subscriptionRequired = false)    ' Play / Favorite buttons
         m.detailsScreen.SubscriptionButtonsShown = false
-        print "LoggedIn"
         ' This is going to be the Play button
         'if(index = 1 and (_isSubscribed = true OR lclScreen.content.subscriptionRequired = false))
         if(index = 1)
         'if(index = 1 and _isSubscribed)
-            print "LoggedIn If: "
             playVideoButton(lclScreen)
 
         else if(index = 2)  ' This is going to be the favorites button
-            print "LoggedIn Else If: "
             markFavoriteButton(lclScreen)
         end if
 
     else    ' Subscribe / Sign In buttons
-        print "Handle Else: "
         m.detailsScreen.SubscriptionButtonsShown = true
         if(index = 1)   ' Subscribe
             if(m.detailsScreen.SubscriptionPackagesShown = false)
                 ' All subscription button code goes here
-                print "Subscription Button Clicked"
                 m.detailsScreen.SubscriptionPackagesShown = true
             else
                 ' First package was selected by the user. Start the wizard.
-                print "First package button clicked"
                 StartLoader()
                 result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
                 EndLoader()
                 'm.detailsScreen.SubscriptionPackagesShown = false
 
                  if(result = true)
-                     'idParts = m.detailsScreen.content.id.tokenize(":")
-                     'm.detailsScreen.content.id = idParts[0] + ":True"
                      m.detailsScreen.isLoggedIn = true
                 '     getUserPurchases()  ' Update the user purchased inventory
                  end if
@@ -724,22 +702,15 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
 
         else            ' Device Linking
             if(m.detailsScreen.SubscriptionPackagesShown = false)
-                print "Device Linking Button Clicked"
-                'ShowSignInOptionsDialog()
                 m.deviceLinking.show = true
                 m.deviceLinking.setFocus(true)
             else
-                print "Second package button clicked"
-
                 StartLoader()
                 result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
                 EndLoader()
 
                  if(result = true)
                     m.detailsScreen.isLoggedIn = true
-                    '  idParts = m.detailsScreen.content.id.tokenize(":")
-                    '  m.detailsScreen.content.id = idParts[0] + ":True"
-                '     getUserPurchases()  ' Update the user purchased inventory
                  end if
             end if
         end if
@@ -747,7 +718,6 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
 End Function
 
 Function StartLoader()
-    print "m.LoadingScreen: "; m.LoadingScreen
     m.LoadingScreen.show = true
     m.LoadingScreen.setFocus(true)
     m.loadingIndicator1.control = "start"
@@ -785,18 +755,10 @@ Function InitAuthenticationParams()
 End Function
 
 Function isLoggedIn()
-    ' deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    ' if HasUDID() = true and deviceLinking.linked = true
-    '     return true
-    ' end if
-    ' 'return true
-    ' return false
-
     if(m.detailsScreen.NoAuthenticationEnabled = true)
         return true
     end if
 
-    print "isLoggedIn"
     if(isAuthViaNativeSVOD())
         m.detailsScreen.isLoggedInViaNativeSVOD = true
         m.detailsScreen.isLoggedInViaUniversalSVOD = false
@@ -854,9 +816,7 @@ End Function
 '   Native SVOD - Check if user bought from native SVOD which is Roku Store
 '   Need to check if there are bought subscriptions associated with Roku Account
 Function isAuthViaNativeSVOD()
-    print "isAuthViaNativeSVOD"
     subscribed = false
-
     for each pi in m.purchasedItems
         if(isPlanPurchased(pi.code)) ' Means the user has subscribed to atleast one of these
             subscribed = true
@@ -866,11 +826,10 @@ Function isAuthViaNativeSVOD()
     return subscribed
 End Function
 
-
-'   Universal SVOD - Check via Device Linking if the API server returns a count that says user bought something
-'   Need to check device linking and subscription_count here.
+' ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+' Universal SVOD - Check via Device Linking if the API server returns a count that says user bought something
+' Need to check device linking and subscription_count here.
 Function isAuthViaUniversalSVOD()
-    print "isAuthViaUniversalSVOD"
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
     if(deviceLinking.linked = false)
         return false

@@ -25,14 +25,6 @@
         translation="[0,0]"
         />
 
-    <!-- Loading Text -->
-    <!--<Label
-        id="LoadingText"
-        color="0xFFFFFF"
-        translation="[350,350]"
-        text="Communicating with Roku servers... Please Wait!"/>-->
-
-
     <LoadingIndicator
           id="loadingIndicator1"
           imageUri="pkg:/components/screens/LoadingIndicator/loader.png"
@@ -51,6 +43,5 @@
           font="dictionary:loadingIndicatorFont"
           backgroundColor="0xEEEEEE"
           backgroundOpacity="0"/>
-
     </children>
 </component>
