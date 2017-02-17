@@ -18,6 +18,16 @@
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
 
         <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
+
+        <field id="dataArray" type="roArray" />
+
+        <field id="videosTree" type="roArray" />
+
+        <!-- True value will immediately play the video loaded into the screen -->
+        <field id="triggerPlay" type="bool" />
+        
+        <!-- Gets populated by app configuration returned from zype API -->
+        <field id="autoplay" type="bool" />
     </interface>
 
     <!-- main handler -->

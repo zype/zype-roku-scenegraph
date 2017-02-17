@@ -13,6 +13,9 @@ Function Init()
     ' m.poster            =   m.top.findNode("Poster")
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
+    m.PlaylistRowIndex  = invalid
+    m.CurrentVideoIndex = invalid
+    m.totalVideosCount  = 0
 
 End Function
 
@@ -50,7 +53,40 @@ Sub OnVideoPlayerStateChange()
         m.videoPlayer.visible = false
     else if m.videoPlayer.state = "playing"
         ' playback handling
+        if(m.top.autoplay = true)
+            m.top.triggerPlay = false
+        end if
     else if m.videoPlayer.state = "finished"
+        print "Video finished playing"
+        print "Current: "; m.top.content
+        if m.top.autoplay = true AND (((m.CurrentVideoIndex + 1) < m.totalVideosCount) OR ((m.CurrentVideoIndex + 1) = m.totalVideosCount))
+            m.CurrentVideoIndex = m.CurrentVideoIndex + 1
+            nextVideoObject = m.top.videosTree[m.PlaylistRowIndex][m.CurrentVideoIndex]
+            nextVideoNode = ContentList2SimpleNode(nextVideoObject)
+
+            nextVideoNode.id = nextVideoObject.id
+            nextVideoNode.CONTENTTYPE = nextVideoObject.contenttype
+            nextVideoNode.DESCRIPTION = nextVideoObject.description
+            nextVideoNode.HDBACKGROUNDIMAGEURL = nextVideoObject.hdbackgroundimageurl
+            nextVideoNode.HDPOSTERURL = nextVideoObject.hdposterurl
+            nextVideoNode.inFavorites = nextVideoObject.infavorites
+            nextVideoNode.LENGTH = nextVideoObject.length
+            nextVideoNode.onAir = nextVideoObject.onair
+            nextVideoNode.RELEASEDATE = nextVideoObject.releasedate
+            nextVideoNode.STREAMFORMAT = nextVideoObject.streamformat
+            nextVideoNode.subscriptionRequired = nextVideoObject.subscriptionrequired
+            nextVideoNode.TITLE = nextVideoObject.title
+            nextVideoNode.URL = nextVideoObject.url
+
+
+            m.top.content = nextVideoNode
+            print "nextVideoObject: "; nextVideoObject
+            print "nextVideoNode: "; nextVideoNode
+            print "New: "; m.top.content
+            m.top.triggerPlay = true
+            m.videoPlayer.state = "play"
+        end if
+        
         m.videoPlayer.visible = false
     end if
 End Sub
@@ -71,6 +107,10 @@ End Sub
 
 ' Content change handler
 Sub OnContentChange()
+    print "Content: "; m.top.content
+    print "Videos: "; m.top.videosTree[0][6]
+    FindPlaylistRowIndex()
+
     if m.top.content<>invalid then
     
         AddButtons()
@@ -116,4 +156,34 @@ Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" 
         end for
     end if
     return result
+End Function
+
+Function FindPlaylistRowIndex()
+    index = 0
+    found = false
+    totalVideos = 0
+    childCount = 0
+    For Each vt in m.top.videosTree
+        childCount = 0
+        For Each v in vt
+            if(v.id = m.top.content.id)
+                m.PlaylistRowIndex = index
+                m.CurrentVideoIndex = v.videoIndex
+                found = true
+            end if
+            childCount = childCount + 1
+        End For
+
+        if(found = true)
+            totalVideos = childCount
+            exit for
+        end if
+        index = index + 1
+    End For
+
+    m.totalVideosCount = totalVideos
+
+    ' For each p in m.top.dataArray
+    '     print "P: "; p.contentlist[0]
+    ' End for
 End Function

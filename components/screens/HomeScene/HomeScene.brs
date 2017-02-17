@@ -65,6 +65,7 @@ Function OnRowItemSelected()
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
         m.screenStack.push(m.detailsScreen)
+        print "m.gridScreen.focusedContent: "; type(m.gridScreen.focusedContent)
     end if
 End Function
 

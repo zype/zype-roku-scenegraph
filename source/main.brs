@@ -9,10 +9,15 @@ Sub RunUserInterface()
     screen.SetMessagePort(m.port)
     screen.Show()
 
-    m.scene.gridContent = ParseContent(GetContent())
-    ' m.scene.gridContent = ParseContent(GetPlaylistsAsRows("579116fc6689bc0d1d00f092"))
+    m.app = GetAppConfigs()
+    m.playlistRows = []
+    m.videosList = []
 
-
+    'm.scene.gridContent = ParseContent(GetContent())
+    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
+    print "gridContent: "; m.scene.gridContent
+    print "m.playlistRows: "; m.playlistRows[0]
+    print "m.app: "; m.app
     m.infoScreen = m.scene.findNode("InfoScreen")
     m.infoScreenText = m.infoScreen.findNode("Info")
     m.infoScreenText.text = GetAppConfigs().info_text
@@ -30,6 +35,10 @@ Sub RunUserInterface()
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.detailsScreen.observeField("itemSelected", m.port)
+    m.detailsScreen.observeField("triggerPlay", m.port)
+    m.detailsScreen.dataArray = m.playlistRows
+    m.detailsScreen.videosTree = m.videosList
+    m.detailsScreen.autoplay = m.app.autoplay
 
     m.scene.observeField("SearchString", m.port)
 
@@ -44,13 +53,13 @@ Sub RunUserInterface()
     ' print pl
 
     LoadLimitStream() ' Load LimitStream Object
-    print GetLimitStreamObject()
+    ' print GetLimitStreamObject()
 
     while(true)
         msg = wait(0, m.port)
         msgType = type(msg)
         print "------------------"
-        print "msg = "; msg
+        ' print "msg = "; msg
 
         if msgType = "roSGNodeEvent"
             if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
@@ -60,7 +69,7 @@ Sub RunUserInterface()
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id))
 
                 rowList = m.gridScreen.findNode("RowList")
-                print rowList
+                ' print rowList
                 m.loadingIndicator.control = "stop"
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
                 m.loadingIndicator.control = "start"
@@ -81,7 +90,7 @@ Sub RunUserInterface()
                     lclScreen = m.detailsScreen
                 end if
 
-                print "THIS IS THE CONTENT"; lclScreen.content
+                ' print "THIS IS THE CONTENT"; lclScreen.content
 
                 if lclScreen.content.onAir = false
                     playRegularVideo(lclScreen)
@@ -91,7 +100,7 @@ Sub RunUserInterface()
             else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" and msg.getData() = 1 then
                 print "[Main] Add to favorites"
 
-                print msg.getNode()
+                ' print msg.getNode()
 
                 if msg.getNode() = "FavoritesDetailsScreen"
                     lclScreen = m.favoritesDetailsScreen
@@ -104,7 +113,7 @@ Sub RunUserInterface()
                     lclScreen = m.detailsScreen
                 end if
 
-                print lclSreen
+                ' print lclSreen
 
                 deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
                 if HasUDID() = true and deviceLinking.linked = true
@@ -122,9 +131,9 @@ Sub RunUserInterface()
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
-                print m.videoPlayer
+                ' print m.videoPlayer
                 GetLimitStreamObject().played = GetLimitStreamObject().played + 1
-                print  GetLimitStreamObject().played
+                ' print  GetLimitStreamObject().played
                 if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
                     if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
                         m.videoPlayer.visible = false
@@ -183,6 +192,11 @@ Sub RunUserInterface()
                     print "Adding UDID"
                     AddUdidToReg(GenerateUdid())
                     pin.text = GetPin(GetUdidFromReg())
+                end if
+            else if m.app.autoplay = true AND msg.getField() = "triggerPlay" then
+                print "triggerPlay: "; msg.getData()
+                if(msg.getData() = true)
+                    playRegularVideo(m.detailsScreen)
                 end if
             end if
         end if
@@ -343,10 +357,15 @@ function GetSearchContent(SearchString as String)
     params.AddReplace("q", SearchString)
     params.AddReplace("dpt", "true")
     videos = []
+    video_index = 0
     for each video in GetVideos(params)
         video.inFavorites = favs.DoesExist(video._id)
+        video.playlist_id = 0
+        video.playlist_name = invalid
+        video.video_index = video_index
         print video
         videos.push(CreateVideoObject(video))
+        video_index = video_index + 1
     end for
     row.ContentList = videos
 
@@ -397,10 +416,15 @@ function GetFavoritesContent()
                 row = {}
                 row.title = "Favorites"
                 row.ContentList = []
+                video_index = 0
                 for each fav in videoFavorites
                     vid = GetVideo(fav.video_id)
                     vid.inFavorites = favs.DoesExist(vid._id)
+                    vid.playlist_id = item._id
+                    vid.playlist_name = item.title
+                    vid.video_index = video_index
                     row.ContentList.push(CreateVideoObject(vid))
+                    video_index = video_index + 1
                 end for
                 list.push(row)
             end if
@@ -455,10 +479,15 @@ Function GetContent()
         params.AddReplace(query, item)
         params.AddReplace("dpt", "true")
         videos = []
+        video_index = 0
         for each video in GetVideos(params)
             video.inFavorites = favs.DoesExist(video._id)
+            video.playlist_id = 0
+            video.playlist_name = invalid
+            video.video_index = video_index
             print video
             videos.push(CreateVideoObject(video))
+            video_index = video_index + 1
         end for
 
         row.ContentList = videos
@@ -479,10 +508,15 @@ function GetPlaylistContent(playlist_id as String)
         row = {}
         row.title = pl.title
         videos = []
+        video_index = 0
         for each video in GetPlaylistVideos(pl._id)
             video.inFavorites = favs.DoesExist(video._id)
+            video.playlist_id = 0
+            video.playlist_name = invalid
+            video.video_index = video_index
             print video
             videos.push(CreateVideoObject(video))
+            video_index = video_index + 1
         end for
         row.ContentList = videos
 
@@ -528,12 +562,19 @@ function GetPlaylistsAsRows(parent_id as String)
         if item.playlist_item_count > 0
             row.ContentList = []
             videos = []
+            video_index = 0
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
+                print "Playlist: "; item
                 video.inFavorites = favs.DoesExist(video._id)
+                video.playlist_id = item._id
+                video.playlist_name = item.title
+                video.video_index = video_index
                 print video
                 videos.push(CreateVideoObject(video))
+                video_index = video_index + 1
             end for
             row.ContentList = videos
+            m.videosList.push(videos)
         else
             pls = GetPlaylists({"parent_id": item._id})
             for each pl in pls
@@ -545,6 +586,6 @@ function GetPlaylistsAsRows(parent_id as String)
     end for
 
 
-
+    m.playlistRows = list
     return list
 end function
