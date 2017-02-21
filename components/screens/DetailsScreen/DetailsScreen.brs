@@ -100,11 +100,17 @@ Sub OnContentChange()
         print "m.top.content.subscriptionRequired: "; m.top.content.subscriptionRequired
         print "m.top.isLoggedIn: "; m.top.isLoggedIn
         print "m.top.NoAuthenticationEnabled: "; m.top.NoAuthenticationEnabled
+        print "m.top.JustBoughtNativeSubscription: "; m.top.JustBoughtNativeSubscription
         print "+++++++++++++++++++++++++++++++++++++++++"
         'if(m.top.content.subscriptionRequired = false OR (idParts[1] = "True" AND m.top.isLoggedIn))
         if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
             m.canWatchVideo = true
         else
+            m.canWatchVideo = false
+        end if
+
+        ' If all else is good and device is linked but there's no subscription found on the server then show native subscription buttons.
+        if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true)
             m.canWatchVideo = false
         end if
 

@@ -52,6 +52,13 @@
         <!-- isDeviceLinked -->
         <field id="isDeviceLinked" type="bool" />
 
+        <!-- Universal Subscriptions Count -->
+        <field id="UniversalSubscriptionsCount" type="integer" />
+
+        <!-- JustBoughtNativeSubscription -->
+        <!-- This is just a flag to mark in the system that the user just bought via IAP and should be able to Play -->
+        <field id="JustBoughtNativeSubscription" type="bool" />
+
     </interface>
 
     <!-- main handler -->

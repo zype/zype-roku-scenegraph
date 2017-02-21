@@ -48,6 +48,7 @@ Sub RunUserInterface()
     'm.detailsScreen.SubscriptionPlans = m.plans
     'm.detailsScreen.SubscriptionPlans = m.productsCatalog
     m.detailsScreen.productsCatalog = m.productsCatalog
+    m.detailsScreen.JustBoughtNativeSubscription = false
     m.detailsScreen.isLoggedIn = isLoggedIn()
     m.detailsScreen.isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
     print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
@@ -194,7 +195,8 @@ Sub RunUserInterface()
                                 print "refreshing PIN"
                                 pin.text = GetPin(GetUdidFromReg())
 
-                                if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked then
+                                deviceLinkingObj = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                                if deviceLinkingObj.linked then
                                     pin.text = "You are linked!"
 
                                     ' Only do this if content was set. Content.id is not set if they go directly to Device Linking without opening the Details Screen on a video
@@ -203,8 +205,9 @@ Sub RunUserInterface()
                                       m.detailsScreen.content.id = idParts[0] + ":" + idParts[1]
                                     end if
 
-                                    m.detailsScreen.isLoggedIn = true
                                     m.detailsScreen.isDeviceLinked = true
+                                    m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
+                                    m.detailsScreen.isLoggedIn = true
                                     exit while
                                 end if
                             end if
@@ -669,7 +672,8 @@ End Function
 Function handleButtonEvents(index, _isSubscribed, lclScreen)
     print "Handle Event: "; isSubscribed
     'if((isLoggedIn() AND _isSubscribed = true) OR lclScreen.content.subscriptionRequired = false)    ' Play / Favorite buttons
-    if(m.detailsScreen.NoAuthenticationEnabled = true OR m.detailsScreen.isLoggedIn OR lclScreen.content.subscriptionRequired = false)    ' Play / Favorite buttons
+    if(m.detailsScreen.NoAuthenticationEnabled = true OR (m.detailsScreen.isLoggedIn = true AND m.detailsScreen.UniversalSubscriptionsCount > 0) OR lclScreen.content.subscriptionRequired = false OR m.detailsScreen.JustBoughtNativeSubscription = true OR m.detailsScreen.isLoggedInViaNativeSVOD = true)    ' Play / Favorite buttons
+        print "Play/Favorite"
         m.detailsScreen.SubscriptionButtonsShown = false
         ' This is going to be the Play button
         'if(index = 1 and (_isSubscribed = true OR lclScreen.content.subscriptionRequired = false))
@@ -682,6 +686,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         end if
 
     else    ' Subscribe / Sign In buttons
+        print "Subscribe/Device Linking"
         m.detailsScreen.SubscriptionButtonsShown = true
         if(index = 1)   ' Subscribe
             if(m.detailsScreen.SubscriptionPackagesShown = false)
@@ -695,6 +700,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                 'm.detailsScreen.SubscriptionPackagesShown = false
 
                  if(result = true)
+                     m.detailsScreen.JustBoughtNativeSubscription = true
                      m.detailsScreen.isLoggedIn = true
                 '     getUserPurchases()  ' Update the user purchased inventory
                  end if
@@ -710,6 +716,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                 EndLoader()
 
                  if(result = true)
+                    m.detailsScreen.JustBoughtNativeSubscription = true
                     m.detailsScreen.isLoggedIn = true
                  end if
             end if
@@ -830,7 +837,12 @@ End Function
 ' Universal SVOD - Check via Device Linking if the API server returns a count that says user bought something
 ' Need to check device linking and subscription_count here.
 Function isAuthViaUniversalSVOD()
+    if(m.app.device_linking = false)
+        return false
+    end if
+
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+    m.detailsScreen.UniversalSubscriptionsCount = deviceLinking.subscription_count
     if(deviceLinking.linked = false)
         return false
     end if
