@@ -265,7 +265,7 @@ sub playRegularVideo(screen as Object)
         print "SUBSCRIPTION REQUIRED"
 
         ' Check if consumer is linked and has subscription
-        if consumer.subscription_count > 0
+        if consumer.subscription_count > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true OR m.detailsScreen.JustBoughtNativeSubscription = true
           playVideo(screen, {"app_key": GetApiConfigs().app_key})
         else
           dialog = createObject("roSGNode", "Dialog")
@@ -687,11 +687,31 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
 
     else    ' Subscribe / Sign In buttons
         print "Subscribe/Device Linking"
-        m.detailsScreen.SubscriptionButtonsShown = true
         if(index = 1)   ' Subscribe
+
+            ' Do an extra check if the device is linked and there was any new subscription on the server 
+            if(m.app.device_linking = true AND m.detailsScreen.isDeviceLinked = true)
+                m.detailsScreen.DontShowSubscriptionPackages = true
+                consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+
+                'consumer.subscription_count = 1
+
+                if(consumer.subscription_count > 0) ' There was a new subscription found
+                    m.detailsScreen.isDeviceLinked = true
+                    m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
+                    m.detailsScreen.isLoggedIn = true
+                    return false
+                else
+                    ' Find a way to show packages
+                    m.detailsScreen.ShowSubscriptionPackagesCallback = true
+                end if
+            end if
+
+            m.detailsScreen.SubscriptionButtonsShown = true
             if(m.detailsScreen.SubscriptionPackagesShown = false)
                 ' All subscription button code goes here
                 m.detailsScreen.SubscriptionPackagesShown = true
+                m.detailsScreen.ShowSubscriptionPackagesCallback = true
             else
                 ' First package was selected by the user. Start the wizard.
                 StartLoader()
@@ -706,7 +726,9 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                  end if
             end if
 
+
         else            ' Device Linking
+            m.detailsScreen.SubscriptionButtonsShown = true
             if(m.detailsScreen.SubscriptionPackagesShown = false)
                 m.deviceLinking.show = true
                 m.deviceLinking.setFocus(true)

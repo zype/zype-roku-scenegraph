@@ -8,6 +8,8 @@ Function Init()
 
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
+    m.top.DontShowSubscriptionPackages = true
+    m.top.ShowSubscriptionPackagesCallback = false
 
     m.buttons           =   m.top.findNode("Buttons")
     m.videoPlayer       =   m.top.findNode("VideoPlayer")
@@ -20,6 +22,14 @@ Function Init()
     'm.plans = GetPlans({})
 
 
+End Function
+
+Function onShowSubscriptionPackagesCallback()
+    print "onShowSubscriptionPackagesCallback"
+    if(m.top.ShowSubscriptionPackagesCallback = true)
+        print "onShowSubscriptionPackagesCallback: true"
+        AddPackagesButtons()
+    end if
 End Function
 
 ' set proper focus to buttons if Details opened and stops Video if Details closed
@@ -76,7 +86,9 @@ Sub onItemSelected()
                 print "====== Play Button was clicked"
             else
                 print "====== Subscription button clicked"
-                AddPackagesButtons()
+                if(m.top.DontShowSubscriptionPackages = false)
+                    AddPackagesButtons()
+                end if
                 'm.top.SubscriptionPackagesShown = true
                 'print "Subscription Plans++: "; m.top.SubscriptionPlans[0]
             end if
@@ -99,6 +111,7 @@ Sub OnContentChange()
         print "+++++++++++++++++++++++++++++++++++++++++"
         print "m.top.content.subscriptionRequired: "; m.top.content.subscriptionRequired
         print "m.top.isLoggedIn: "; m.top.isLoggedIn
+        print "m.top.isLoggedInViaNativeSVOD: "; m.top.isLoggedInViaNativeSVOD
         print "m.top.NoAuthenticationEnabled: "; m.top.NoAuthenticationEnabled
         print "m.top.JustBoughtNativeSubscription: "; m.top.JustBoughtNativeSubscription
         print "+++++++++++++++++++++++++++++++++++++++++"
@@ -110,7 +123,7 @@ Sub OnContentChange()
         end if
 
         ' If all else is good and device is linked but there's no subscription found on the server then show native subscription buttons.
-        if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true)
+        if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.top.isLoggedInViaNativeSVOD = false)
             m.canWatchVideo = false
         end if
 
@@ -159,7 +172,7 @@ Sub AddActionButtons()
         ' create buttons
         result = []
         btns = ["Subscribe"]', "Link Device"]
-        if(m.top.BothActive)
+        if(m.top.BothActive AND m.top.isDeviceLinked = false)
             btns.push("Link Device")
         end if
         for each button in btns

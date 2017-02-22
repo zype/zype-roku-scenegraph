@@ -59,6 +59,14 @@
         <!-- This is just a flag to mark in the system that the user just bought via IAP and should be able to Play -->
         <field id="JustBoughtNativeSubscription" type="bool" />
 
+        <!-- DontShowSubscriptionPackages -->
+        <!-- This is when we click the subscription button and there might be a new subscription on the server
+             We need to load the Play/Favorite buttons if there was a new subscription found.
+             In this time period, do not show the packages when Subscription button is clicked
+        -->
+        <field id="DontShowSubscriptionPackages" type="bool" />
+        <field id="ShowSubscriptionPackagesCallback" type="bool" onChange="onShowSubscriptionPackagesCallback"/>
+
     </interface>
 
     <!-- main handler -->
