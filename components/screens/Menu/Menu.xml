@@ -14,6 +14,8 @@
 
         <!-- Row item selection handler -->
         <!--<field id="rowItemSelected" type="intarray" alwaysnotify="true" alias="RowList.rowItemSelected"/>-->
+
+        <field id="isDeviceLinkingEnabled" type="bool" onChange="InitSidebarButtons"/>
     </interface>
 
     <!-- main handler -->

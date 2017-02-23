@@ -8,13 +8,39 @@ Sub Init()
     ' m.rowButtons = m.top.findNode("RowList")
     ' m.rowButtons.content = GetRowListContent()
 
+    InitSidebarButtons()
     ' create buttons
+    ' result = []
+    ' print "[Menu] Init"
+    ' print "m.top.isDeviceLinkingEnabled: "; m.top.isDeviceLinkingEnabled
+    ' menuButtons = ["Search", "About"]
+    ' if(m.top.isDeviceLinkingEnabled = true)
+    '     menuButtons.push("Link Device")
+    '     menuButtons.push("Favorites")
+    ' end if
+
+    ' for each button in menuButtons
+    '     result.push({title : button})
+    ' end for
+    ' m.buttons.content = ContentList2SimpleNode(result)
+End Sub
+
+Function InitSidebarButtons()
     result = []
-    for each button in ["Search", "About", "Link Device", "Favorites"]
+    print "[Menu] InitSidebarButtons"
+    print "m.top.isDeviceLinkingEnabled: "; m.top.isDeviceLinkingEnabled
+    menuButtons = ["Search", "About"]
+    
+    if(m.top.isDeviceLinkingEnabled = true)
+        menuButtons.push("Link Device")
+        menuButtons.push("Favorites")
+    end if
+
+    for each button in menuButtons
         result.push({title : button})
     end for
     m.buttons.content = ContentList2SimpleNode(result)
-End Sub
+End Function
 
 Function GetRowListContent() as object
     'Populate the RowList content here

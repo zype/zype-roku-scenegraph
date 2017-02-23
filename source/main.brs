@@ -25,6 +25,11 @@ Sub RunUserInterface()
     'm.scene.SubscriptionPlans = m.plans
     'print "Type: "; type(m.productsCatalog)
 
+    m.Menu = m.scene.findNode("Menu")
+    m.Menu.isDeviceLinkingEnabled = m.app.device_linking
+
+    print "[Main] Init"
+
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
     m.infoScreen = m.scene.findNode("InfoScreen")
