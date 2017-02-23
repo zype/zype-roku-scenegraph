@@ -694,7 +694,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         print "Subscribe/Device Linking"
         if(index = 1)   ' Subscribe
 
-            ' Do an extra check if the device is linked and there was any new subscription on the server 
+            ' Do an extra check if the device is linked and there was any new subscription on the server
             if(m.app.device_linking = true AND m.detailsScreen.isDeviceLinked = true)
                 m.detailsScreen.DontShowSubscriptionPackages = true
                 consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})

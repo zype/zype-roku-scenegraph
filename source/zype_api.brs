@@ -239,7 +239,8 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
   end if
 
   print "GetAppConfigs: "; data
-  data.device_linking = true
+  ' data.device_linking = true
+  ' data.in_app_purchase = true
   return data
 End Function
 
@@ -340,11 +341,11 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   if response <> invalid
     response = response.response
     if response.DoesExist("body")
-        
+
       if response.body.DoesExist("on_air")
           info.on_air = response.body.on_air
       end if
-            
+
       if response.body.DoesExist("outputs")
         for each output in response.body.outputs
           streamUrl = output.url

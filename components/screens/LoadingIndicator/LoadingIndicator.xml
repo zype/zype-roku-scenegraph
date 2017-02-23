@@ -30,7 +30,7 @@ Sample:
 
 <interface>
 <!--     URI of the loading indicator image/spinner graphic, if used. -->
-    <field id="imageUri" type="string" alias="image.uri" value="pkg:/components/screens/LoadingIndicator/loader.png"/>
+    <field id="imageUri" type="string" alias="image.uri" value="pkg:/components/screens/LoadingIndicator/lightLoader.png"/>
 <!--     If specified, width of a spinning image, otherwise bitmap width is used. You can specify only imageWidth
          and imageHeight will be calculated accordingly to image's aspect ratio. Make sure image fits into component or
          it will be downscaled. -->
@@ -48,7 +48,7 @@ Sample:
          this to false, otherwise component might be centered. -->
     <field id="centered" type="bool" value="true" onChange="updateLayout"/>
 <!--     Color of the background. -->
-    <field id="backgroundColor" type="color" alias="background.color" value="0x000000"/>
+    <field id="backgroundColor" type="color" alias="background.color" value="0x151515"/>
 <!--     Background image. If set, backgroundColor is ignored. -->
     <field id="backgroundUri" type="string" onChange="onBackgroundImageChange"/>
 <!--     Opacity of the background. To remove background, this should be set to 0. -->
@@ -102,7 +102,7 @@ Sample:
             </Poster>
             <Label
                 id="text"
-                color="0x333333"
+                color="0xf5f5f5"
                 horizAlign="center"/>
         </Group>
         <Animation

@@ -18,7 +18,7 @@
         <!-- Main Background -->
         <Rectangle
             id="AppBackground"
-            color="0xffffff"
+            color="0x151515"
             width="1280"
             height="720"
             translation="[0,0]" />
@@ -32,7 +32,7 @@
 
         <Label
             id="Info"
-            color="0x333333"
+            color="0xf5f5f5"
             wrap="true"
             width="900"
             lineSpacing="5"

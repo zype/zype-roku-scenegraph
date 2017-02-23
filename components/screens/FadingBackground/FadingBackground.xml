@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
 
-<!-- Description 
+<!-- Description
 FadingBackground - Background for all nodes. It is basically poster that gets picture Url from HDBackgroundImageUrl field of content meta-data of current focused item. Between switching uri, starts animation with fading out old image and fading in new picture after loading.-->
 
 <component name="FadingBackground" extends="Rectangle" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
@@ -13,14 +13,14 @@ FadingBackground - Background for all nodes. It is basically poster that gets pi
         <!--Set color of background while image is loading.-->
         <field id="ShadeOpacity"  type="float" alias="shade.opacity"/>
     </interface>
-    
+
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/FadingBackground/FadingBackground.brs" />
 
     <children>
-        <Rectangle 
+        <Rectangle
             id="AppBackground"
-            color="0xFFFFFF"
+            color="0x151515"
             width="1280"
             height="720"
             translation="[0,0]" />
@@ -38,18 +38,18 @@ FadingBackground - Background for all nodes. It is basically poster that gets pi
             translation="[430,0]" />
         <Rectangle
             id="shade"
-            color="0xFFFFFF"
+            color="0x151515"
             opacity="0.65"/>
-        
+
         <!-- Gradient Balck Overlay -->
         <Poster
             id="thumbOverlay-details"
-            uri="pkg:/images/WhiteOverlay.png"
+            uri="pkg:/images/blackOverlay.png"
             width="1280"
             height="720"
             translation="[0, 0]"
         />
-            
+
         <Animation
             id="fadeoutAnimation"
             repeat="false"
@@ -60,7 +60,7 @@ FadingBackground - Background for all nodes. It is basically poster that gets pi
                 keyValue="[1.0, 0.0]"
                 fieldToInterp="oldBackground.opacity"/>
         </Animation>
-        
+
         <Animation
             id="fadeinAnimation"
             repeat="false"

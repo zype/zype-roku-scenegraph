@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="utf-8" ?> 
-<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********--> 
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
 
-<!-- 
-    main node which handles home screen children 
+<!--
+    main node which handles home screen children
     -->
 <component name="HomeScene" extends="Scene" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
-    
+
     <interface>
         <!-- Content for RowList in GridScreen on Home Scene -->
         <field id="gridContent" type="node" alias="GridScreen.content" onChange="OnChangeContent"/>
-        
+
         <!-- Content for RowList in Search -->
         <field id="searchContent" type="node" alias="Search.content"/>
 
@@ -18,14 +18,14 @@
 
         <!-- Custom Selection Boolean Interface -->
         <field id="playlistItemSelected" type="boolean" value="false" alwaysNotify="true"/>
-        
+
         <!-- Row item selection handler -->
         <field id="rowItemSelected" type="intarray" alwaysNotify="true" alias="GridScreen.rowItemSelected"/>
 
         <!-- Row item focus handler -->
         <field id="rowItemFocused" type="intarray" alwaysNotify="true" alias="GridScreen.itemFocused"/>
-        
-        
+
+
         <field id="SearchString" type="string" alwaysnotify="true" alias="Search.SearchString"/>
 
         <field id="ResultsText" type="string" alwaysnotify="true" alias="Search.ResultsText"/>
@@ -37,17 +37,17 @@
         <!-- Subscription Plans -->
         <field id="SubscriptionPlans" type="roArray" />
     </interface>
-    
+
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/HomeScene/HomeScene.brs" />
-    
+
     <children>
         <!-- Grid Screen with RowList on Home Scene -->
         <GridScreen
             id="GridScreen"
             visible="true"
             translation="[0,0]" />
-        
+
         <!-- Details Screen with Play button -->
         <DetailsScreen
             id="DetailsScreen"
@@ -73,18 +73,18 @@
         <!--Search screen.-->
         <Search
             id="Search"
-            visible="false"/> 
+            visible="false"/>
 
         <!--Search screen.-->
         <Favorites
             id="Favorites"
-            visible="false"/>  
+            visible="false"/>
 
         <!--Info screen.-->
         <InfoScreen
             id="InfoScreen"
-            visible="false"/>    
-            
+            visible="false"/>
+
         <!-- Font for loading indicator -->
         <Label>
             <Font id="loadingIndicatorFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="16"/>
@@ -92,7 +92,7 @@
 
         <LoadingIndicator
           id="loadingIndicator"
-          imageUri="pkg:/components/screens/LoadingIndicator/loader.png"
+          imageUri="pkg:/components/screens/LoadingIndicator/lightLoader.png"
           clockwise="true"
           spinInterval="2"
           fadeInterval="0.5"
@@ -105,7 +105,7 @@
           translation="[0, 0]"
           textPadding="10"
           font="dictionary:loadingIndicatorFont"
-          backgroundColor="0xEEEEEE"
-          backgroundOpacity="0"/>        
-    </children> 
+          backgroundColor="0x151515"
+          backgroundOpacity="0"/>
+    </children>
 </component>
