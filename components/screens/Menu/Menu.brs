@@ -11,6 +11,7 @@ Sub Init()
 
     m.buttons.color = m.global.theme.primary_text_color
     m.buttons.focusedColor = m.global.theme.primary_text_color
+    m.buttons.focusBitmapUri = m.global.theme.button_focus_uri
 
     ' m.rowButtons = m.top.findNode("RowList")
     ' m.rowButtons.content = GetRowListContent()

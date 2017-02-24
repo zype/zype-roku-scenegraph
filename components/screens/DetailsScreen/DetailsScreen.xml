@@ -126,7 +126,7 @@
             textHorizAlign="center"
             font="dictionary:ButtonFont"
             focusedFont="dictionary:ButtonFont"
-            focusBitmapUri="pkg:/images/button-focus.png"
+            focusBitmapUri="pkg:/images/button-focus-light.png"
             />
         <LabelList
             id="SubscriptionButtons"
@@ -139,7 +139,7 @@
             textHorizAlign="center"
             font="dictionary:ButtonFont"
             focusedFont="dictionary:ButtonFont"
-            focusBitmapUri="pkg:/images/button-focus.png"
+            focusBitmapUri="pkg:/images/button-focus-light.png"
             />
 
         <!--Black hud at bottom of the Details Screen.-->

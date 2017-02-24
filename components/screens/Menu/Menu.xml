@@ -49,7 +49,7 @@
             font="dictionary:MenuFont"
             textHorizAlign="center"
             focusedFont="dictionary:MenuFont"
-            focusBitmapUri="pkg:/images/button-focus.png"
+            focusBitmapUri="pkg:/images/button-focus-light.png"
             />
 
         <!--Menu grid -->

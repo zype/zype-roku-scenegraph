@@ -30,10 +30,12 @@ Function Init()
 
     m.buttons.color = m.global.theme.primary_text_color
     m.buttons.focusedColor = m.global.theme.primary_text_color
+    m.buttons.focusBitmapUri = m.global.theme.button_focus_uri
 
     m.subscribeButtons = m.top.findNode("SubscriptionButtons")
     m.subscribeButtons.color = m.global.theme.primary_text_color
     m.subscribeButtons.focusedColor = m.global.theme.primary_text_color
+    m.subscribeButtons.focusBitmapUri = m.global.theme.button_focus_uri
 
     m.optionsText = m.top.findNode("OptionsText")
     m.optionsText.color = m.global.theme.primary_text_color

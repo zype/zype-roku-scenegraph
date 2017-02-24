@@ -5,7 +5,8 @@ Function DarkTheme() as Object
         secondary_text_color:       "#a8a8a8",
         loader_uri:                 "pkg:/components/screens/LoadingIndicator/lightLoader.png",
         focus_grid_uri:             "pkg:/images/focus_grid_light.9.png",
-        overlay_uri:                "pkg:/images/blackOverlay.png"
+        overlay_uri:                "pkg:/images/blackOverlay.png",
+        button_focus_uri:           "pkg:/images/button-focus-light.png"
     }
     return theme
 End Function
@@ -17,7 +18,8 @@ Function LightTheme() as Object
         secondary_text_color:       "#595959",
         loader_uri:                 "pkg:/components/screens/LoadingIndicator/darkLoader.png",
         focus_grid_uri:             "pkg:/images/focus_grid_dark.9.png",
-        overlay_uri:                "pkg:/images/whiteOverlay.png"
+        overlay_uri:                "pkg:/images/whiteOverlay.png",
+        button_focus_uri:           "pkg:/images/button-focus-dark.png"
     }
     return theme
 End Function

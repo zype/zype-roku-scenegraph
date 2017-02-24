@@ -245,7 +245,7 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
   ' data.in_app_purchase = true
 
   ' Set theme and brand_color for testing
-  data.theme = "light"
+  data.theme = "dark"
   data.brand_color = "#ff0000" ' "#00aeef"
 
   return data
