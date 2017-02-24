@@ -250,7 +250,7 @@ sub playRegularVideo(screen as Object)
         end if
     else
         print "FREE VIDEO"
-        playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
+        playVideo(screen, {"app_key": GetApiConfigs().app_key})
     end if
 end sub
 
