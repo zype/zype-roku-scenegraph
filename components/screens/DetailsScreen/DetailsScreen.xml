@@ -176,6 +176,7 @@
            <Group
                id="Optionslabel">
            <Label
+               id="OptionsText"
                translation="[726, 58]"
                width="400"
                horizAlign="right"

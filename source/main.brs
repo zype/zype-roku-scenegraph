@@ -4,6 +4,19 @@ Library "Roku_Ads.brs"
 
 Sub RunUserInterface()
     screen = CreateObject("roSGScreen")
+
+    m.app = GetAppConfigs()
+
+    m.global = screen.getGlobalNode()
+    m.global.addFields({ brand_color: m.app.brand_color })
+    if m.app.theme = "dark"
+      m.global.addFields({ theme: DarkTheme() })
+    else if m.app.theme = "light"
+      m.global.addFields({ theme: LightTheme() })
+    else
+      m.global.addFields({ theme: DarkTheme() })
+    end if
+
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
@@ -14,7 +27,6 @@ Sub RunUserInterface()
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
-    m.app = GetAppConfigs()
 
     getUserPurchases()
     getProductsCatalog()
@@ -77,6 +89,7 @@ Sub RunUserInterface()
     'print GetLimitStreamObject()
 
     'isAuthViaUniversalSVOD()
+
 
     while(true)
         msg = wait(0, m.port)
@@ -881,3 +894,9 @@ Function isAuthViaUniversalSVOD()
     return false
     'print "deviceLinking: "; deviceLinking
 End Function
+
+' Function setTheme(theme as Object)
+'     row_list = m.gridScreen.findNode("RowList")
+'
+'     row_list.focusBitmapUri = theme.focus_grid_uri
+' End Function

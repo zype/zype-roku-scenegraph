@@ -239,8 +239,15 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
   end if
 
   print "GetAppConfigs: "; data
+
+  ' Set device linking and IAP for testing
   ' data.device_linking = true
   ' data.in_app_purchase = true
+
+  ' Set theme and brand_color for testing
+  data.theme = "light"
+  data.brand_color = "#ff0000" ' "#00aeef"
+
   return data
 End Function
 

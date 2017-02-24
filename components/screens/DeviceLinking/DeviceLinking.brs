@@ -23,20 +23,20 @@ sub On_show()
     m.top.visible = m.top.show
     m.top.setFocus(m.top.show)
     'm.linkText.text = "Please visit " + m.top.DeviceLinkingURL + " to link your device!"
-    
-    m.background.color = "0x151515"
+
+    m.background.color = m.global.theme.background_color
 
     m.linkText.text = "From your computer or mobile device, visit:"
-    m.linkText.color = "0xa8a8a8"
+    m.linkText.color = m.global.theme.secondary_text_color
 
     m.linkText2.text = m.top.DeviceLinkingURL
-    m.linkText2.color = "0xf5f5f5"
+    m.linkText2.color = m.global.theme.primary_text_color
 
     m.linkText3.text = "Enter Pin:"
-    m.linkText3.color = "0xa8a8a8"
+    m.linkText3.color = m.global.theme.secondary_text_color
 
-    m.pin.color = "0xf5f5f5"
-    
+    m.pin.color = m.global.theme.primary_text_color
+
 end sub
 
 function onKeyEvent(key as String, press as Boolean) as Boolean

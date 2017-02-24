@@ -21,6 +21,25 @@ Function Init()
     m.buttons.setFocus(true)
     'm.plans = GetPlans({})
 
+    ' Set theme
+    m.AppBackground = m.top.findNode("AppBackground")
+    m.AppBackground.color = m.global.theme.background_color
+
+    m.overlay = m.top.findNode("thumbOverlay-details")
+    m.overlay.uri = m.global.theme.overlay_uri
+
+    m.buttons.color = m.global.theme.primary_text_color
+    m.buttons.focusedColor = m.global.theme.primary_text_color
+
+    m.subscribeButtons = m.top.findNode("SubscriptionButtons")
+    m.subscribeButtons.color = m.global.theme.primary_text_color
+    m.subscribeButtons.focusedColor = m.global.theme.primary_text_color
+
+    m.optionsText = m.top.findNode("OptionsText")
+    m.optionsText.color = m.global.theme.primary_text_color
+
+    m.optionsIcon = m.top.findNode("OptionsIcon")
+    m.optionsIcon.blendColor = m.global.brand_color
 
 End Function
 
@@ -192,7 +211,7 @@ Sub AddPackagesButtons()
            'btns.push(plan["name"] + " at " + plan["amount"] + " " + plan["currency"])
            btns.push(plan["title"] + " at " + plan["cost"])
         end for
-        
+
         for each button in btns
             result.push({title : button})
         end for

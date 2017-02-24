@@ -19,6 +19,20 @@ Function Init()
 
     m.videoTitle = m.top.findNode("VideoTitle")
     m.videoTitle.text = ""
+
+
+    ' Set theme
+    m.AppBackground = m.top.findNode("AppBackground")
+    m.AppBackground.color = m.global.theme.background_color
+
+    m.keyboard.keyColor = m.global.theme.primary_text_color
+    m.keyboard.focusedKeyColor = m.global.theme.secondary_text_color
+
+    m.gridScreen.focusBitmapUri = m.global.theme.focus_grid_uri
+    m.VideoTitle.color = m.global.theme.primary_text_color
+
+    m.resultsString = m.top.findNode("ResultsString")
+    m.resultsString.color = m.global.theme.secondary_text_color
 End Function
 
 Function OnRowItemSelected()
