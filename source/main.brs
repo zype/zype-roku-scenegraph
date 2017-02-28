@@ -283,7 +283,12 @@ sub playRegularVideo(screen as Object)
     ' Has purchased native subscription or video does not require subscription
     else
         print "FREE VIDEO"
-        playVideo(screen, {"app_key": GetApiConfigs().app_key})
+
+        if m.app.avod = true
+          playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
+        else
+          playVideo(screen, {"app_key": GetApiConfigs().app_key})
+        end if
     end if
 end sub
 
@@ -337,16 +342,36 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
         ' Normally, would set publisher's ad URL here.
         ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
-        adIface.setAdUrl("")
+        if playerInfo.scheduledAds.count() > 0
+            url = playerInfo.scheduledAds[0].url
+            adIface.setAdUrl(url)
+        end if
 
-        'Returns available ad pod(s) scheduled for rendering or invalid, if none are available.
-        adPods = adIface.getAds()
+        adsArray = []
+        for ads = 1 to 1
+          adPods = adIface.getAds()
+
+          ' if adPods array has at least one adPod
+          if adPods.count() > 0
+            thisPod = adPods[0].ads
+            for each a in thisPod
+              adsArray.push(a)
+            end for
+          end if
+        end for
+        preRollAds = {
+          viewed: false,
+          renderSequence: "preroll",
+          duration: 0,
+          renderTime: 0,
+          ads: adsArray
+        }
 
         playContent = true
         'render pre-roll ads
-        if adPods <> invalid and adPods.count() > 0 then
+        if GetAppConfigs().avod = true and preRollAds.ads.count() > 0 then
             m.loadingIndicator.control = "stop"
-            playContent = adIface.showAds(adPods)
+            playContent = adIface.showAds(preRollAds)
         end if
     end if
 
@@ -509,6 +534,7 @@ Function GetContent()
 End Function
 
 function GetPlaylistContent(playlist_id as String)
+    playlist_id = playlist_id.tokenize(":")[0]
     pl = GetPlaylists({"id": playlist_id})[0]
 
     favs = GetFavoritesIDs()
@@ -518,7 +544,7 @@ function GetPlaylistContent(playlist_id as String)
         row = {}
         row.title = pl.title
         videos = []
-        for each video in GetPlaylistVideos(pl._id)
+        for each video in GetPlaylistVideos(pl._id, {"dpt": "true"})
             video.inFavorites = favs.DoesExist(video._id)
             videos.push(CreateVideoObject(video))
         end for
@@ -533,7 +559,14 @@ end function
 
 function GetContentPlaylists(parent_id as String)
     ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
-    rawPlaylists = GetPlaylists({"parent_id": parent_id})
+    parent_id = parent_id.tokenize(":")[0]
+    if GetAppConfigs().per_page <> invalid
+      per_page = GetAppConfigs().per_page
+    else
+      per_page = 500
+    end if
+
+    rawPlaylists = GetPlaylists({"parent_id": parent_id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
 
     list = []
     row = {}
@@ -550,9 +583,20 @@ end function
 
 function GetPlaylistsAsRows(parent_id as String)
     ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
-    rawPlaylists = GetPlaylists({"parent_id": parent_id, "sort": "priority", "order": "asc"})
+    parent_id = parent_id.tokenize(":")[0]
+    if GetAppConfigs().per_page <> invalid
+      per_page = GetAppConfigs().per_page
+    else
+      per_page = 500
+    end if
+
+    rawPlaylists = GetPlaylists({"parent_id": parent_id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
 
     favs = GetFavoritesIDs()
+
+    if rawPlaylists.count() = 0
+      return GetPlaylistContent(parent_id)
+    end if
 
     list = []
     ' row = {}
@@ -573,7 +617,7 @@ function GetPlaylistsAsRows(parent_id as String)
             end for
             row.ContentList = videos
         else
-            pls = GetPlaylists({"parent_id": item._id})
+            pls = GetPlaylists({"parent_id": item._id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
             for each pl in pls
                 row.ContentList.push(CreatePlaylistObject(pl))
             end for

@@ -331,6 +331,7 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   info.url = ""
   info.on_air = false
   info.has_access = false
+  info.scheduledAds = []
 
   url = GetApiConfigs().player_endpoint + "embed/" + videoid + "/"
   ' params = AppendAppKeyToParams(urlParams)
@@ -344,6 +345,17 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
 
       if response.body.DoesExist("on_air")
           info.on_air = response.body.on_air
+      end if
+
+      if(response.body.DoesExist("advertising"))
+        for each advertising in response.body.advertising
+          if (advertising = "schedule")
+            for each ad in response.body.advertising.schedule
+              'print "DYNAMIC VAST URL"
+              info.scheduledAds.push({offset: ad.offset / 1000, url: ad.tag, played: false})
+            end for
+          end if
+        end for
       end if
 
       if response.body.DoesExist("outputs")
