@@ -54,7 +54,7 @@ Function GetVideoThumbnail(attrs As Object) As Object
   for each item in properties.thumbnails
     ' This is actually correct code
     if item.DoesExist("width")
-      if item.width <> invalid and item.width >= 250
+      if item.width <> invalid and item.width >= 250 and item.width <= 500
         src = item.url
         exit for
       else
@@ -62,6 +62,10 @@ Function GetVideoThumbnail(attrs As Object) As Object
       end if
     end if
   end for
+
+  if src = "" and properties.thumbnails.count() > 0 and properties.thumbnails[0].url <> invalid
+    src = properties.thumbnails[0].url
+  end if
 
   return src
 End Function
@@ -84,6 +88,10 @@ Function GetVideoBackgroundImage(attrs As Object) As Object
       end if
     end if
   end for
+
+  if src = "" and properties.thumbnails.count() > 0 and properties.thumbnails[0].url <> invalid
+    src = properties.thumbnails[0].url
+  end if
 
   return src
 End Function
