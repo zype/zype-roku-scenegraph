@@ -37,6 +37,8 @@ Function CreateVideoObject(attrs As Object) As Object
     inFavorites: properties.inFavorites,
     onAir: properties.on_air,
     subscriptionRequired: properties.subscription_required
+    contentID: properties._id,
+    mediaType: "movie"
   }
 
   return video
@@ -52,15 +54,18 @@ Function GetVideoThumbnail(attrs As Object) As Object
   for each item in properties.thumbnails
     ' This is actually correct code
     if item.DoesExist("width")
-      if item.width <> invalid and item.width >= 250
+      if item.width <> invalid and item.width >= 250 and item.width <= 500
         src = item.url
         exit for
       else
         src = item.url
-        exit for
       end if
     end if
   end for
+
+  if src = "" and properties.thumbnails[0].url <> invalid
+    src = properties.thumbnails[0].url
+  end if
 
   return src
 End Function
@@ -80,10 +85,13 @@ Function GetVideoBackgroundImage(attrs As Object) As Object
         exit for
       else
         src = item.url
-        exit for
       end if
     end if
   end for
+
+  if src = "" and properties.thumbnails[0].url <> invalid
+    src = properties.thumbnails[0].url
+  end if
 
   return src
 End Function

@@ -36,6 +36,9 @@
 
         <!-- Subscription Plans -->
         <field id="SubscriptionPlans" type="roArray" />
+
+
+        <field id="deepLinkedID" type="string" onChange="OnDeepLink"/>        
     </interface>
 
     <!-- main handler -->

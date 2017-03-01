@@ -2,7 +2,17 @@ Library "Roku_Ads.brs"
 
 ' ********** Copyright 2016 Zype Inc.  All Rights Reserved. **********
 
-Sub RunUserInterface()
+Sub RunUserInterface(args as Dynamic)
+  if (args.contentID <> invalid) and (args.mediaType <> invalid)
+    contentID = args.contentID
+    mediaType = args.mediaType
+    SetHomeScene(contentID)
+  else
+    SetHomeScene()
+  end if
+End Sub
+
+Sub SetHomeScene(contentID = invalid)
     screen = CreateObject("roSGScreen")
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
@@ -77,6 +87,28 @@ Sub RunUserInterface()
     'print GetLimitStreamObject()
 
     'isAuthViaUniversalSVOD()
+
+    ' Deep Linking
+    if (contentID <> invalid)
+      ' Get video object and create VideoNode
+      linkedVideo = GetVideo(contentID)
+      linkedVideoObject =  CreateVideoObject(linkedVideo)
+      linkedVideoNode = createObject("roSGNode", "VideoNode")
+
+      for each key in linkedVideoObject
+        linkedVideoNode[key] = linkedVideoObject[key]
+      end for
+
+      ' Set focused content to linkedVideoNode
+      m.gridScreen.focusedContent = linkedVideoNode
+      m.gridScreen.visible = "false"
+      m.detailsScreen.content = m.gridScreen.focusedContent
+      m.detailsScreen.setFocus(true)
+      m.detailsScreen.visible = "true"
+
+      ' Trigger listener to push detailsScreen into HomeScene screenStack
+      m.scene.DeepLinkedID = contentID
+    end if
 
     while(true)
         msg = wait(0, m.port)
@@ -520,9 +552,9 @@ Function GetContent()
         params.AddReplace(query, item)
         params.AddReplace("dpt", "true")
         videos = []
+
         for each video in GetVideos(params)
             video.inFavorites = favs.DoesExist(video._id)
-            'print video
             videos.push(CreateVideoObject(video))
         end for
 
@@ -612,7 +644,6 @@ function GetPlaylistsAsRows(parent_id as String)
             videos = []
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
                 video.inFavorites = favs.DoesExist(video._id)
-                'print video
                 videos.push(CreateVideoObject(video))
             end for
             row.ContentList = videos
@@ -621,7 +652,7 @@ function GetPlaylistsAsRows(parent_id as String)
             for each pl in pls
                 row.ContentList.push(CreatePlaylistObject(pl))
             end for
-        endif
+        end if
 
         list.push(row)
     end for
