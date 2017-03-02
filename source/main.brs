@@ -236,12 +236,6 @@ Sub SetHomeScene(contentID = invalid)
                                 if deviceLinkingObj.linked then
                                     pin.text = "You are linked!"
 
-                                    ' Only do this if content was set. Content.id is not set if they go directly to Device Linking without opening the Details Screen on a video
-                                    if m.detailsScreen.content <> invalid
-                                      idParts = m.detailsScreen.content.id.tokenize(":")
-                                      m.detailsScreen.content.id = idParts[0] + ":" + idParts[1]
-                                    end if
-
                                     m.detailsScreen.isDeviceLinked = true
                                     m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
                                     m.detailsScreen.isLoggedIn = true
