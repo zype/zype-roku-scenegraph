@@ -193,7 +193,7 @@ Sub SetHomeScene(contentID = invalid)
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
                 print m.videoPlayer.position
-                if(m.videoPlayer.position >= 10)
+                if(m.videoPlayer.position >= 30)
                     AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
                 end if
