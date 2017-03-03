@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<component name = "VideoNode" extends = "ContentNode" >
+<component name="VideoNode" extends="ContentNode">
 
-  <interface >
-    <field id="inFavorites" type = "boolean" />
-    <field id="onAir" type = "boolean"/>
-    <field id="subscriptionRequired" type = "boolean"/>
-  </interface>
+	<interface>
+		<field id="inFavorites" type="boolean" />
+		<field id="onAir" type="boolean" />
+		<field id="subscriptionRequired" type="boolean" />
+		<field id="contentId" type="string" />
+		<field id="mediaType" type="string" />
+	</interface>
 
 </component>

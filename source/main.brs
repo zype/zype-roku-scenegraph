@@ -1,8 +1,19 @@
 Library "Roku_Ads.brs"
 
 ' ********** Copyright 2016 Zype Inc.  All Rights Reserved. **********
+Function Main (args as Dynamic) as Void
+    if (args.ContentId <> invalid) and (args.MediaType <> invalid)
+        if (args <> invalid)
+            contentID   = args.contentID
+            mediaType   = args.mediatype  
+            SetHomeScene(contentID)     
+        end if
+    else
+        SetHomeScene()
+    end if
+End Function
 
-Sub RunUserInterface()
+Sub SetHomeScene(contentID = invalid)
     screen = CreateObject("roSGScreen")
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
@@ -15,6 +26,7 @@ Sub RunUserInterface()
     m.purchasedItems = []
     m.productsCatalog = []
     m.app = GetAppConfigs()
+    m.contentID = contentID
 
     getUserPurchases()
     getProductsCatalog()
@@ -77,6 +89,20 @@ Sub RunUserInterface()
     'print GetLimitStreamObject()
 
     'isAuthViaUniversalSVOD()
+    
+    
+    
+    startDate = CreateObject("roDateTime")
+       
+    if(contentID <> invalid)
+'        print "contentID";contentID
+        print "m.i";m.i
+        print "m.j";m.j
+        if(m.i <> -1 and m.j <> -1)
+            m.gridScreen.itemFocused = [m.i,m.j]            'Open description page for selected video
+            m.gridScreen.rowItemSelected = [m.i,m.j]
+       end if
+   end if
 
     while(true)
         msg = wait(0, m.port)
@@ -148,40 +174,60 @@ Sub RunUserInterface()
                 _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
 
                 handleButtonEvents(2, _isSubscribed, lclScreen)
+            else if (msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" and (msg.getData() = 2) then
+                print "resume button clicked"
 
+                if msg.getNode() = "DetailsScreen"
+                    print "Screen"
+                    lclScreen = m.detailsScreen
+                end if
+                
+                detailScreenIdFull = lclScreen.content.id
+                detailScreenIdObj = detailScreenIdFull.tokenize(":")
+                detailScreenId = detailScreenIdObj[0]
+                '_isSubscribed = isSubscribed(detailScreenId)
+                _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
+
+                handleButtonEvents(3, _isSubscribed, lclScreen)
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
-                'print m.videoPlayer
-                GetLimitStreamObject().played = GetLimitStreamObject().played + 1
-                'print  GetLimitStreamObject().played
-                if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
-                    if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-                        m.videoPlayer.visible = false
-                        m.videoPlayer.control = "stop"
-                        dialog = createObject("roSGNode", "Dialog")
-                        dialog.title = "Limit Reached"
-                        dialog.optionsDialog = true
-                        dialog.message = GetLimitStreamObject().message
-                        m.scene.dialog = dialog
-                    else
-                        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-                        if oauth <> invalid
-
-                            ' print lclScreen.content.id
-                            ' playVideo(lclScreen, oauth.access_token)
-
-                            if IsEntitled(m.videoPlayer.content.id, {"access_token": oauth.access_token}) = false
-                                m.videoPlayer.visible = false
-                                m.videoPlayer.control = "stop"
-                                dialog = createObject("roSGNode", "Dialog")
-                                dialog.title = "Limit Reached"
-                                dialog.optionsDialog = true
-                                dialog.message = GetLimitStreamObject().message
-                                m.scene.dialog = dialog
-                            end if
+                print m.videoPlayer.position
+                if(m.videoPlayer.position >= 10)
+                    AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
+                    AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
+                end if
+                if(m.on_air)
+                    GetLimitStreamObject().played = GetLimitStreamObject().played + 1
+                    'print  GetLimitStreamObject().played
+                    if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
+                        if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
+                            m.videoPlayer.visible = false
+                            m.videoPlayer.control = "stop"
+                            dialog = createObject("roSGNode", "Dialog")
+                            dialog.title = "Limit Reached"
+                            dialog.optionsDialog = true
+                            dialog.message = GetLimitStreamObject().message
+                            m.scene.dialog = dialog
                         else
-                            print "No OAuth available"
+                            oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+                            if oauth <> invalid
+    
+                                ' print lclScreen.content.id
+                                ' playVideo(lclScreen, oauth.access_token)
+    
+                                if IsEntitled(m.videoPlayer.content.id, {"access_token": oauth.access_token}) = false
+                                    m.videoPlayer.visible = false
+                                    m.videoPlayer.control = "stop"
+                                    dialog = createObject("roSGNode", "Dialog")
+                                    dialog.title = "Limit Reached"
+                                    dialog.optionsDialog = true
+                                    dialog.message = GetLimitStreamObject().message
+                                    m.scene.dialog = dialog
+                                end if
+                            else
+                                print "No OAuth available"
+                            end if
                         end if
                     end if
                 end if
@@ -303,8 +349,9 @@ sub playVideo(screen as Object, auth As Object)
 
     ' show loading indicator before requesting ad and playing video
     m.loadingIndicator.control = "start"
-    m.VideoPlayer = screen.findNode("VideoPlayer")
-
+    'm.VideoPlayer = screen.findNode("VideoPlayer")
+    m.on_air = screen.content.onAir
+     m.VideoPlayer.observeField("position", m.port)
     if screen.content.onAir = true
         m.VideoPlayer.observeField("position", m.port)
     end if
@@ -327,8 +374,10 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
     ' show loading indicator before requesting ad and playing video
     m.loadingIndicator.control = "start"
-    m.VideoPlayer = screen.findNode("VideoPlayer")
-
+    m.on_air = playerInfo.on_air
+    'm.VideoPlayer = screen.findNode("VideoPlayer")
+    m.VideoPlayer.observeField("position", m.port)
+    
     if playerInfo.on_air = true
         m.VideoPlayer.observeField("position", m.port)
     end if
@@ -593,12 +642,15 @@ function GetPlaylistsAsRows(parent_id as String)
     rawPlaylists = GetPlaylists({"parent_id": parent_id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
 
     favs = GetFavoritesIDs()
+    i = 0
 
     if rawPlaylists.count() = 0
       return GetPlaylistContent(parent_id)
     end if
 
     list = []
+    m.i = -1
+    m.j = -1
     ' row = {}
     ' row.title = "Playlists"
     ' row.ContentList = []
@@ -610,10 +662,18 @@ function GetPlaylistsAsRows(parent_id as String)
         if item.playlist_item_count > 0
             row.ContentList = []
             videos = []
+            j = 0
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
                 video.inFavorites = favs.DoesExist(video._id)
-                'print video
+                print "video.id";video._id
+                if(m.contentID <> invalid)
+                    if(video._id = m.contentID)
+                        m.i = i                  'row
+                        m.j = j                  'column
+                    end if
+                end if
                 videos.push(CreateVideoObject(video))
+                j = j + 1
             end for
             row.ContentList = videos
         else
@@ -622,7 +682,7 @@ function GetPlaylistsAsRows(parent_id as String)
                 row.ContentList.push(CreatePlaylistObject(pl))
             end for
         endif
-
+        i = i + 1
         list.push(row)
     end for
 
@@ -728,10 +788,21 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         'if(index = 1 and (_isSubscribed = true OR lclScreen.content.subscriptionRequired = false))
         if(index = 1)
         'if(index = 1 and _isSubscribed)
+            m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            
+            m.VideoPlayer.seek = 0.00
+            RemoveVideoIdForResumeFromReg(lclScreen.content.id)
             playVideoButton(lclScreen)
 
         else if(index = 2)  ' This is going to be the favorites button
             markFavoriteButton(lclScreen)
+        else if(index = 3)  ' This is going to be the resume button from detail screen
+            videoId = GetVideoIdForResumeFromReg(lclScreen.content.id)
+        
+            m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            m.VideoPlayer.seek = videoId
+            playVideoButton(lclScreen)        ' Resume button clicked
+        
         end if
 
     else    ' Subscribe / Sign In buttons
