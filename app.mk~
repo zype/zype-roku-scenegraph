@@ -32,7 +32,7 @@
 #    Set in your this variable in your shell startup (e.g. .bashrc)
 ##########################################################################
 ROKU_DEV_TARGET = 10.1.0.167
-DEVPASSWORD = Aa123456
+DEVPASSWORD = zypedev
 
 DISTREL = ./dist
 COMMONREL = ../common

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+
+<component name="ResumeVideo" extends="Task">
+
+<interface>
+   <field id = "HasVideoId" type = "String" alwaysNotify = "true" onChange = "HasVideoIdForResume"/>
+   <field id = "HasVideoIdValue" type = "boolean" alwaysNotify = "true" />
+   
+   <field id = "GetVideoIdTimer" type = "String" alwaysNotify = "true" onChange = "GetVideoIdTimerForResumeFromReg"/>
+   <field id = "GetVideoIdTimerValue" type = "String" alwaysNotify = "true" />
+   
+   <field id = "DeleteVideoIdTimer" type = "String" alwaysNotify = "true" onChange = "DeleteVideoIdTimerForResumeFromReg"/>
+</interface> 
+
+	<script type="text/brightscript"  uri="pkg:/components/ResumeVideo/ResumeVideo.brs"/>
+</component>
