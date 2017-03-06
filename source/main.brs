@@ -2,11 +2,11 @@ Library "Roku_Ads.brs"
 
 ' ********** Copyright 2016 Zype Inc.  All Rights Reserved. **********
 Function Main (args as Dynamic) as Void
-    if (args.ContentId <> invalid) and (args.MediaType <> invalid)
+    if (args.ContentID <> invalid) and (args.MediaType <> invalid)
         if (args <> invalid)
             contentID   = args.contentID
-            mediaType   = args.mediatype  
-            SetHomeScene(contentID)     
+            mediaType   = args.mediatype
+            SetHomeScene(contentID)
         end if
     else
         SetHomeScene()
@@ -89,41 +89,32 @@ Sub SetHomeScene(contentID = invalid)
     'print GetLimitStreamObject()
 
     'isAuthViaUniversalSVOD()
-    
-    
-    
+
     startDate = CreateObject("roDateTime")
-       
-    if(contentID <> invalid)
-'        print "contentID";contentID
-        print "m.i";m.i
-        print "m.j";m.j
-        if(m.i <> -1 and m.j <> -1)
-            m.gridScreen.itemFocused = [m.i,m.j]            'Open description page for selected video
-            m.gridScreen.rowItemSelected = [m.i,m.j]
-       end if
-   end if
 
     ' Deep Linking
     if (contentID <> invalid)
       ' Get video object and create VideoNode
       linkedVideo = GetVideo(contentID)
-      linkedVideoObject =  CreateVideoObject(linkedVideo)
-      linkedVideoNode = createObject("roSGNode", "VideoNode")
 
-      for each key in linkedVideoObject
-        linkedVideoNode[key] = linkedVideoObject[key]
-      end for
+      if linkedVideo.DoesExist("_id")
+        linkedVideoObject =  CreateVideoObject(linkedVideo)
+        linkedVideoNode = createObject("roSGNode", "VideoNode")
 
-      ' Set focused content to linkedVideoNode
-      m.gridScreen.focusedContent = linkedVideoNode
-      m.gridScreen.visible = "false"
-      m.detailsScreen.content = m.gridScreen.focusedContent
-      m.detailsScreen.setFocus(true)
-      m.detailsScreen.visible = "true"
+        for each key in linkedVideoObject
+          linkedVideoNode[key] = linkedVideoObject[key]
+        end for
 
-      ' Trigger listener to push detailsScreen into HomeScene screenStack
-      m.scene.DeepLinkedID = contentID
+        ' Set focused content to linkedVideoNode
+        m.gridScreen.focusedContent = linkedVideoNode
+        m.gridScreen.visible = "false"
+        m.detailsScreen.content = m.gridScreen.focusedContent
+        m.detailsScreen.setFocus(true)
+        m.detailsScreen.visible = "true"
+
+        ' Trigger listener to push detailsScreen into HomeScene screenStack
+        m.scene.DeepLinkedID = contentID
+      end if
     end if
 
     while(true)
@@ -203,7 +194,7 @@ Sub SetHomeScene(contentID = invalid)
                     print "Screen"
                     lclScreen = m.detailsScreen
                 end if
-                
+
                 detailScreenIdFull = lclScreen.content.id
                 detailScreenIdObj = detailScreenIdFull.tokenize(":")
                 detailScreenId = detailScreenIdObj[0]
@@ -234,10 +225,10 @@ Sub SetHomeScene(contentID = invalid)
                         else
                             oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
                             if oauth <> invalid
-    
+
                                 ' print lclScreen.content.id
                                 ' playVideo(lclScreen, oauth.access_token)
-    
+
                                 if IsEntitled(m.videoPlayer.content.id, {"access_token": oauth.access_token}) = false
                                     m.videoPlayer.visible = false
                                     m.videoPlayer.control = "stop"
@@ -295,7 +286,7 @@ Sub SetHomeScene(contentID = invalid)
 
                             if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked then
                                 pin.text = "The device is linked"
-                                
+
                                 m.detailsScreen.isDeviceLinked = true
                                 m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
                                 m.detailsScreen.isLoggedIn = true
@@ -412,7 +403,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
     m.on_air = playerInfo.on_air
     'm.VideoPlayer = screen.findNode("VideoPlayer")
     m.VideoPlayer.observeField("position", m.port)
-    
+
     if playerInfo.on_air = true
         m.VideoPlayer.observeField("position", m.port)
     end if
@@ -421,7 +412,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
     if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
         adIface = Roku_Ads() 'RAF initialize
         'print "Roku_Ads library version: " + adIface.getLibVersion()
-        adIface.setAdPrefs(true, 2)
+        adIface.setAdPrefs(false, 2)
         adIface.setDebugOutput(true) 'for debug pupropse
 
         ' Normally, would set publisher's ad URL here.
@@ -677,18 +668,12 @@ function GetPlaylistsAsRows(parent_id as String)
     rawPlaylists = GetPlaylists({"parent_id": parent_id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
 
     favs = GetFavoritesIDs()
-    i = 0
 
     if rawPlaylists.count() = 0
       return GetPlaylistContent(parent_id)
     end if
 
     list = []
-    m.i = -1
-    m.j = -1
-    ' row = {}
-    ' row.title = "Playlists"
-    ' row.ContentList = []
     for each item in rawPlaylists
         row = {}
         row.title = item.title
@@ -697,18 +682,10 @@ function GetPlaylistsAsRows(parent_id as String)
         if item.playlist_item_count > 0
             row.ContentList = []
             videos = []
-            j = 0
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
                 video.inFavorites = favs.DoesExist(video._id)
                 print "video.id";video._id
-                if(m.contentID <> invalid)
-                    if(video._id = m.contentID)
-                        m.i = i                  'row
-                        m.j = j                  'column
-                    end if
-                end if
                 videos.push(CreateVideoObject(video))
-                j = j + 1
             end for
             row.ContentList = videos
         else
@@ -717,7 +694,6 @@ function GetPlaylistsAsRows(parent_id as String)
                 row.ContentList.push(CreatePlaylistObject(pl))
             end for
         endif
-        i = i + 1
         list.push(row)
     end for
 
@@ -824,7 +800,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         if(index = 1)
         'if(index = 1 and _isSubscribed)
             m.VideoPlayer = lclScreen.findNode("VideoPlayer")
-            
+
             m.VideoPlayer.seek = 0.00
             RemoveVideoIdForResumeFromReg(lclScreen.content.id)
             playVideoButton(lclScreen)
@@ -833,11 +809,11 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
             markFavoriteButton(lclScreen)
         else if(index = 3)  ' This is going to be the resume button from detail screen
             videoId = GetVideoIdForResumeFromReg(lclScreen.content.id)
-        
+
             m.VideoPlayer = lclScreen.findNode("VideoPlayer")
             m.VideoPlayer.seek = videoId
             playVideoButton(lclScreen)        ' Resume button clicked
-        
+
         end if
 
     else    ' Subscribe / Sign In buttons

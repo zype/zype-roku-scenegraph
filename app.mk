@@ -31,8 +31,8 @@
 #    address of your Roku box. (e.g. export ROKU_DEV_TARGET=192.168.1.1.
 #    Set in your this variable in your shell startup (e.g. .bashrc)
 ##########################################################################
-ROKU_DEV_TARGET = 10.1.0.167
-DEVPASSWORD = Aa123456
+ROKU_DEV_TARGET = 192.168.4.182
+DEVPASSWORD = zypedev
 
 DISTREL = ./dist
 COMMONREL = ../common
