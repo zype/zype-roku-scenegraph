@@ -36,6 +36,8 @@
 
         <!-- Subscription Plans -->
         <field id="SubscriptionPlans" type="roArray" />
+
+        <field id="TriggerDeviceUnlink" type="bool" />
     </interface>
 
     <!-- main handler -->
