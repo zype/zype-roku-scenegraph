@@ -250,6 +250,25 @@ Sub SetHomeScene(contentID = invalid)
                     print "Adding UDID"
                     AddUdidToReg(GenerateUdid())
                     pin.text = GetPin(GetUdidFromReg())
+
+                    while true
+                        if m.deviceLinking.show = false
+                            exit while
+                        else
+                            print "refreshing PIN"
+
+                            if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked then
+                                pin.text = "The device is linked"
+                                
+                                m.detailsScreen.isDeviceLinked = true
+                                m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
+                                m.detailsScreen.isLoggedIn = true
+                                exit while
+                            end if
+                        end if
+
+                        sleep(5000)
+                    end while
                 end if
             end if
         end if
