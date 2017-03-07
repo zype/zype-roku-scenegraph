@@ -70,7 +70,7 @@ Sub SetHomeScene(contentID = invalid)
 
     deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
     m.detailsScreen.isDeviceLinked = deviceLinked
-    
+
     print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
     InitAuthenticationParams()
 
@@ -309,6 +309,8 @@ Sub SetHomeScene(contentID = invalid)
                 end if
             else if msg.getNode() = "DeviceLinking" AND msg.getField() = "itemSelected" then
                 print "[Main] Device Linking -> Item Selected"
+
+                sleep(500)
 
                 m.scene.dialog = invalid
                 dialog = createObject("roSGNode", "Dialog")
