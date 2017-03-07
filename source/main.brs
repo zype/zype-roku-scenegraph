@@ -67,7 +67,10 @@ Sub SetHomeScene(contentID = invalid)
     m.detailsScreen.productsCatalog = m.productsCatalog
     m.detailsScreen.JustBoughtNativeSubscription = false
     m.detailsScreen.isLoggedIn = isLoggedIn()
-    m.detailsScreen.isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
+
+    deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
+    m.detailsScreen.isDeviceLinked = deviceLinked
+    
     print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
     InitAuthenticationParams()
 
@@ -76,11 +79,14 @@ Sub SetHomeScene(contentID = invalid)
     m.gridScreen = m.scene.findNode("GridScreen")
 
     m.scene.observeField("playlistItemSelected", m.port)
+    m.scene.observeField("TriggerDeviceUnlink", m.port)
 
     m.deviceLinking = m.scene.findNode("DeviceLinking")
     'm.deviceLinking.DeviceLinkingText = "Please visit " + m.app.device_link_url + " to link your device!"
     m.deviceLinking.DeviceLinkingURL = m.app.device_link_url
+    m.deviceLinking.isDeviceLinked = deviceLinked
     m.deviceLinking.observeField("show", m.port)
+    m.deviceLinking.observeField("itemSelected", m.port)
 
     ' pl = CreatePlaylistObject(GetPlaylists({"id": "57928ae4e7b34c2c06000005"})[0])
     ' print pl
@@ -123,6 +129,8 @@ Sub SetHomeScene(contentID = invalid)
         print "------------------"
         'print "msg = "; msg
 
+        print "msg.getNode(): "; msg.getNode()
+        print "msg.getField(): "; msg.getField()
         if msgType = "roSGNodeEvent"
             if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
@@ -266,6 +274,8 @@ Sub SetHomeScene(contentID = invalid)
                                     m.detailsScreen.isDeviceLinked = true
                                     m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
                                     m.detailsScreen.isLoggedIn = true
+                                    m.deviceLinking.isDeviceLinked = true
+                                    m.deviceLinking.setUnlinkFocus = true
                                     exit while
                                 end if
                             end if
@@ -297,7 +307,29 @@ Sub SetHomeScene(contentID = invalid)
                         sleep(5000)
                     end while
                 end if
+            else if msg.getNode() = "DeviceLinking" AND msg.getField() = "itemSelected" then
+                print "[Main] Device Linking -> Item Selected"
+
+                m.scene.dialog = invalid
+                dialog = createObject("roSGNode", "Dialog")
+                dialog.title = "Device Unlink Confirmation"
+                dialog.message = "Are you sure you want to unlink your device? You will need to link your device again in order to access premium content."
+                dialog.optionsDialog = true
+                dialog.buttons = ["Yes", "No"]
+                m.scene.dialog = dialog
+
+            else if msg.getField() = "TriggerDeviceUnlink" AND msg.GetData() = true then
+                isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                res = UnlinkDevice(isDeviceLinked.consumer_id, isDeviceLinked.pin, {})
+                if(res <> invalid)
+                    print "Unlink Completed"
+                    m.scene.TriggerDeviceUnlink = false
+                    m.deviceLinking.isDeviceLinked = false
+                    m.detailsScreen.isDeviceLinked = false
+                    m.detailsScreen.isLoggedIn = isLoggedIn()
+                end if
             end if
+
         end if
     end while
 
