@@ -176,9 +176,9 @@ Sub AddButtons()
           '  print "startDate.asSeconds()";startDate.asSeconds()
           '  print "timeDiff";timeDiff
           'Check if time has exceeded 1 hour
-            if(timeDiff >= 3600)
-               m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id
-            end if
+            ' if(timeDiff 3600)
+            '    m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id
+            ' end if
         end if
     end if
     
