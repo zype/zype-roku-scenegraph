@@ -59,37 +59,53 @@ Sub OnVideoPlayerStateChange()
     else if m.videoPlayer.state = "finished"
         print "Video finished playing"
         print "Current: "; m.top.content
-        if m.top.autoplay = true AND (((m.CurrentVideoIndex + 1) < m.totalVideosCount) OR ((m.CurrentVideoIndex + 1) = m.totalVideosCount))
+        if m.top.autoplay = true AND isLastVideoInPlaylist() = false
             m.CurrentVideoIndex = m.CurrentVideoIndex + 1
-            nextVideoObject = m.top.videosTree[m.PlaylistRowIndex][m.CurrentVideoIndex]
-            nextVideoNode = ContentList2SimpleNode(nextVideoObject)
-
-            nextVideoNode.id = nextVideoObject.id
-            nextVideoNode.CONTENTTYPE = nextVideoObject.contenttype
-            nextVideoNode.DESCRIPTION = nextVideoObject.description
-            nextVideoNode.HDBACKGROUNDIMAGEURL = nextVideoObject.hdbackgroundimageurl
-            nextVideoNode.HDPOSTERURL = nextVideoObject.hdposterurl
-            nextVideoNode.inFavorites = nextVideoObject.infavorites
-            nextVideoNode.LENGTH = nextVideoObject.length
-            nextVideoNode.onAir = nextVideoObject.onair
-            nextVideoNode.RELEASEDATE = nextVideoObject.releasedate
-            nextVideoNode.STREAMFORMAT = nextVideoObject.streamformat
-            nextVideoNode.subscriptionRequired = nextVideoObject.subscriptionrequired
-            nextVideoNode.TITLE = nextVideoObject.title
-            nextVideoNode.URL = nextVideoObject.url
-
-
-            m.top.content = nextVideoNode
-            print "nextVideoObject: "; nextVideoObject
-            print "nextVideoNode: "; nextVideoNode
-            print "New: "; m.top.content
-            m.top.triggerPlay = true
-            m.videoPlayer.state = "play"
+            PrepareVideoPlayer()
+        else if isLastVideoInPlaylist() = true
+            m.CurrentVideoIndex = 0
+            PrepareVideoPlayer()
         end if
         
         m.videoPlayer.visible = false
     end if
 End Sub
+
+Function PrepareVideoPlayer()
+    nextVideoObject = m.top.videosTree[m.PlaylistRowIndex][m.CurrentVideoIndex]
+    nextVideoNode = ContentList2SimpleNode(nextVideoObject)
+
+    if(nextVideoObject <> invalid)
+        nextVideoNode.id = nextVideoObject.id
+        nextVideoNode.CONTENTTYPE = nextVideoObject.contenttype
+        nextVideoNode.DESCRIPTION = nextVideoObject.description
+        nextVideoNode.HDBACKGROUNDIMAGEURL = nextVideoObject.hdbackgroundimageurl
+        nextVideoNode.HDPOSTERURL = nextVideoObject.hdposterurl
+        nextVideoNode.inFavorites = nextVideoObject.infavorites
+        nextVideoNode.LENGTH = nextVideoObject.length
+        nextVideoNode.onAir = nextVideoObject.onair
+        nextVideoNode.RELEASEDATE = nextVideoObject.releasedate
+        nextVideoNode.STREAMFORMAT = nextVideoObject.streamformat
+        nextVideoNode.subscriptionRequired = nextVideoObject.subscriptionrequired
+        nextVideoNode.TITLE = nextVideoObject.title
+        nextVideoNode.URL = nextVideoObject.url
+
+
+        m.top.content = nextVideoNode
+        print "nextVideoObject: "; nextVideoObject
+        print "nextVideoNode: "; nextVideoNode
+        print "New: "; m.top.content
+        m.top.triggerPlay = true
+        m.videoPlayer.state = "play"
+    end if
+End Function
+
+Function isLastVideoInPlaylist()
+    if(m.CurrentVideoIndex = (m.totalVideosCount - 1))
+        return true
+    end if
+    return false
+End Function
 
 ' on Button press handler
 Sub onItemSelected()
