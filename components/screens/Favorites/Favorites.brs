@@ -77,5 +77,7 @@ end function
 Sub OnTopVisibilityChange()
     if m.top.visible = true
         m.gridScreen.visible = true
+    else
+        m.videoTitle.text = ""
     end if
 End Sub

@@ -21,7 +21,9 @@ REM     GetZObjects
 REM     GetVideo
 REM     GetVideos
 REM     GetCategory
-REM
+REM     GetPlans
+REM     GetPlan
+REM     SaveSubscriptionData  (Work in progress)
 
 '******************************************************
 'Get API configurations
@@ -120,6 +122,54 @@ Function MakeDeleteRequest(src As String, params As Object) As Boolean
   return false
 End Function
 
+
+'******************************************************
+'Make a request to an url with parameters PUT
+'
+'Function returns:
+'   Parsed JSON if 200
+' Parsed JSON if 201
+'   Otherwise invalid
+'******************************************************
+Function MakePutRequest(src As String, params As Object) As Object
+  request = CreateObject("roUrlTransfer")
+  request.SetRequest("PUT")
+  port = CreateObject("roMessagePort")
+  request.setMessagePort(port)
+  url = AppendParamsToUrl(src, params)
+  print "URL: "; url
+
+  if url.InStr(0, "https") = 0
+    request.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    request.AddHeader("X-Roku-Reserved-Dev-Id", "")
+    request.InitClientCertificates()
+  end if
+
+  ' print url ' uncomment to debug
+  request.SetUrl(url)
+
+  if request.AsyncGetToString()
+    while true
+      msg = wait(0, port)
+      if type(msg) = "roUrlEvent"
+        code = msg.GetResponseCode()
+        if code = 200 or code = 201 or code = 202 or code = 203 or code = 204
+          print "Success"
+          response = ParseJson(msg.GetString())
+          return response
+          'return true
+        end if
+        exit while
+      else if event = invalid
+        request.AsyncCancel()
+      end if
+    end while
+  end if
+
+  print "Error"
+  return invalid
+  'return false
+End Function
 
 
 '******************************************************
@@ -236,6 +286,7 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
     data = response.response
   end if
 
+  print "GetAppConfigs: "; data
   return data
 End Function
 
@@ -317,12 +368,16 @@ End Function
 'Get a player info
 '******************************************************
 Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
+  print "Video ID: " + videoid
+  id = videoid.tokenize(":")
+  videoid = id[0]
   info = {}
   info.stream = {url: ""}
   info.streamFormat = ""
   info.url = ""
   info.on_air = false
   info.has_access = false
+  info.scheduledAds = []
 
   url = GetApiConfigs().player_endpoint + "embed/" + videoid + "/"
   ' params = AppendAppKeyToParams(urlParams)
@@ -333,11 +388,22 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   if response <> invalid
     response = response.response
     if response.DoesExist("body")
-        
+
       if response.body.DoesExist("on_air")
           info.on_air = response.body.on_air
       end if
-            
+
+      if(response.body.DoesExist("advertising"))
+        for each advertising in response.body.advertising
+          if (advertising = "schedule")
+            for each ad in response.body.advertising.schedule
+              'print "DYNAMIC VAST URL"
+              info.scheduledAds.push({offset: ad.offset / 1000, url: ad.tag, played: false})
+            end for
+          end if
+        end for
+      end if
+
       if response.body.DoesExist("outputs")
         for each output in response.body.outputs
           streamUrl = output.url
@@ -567,3 +633,97 @@ function DeleteVideoFavorite(consumer_id as String, video_favorite_id as String,
 
   return false
 end function
+
+
+'*************************
+' Get Subscription Plans
+' ----------------------
+' If in_app_purchase is true then get the prices and plans from Roku Store.
+' If in_app_purchase is false then get the prices and plans from zype API.
+'
+' The way it is setup right now, it always loads the prices and plans from Roku Store
+'*************************
+Function GetPlans(urlParams = {} as Object, in_app_purchase = true, productsCatalog = [])
+
+  'print "m.productsCatalog: "; productsCatalog[0]
+  if(in_app_purchase = true)
+    plans = []
+    for each plan in productsCatalog
+      plans.push({
+        _id: plan.code
+        name: plan.title
+        amount: plan.cost
+        description: plan.description
+      })
+    end for
+    'print "m.productsCatalog: "; plans
+    return plans
+  else
+    url = GetApiConfigs().endpoint + "plans"
+    params = AppendAppKeyToParams(urlParams)
+    response = MakeRequest(url, params)
+    'print url
+    'print "Plans Response: "; response
+    if response <> invalid
+      data = response.response
+    else if response = invalid
+      data = invalid
+    end if
+    'print "GetPlans: "; data[0]
+    return data
+  end if
+End Function
+
+'****************************
+' Get Subscription Plan By ID
+'****************************
+Function GetPlan(id as String, urlParams as Object)
+  url = GetApiConfigs().endpoint + "plans/" + id
+  params = AppendAppKeyToParams(urlParams)
+  response = MakeRequest(url, params)
+  print url
+  if response <> invalid
+    data = response.response
+  else if response = invalid
+    data = invalid
+  end if
+
+  return data
+End Function
+
+'****************************
+' Unlink Device
+'****************************
+Function UnlinkDevice(consumer_id, pin, urlParams as Object)
+    print "consumer_id: "; consumer_id; " pin: "; pin
+    url = GetApiConfigs().endpoint + "pin/unlink"
+    'print "url: ";url
+    params = AppendAppKeyToParams(urlParams)
+    params.consumer_id = consumer_id
+    params.pin = pin
+    '{"consumer_id": consumer_id, "pin": pin}
+    response = MakePutRequest(url, params)
+    if response <> invalid
+      data = response.response
+    else if response = invalid
+      data = invalid
+    end if
+    return data
+End Function
+
+'**********************************************************************************
+' This is a work in progress. This function is supposed to send back consumer data
+' after the successful native store purchase
+'**********************************************************************************
+Function SaveSubscriptionData(_data, urlParams as Object)
+  url = GetApiConfigs().endpoint + "save-subscription/"
+  params = AppendAppKeyToParams(urlParams)
+  response = MakePostRequest(url, _data)
+  if response <> invalid
+    data = response.response
+  else if response = invalid
+    data = invalid
+  end if
+
+  return data
+End Function

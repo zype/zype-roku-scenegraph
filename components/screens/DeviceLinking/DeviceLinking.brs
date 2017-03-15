@@ -5,29 +5,101 @@
 Function Init()
     ? "[DeviceLinking] Init"
 
+    m.background = m.top.findNode("Shade")
     m.linkText = m.top.findNode("LinkText")
-    m.linkText.text = "Please, visit havoc.com to link your device!"
+    m.linkText2 = m.top.findNode("LinkText2")
+    m.linkText3 = m.top.findNode("LinkText3")
+
+    m.unlinkButton = m.top.findNode("UnlinkButton")
+
+    'm.linkText.text = "Please, visit havoc.com to link your device!"
 
     di = CreateObject("roDeviceInfo")
     m.pin = m.top.findNode("Pin")
 End Function
 
 ' onChange handler for "show" field
-sub On_show()
+Sub On_show()
     print " [DeviceLinking] On_show()"
 
     m.top.visible = m.top.show
     m.top.setFocus(m.top.show)
-end sub
+    m.pin.text = "" ' Setting it empty because after the screen loads, it will load either pin or message
+    'm.linkText.text = "Please visit " + m.top.DeviceLinkingURL + " to link your device!"
+    
+    m.background.color = "0x151515"
 
-function onKeyEvent(key as String, press as Boolean) as Boolean
+    m.linkText.text = "From your computer or mobile device, visit:"
+    m.linkText.color = "0xa8a8a8"
+
+    m.linkText2.text = m.top.DeviceLinkingURL
+    m.linkText2.color = "0xf5f5f5"
+
+    m.linkText3.text = "Enter Pin:"
+    m.linkText3.color = "0xa8a8a8"
+
+    m.pin.color = "0xf5f5f5"
+
+    if(m.top.isDeviceLinked = true)
+        CreateUnlinkButton()
+        m.unlinkButton.setFocus(true)
+    else
+        m.unlinkButton.content = invalid
+    end if    
+End Sub
+
+Function onDeviceLinkingStateChanged()
+    if(m.top.isDeviceLinked = false)
+        m.unlinkButton.content = invalid
+        m.pin.text = "Device Unlinked Successfully!"
+        m.top.setUnlinkFocus = false
+    else
+        CreateUnlinkButton()
+    end if
+End Function
+
+Function setUnlinkFocusCallback()
+    print "setUnlinkFocusCallback"
+    if(m.top.isDeviceLinked = true)
+        m.unlinkButton.setFocus(true)
+    end if
+End Function
+
+Function CreateUnlinkButton()
+    result = []
+    'btns = ["Unlink Device"]
+    result.push({title : "Unlink Device"})
+    m.unlinkButton.content = ContentList2SimpleNode(result)
+End Function
+
+Function onItemSelected()
+    print "Device Unlink Clicked"
+End Function
+
+Function onKeyEvent(key as String, press as Boolean) as Boolean
     ? ">>> Device Linking >> onKeyEvent"
     result = false
     if press then
         ? "key == ";  key
         if key = "options" then
             result = true
+        else if key = "back" then
+            print "Back button from Device Linking Screen"
         end if
     end if
     return result
-end function
+End Function
+
+'///////////////////////////////////////////'
+' Helper function convert AA to Node
+Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" as String) as Object
+    result = createObject("roSGNode",nodeType)
+    if result <> invalid
+        for each itemAA in contentList
+            item = createObject("roSGNode", nodeType)
+            item.setFields(itemAA)
+            result.appendChild(item)
+        end for
+    end if
+    return result
+End Function
