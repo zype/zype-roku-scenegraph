@@ -447,7 +447,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
     playContent = true
     adIface = Roku_Ads() 'RAF initialize
     'print "Roku_Ads library version: " + adIface.getLibVersion()
-    adIface.setAdPrefs(false, 2)
+    adIface.setAdPrefs(true, 2)
     adIface.setDebugOutput(true) 'for debug pupropse
 
     ' Normally, would set publisher's ad URL here.
