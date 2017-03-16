@@ -457,7 +457,22 @@ sub playVideoWithAds(screen as Object, auth as Object)
         adIface.setAdUrl(url)
     end if
 
-    adsArray = []
+    ' Getting midroll ads
+    midrollAds = []
+    if playerInfo.scheduledAds.count() > 1
+      for each ad in playerInfo.scheduledAds
+        midrollAd = {
+          url: ad.url,
+          offset: ad.offset,
+        }
+        midrollAds.push(midrollAd)
+      end for
+
+      midrollAds.shift()
+    end if
+
+
+    prerollAdsArray = []
     for ads = 1 to 1
       adPods = adIface.getAds()
 
@@ -465,7 +480,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
       if adPods.count() > 0
         thisPod = adPods[0].ads
         for each a in thisPod
-          adsArray.push(a)
+          prerollAdsArray.push(a)
         end for
       end if
     end for
@@ -474,7 +489,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
       renderSequence: "preroll",
       duration: 0,
       renderTime: 0,
-      ads: adsArray
+      ads: prerollAdsArray
     }
 
     playContent = true
@@ -484,12 +499,57 @@ sub playVideoWithAds(screen as Object, auth as Object)
         playContent = adIface.showAds(preRollAds)
     end if
 
+    ' Start playing video
     if playContent then
         m.loadingIndicator.control = "stop"
         print "[Main] Playing video"
         m.videoPlayer.visible = true
         m.videoPlayer.setFocus(true)
         m.videoPlayer.control = "play"
+
+        ' If midroll ads exist, watch for midroll ads
+        if midrollAds.count() > 0
+          while midrollAds.count() > 0
+            currPos = m.videoPlayer.position
+
+            timeDiff = Abs(midrollAds[0].offset - currPos)
+            print "Next midroll ad: "; midrollAds[0].offset
+            print "Time until next midroll ad: "; timeDiff
+
+            ' Within half second of next midroll ad timing
+            if timeDiff <= 0.500
+              m.videoPlayer.control = "stop"
+
+              ' Get ad pod for mid roll ad
+              adIface.setAdUrl(midrollAds[0].url)
+              midrollAdPod = adIface.getAds()
+
+              ' Show midroll ad
+              midrollAd = {
+                viewed: false,
+                renderSequence: "midroll",
+                duration: midrollAdPod[0].duration,
+                renderTime: 0,
+                ads: [midrollAdPod[0].ads[0]]
+              }
+              adIface.showAds(midrollAd)
+
+              ' Remove midroll ad from array
+              midrollAds.shift()
+
+              ' Start playing video at back from currPos just before midroll ad started
+              m.videoPlayer.seek = currPos
+              m.videoPlayer.control = "play"
+
+            ' Remove the first midroll ad if the currPos is past the midroll ad point
+            ' If they fast forward or resumed from point after the midroll ad
+            else if midrollAds.count() > 0 and currPos > midrollAds[0].offset
+              while midrollAds.count() > 0 and currPos > midrollAds[0].offset
+                midrollAds.shift()
+              end while
+            end if
+          end while
+        end if
     end if
 end sub
 
