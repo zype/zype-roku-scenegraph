@@ -54,3 +54,7 @@ Older Roku devices will have less powerful hardware and therefore less processin
 ## Contributing to the repo
 
 We welcome contributions to Zype Roku Scenegraph SDK. If you have any suggestions or notice any bugs you can raise an issue. If you have any changes to the code base that you want to see added, you can fork the repository, then submit a pull request with your changes explaining what you changed, why you believe it should be added, and how one would test these changes. Thank you to the community!
+
+## Support
+
+If you need more information on how Zype API works, you can read the [documentation here](http://dev.zype.com/api_docs/intro/). If you have any other questions, feel free to contact us at [support@zype.com](mailto:support@zype.com).
