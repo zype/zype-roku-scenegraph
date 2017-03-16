@@ -390,7 +390,9 @@ sub playRegularVideo(screen as Object)
     else
         print "FREE VIDEO"
 
-        if m.app.avod = true
+        play_ad = (screen.isLoggedIn = true and m.app.subscribe_to_watch_ad_free = false) or screen.isLoggedIn = false
+
+        if m.app.avod = true and play_ad
           playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
         else
           playVideo(screen, {"app_key": GetApiConfigs().app_key})
@@ -443,45 +445,43 @@ sub playVideoWithAds(screen as Object, auth as Object)
     end if
 
     playContent = true
-    if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-        adIface = Roku_Ads() 'RAF initialize
-        'print "Roku_Ads library version: " + adIface.getLibVersion()
-        adIface.setAdPrefs(false, 2)
-        adIface.setDebugOutput(true) 'for debug pupropse
+    adIface = Roku_Ads() 'RAF initialize
+    'print "Roku_Ads library version: " + adIface.getLibVersion()
+    adIface.setAdPrefs(false, 2)
+    adIface.setDebugOutput(true) 'for debug pupropse
 
-        ' Normally, would set publisher's ad URL here.
-        ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
-        if playerInfo.scheduledAds.count() > 0
-            url = playerInfo.scheduledAds[0].url
-            adIface.setAdUrl(url)
-        end if
+    ' Normally, would set publisher's ad URL here.
+    ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
+    if playerInfo.scheduledAds.count() > 0
+        url = playerInfo.scheduledAds[0].url
+        adIface.setAdUrl(url)
+    end if
 
-        adsArray = []
-        for ads = 1 to 1
-          adPods = adIface.getAds()
+    adsArray = []
+    for ads = 1 to 1
+      adPods = adIface.getAds()
 
-          ' if adPods array has at least one adPod
-          if adPods.count() > 0
-            thisPod = adPods[0].ads
-            for each a in thisPod
-              adsArray.push(a)
-            end for
-          end if
+      ' if adPods array has at least one adPod
+      if adPods.count() > 0
+        thisPod = adPods[0].ads
+        for each a in thisPod
+          adsArray.push(a)
         end for
-        preRollAds = {
-          viewed: false,
-          renderSequence: "preroll",
-          duration: 0,
-          renderTime: 0,
-          ads: adsArray
-        }
+      end if
+    end for
+    preRollAds = {
+      viewed: false,
+      renderSequence: "preroll",
+      duration: 0,
+      renderTime: 0,
+      ads: adsArray
+    }
 
-        playContent = true
-        'render pre-roll ads
-        if GetAppConfigs().avod = true and preRollAds.ads.count() > 0 then
-            m.loadingIndicator.control = "stop"
-            playContent = adIface.showAds(preRollAds)
-        end if
+    playContent = true
+    'render pre-roll ads
+    if GetAppConfigs().avod = true and preRollAds.ads.count() > 0 then
+        m.loadingIndicator.control = "stop"
+        playContent = adIface.showAds(preRollAds)
     end if
 
     if playContent then
