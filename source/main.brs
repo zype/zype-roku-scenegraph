@@ -294,7 +294,8 @@ Sub SetHomeScene(contentID = invalid)
                         else
                             print "refreshing PIN"
 
-                            if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked then
+                            deviceLinkingObj = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                            if deviceLinkingObj.linked then
                                 pin.text = "The device is linked"
 
                                 m.detailsScreen.isDeviceLinked = true
