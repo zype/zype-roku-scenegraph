@@ -78,6 +78,7 @@ Sub onVideoVisibleChange()
     if m.videoPlayer.visible = false and m.top.visible = true
         m.buttons.setFocus(true)
         m.videoPlayer.control = "stop"
+        AddButtons()
     end if
 End Sub
 
@@ -90,6 +91,10 @@ Sub OnVideoPlayerStateChange()
         ' playback handling
     else if m.videoPlayer.state = "finished"
         m.videoPlayer.visible = false
+        m.top.ResumeVideo = m.top.createChild("ResumeVideo")
+        m.top.ResumeVideo.id = "ResumeVideo"
+        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
+        AddButtons()                                              ' Change buttons status
     end if
 End Sub
 
@@ -116,8 +121,19 @@ Sub onItemSelected()
         end if
 
     ' second button pressed
-    else if m.top.itemSelected = 1
-        ? "[DetailsScreen] Favorite button selected"
+   else if m.top.itemSelected = 1          'favorite btn
+
+        print "m.btns[1] ->";Resume playing
+
+        if(m.btns <> invalid and m.btns[m.top.itemSelected] = "Resume playing")
+            ? "[DetailsScreen] Resume button selected"
+            m.top.itemSelected = 2          ' resume btn
+        else
+            ? "[DetailsScreen] Favorite button selected"
+        end if
+    else if m.top.itemSelected = 2          ' favorite btn
+            m.top.itemSelected = 1
+            ? "[DetailsScreen] Favorite button selected"
     end if
     print "[DetailsScreen] m.top.SubscriptionButtonsShown; "; m.top.SubscriptionButtonsShown
 End Sub
@@ -147,7 +163,7 @@ Sub OnContentChange()
         if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.top.isLoggedInViaNativeSVOD = false)
             m.canWatchVideo = false
         end if
-
+        print "m.canWatchVideo";m.canWatchVideo
         if(m.canWatchVideo)
             AddButtons()
             m.top.SubscriptionButtonsShown = false
@@ -166,11 +182,40 @@ Sub OnContentChange()
 End Sub
 
 Sub AddButtons()
+    m.top.ResumeVideo = m.top.createChild("ResumeVideo")
+    m.top.ResumeVideo.id = "ResumeVideo"
+
+    statusOfVideo = getStatusOfVideo()
+    ' If video id entry is there in Register.
+    if(statusOfVideo = true)
+        if(m.top.ResumeVideo.GetVideoIdTimerValue = "notimer")
+        else
+          '  print "m.top.ResumeVideo.GetVideoIdTimerValue ->";m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
+            startDate = CreateObject("roDateTime")
+            timeDiff = startDate.asSeconds() - m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
+          '  print "m.top.ResumeVideo.GetVideoIdTimerValue.ToInt()";m.top.ResumeVideo.GetVideoIdTimerValue.ToInt()
+          '  print "startDate.asSeconds()";startDate.asSeconds()
+          '  print "timeDiff";timeDiff
+          'Check if time has exceeded 1 hour
+            ' if(timeDiff 3600)
+            '    m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id
+            ' end if
+        end if
+    end if
+
+
+
+
+
     if m.top.content <> invalid then
         ' create buttons
         result = []
 
-        btns = ["Play"]
+        if(statusOfVideo = false)
+            btns = ["Play"]
+        else
+            btns = ["Play from beginning", "Resume playing"]
+        end if
 
         if(m.top.BothActive AND m.top.isDeviceLinked)
             if m.top.content.inFavorites = true
@@ -180,7 +225,7 @@ Sub AddButtons()
             end if
         end if
 
-
+        m.btns = btns
         for each button in btns
             result.push({title : button})
         end for
@@ -233,4 +278,21 @@ Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" 
         end for
     end if
     return result
+End Function
+
+Function getStatusOfVideo() as boolean
+    m.top.ResumeVideo = m.top.createChild("ResumeVideo")
+    m.top.ResumeVideo.id = "ResumeVideo"
+    m.top.ResumeVideo.HasVideoId = m.top.content.id         ' If video id entry is there in reg
+    m.top.ResumeVideo.GetVideoIdTimer = m.top.content.id    ' Get when video was saved in reg.
+    print "m.top.content.id";m.top.content.id
+    print "m.top.ResumeVideo.HasVideoIdValue ->";m.top.ResumeVideo.HasVideoIdValue
+    if(m.top.ResumeVideo.HasVideoIdValue)
+        return true
+    else
+        m.videoPlayer.seek = 0.00                           ' Start video from 0 if entry not saved.
+        return false
+    end if
+
+    return false
 End Function

@@ -6,6 +6,9 @@
 <component name="DeviceLinking" extends="Group">
     <interface>
 
+        <!-- Item Selected -->
+        <field id="itemSelected" type="integer" alwaysnotify="true" alias="UnlinkButton.itemSelected" onChange="onItemSelected" />
+        
         <!-- Alias to PIN label -->
         <field id="Pin" type="node" alias=""/>
 
@@ -15,6 +18,9 @@
         <!-- WRITE-ONLY. Shows/hides the component on the scene.
         True = show; False = hide. -->
         <field id="show" type="boolean"     onChange="On_show"            alwaysNotify="true"/>
+
+        <field id="isDeviceLinked" type="boolean" onChange="onDeviceLinkingStateChanged"/>
+        <field id="setUnlinkFocus" type="boolean" onChange="setUnlinkFocusCallback"/>
     </interface>
 
     <!-- main handler -->
@@ -76,6 +82,21 @@
         text="">
         <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="75"/>
     </Label>
+
+    <!--Control buttons.-->
+    <LabelList
+        id="UnlinkButton"
+        translation="[465,600]"
+        color="0xf5f5f5"
+        focusedColor="0xf5f5f5"
+        numRows="5"
+        vertFocusAnimationStyle="floatingFocus"
+        itemSize="[350, 45]"
+        textHorizAlign="center"
+        font="dictionary:ButtonFont"
+        focusedFont="dictionary:ButtonFont"
+        focusBitmapUri="pkg:/images/button-focus.png"
+        />
     
     <!-- Linking PIN -->
     <!--<Label

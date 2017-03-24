@@ -74,6 +74,10 @@ Function OnRowItemSelected()
     print "Subscription Plans: "; m.top.SubscriptionPlans
 End Function
 
+Function OnDeepLink()
+  m.screenStack.push(m.detailsScreen)
+End Function
+
 ' On Menu Button Selected
 Function OnMenuButtonSelected()
     ? "[HomeScene] Menu Button Selected"
@@ -269,10 +273,15 @@ Function OnKeyEvent(key, press) as Boolean
         print "Dialog: "; m.top.dialog
         if(m.top.dialog <> invalid)
             buttonIndex = m.top.dialog.buttonSelected
-            if(buttonIndex = 0 and key = "OK")
+            if(buttonIndex = 0 AND key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation")
+                m.top.TriggerDeviceUnlink = true
                 m.top.dialog.close = true
+                m.top.dialog = invalid
+            else if((buttonIndex = 0 and key = "OK") OR (buttonIndex = 1 and key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation"))
+                m.top.dialog.close = true
+                m.top.dialog = invalid
             end if
-            print "buttonIndex: "; buttonIndex
+            print "buttonIndex: "; buttonIndex; " buttonKey: "; key
         end if
     end if
     return result

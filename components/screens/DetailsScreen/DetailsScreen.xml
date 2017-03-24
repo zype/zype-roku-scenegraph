@@ -67,6 +67,8 @@
         <field id="DontShowSubscriptionPackages" type="bool" />
         <field id="ShowSubscriptionPackagesCallback" type="bool" onChange="onShowSubscriptionPackagesCallback"/>
 
+		<!-- Resume video task node -->
+		<field id="ResumeVideo" type="node" />
     </interface>
 
     <!-- main handler -->

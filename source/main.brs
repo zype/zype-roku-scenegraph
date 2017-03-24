@@ -1,8 +1,19 @@
 Library "Roku_Ads.brs"
 
 ' ********** Copyright 2016 Zype Inc.  All Rights Reserved. **********
+Function Main (args as Dynamic) as Void
+    if (args.ContentID <> invalid) and (args.MediaType <> invalid)
+        if (args <> invalid)
+            contentID   = args.contentID
+            mediaType   = args.mediatype
+            SetHomeScene(contentID)
+        end if
+    else
+        SetHomeScene()
+    end if
+End Function
 
-Sub RunUserInterface()
+Sub SetHomeScene(contentID = invalid)
     screen = CreateObject("roSGScreen")
 
     m.app = GetAppConfigs()
@@ -23,10 +34,13 @@ Sub RunUserInterface()
     screen.Show()
 
     m.store = CreateObject("roChannelStore")
-    m.store.FakeServer(true)
+    ' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
+
+    m.app = GetAppConfigs()
+    m.contentID = contentID
 
     getUserPurchases()
     getProductsCatalog()
@@ -67,7 +81,10 @@ Sub RunUserInterface()
     m.detailsScreen.productsCatalog = m.productsCatalog
     m.detailsScreen.JustBoughtNativeSubscription = false
     m.detailsScreen.isLoggedIn = isLoggedIn()
-    m.detailsScreen.isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
+
+    deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
+    m.detailsScreen.isDeviceLinked = deviceLinked
+
     print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
     InitAuthenticationParams()
 
@@ -76,11 +93,14 @@ Sub RunUserInterface()
     m.gridScreen = m.scene.findNode("GridScreen")
 
     m.scene.observeField("playlistItemSelected", m.port)
+    m.scene.observeField("TriggerDeviceUnlink", m.port)
 
     m.deviceLinking = m.scene.findNode("DeviceLinking")
     'm.deviceLinking.DeviceLinkingText = "Please visit " + m.app.device_link_url + " to link your device!"
     m.deviceLinking.DeviceLinkingURL = m.app.device_link_url
+    m.deviceLinking.isDeviceLinked = deviceLinked
     m.deviceLinking.observeField("show", m.port)
+    m.deviceLinking.observeField("itemSelected", m.port)
 
     ' pl = CreatePlaylistObject(GetPlaylists({"id": "57928ae4e7b34c2c06000005"})[0])
     ' print pl
@@ -90,6 +110,32 @@ Sub RunUserInterface()
 
     'isAuthViaUniversalSVOD()
 
+    startDate = CreateObject("roDateTime")
+
+    ' Deep Linking
+    if (contentID <> invalid)
+      ' Get video object and create VideoNode
+      linkedVideo = GetVideo(contentID)
+
+      if linkedVideo.DoesExist("_id")
+        linkedVideoObject =  CreateVideoObject(linkedVideo)
+        linkedVideoNode = createObject("roSGNode", "VideoNode")
+
+        for each key in linkedVideoObject
+          linkedVideoNode[key] = linkedVideoObject[key]
+        end for
+
+        ' Set focused content to linkedVideoNode
+        m.gridScreen.focusedContent = linkedVideoNode
+        m.gridScreen.visible = "false"
+        m.detailsScreen.content = m.gridScreen.focusedContent
+        m.detailsScreen.setFocus(true)
+        m.detailsScreen.visible = "true"
+
+        ' Trigger listener to push detailsScreen into HomeScene screenStack
+        m.scene.DeepLinkedID = contentID
+      end if
+    end if
 
     while(true)
         msg = wait(0, m.port)
@@ -97,6 +143,8 @@ Sub RunUserInterface()
         print "------------------"
         'print "msg = "; msg
 
+        print "msg.getNode(): "; msg.getNode()
+        print "msg.getField(): "; msg.getField()
         if msgType = "roSGNodeEvent"
             if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
@@ -161,40 +209,60 @@ Sub RunUserInterface()
                 _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
 
                 handleButtonEvents(2, _isSubscribed, lclScreen)
+            else if (msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" and (msg.getData() = 2) then
+                print "resume button clicked"
 
+                if msg.getNode() = "DetailsScreen"
+                    print "Screen"
+                    lclScreen = m.detailsScreen
+                end if
+
+                detailScreenIdFull = lclScreen.content.id
+                detailScreenIdObj = detailScreenIdFull.tokenize(":")
+                detailScreenId = detailScreenIdObj[0]
+                '_isSubscribed = isSubscribed(detailScreenId)
+                _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
+
+                handleButtonEvents(3, _isSubscribed, lclScreen)
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
-                'print m.videoPlayer
-                GetLimitStreamObject().played = GetLimitStreamObject().played + 1
-                'print  GetLimitStreamObject().played
-                if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
-                    if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-                        m.videoPlayer.visible = false
-                        m.videoPlayer.control = "stop"
-                        dialog = createObject("roSGNode", "Dialog")
-                        dialog.title = "Limit Reached"
-                        dialog.optionsDialog = true
-                        dialog.message = GetLimitStreamObject().message
-                        m.scene.dialog = dialog
-                    else
-                        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-                        if oauth <> invalid
-
-                            ' print lclScreen.content.id
-                            ' playVideo(lclScreen, oauth.access_token)
-
-                            if IsEntitled(m.videoPlayer.content.id, {"access_token": oauth.access_token}) = false
-                                m.videoPlayer.visible = false
-                                m.videoPlayer.control = "stop"
-                                dialog = createObject("roSGNode", "Dialog")
-                                dialog.title = "Limit Reached"
-                                dialog.optionsDialog = true
-                                dialog.message = GetLimitStreamObject().message
-                                m.scene.dialog = dialog
-                            end if
+                print m.videoPlayer.position
+                if(m.videoPlayer.position >= 30)
+                    AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
+                    AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
+                end if
+                if(m.on_air)
+                    GetLimitStreamObject().played = GetLimitStreamObject().played + 1
+                    'print  GetLimitStreamObject().played
+                    if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
+                        if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
+                            m.videoPlayer.visible = false
+                            m.videoPlayer.control = "stop"
+                            dialog = createObject("roSGNode", "Dialog")
+                            dialog.title = "Limit Reached"
+                            dialog.optionsDialog = true
+                            dialog.message = GetLimitStreamObject().message
+                            m.scene.dialog = dialog
                         else
-                            print "No OAuth available"
+                            oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+                            if oauth <> invalid
+
+                                ' print lclScreen.content.id
+                                ' playVideo(lclScreen, oauth.access_token)
+
+                                if IsEntitled(m.videoPlayer.content.id, {"access_token": oauth.access_token}) = false
+                                    m.videoPlayer.visible = false
+                                    m.videoPlayer.control = "stop"
+                                    dialog = createObject("roSGNode", "Dialog")
+                                    dialog.title = "Limit Reached"
+                                    dialog.optionsDialog = true
+                                    dialog.message = GetLimitStreamObject().message
+                                    m.scene.dialog = dialog
+                                end if
+                            else
+                                print "No OAuth available"
+                            end if
                         end if
                     end if
                 end if
@@ -217,15 +285,11 @@ Sub RunUserInterface()
                                 if deviceLinkingObj.linked then
                                     pin.text = "You are linked!"
 
-                                    ' Only do this if content was set. Content.id is not set if they go directly to Device Linking without opening the Details Screen on a video
-                                    if m.detailsScreen.content <> invalid
-                                      idParts = m.detailsScreen.content.id.tokenize(":")
-                                      m.detailsScreen.content.id = idParts[0] + ":" + idParts[1]
-                                    end if
-
                                     m.detailsScreen.isDeviceLinked = true
                                     m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
                                     m.detailsScreen.isLoggedIn = true
+                                    m.deviceLinking.isDeviceLinked = true
+                                    m.deviceLinking.setUnlinkFocus = true
                                     exit while
                                 end if
                             end if
@@ -237,8 +301,52 @@ Sub RunUserInterface()
                     print "Adding UDID"
                     AddUdidToReg(GenerateUdid())
                     pin.text = GetPin(GetUdidFromReg())
+
+                    while true
+                        if m.deviceLinking.show = false
+                            exit while
+                        else
+                            print "refreshing PIN"
+
+                            deviceLinkingObj = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                            if deviceLinkingObj.linked then
+                                pin.text = "The device is linked"
+
+                                m.detailsScreen.isDeviceLinked = true
+                                m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
+                                m.detailsScreen.isLoggedIn = true
+                                exit while
+                            end if
+                        end if
+
+                        sleep(5000)
+                    end while
+                end if
+            else if msg.getNode() = "DeviceLinking" AND msg.getField() = "itemSelected" then
+                print "[Main] Device Linking -> Item Selected"
+
+                sleep(500)
+
+                m.scene.dialog = invalid
+                dialog = createObject("roSGNode", "Dialog")
+                dialog.title = "Device Unlink Confirmation"
+                dialog.message = "Are you sure you want to unlink your device? You will need to link your device again in order to access premium content."
+                dialog.optionsDialog = true
+                dialog.buttons = ["Yes", "No"]
+                m.scene.dialog = dialog
+
+            else if msg.getField() = "TriggerDeviceUnlink" AND msg.GetData() = true then
+                isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                res = UnlinkDevice(isDeviceLinked.consumer_id, isDeviceLinked.pin, {})
+                if(res <> invalid)
+                    print "Unlink Completed"
+                    m.scene.TriggerDeviceUnlink = false
+                    m.deviceLinking.isDeviceLinked = false
+                    m.detailsScreen.isDeviceLinked = false
+                    m.detailsScreen.isLoggedIn = isLoggedIn()
                 end if
             end if
+
         end if
     end while
 
@@ -296,7 +404,12 @@ sub playRegularVideo(screen as Object)
     ' Has purchased native subscription or video does not require subscription
     else
         print "FREE VIDEO"
-        playVideo(screen, {"app_key": GetApiConfigs().app_key})
+
+        if m.app.avod = true
+          playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
+        else
+          playVideo(screen, {"app_key": GetApiConfigs().app_key})
+        end if
     end if
 end sub
 
@@ -311,8 +424,9 @@ sub playVideo(screen as Object, auth As Object)
 
     ' show loading indicator before requesting ad and playing video
     m.loadingIndicator.control = "start"
-    m.VideoPlayer = screen.findNode("VideoPlayer")
-
+    'm.VideoPlayer = screen.findNode("VideoPlayer")
+    m.on_air = screen.content.onAir
+     m.VideoPlayer.observeField("position", m.port)
     if screen.content.onAir = true
         m.VideoPlayer.observeField("position", m.port)
     end if
@@ -335,7 +449,9 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
     ' show loading indicator before requesting ad and playing video
     m.loadingIndicator.control = "start"
-    m.VideoPlayer = screen.findNode("VideoPlayer")
+    m.on_air = playerInfo.on_air
+    'm.VideoPlayer = screen.findNode("VideoPlayer")
+    m.VideoPlayer.observeField("position", m.port)
 
     if playerInfo.on_air = true
         m.VideoPlayer.observeField("position", m.port)
@@ -345,21 +461,41 @@ sub playVideoWithAds(screen as Object, auth as Object)
     if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
         adIface = Roku_Ads() 'RAF initialize
         'print "Roku_Ads library version: " + adIface.getLibVersion()
-        adIface.setAdPrefs(true, 2)
+        adIface.setAdPrefs(false, 2)
         adIface.setDebugOutput(true) 'for debug pupropse
 
         ' Normally, would set publisher's ad URL here.
         ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
-        adIface.setAdUrl("")
+        if playerInfo.scheduledAds.count() > 0
+            url = playerInfo.scheduledAds[0].url
+            adIface.setAdUrl(url)
+        end if
 
-        'Returns available ad pod(s) scheduled for rendering or invalid, if none are available.
-        adPods = adIface.getAds()
+        adsArray = []
+        for ads = 1 to 1
+          adPods = adIface.getAds()
+
+          ' if adPods array has at least one adPod
+          if adPods.count() > 0
+            thisPod = adPods[0].ads
+            for each a in thisPod
+              adsArray.push(a)
+            end for
+          end if
+        end for
+        preRollAds = {
+          viewed: false,
+          renderSequence: "preroll",
+          duration: 0,
+          renderTime: 0,
+          ads: adsArray
+        }
 
         playContent = true
         'render pre-roll ads
-        if adPods <> invalid and adPods.count() > 0 then
+        if GetAppConfigs().avod = true and preRollAds.ads.count() > 0 then
             m.loadingIndicator.control = "stop"
-            playContent = adIface.showAds(adPods)
+            playContent = adIface.showAds(preRollAds)
         end if
     end if
 
@@ -508,9 +644,9 @@ Function GetContent()
         params.AddReplace(query, item)
         params.AddReplace("dpt", "true")
         videos = []
+
         for each video in GetVideos(params)
             video.inFavorites = favs.DoesExist(video._id)
-            'print video
             videos.push(CreateVideoObject(video))
         end for
 
@@ -522,6 +658,7 @@ Function GetContent()
 End Function
 
 function GetPlaylistContent(playlist_id as String)
+    playlist_id = playlist_id.tokenize(":")[0]
     pl = GetPlaylists({"id": playlist_id})[0]
 
     favs = GetFavoritesIDs()
@@ -531,7 +668,7 @@ function GetPlaylistContent(playlist_id as String)
         row = {}
         row.title = pl.title
         videos = []
-        for each video in GetPlaylistVideos(pl._id)
+        for each video in GetPlaylistVideos(pl._id, {"dpt": "true"})
             video.inFavorites = favs.DoesExist(video._id)
             videos.push(CreateVideoObject(video))
         end for
@@ -546,7 +683,14 @@ end function
 
 function GetContentPlaylists(parent_id as String)
     ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
-    rawPlaylists = GetPlaylists({"parent_id": parent_id})
+    parent_id = parent_id.tokenize(":")[0]
+    if GetAppConfigs().per_page <> invalid
+      per_page = GetAppConfigs().per_page
+    else
+      per_page = 500
+    end if
+
+    rawPlaylists = GetPlaylists({"parent_id": parent_id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
 
     list = []
     row = {}
@@ -563,14 +707,22 @@ end function
 
 function GetPlaylistsAsRows(parent_id as String)
     ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
-    rawPlaylists = GetPlaylists({"parent_id": parent_id, "sort": "priority", "order": "asc"})
+    parent_id = parent_id.tokenize(":")[0]
+    if GetAppConfigs().per_page <> invalid
+      per_page = GetAppConfigs().per_page
+    else
+      per_page = 500
+    end if
+
+    rawPlaylists = GetPlaylists({"parent_id": parent_id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
 
     favs = GetFavoritesIDs()
 
+    if rawPlaylists.count() = 0
+      return GetPlaylistContent(parent_id)
+    end if
+
     list = []
-    ' row = {}
-    ' row.title = "Playlists"
-    ' row.ContentList = []
     for each item in rawPlaylists
         row = {}
         row.title = item.title
@@ -581,17 +733,16 @@ function GetPlaylistsAsRows(parent_id as String)
             videos = []
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
                 video.inFavorites = favs.DoesExist(video._id)
-                'print video
+                print "video.id";video._id
                 videos.push(CreateVideoObject(video))
             end for
             row.ContentList = videos
         else
-            pls = GetPlaylists({"parent_id": item._id})
+            pls = GetPlaylists({"parent_id": item._id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
             for each pl in pls
                 row.ContentList.push(CreatePlaylistObject(pl))
             end for
         endif
-
         list.push(row)
     end for
 
@@ -697,10 +848,21 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         'if(index = 1 and (_isSubscribed = true OR lclScreen.content.subscriptionRequired = false))
         if(index = 1)
         'if(index = 1 and _isSubscribed)
+            m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+
+            m.VideoPlayer.seek = 0.00
+            RemoveVideoIdForResumeFromReg(lclScreen.content.id)
             playVideoButton(lclScreen)
 
         else if(index = 2)  ' This is going to be the favorites button
             markFavoriteButton(lclScreen)
+        else if(index = 3)  ' This is going to be the resume button from detail screen
+            videoId = GetVideoIdForResumeFromReg(lclScreen.content.id)
+
+            m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            m.VideoPlayer.seek = videoId
+            playVideoButton(lclScreen)        ' Resume button clicked
+
         end if
 
     else    ' Subscribe / Sign In buttons
@@ -892,11 +1054,4 @@ Function isAuthViaUniversalSVOD()
     end if
 
     return false
-    'print "deviceLinking: "; deviceLinking
 End Function
-
-' Function setTheme(theme as Object)
-'     row_list = m.gridScreen.findNode("RowList")
-'
-'     row_list.focusBitmapUri = theme.focus_grid_uri
-' End Function

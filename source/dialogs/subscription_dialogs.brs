@@ -14,7 +14,6 @@ Function orderStatusDialog(success as boolean, item as string) as void
     end if
 
     m.scene.dialog = dialog
-
     ' dialog = CreateObject("roMessageDialog")
     ' port = CreateObject("roMessagePort")
     ' dialog.SetMessagePort(port)

@@ -7,21 +7,20 @@
                 <id xmlns="">6150b008-c494-4b15-9afe-ab6e5563e16a</id>
                 <items xmlns="">
                         <orderItem>
-                                <amount>$9.99</amount>
-                                <code>584ac20e70d7637d5da333de</code>
+                                <amount>$1.99</amount>
+                                <code>5845c95dc7e83b0feb000833</code>
                                 <description i:nil="true"/>
                                 <name i:nil="true"/>
                                 <purchaseId>871e9522ace140a99821a1ab010bb0d7</purchaseId>
                                 <qty>1</qty>
-                                <total>$9.99</total>
+                                <total>$1.99</total>
                         </orderItem>
                 </items>
                 <shipping xmlns="">$0.00</shipping>
                 <shippingCode i:nil="true" xmlns=""/>
                 <shippingOptions i:nil="true" xmlns=""/>
-                <subtotal xmlns="">$9.99</subtotal>
+                <subtotal xmlns="">$1.99</subtotal>
                 <tax xmlns="">$0.00</tax>
-                <total xmlns="">$9.99</total>
+                <total xmlns="">$1.99</total>
         </order>
 </result>
-

@@ -1,5 +1,5 @@
 {
-  "app_key": "<APPKEY>",
+  "app_key": "APPKEY",
   "endpoint": "https://api.zype.com/",
   "player_endpoint": "https://player.zype.com/",
   "client_id": "CLEINTID",
