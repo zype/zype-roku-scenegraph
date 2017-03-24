@@ -7,7 +7,7 @@ Sub Init()
 
     m.top.Title.color = m.global.theme.primary_text_color
     m.top.ReleaseDate.color = m.global.theme.secondary_text_color
-    m.top.Description.color = m.global.theme.primary_text_color
+    m.top.Description.color = m.global.theme.secondary_text_color
 End Sub
 
 ' Content change handler

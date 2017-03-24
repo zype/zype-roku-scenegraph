@@ -24,6 +24,14 @@ Function LightTheme() as Object
     return theme
 End Function
 
+' Set the custom theme that you want
+'
+' If you want to customize the assets, you will have to edit and save the images to have the colors you want
+' If you need further explanation what these images are for:
+'     loader          = the spinning wheel that is shown when the app is loading something
+'     focus grid      = the box that surrounds the thumbnails as you scroll through the items
+'     overlay         = the image that covers up the borders of the background image
+'     button focus    = the button shown for the currently selected item
 Function CustomTheme() as Object
     theme = {
         background_color:           "#f7f7f7",
