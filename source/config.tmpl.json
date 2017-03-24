@@ -4,5 +4,7 @@
   "player_endpoint": "https://player.zype.com/",
   "client_id": "CLEINTID",
   "client_secret": "CLIENTSECRET",
-  "version": "1"
+  "version": "1",
+  "theme": "dark",
+  "brand_color": "#ffffff"
 }

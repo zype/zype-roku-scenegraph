@@ -19,12 +19,18 @@ Sub SetHomeScene(contentID = invalid)
     m.app = GetAppConfigs()
 
     m.global = screen.getGlobalNode()
-    m.global.addFields({ brand_color: m.app.brand_color })
-    if m.app.theme = "dark"
+
+    theme = GetApiConfigs().theme
+    brand_color = GetApiConfigs().brand_color
+
+
+    m.global.addFields({ brand_color: brand_color })
+
+    if theme = "dark"
       m.global.addFields({ theme: DarkTheme() })
-    else if m.app.theme = "light"
+    else if theme = "light"
       m.global.addFields({ theme: LightTheme() })
-    else
+    else if theme = "custom"
       m.global.addFields({ theme: DarkTheme() })
     end if
 
