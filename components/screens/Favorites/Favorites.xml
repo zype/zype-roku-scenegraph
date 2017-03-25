@@ -74,10 +74,10 @@
         <!-- Overhang logo -->
         <Poster
             id="PosterOverhang"
-            translation="[100, 36]"
+            translation="[100, 20]"
             uri="pkg:/images/overhangLogo.png"
-            width="80"
-            height="60" />
+            width="150"
+            height="100" />
 
         <Poster
             id="BackgroundDown"
