@@ -287,11 +287,6 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
   end if
 
   print "GetAppConfigs: "; data
-
-  ' Set theme and brand_color for testing
-  ' data.theme = "dark"
-  ' data.brand_color = "#ff0000" ' "#00aeef"
-
   return data
 End Function
 

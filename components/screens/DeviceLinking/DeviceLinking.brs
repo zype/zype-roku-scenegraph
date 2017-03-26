@@ -40,7 +40,8 @@ Sub On_show()
 
     m.pin.color = m.global.theme.primary_text_color
 
-    m.unlinkButton.focusedColor = m.global.brand_color
+    m.unlinkButton.focusedColor = m.global.theme.primary_text_color
+    m.unlinkButton.focusBitmapUri = m.global.theme.button_focus_uri
 
     if(m.top.isDeviceLinked = true)
         CreateUnlinkButton()
