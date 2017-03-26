@@ -35,6 +35,8 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 
 5. You can now take a look at your app by side loading (uploading it to your Roku device) the app to a Roku device on the same internet connection. You can do this by updating the _app.mk_ file. Change _ROKU_DEV_TARGET_ to your Roku's IP address. You can then set _DEVPASSWORD_ to whatever password you want to use when setting up your Roku for development. For more information on sideloading and running your Roku app, [see the documentation here](https://sdkdocs.roku.com/display/sdkdoc/Loading+and+Running+Your+Application+Walkthrough).
 
+6. Update the _title_ in _manifest_ to the title of your Roku app. This is the title that the users will see once the app is installed.
+
 ## Requirements and Prerequisites
 
 Enhanced Playlists
