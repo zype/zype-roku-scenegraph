@@ -74,7 +74,7 @@
         <!-- Overhang logo -->
         <Poster
             id="PosterOverhang"
-            translation="[100, 20]"
+            translation="[100, 30]"
             uri="pkg:/images/overhangLogo.png"
             width="150"
             height="100" />
