@@ -447,7 +447,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
     if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
         adIface = Roku_Ads() 'RAF initialize
         'print "Roku_Ads library version: " + adIface.getLibVersion()
-        adIface.setAdPrefs(false, 2)
+        adIface.setAdPrefs(true, 2)
         adIface.setDebugOutput(true) 'for debug pupropse
 
         ' Normally, would set publisher's ad URL here.
@@ -462,7 +462,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
           adPods = adIface.getAds()
 
           ' if adPods array has at least one adPod
-          if adPods.count() > 0
+          if adPods <> invalid and adPods.count() > 0
             thisPod = adPods[0].ads
             for each a in thisPod
               adsArray.push(a)
