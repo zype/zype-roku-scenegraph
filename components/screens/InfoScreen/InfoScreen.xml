@@ -27,7 +27,7 @@
             id="PosterOverhang"
             translation="[100, 30]"
             uri="pkg:/images/overhangLogo.png"
-            width="150"
+            width="184"
             height="100" />
 
         <Label
