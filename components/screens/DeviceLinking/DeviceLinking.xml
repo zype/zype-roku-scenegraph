@@ -8,7 +8,7 @@
 
         <!-- Item Selected -->
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="UnlinkButton.itemSelected" onChange="onItemSelected" />
-        
+
         <!-- Alias to PIN label -->
         <field id="Pin" type="node" alias=""/>
 
@@ -40,7 +40,9 @@
     <Poster
         id="Logo"
         uri="pkg:/images/overhangLogo.png"
-        translation="[600,100]"
+        translation="[450,50]"
+        width="368"
+        height="200"
         />
 
     <!-- Link Text 1 -->
@@ -97,7 +99,7 @@
         focusedFont="dictionary:ButtonFont"
         focusBitmapUri="pkg:/images/button-focus.png"
         />
-    
+
     <!-- Linking PIN -->
     <!--<Label
         id="Pin"

@@ -26,26 +26,29 @@ Sub On_show()
     m.top.setFocus(m.top.show)
     m.pin.text = "" ' Setting it empty because after the screen loads, it will load either pin or message
     'm.linkText.text = "Please visit " + m.top.DeviceLinkingURL + " to link your device!"
-    
-    m.background.color = "0x151515"
+
+    m.background.color = m.global.theme.background_color
 
     m.linkText.text = "From your computer or mobile device, visit:"
-    m.linkText.color = "0xa8a8a8"
+    m.linkText.color = m.global.theme.secondary_text_color
 
     m.linkText2.text = m.top.DeviceLinkingURL
-    m.linkText2.color = "0xf5f5f5"
+    m.linkText2.color = m.global.theme.primary_text_color
 
     m.linkText3.text = "Enter Pin:"
-    m.linkText3.color = "0xa8a8a8"
+    m.linkText3.color = m.global.theme.secondary_text_color
 
-    m.pin.color = "0xf5f5f5"
+    m.pin.color = m.global.theme.primary_text_color
+
+    m.unlinkButton.focusedColor = m.global.theme.primary_text_color
+    m.unlinkButton.focusBitmapUri = m.global.theme.button_focus_uri
 
     if(m.top.isDeviceLinked = true)
         CreateUnlinkButton()
         m.unlinkButton.setFocus(true)
     else
         m.unlinkButton.content = invalid
-    end if    
+    end if
 End Sub
 
 Function onDeviceLinkingStateChanged()

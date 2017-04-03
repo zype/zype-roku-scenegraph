@@ -8,12 +8,25 @@ Function Init()
     m.gridScreen = m.top.findNode("Grid")
     m.gridScreen.content = {}
     m.detailsScreen = m.top.findNode("FavoritesDetailsScreen")
-    
+
     m.top.observeField("visible", "OnTopVisibilityChange")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
     m.videoTitle = m.top.findNode("VideoTitle")
     m.videoTitle.text = ""
+
+    ' Set theme
+    m.AppBackground = m.top.findNode("AppBackground")
+    m.AppBackground.color = m.global.theme.background_color
+
+    m.gridScreen.focusBitmapUri = m.global.theme.focus_grid_uri
+    m.gridScreen.rowLabelColor = m.global.theme.primary_text_color
+
+    m.videoTitle = m.top.findNode("VideoTitle")
+    m.videoTitle.color = m.global.theme.secondary_text_color
+
+    m.resultsString = m.top.findNode("ResultsString")
+    m.resultsString.color = m.global.theme.secondary_text_color
 End Function
 
 Function OnRowItemSelected()

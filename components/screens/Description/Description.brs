@@ -1,9 +1,13 @@
-' ********** Copyright 2016 Roku Corp.  All Rights Reserved. ********** 
+' ********** Copyright 2016 Roku Corp.  All Rights Reserved. **********
  'setting top interfaces
 Sub Init()
     m.top.Title             = m.top.findNode("Title")
     m.top.Description       = m.top.findNode("Description")
     m.top.ReleaseDate       = m.top.findNode("ReleaseDate")
+
+    m.top.Title.color = m.global.theme.primary_text_color
+    m.top.ReleaseDate.color = m.global.theme.secondary_text_color
+    m.top.Description.color = m.global.theme.secondary_text_color
 End Sub
 
 ' Content change handler
@@ -15,7 +19,7 @@ Sub OnContentChanged()
     if title <> invalid then
         m.top.Title.text = title.toStr()
     end if
-    
+
     value = item.description
     if value <> invalid then
         if value.toStr() <> "" then
@@ -24,7 +28,7 @@ Sub OnContentChanged()
             m.top.Description.text = "No description"
         end if
     end if
-    
+
     value = item.ReleaseDate
     if value <> invalid then
         if value <> ""

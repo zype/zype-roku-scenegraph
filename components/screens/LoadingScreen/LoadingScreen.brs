@@ -3,6 +3,15 @@
  ' creates all children
 Function Init()
     ? "[LoadingScreen] Init"
+
+    ' Set theme
+    m.background = m.top.findNode("Background")
+    m.background.color = m.global.theme.background_color
+
+    m.loadingIndicator = m.top.findNode("loadingIndicator1")
+    m.loadingIndicator.imageUri = m.global.theme.loader_uri
+    m.loadingIndicator.textColor = m.global.theme.primary_text_color
+    m.loadingIndicator.backgroundColor = m.global.theme.backgrond_color
 End Function
 
 ' onChange handler for "show" field

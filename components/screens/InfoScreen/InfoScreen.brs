@@ -4,6 +4,13 @@ Function Init()
     ? "[InfoScreen] Init"
     m.top.Info = m.top.findNode("Info")
     m.top.Info.text = ""
+
+    ' Set theme
+    m.AppBackground = m.top.findNode("AppBackground")
+    m.AppBackground.color = m.global.theme.background_color
+
+    m.info = m.top.findNode("Info")
+    m.info.color = m.global.theme.primary_text_color
 End Function
 
 ' Content change handler

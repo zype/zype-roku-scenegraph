@@ -15,6 +15,13 @@ End Function
 
 Sub SetHomeScene(contentID = invalid)
     screen = CreateObject("roSGScreen")
+
+    m.app = GetAppConfigs()
+
+    m.global = screen.getGlobalNode()
+
+    SetTheme()
+
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
@@ -25,6 +32,7 @@ Sub SetHomeScene(contentID = invalid)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
+
     m.app = GetAppConfigs()
     m.contentID = contentID
 
@@ -1040,5 +1048,31 @@ Function isAuthViaUniversalSVOD()
     end if
 
     return false
-    'print "deviceLinking: "; deviceLinking
+End Function
+
+' ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+'   Accepts theme and brand_color values from source/config and stores values in global variable (accessible to all components under HomeScene)
+'   Values are used to set component colors on initialization
+'   Theme functions come from source/themes.brs
+'
+'   Themes accepts 3 values: "dark", "light" and "custom"
+'     - If theme is none of those colors, components have the dark theme colors by default
+'     - If set to "custom", the color values should be inside CustomTheme() in source/themes.brs
+'
+'   Brand color is string with a hex color, like so: "#FFFFFF"
+Function SetTheme()
+  theme = GetApiConfigs().theme
+  brand_color = GetApiConfigs().brand_color
+
+  if m.global <> invalid
+    m.global.addFields({ brand_color: brand_color })
+
+    if theme = "dark"
+      m.global.addFields({ theme: DarkTheme() })
+    else if theme = "light"
+      m.global.addFields({ theme: LightTheme() })
+    else if theme = "custom"
+      m.global.addFields({ theme: DarkTheme() })
+    end if
+  end if
 End Function

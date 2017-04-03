@@ -43,6 +43,10 @@ Function Init()
 
     ' loading indicator starts at initializatio of channel
     m.loadingIndicator = m.top.findNode("loadingIndicator")
+
+    ' Set theme
+    m.loadingIndicator.backgroundColor = m.global.theme.background_color
+    m.loadingIndicator.imageUri = m.global.theme.loader_uri
 End Function
 
 ' if content set, focus on GridScreen and remove loading indicator

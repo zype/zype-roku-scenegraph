@@ -1,9 +1,17 @@
-' ********** Copyright 2016 Zype.  All Rights Reserved. ********** 
+' ********** Copyright 2016 Zype.  All Rights Reserved. **********
  'setting top interfaces
 Sub Init()
     m.top.observeField("focusedChild", "OnFocusedChildChange")
-    
+
     m.buttons = m.top.findNode("MenuButtons")
+
+    ' Set theme
+    m.shade = m.top.findNode("Shade")
+    m.shade.color = m.global.theme.background_color
+
+    m.buttons.color = m.global.theme.primary_text_color
+    m.buttons.focusedColor = m.global.theme.secondary_text_color
+    m.buttons.focusBitmapUri = m.global.theme.button_focus_uri
 
     ' m.rowButtons = m.top.findNode("RowList")
     ' m.rowButtons.content = GetRowListContent()
@@ -30,7 +38,7 @@ Function InitSidebarButtons()
     print "[Menu] InitSidebarButtons"
     print "m.top.isDeviceLinkingEnabled: "; m.top.isDeviceLinkingEnabled
     menuButtons = ["Search", "About"]
-    
+
     if(m.top.isDeviceLinkingEnabled = true)
         menuButtons.push("Link Device")
         menuButtons.push("Favorites")
@@ -45,10 +53,10 @@ End Function
 Function GetRowListContent() as object
     'Populate the RowList content here
     data = CreateObject("roSGNode", "ContentNode")
-    
+
     row = data.CreateChild("ContentNode")
     row.title = "Menu Buttons"
-    
+
     return data
 End Function
 
@@ -60,7 +68,7 @@ End Sub
 ' on Row List content change
 Sub onContentChange()
     ? "[Menu] Row List content changed"
-End Sub 
+End Sub
 
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()

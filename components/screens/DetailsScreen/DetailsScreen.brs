@@ -21,6 +21,27 @@ Function Init()
     m.buttons.setFocus(true)
     'm.plans = GetPlans({})
 
+    ' Set theme
+    m.AppBackground = m.top.findNode("AppBackground")
+    m.AppBackground.color = m.global.theme.background_color
+
+    m.overlay = m.top.findNode("thumbOverlay-details")
+    m.overlay.uri = m.global.theme.overlay_uri
+
+    m.buttons.color = m.global.theme.primary_text_color
+    m.buttons.focusedColor = m.global.theme.secondary_text_color
+    m.buttons.focusBitmapUri = m.global.theme.button_focus_uri
+
+    m.subscribeButtons = m.top.findNode("SubscriptionButtons")
+    m.subscribeButtons.color = m.global.theme.primary_text_color
+    m.subscribeButtons.focusedColor = m.global.theme.secondary_text_color
+    m.subscribeButtons.focusBitmapUri = m.global.theme.button_focus_uri
+
+    m.optionsText = m.top.findNode("OptionsText")
+    m.optionsText.color = m.global.theme.primary_text_color
+
+    m.optionsIcon = m.top.findNode("OptionsIcon")
+    m.optionsIcon.blendColor = m.global.brand_color
 
 End Function
 
@@ -57,7 +78,7 @@ Sub onVideoVisibleChange()
     if m.videoPlayer.visible = false and m.top.visible = true
         m.buttons.setFocus(true)
         m.videoPlayer.control = "stop"
-        AddButtons()  
+        AddButtons()
     end if
 End Sub
 
@@ -101,9 +122,9 @@ Sub onItemSelected()
 
     ' second button pressed
    else if m.top.itemSelected = 1          'favorite btn
-   
+
         print "m.btns[1] ->";Resume playing
-        
+
         if(m.btns <> invalid and m.btns[m.top.itemSelected] = "Resume playing")
             ? "[DetailsScreen] Resume button selected"
             m.top.itemSelected = 2          ' resume btn
@@ -111,7 +132,7 @@ Sub onItemSelected()
             ? "[DetailsScreen] Favorite button selected"
         end if
     else if m.top.itemSelected = 2          ' favorite btn
-            m.top.itemSelected = 1 
+            m.top.itemSelected = 1
             ? "[DetailsScreen] Favorite button selected"
     end if
     print "[DetailsScreen] m.top.SubscriptionButtonsShown; "; m.top.SubscriptionButtonsShown
@@ -162,13 +183,13 @@ End Sub
 
 Sub AddButtons()
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
-    m.top.ResumeVideo.id = "ResumeVideo"    
-    
+    m.top.ResumeVideo.id = "ResumeVideo"
+
     statusOfVideo = getStatusOfVideo()
     ' If video id entry is there in Register.
     if(statusOfVideo = true)
         if(m.top.ResumeVideo.GetVideoIdTimerValue = "notimer")
-        else    
+        else
           '  print "m.top.ResumeVideo.GetVideoIdTimerValue ->";m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
             startDate = CreateObject("roDateTime")
             timeDiff = startDate.asSeconds() - m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
@@ -181,21 +202,21 @@ Sub AddButtons()
             ' end if
         end if
     end if
-    
-    
-    
-    
-    
+
+
+
+
+
     if m.top.content <> invalid then
         ' create buttons
         result = []
 
         if(statusOfVideo = false)
             btns = ["Play"]
-        else 
+        else
             btns = ["Play from beginning", "Resume playing"]
         end if
-        
+
         if(m.top.BothActive AND m.top.isDeviceLinked)
             if m.top.content.inFavorites = true
                 btns.push("Unfavorite")
@@ -237,7 +258,7 @@ Sub AddPackagesButtons()
            'btns.push(plan["name"] + " at " + plan["amount"] + " " + plan["currency"])
            btns.push(plan["title"] + " at " + plan["cost"])
         end for
-        
+
         for each button in btns
             result.push({title : button})
         end for
@@ -268,10 +289,10 @@ Function getStatusOfVideo() as boolean
     print "m.top.ResumeVideo.HasVideoIdValue ->";m.top.ResumeVideo.HasVideoIdValue
     if(m.top.ResumeVideo.HasVideoIdValue)
         return true
-    else    
+    else
         m.videoPlayer.seek = 0.00                           ' Start video from 0 if entry not saved.
         return false
     end if
- 
+
     return false
 End Function

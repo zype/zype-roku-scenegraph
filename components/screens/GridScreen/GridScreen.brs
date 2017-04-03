@@ -1,7 +1,7 @@
-' ********** Copyright 2016 Roku Corp.  All Rights Reserved. ********** 
+' ********** Copyright 2016 Roku Corp.  All Rights Reserved. **********
  ' inits grid Screen
  ' creates all children
- ' sets all observers 
+ ' sets all observers
 Function Init()
     ? "[GridScreen] Init"
 
@@ -11,6 +11,16 @@ Function Init()
 
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
+
+    ' Set theme
+    m.rowList.focusBitmapUri = m.global.theme.focus_grid_uri
+    m.rowList.rowLabelColor = m.global.theme.primary_text_color
+
+    m.optionsLabel = m.top.findNode("OptionsLabel")
+    m.optionsLabel.color = m.global.theme.primary_text_color
+
+    m.optionsIcon = m.top.findNode("OptionsIcon")
+    m.optionsIcon.blendColor = m.global.brand_color
 End Function
 
 ' handler of focused item in RowList
