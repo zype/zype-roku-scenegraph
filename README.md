@@ -10,11 +10,11 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 - Video Favorites (available with device linking)
 - Resume watch functionality
 - Deep linking to specific videos
+- Dynamic theme colors
 
 ## Unsupported Features
 
 - Midroll ads
-- Dynamic theme colors
 - Closed Caption Support
 
 ## Monetizations Supported
@@ -36,6 +36,9 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 5. You can now take a look at your app by side loading (uploading it to your Roku device) the app to a Roku device on the same internet connection. You can do this by updating the _app.mk_ file. Change _ROKU_DEV_TARGET_ to your Roku's IP address. You can then set _DEVPASSWORD_ to whatever password you want to use when setting up your Roku for development. For more information on sideloading and running your Roku app, [see the documentation here](https://sdkdocs.roku.com/display/sdkdoc/Loading+and+Running+Your+Application+Walkthrough).
 
 6. Update the _title_ in _manifest_ to the title of your Roku app. This is the title that the users will see once the app is installed.
+
+7. __(Optional)__ You can update the app's theme and brand color by setting the _theme_ and _brand_color_ inside _source/config.json_. The theme can be set to: "dark", "light", and "custom". The brand color can be set to any hex color value.
+    - If you want to use a custom theme, you can update the values inside _source/themes.brs, CustomTheme()_. Remember to update these assets if you want to use a custom theme: __customLoader.png, focus_grid_custom.9.png, customOverlay.png, button-focus-custom.png__.
 
 ## Requirements and Prerequisites
 
