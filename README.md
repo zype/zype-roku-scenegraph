@@ -66,9 +66,9 @@ If you need more information on how Zype API works, you can read the [documentat
 
 ## Authors
 
-- __Khurshid Fayzullaev__ [@khfayzullaev](https://github.com/khfayzullaev) - Initial work
-- __Basit Nizami__ [@basit-n](https://github.com/basit-n) - Major SDK feature updates
-- __Andy Zheng__ [@azheng249](https://github.com/azheng249) - Feature updates
+- __Khurshid Fayzullaev__ ([@khfayzullaev](https://github.com/khfayzullaev)) - Initial work
+- __Basit Nizami__ ([@basit-n](https://github.com/basit-n)) - Major SDK feature updates
+- __Andy Zheng__ ([@azheng249](https://github.com/azheng249)) - Feature updates
 
 See the full [list of contributors](https://github.com/zype/zype-roku-scenegraph/graphs/contributors) who particated in this project.
 
