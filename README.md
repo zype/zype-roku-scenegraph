@@ -63,3 +63,15 @@ We welcome contributions to Zype Roku Scenegraph SDK. If you have any suggestion
 ## Support
 
 If you need more information on how Zype API works, you can read the [documentation here](http://dev.zype.com/api_docs/intro/). If you have any other questions, feel free to contact us at [support@zype.com](mailto:support@zype.com).
+
+## Authors
+
+- __Khurshid Fayzullaev__ [@khfayzullaev](https://github.com/khfayzullaev) - Initial work
+- __Basit Nizami__ [@basit-n](https://github.com/basit-n) - Major SDK feature updates
+- __Andy Zheng__ [@azheng249](https://github.com/azheng249) - Feature updates
+
+See the full [list of contributors](https://github.com/zype/zype-roku-scenegraph/graphs/contributors) who particated in this project.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
