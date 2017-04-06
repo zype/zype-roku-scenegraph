@@ -662,7 +662,7 @@ function GetPlaylistContent(playlist_id as String)
         row = {}
         row.title = pl.title
         videos = []
-        for each video in GetPlaylistVideos(pl._id, {"dpt": "true"})
+        for each video in GetPlaylistVideos(pl._id, {"dpt": "true", "per_page": GetAppConfigs().per_page})
             video.inFavorites = favs.DoesExist(video._id)
             videos.push(CreateVideoObject(video))
         end for
