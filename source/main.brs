@@ -111,7 +111,7 @@ Sub SetHomeScene(contentID = invalid)
       ' Get video object and create VideoNode
       linkedVideo = GetVideo(contentID)
 
-      if linkedVideo.DoesExist("_id")
+      if linkedVideo.DoesExist("_id") and linkedVideo.active = true
         linkedVideoObject =  CreateVideoObject(linkedVideo)
         linkedVideoNode = createObject("roSGNode", "VideoNode")
 
