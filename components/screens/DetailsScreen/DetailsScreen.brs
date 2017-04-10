@@ -100,10 +100,9 @@ End Sub
 
 ' on Button press handler
 Sub onItemSelected()
+    m.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
     ' first button pressed
     if m.top.itemSelected = 0
-        m.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
-
         if(m.top.SubscriptionPackagesShown = true)  ' If packages are shown and one of them was clicked, start wizard.
             ' Subscription Wizard
             print "Subscription Wizard"
