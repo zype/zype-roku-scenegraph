@@ -1,3 +1,7 @@
+### 1.1.1 (10/04/2017)
+
+- Resolved issue with resume watching when reentering app
+
 ### 1.1.0 (03/04/2017)
 
 - Added dynamic theming feature
