@@ -27,6 +27,16 @@ Sub SetHomeScene(contentID = invalid)
     screen.SetMessagePort(m.port)
     screen.Show()
 
+    m.LoadingScreen = m.scene.findNode("LoadingScreen")
+
+    m.loadingIndicator = m.scene.findNode("loadingIndicator")
+    m.loadingIndicator1 = m.scene.findNode("loadingIndicator1")
+
+    if contentID <> invalid
+      m.loadingIndicator.control = "stop"
+      StartLoader()
+    end if
+
     m.store = CreateObject("roChannelStore")
     ' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
@@ -50,8 +60,6 @@ Sub SetHomeScene(contentID = invalid)
 
     print "[Main] Init"
 
-    m.LoadingScreen = m.scene.findNode("LoadingScreen")
-
     m.infoScreen = m.scene.findNode("InfoScreen")
     m.infoScreenText = m.infoScreen.findNode("Info")
     m.infoScreenText.text = GetAppConfigs().info_text
@@ -64,9 +72,6 @@ Sub SetHomeScene(contentID = invalid)
     m.favorites.observeField("visible", m.port)
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
-
-    m.loadingIndicator = m.scene.findNode("loadingIndicator")
-    m.loadingIndicator1 = m.scene.findNode("loadingIndicator1")
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.detailsScreen.observeField("itemSelected", m.port)
@@ -442,7 +447,13 @@ sub playVideo(screen as Object, auth As Object)
 
     m.loadingIndicator.control = "stop"
     print "[Main] Playing video"
+
     m.videoPlayer.visible = true
+
+    if m.LoadingScreen.visible = true
+      EndLoader()
+    end if
+    
     m.videoPlayer.setFocus(true)
     m.videoPlayer.control = "play"
 end sub
@@ -516,6 +527,11 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.loadingIndicator.control = "stop"
         print "[Main] Playing video"
         m.videoPlayer.visible = true
+
+        if m.LoadingScreen.visible = true
+          EndLoader()
+        end if
+
         m.videoPlayer.setFocus(true)
         m.videoPlayer.control = "play"
     end if
