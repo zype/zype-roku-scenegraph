@@ -1,4 +1,4 @@
-' ********** Copyright 2016 Roku Corp.  All Rights Reserved. ********** 
+' ********** Copyright 2016 Roku Corp.  All Rights Reserved. **********
  ' setting top interfaces
  ' setting observers
 Sub Init()
@@ -9,10 +9,20 @@ Sub Init()
     m.fadeoutAnimation = m.top.findNode("fadeoutAnimation")
     m.fadeinAnimation = m.top.findNode("fadeinAnimation")
     m.backgroundColor = m.top.findNode("backgroundColor")
-    
+
     m.background.observeField("bitmapWidth", "OnBackgroundLoaded")
     m.top.observeField("width", "OnSizeChange")
     m.top.observeField("height", "OnSizeChange")
+
+    ' Set theme
+    m.AppBackground = m.top.findNode("AppBackground")
+    m.AppBackground.color = m.global.theme.background_color
+
+    m.shade = m.top.findNode("shade")
+    m.shade.color = m.global.theme.background_color
+
+    m.overlay = m.top.findNode("thumbOverlay-details")
+    m.overlay.uri = m.global.theme.overlay_uri
 End Sub
 
 
@@ -30,7 +40,7 @@ End Sub
 ' If Size changed, change parameters to childrens
 Sub OnSizeChange()
     size = m.top.size
-    
+
     ' m.background.width = m.top.width
     ' m.oldBackground.width = m.top.width
     ' m.shade.width = m.top.width

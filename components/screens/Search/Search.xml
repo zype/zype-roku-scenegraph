@@ -40,7 +40,7 @@
 
         <Rectangle
             id="AppBackground"
-            color="0xffffff"
+            color="0x151515"
             width="1280"
             height="720"
             translation="[0,0]" />
@@ -52,14 +52,14 @@
 
         <Keyboard
            id="Keyboard"
-           keyColor="0x777777"
-           focusedKeyColor="0xe75c1e"
+           keyColor="0xf5f5f5"
+           focusedKeyColor="0x151515"
            translation="[200, 150]" />
 
         <!--Search results grid -->
         <RowList
             id="Grid"
-            focusBitmapUri="pkg:/images/focus_grid.9.png"
+            focusBitmapUri="pkg:/images/focus_grid_light.9.png"
             translation="[-60, 450]"
             itemSize="[1327, 218]"
             numRows="2"
@@ -67,7 +67,7 @@
             focusXOffset="[147]"
             rowFocusAnimationStyle="fixedFocusWrap"
             rowItemSize="[[262, 147]]"
-            rowItemSpacing="[[16.5, 3]]"
+            rowItemSpacing="[[16, 3]]"
             showRowLabel="true"
             showRowCounter="true"
             rowLabelOffset="[[147, 20]]"
@@ -76,7 +76,7 @@
 
         <Label
             id="VideoTitle"
-            color="0x777777"
+            color="0xf5f5f5"
             text=""
             translation="[100,660]">
             <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="18" />
@@ -85,10 +85,10 @@
         <!-- Overhang logo -->
         <Poster
             id="PosterOverhang"
-            translation="[100, 36]"
+            translation="[100, 30]"
             uri="pkg:/images/overhangLogo.png"
-            width="80"
-            height="60" />
+            width="184"
+            height="100" />
 
         <Poster
             id="BackgroundDown"
@@ -103,7 +103,7 @@
 
         <Label
             id="ResultsString"
-            color="0x777777"
+            color="0xa8a8a8"
             text=""
             translation="[100,500]">
             <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20" />

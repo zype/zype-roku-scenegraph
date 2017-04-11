@@ -17,7 +17,58 @@
         <!-- Content fields -->
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
 
+        <!-- If User is Logged In -->
+        <field id="isLoggedIn" type="bool"  alwaysnotify="true" onChange="OnContentChange"/>
+
+        <!-- If User is Logged In via Native SVOD -->
+        <field id="isLoggedInViaNativeSVOD" type="bool"/>
+
+        <!-- If User is Logged In via Universal SVOD -->
+        <field id="isLoggedInViaUniversalSVOD" type="bool"/>
+
+        <!-- Subscription Buttons Shown -->
+        <field id="SubscriptionButtonsShown" type="bool" />
+
+        <!-- Subscription Packages Shown -->
+        <field id="SubscriptionPackagesShown" type="bool" />
+
+        <!-- Subscription Plans -->
+        <field id="SubscriptionPlans" type="roArray" />
+
+        <!-- Products Catalog -->
+        <field id="ProductsCatalog" type="roArray" />
+
         <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
+
+        <!-- No Authentication Enabled -->
+        <field id="NoAuthenticationEnabled" type="bool" />
+
+        <!-- Only Native SVOD -->
+        <field id="OnlyNativeSVOD" type="bool" />
+
+        <!-- BothActive -->
+        <field id="BothActive" type="bool" />
+
+        <!-- isDeviceLinked -->
+        <field id="isDeviceLinked" type="bool" />
+
+        <!-- Universal Subscriptions Count -->
+        <field id="UniversalSubscriptionsCount" type="integer" />
+
+        <!-- JustBoughtNativeSubscription -->
+        <!-- This is just a flag to mark in the system that the user just bought via IAP and should be able to Play -->
+        <field id="JustBoughtNativeSubscription" type="bool" />
+
+        <!-- DontShowSubscriptionPackages -->
+        <!-- This is when we click the subscription button and there might be a new subscription on the server
+             We need to load the Play/Favorite buttons if there was a new subscription found.
+             In this time period, do not show the packages when Subscription button is clicked
+        -->
+        <field id="DontShowSubscriptionPackages" type="bool" />
+        <field id="ShowSubscriptionPackagesCallback" type="bool" onChange="onShowSubscriptionPackagesCallback"/>
+
+		<!-- Resume video task node -->
+		<field id="ResumeVideo" type="node" />
 
         <field id="dataArray" type="roArray" />
 
@@ -33,11 +84,14 @@
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/DetailsScreen/DetailsScreen.brs" />
 
+    <!-- store functions -->
+    <script type="text/brightscript" uri="pkg:/source/purchase/store.brs" />
+
     <children>
         <!-- Main Background -->
         <Rectangle
             id="AppBackground"
-            color="0xFFFFFF"
+            color="0x151515"
             width="1280"
             height="720"
             translation="[0,0]" />
@@ -53,7 +107,7 @@
         <!-- Gradient Balck Overlay -->
         <Poster
             id="thumbOverlay-details"
-            uri="pkg:/images/WhiteOverlay.png"
+            uri="pkg:/images/blackOverlay.png"
             width="1280"
             height="720"
             translation="[0, 0]"
@@ -76,15 +130,28 @@
         <LabelList
             id="Buttons"
             translation="[106,550]"
-            color="0x333333"
-            focusedColor="0x333333"
+            color="0xf5f5f5"
+            focusedColor="0xf5f5f5"
             numRows="5"
             vertFocusAnimationStyle="floatingFocus"
             itemSize="[350, 45]"
             textHorizAlign="center"
             font="dictionary:ButtonFont"
             focusedFont="dictionary:ButtonFont"
-            focusBitmapUri="pkg:/images/button-focus.png"
+            focusBitmapUri="pkg:/images/button-focus-light.png"
+            />
+        <LabelList
+            id="SubscriptionButtons"
+            translation="[106,550]"
+            color="0xf5f5f5"
+            focusedColor="0xf5f5f5"
+            numRows="5"
+            vertFocusAnimationStyle="floatingFocus"
+            itemSize="[350, 45]"
+            textHorizAlign="center"
+            font="dictionary:ButtonFont"
+            focusedFont="dictionary:ButtonFont"
+            focusBitmapUri="pkg:/images/button-focus-light.png"
             />
 
         <!--Black hud at bottom of the Details Screen.-->
@@ -114,23 +181,24 @@
             id="Overhang">
             <Poster
                id="PosterOverhang"
-               translation="[100, 36]"
+               translation="[100, 30]"
                uri="pkg:/images/overhangLogo.png"
-               width="80"
-               height="60" />
+               width="184"
+               height="100" />
            <Group
                id="Optionslabel">
            <Label
+               id="OptionsText"
                translation="[726, 58]"
                width="400"
                horizAlign="right"
                text="Options"
-               color="0x333333">
+               color="0xf5f5f5">
                <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="21" />
             </Label>
 
            <Poster id="OptionsIcon"
-               blendColor="#0aabf5"
+               blendColor="#ffffff"
                enableColorBlending="false"
                translation="[1139, 53]"
                width="24"

@@ -1,4 +1,4 @@
-' ********** Copyright 2016 Roku Corp.  All Rights Reserved. ********** 
+' ********** Copyright 2016 Roku Corp.  All Rights Reserved. **********
 
 sub init()
     m.image = m.top.findNode("image")
@@ -13,7 +13,13 @@ sub init()
 
     m.textHeight = 0
     m.textPadding = 0
-    
+
+    ' Set theme
+    m.imageUri = m.global.theme.loader_uri
+    m.backgroundColor = m.global.theme.background_color
+    m.text.color = m.global.theme.primary_text_color
+
+
     'image could've been loaded by this time
     omImageLoadStatusChange()
 
@@ -23,25 +29,25 @@ end sub
 
 sub updateLayout()
     ' check for parent node and set observers
-    if m.top.getParent() <> invalid   
+    if m.top.getParent() <> invalid
         m.top.getParent().observeField("width", "updateLayout")
         m.top.getParent().observeField("height", "updateLayout")
     end if
     componentWidth = getComponentWidth()
     componentHeight = getComponentHeight()
-    
+
     m.text.width = componentWidth - m.textPadding * 2
     m.background.width = componentWidth
     m.background.height = componentHeight
-    
+
     if m.top.centered
         m.top.translation = [(getParentWidth() - componentWidth) / 2, (getParentHeight() - componentHeight) / 2]
     end if
-    
+
     loadingGroupWidth = max(m.image.width, m.text.width)
-    
+
     loadingGroupHeight = m.image.height + m.textHeight
-    
+
     ' check whether image and text fit into component, if they don't - downscale image
     if m.imageAspectRatio <> invalid
         loadingGroupAspectRatio = loadingGroupWidth / loadingGroupHeight
@@ -58,9 +64,9 @@ sub updateLayout()
             loadingGroupWidth = loadingGroupHeight * loadingGroupAspectRatio
         end if
     end if
-    
+
     m.image.scaleRotateCenter = [m.image.width / 2, m.image.height / 2]
-    
+
     ' position loading group, image and text at the center
     m.loadingGroup.translation = [(componentWidth - loadingGroupWidth) / 2, (componentHeight - loadingGroupHeight) / 2]
     m.image.translation = [(loadingGroupWidth - m.image.width) / 2, 0]
@@ -80,7 +86,7 @@ end sub
 sub omImageLoadStatusChange()
     if m.image.loadStatus = "ready"
         m.imageAspectRatio = m.image.bitmapWidth / m.image.bitmapHeight
-        
+
         if m.top.imageWidth > 0 and m.top.imageHeight <= 0
             m.image.height = m.image.width / m.imageAspectRatio
         else if m.top.imageHeight > 0 and m.top.imageWidth <= 0
@@ -124,7 +130,7 @@ sub onTextChange()
         m.textHeight = m.text.localBoundingRect().height + m.top.spacing
     end if
     if m.textHeight <> prevTextHeight
-        updatelayout()    
+        updatelayout()
     end if
 end sub
 

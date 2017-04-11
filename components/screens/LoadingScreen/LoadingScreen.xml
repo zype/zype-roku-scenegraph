@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!-- node that renders DeviceLinking
+ -->
+<component name="LoadingScreen" extends="Group">
+    <interface>
+        <!-- WRITE-ONLY. Shows/hides the component on the scene.
+        True = show; False = hide. -->
+        <field id="show" type="boolean" onChange="onShow" alwaysNotify="true"/>
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/LoadingScreen/LoadingScreen.brs" />
+
+    <children>
+
+    <!-- Background Color -->
+    <Rectangle
+        id = "Background"
+        width="1280"
+        height="720"
+        color="0x151515"
+        opacity="1"
+        translation="[0,0]"
+        />
+
+    <LoadingIndicator
+          id="loadingIndicator1"
+          imageUri="pkg:/components/screens/LoadingIndicator/lightLoader.png"
+          clockwise="true"
+          spinInterval="2"
+          fadeInterval="0.5"
+          spacing="20"
+          imageWidth="100"
+          text="Communicating with Roku servers... Please Wait!"
+          textColor="0xf5f5f5"
+          width="1280"
+          height="720"
+          centered="false"
+          translation="[0, 0]"
+          textPadding="10"
+          font="dictionary:loadingIndicatorFont"
+          backgroundColor="0x151515"
+          backgroundOpacity="0"/>
+    </children>
+</component>

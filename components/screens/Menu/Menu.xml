@@ -14,6 +14,8 @@
 
         <!-- Row item selection handler -->
         <!--<field id="rowItemSelected" type="intarray" alwaysnotify="true" alias="RowList.rowItemSelected"/>-->
+
+        <field id="isDeviceLinkingEnabled" type="bool" onChange="InitSidebarButtons"/>
     </interface>
 
     <!-- main handler -->
@@ -30,7 +32,7 @@
             id = "Shade"
             width="600"
             height="720"
-            color="0xEEEEEE"
+            color="0x151515"
             opacity="0.8"
             translation="[700,0]"
             />
@@ -39,21 +41,21 @@
         <LabelList
             id="MenuButtons"
             translation="[800,120]"
-            color="0x333333FF"
-            focusedColor="0x333333FF"
+            color="0xf5f5f5"
+            focusedColor="0xf5f5f5"
             numRows="5"
             vertFocusAnimationStyle="floatingFocus"
             itemSize="[300, 35]"
             font="dictionary:MenuFont"
             textHorizAlign="center"
             focusedFont="dictionary:MenuFont"
-            focusBitmapUri="pkg:/images/button-focus.png"
+            focusBitmapUri="pkg:/images/button-focus-light.png"
             />
 
         <!--Menu grid -->
         <!--<RowList
             id="RowList"
-            focusBitmapUri="pkg:/images/focus_grid.9.png"
+            focusBitmapUri="pkg:/images/focus_grid_light.9.png"
             translation="[-60, 400]"
             itemSize="[1327, 218]"
             numRows="1"
@@ -61,7 +63,7 @@
             focusXOffset="[147]"
             rowFocusAnimationStyle="fixedFocusWrap"
             rowItemSize="[[262, 147]]"
-            rowItemSpacing="[[16.5, 3]]"
+            rowItemSpacing="[[16, 3]]"
             showRowLabel="true"
             showRowCounter="true"
             rowLabelOffset="[[147, 20]]"

@@ -29,7 +29,7 @@
             id="Background"
             width="1280"
             height="720"
-            color="0xAAAAAA"
+            color="0x151515"
             ShadeOpacity="0.8" />
 
         <!-- Custom fonts -->
@@ -39,7 +39,8 @@
 
         <RowList
             id="RowList"
-            focusBitmapUri="pkg:/images/focus_grid.9.png"
+            itemComponentName="GridScreenItem"
+            focusBitmapUri="pkg:/images/focus_grid_light.9.png"
             translation="[-60, 410]"
             itemSize="[1327, 218]"
             numRows="2"
@@ -47,20 +48,20 @@
             focusXOffset="[147]"
             rowFocusAnimationStyle="fixedFocusWrap"
             rowItemSize="[[262, 147]]"
-            rowItemSpacing="[[16.5, 3]]"
+            rowItemSpacing="[[16, 3]]"
             showRowLabel="true"
             showRowCounter="true"
             rowLabelOffset="[[147, 20]]"
             rowLabelFont="dictionary:RowListFont"
-            rowLabelColor="0x333333" />
+            rowLabelColor="0xf5f5f5" />
         <!-- Overhang logo -->
         <Group id="Overhang">
             <Poster
                 id="PosterOverhang"
-                translation="[100, 36]"
+                translation="[100, 30]"
                 uri="pkg:/images/overhangLogo.png"
-                width="80"
-                height="60" />
+                width="184"
+                height="100" />
 
             <Label
                 id="OptionsLabel"
@@ -68,13 +69,13 @@
                 width="400"
                 horizAlign="right"
                 text="Options"
-                color="0x333333">
+                color="0xf5f5f5">
                 <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="21" />
             </Label>
 
             <Poster
                 id="OptionsIcon"
-                blendColor="#0aabf5"
+                blendColor="#ffffff"
                 enableColorBlending="false"
                 translation="[1139, 53]"
                 width="24"
