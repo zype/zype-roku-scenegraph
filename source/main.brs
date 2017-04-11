@@ -128,6 +128,16 @@ Sub SetHomeScene(contentID = invalid)
 
         ' Trigger listener to push detailsScreen into HomeScene screenStack
         m.scene.DeepLinkedID = contentID
+
+        ' Start playing video if no monetization
+        if linkedVideo.subscription_required = false and linkedVideo.purchase_required = false
+          if m.app.avod = true
+            playVideoWithAds(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
+          else
+            playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
+          end if
+        end if
+
       end if
     end if
 
@@ -418,9 +428,14 @@ sub playVideo(screen as Object, auth As Object)
 
     ' show loading indicator before requesting ad and playing video
     m.loadingIndicator.control = "start"
-    'm.VideoPlayer = screen.findNode("VideoPlayer")
+
+    if m.VideoPlayer = invalid
+      m.VideoPlayer = screen.findNode("VideoPlayer")
+    end if
+
     m.on_air = screen.content.onAir
-     m.VideoPlayer.observeField("position", m.port)
+    m.VideoPlayer.observeField("position", m.port)
+
     if screen.content.onAir = true
         m.VideoPlayer.observeField("position", m.port)
     end if
@@ -444,7 +459,11 @@ sub playVideoWithAds(screen as Object, auth as Object)
     ' show loading indicator before requesting ad and playing video
     m.loadingIndicator.control = "start"
     m.on_air = playerInfo.on_air
-    'm.VideoPlayer = screen.findNode("VideoPlayer")
+
+    if m.VideoPlayer = invalid
+      m.VideoPlayer = screen.findNode("VideoPlayer")
+    end if
+
     m.VideoPlayer.observeField("position", m.port)
 
     if playerInfo.on_air = true
