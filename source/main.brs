@@ -142,7 +142,12 @@ Sub SetHomeScene(contentID = invalid)
             playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
           end if
         end if
+      end if
 
+      ' Close loading screen if still visible (invalid video id)
+      if m.LoadingScreen.visible = true
+        EndLoader()
+        m.scene.gridContent = m.scene.gridContent
       end if
     end if
 
@@ -453,7 +458,7 @@ sub playVideo(screen as Object, auth As Object)
     if m.LoadingScreen.visible = true
       EndLoader()
     end if
-    
+
     m.videoPlayer.setFocus(true)
     m.videoPlayer.control = "play"
 end sub
