@@ -43,6 +43,8 @@ Function Init()
     m.optionsIcon = m.top.findNode("OptionsIcon")
     m.optionsIcon.blendColor = m.global.brand_color
 
+    ' Event listener for video player state. Needed to handle video player errors and completion
+    m.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
 End Function
 
 Function onShowSubscriptionPackagesCallback()
@@ -100,7 +102,6 @@ End Sub
 
 ' on Button press handler
 Sub onItemSelected()
-    m.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
     ' first button pressed
     if m.top.itemSelected = 0
         if(m.top.SubscriptionPackagesShown = true)  ' If packages are shown and one of them was clicked, start wizard.
