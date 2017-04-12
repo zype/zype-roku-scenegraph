@@ -52,6 +52,10 @@ Function GetPlaylistThumbnail(attrs As Object) As Object
     end if
   end for
 
+  if src = "" and properties.thumbnails.count() > 0 and properties.thumbnails[0].url <> invalid
+    src = properties.thumbnails[0].url
+  end if
+
   return src
 End Function
 
@@ -62,18 +66,34 @@ Function GetPlaylistBackgroundImage(attrs As Object) As Object
   properties = attrs
   src = ""
 
+  ' for each item in properties.thumbnails
+  '   ' This is actually correct code
+  '   if item.DoesExist("width")
+  '     if item.width <> invalid and item.width >= 500
+  '       src = item.url
+  '       exit for
+  '     else
+  '       src = item.url
+  '       exit for
+  '     end if
+  '   end if
+  ' end for
+
+  maxWidth = 0
+
+  ' Search through all thumbnails for largest image
   for each item in properties.thumbnails
-    ' This is actually correct code
     if item.DoesExist("width")
-      if item.width <> invalid and item.width >= 500
+      if item.width <> invalid and item.width > maxWidth
+        maxWidth = item.width
         src = item.url
-        exit for
-      else
-        src = item.url
-        exit for
       end if
     end if
   end for
+
+  if src = "" and properties.thumbnails.count() > 0 and properties.thumbnails[0].url <> invalid
+    src = properties.thumbnails[0].url
+  end if
 
   return src
 End Function
