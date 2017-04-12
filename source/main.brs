@@ -145,11 +145,11 @@ Sub SetHomeScene(contentID = invalid)
     while(true)
         msg = wait(0, m.port)
         msgType = type(msg)
-        print "------------------"
+        ' print "------------------"
         ' print "msg = "; msg
 
-        print "msg.getNode(): "; msg.getNode()
-        print "msg.getField(): "; msg.getField()
+        ' print "msg.getNode(): "; msg.getNode()
+        ' print "msg.getField(): "; msg.getField()
         if msgType = "roSGNodeEvent"
             if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
@@ -232,7 +232,7 @@ Sub SetHomeScene(contentID = invalid)
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
-                print m.videoPlayer.position
+                ' print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30)
                     AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())

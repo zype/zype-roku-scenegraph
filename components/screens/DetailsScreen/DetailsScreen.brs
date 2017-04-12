@@ -98,6 +98,8 @@ Sub OnVideoPlayerStateChange()
     else if m.videoPlayer.state = "finished"
         print "Video finished playing"
         print "Current: "; m.top.content
+        print "Current Type: "; type(m.top.content)
+        print "m.CurrentVideoIndex: "; m.CurrentVideoIndex
         if m.top.autoplay = true AND isLastVideoInPlaylist() = false
             m.CurrentVideoIndex = m.CurrentVideoIndex + 1
             PrepareVideoPlayer()
@@ -115,10 +117,13 @@ Sub OnVideoPlayerStateChange()
 End Sub
 
 Function PrepareVideoPlayer()
+    print "PrepareVideoPlayer"
     nextVideoObject = m.top.videosTree[m.PlaylistRowIndex][m.CurrentVideoIndex]
-    nextVideoNode = ContentList2SimpleNode(nextVideoObject)
-
+    ' nextVideoNode = ContentList2SimpleNode(nextVideoObject)
     if(nextVideoObject <> invalid)
+        result = createObject("RoSGNode","ContentNode")
+        nextVideoNode = result.createChild("ContentNode")
+
         nextVideoNode.id = nextVideoObject.id
         nextVideoNode.CONTENTTYPE = nextVideoObject.contenttype
         nextVideoNode.DESCRIPTION = nextVideoObject.description
@@ -132,14 +137,37 @@ Function PrepareVideoPlayer()
         nextVideoNode.subscriptionRequired = nextVideoObject.subscriptionrequired
         nextVideoNode.TITLE = nextVideoObject.title
         nextVideoNode.URL = nextVideoObject.url
+        nextVideoNode.TestingVar = "hello"
+        nextVideoNode.setFields({TestingVar1: "hello"})
+        ' result.appendChild(nextVideoNode)
 
+        print "Test Start"
+        print "nextVideoNode: "; nextVideoNode
+        print "result: "; result
+        print "Test: "; {TestingVar: "hello"}
+        print "Test End"
+
+        ' for each itemAA in nextVideoObject
+        '     print "itemAA: "; itemAA
+        ' end for
 
         m.top.content = nextVideoNode
+        ' m.top.content.onAir = nextVideoObject.onair
+        ' m.top.content.STREAMFORMAT = "abc"
+        ' m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
+
         print "nextVideoObject: "; nextVideoObject
-        print "nextVideoNode: "; nextVideoNode
+        ' print "nextVideoNode: "; nextVideoNode
         print "New: "; m.top.content
-        m.top.triggerPlay = true
-        m.videoPlayer.state = "play"
+        ' print "m.canWatchVideo: "; m.canWatchVideo
+        ' print "nextVideoNode Type: "; type(nextVideoNode)
+        ' print "nextVideoObject.streamformat: "; nextVideoObject.streamformat
+
+        ' if(m.canWatchVideo)
+        '     m.top.triggerPlay = true
+        '     m.videoPlayer.state = "play"
+        ' end if
+        
     end if
 End Function
 
@@ -191,9 +219,9 @@ End Sub
 
 ' Content change handler
 Sub OnContentChange()
-    print "Content: "; m.top.content
+    ' print "Content: "; m.top.content
     m.top.SubscriptionPackagesShown = false
-    print "Videos: "; m.top.videosTree[0][6]
+    ' print "Videos: "; m.top.videosTree[0][6]
     FindPlaylistRowIndex()
 
     if m.top.content<>invalid then
@@ -326,6 +354,7 @@ Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" 
     result = createObject("roSGNode",nodeType)
     if result <> invalid
         for each itemAA in contentList
+            print "itemAA_: "; itemAA
             item = createObject("roSGNode", nodeType)
             item.setFields(itemAA)
             result.appendChild(item)
@@ -352,14 +381,24 @@ Function getStatusOfVideo() as boolean
 End Function
 
 Function FindPlaylistRowIndex()
+    print "FindPlaylistRowIndex"
+    ' print "m.top.videosTree: "; m.top.videosTree
+    contentId = invalid
+    if(m.top.content <> invalid)
+        ' print "m.top.content.id: "; m.top.content.id
+        contentIdParts = m.top.content.id.tokenize(":")
+        contentId = contentIdParts[0]
+    end if
     index = 0
     found = false
     totalVideos = 0
     childCount = 0
     For Each vt in m.top.videosTree
+        ' print "vt: "; vt
         childCount = 0
         For Each v in vt
-            if(v.id = m.top.content.id)
+            ' print "v: "; v
+            if(v.id = contentId)
                 m.PlaylistRowIndex = index
                 m.CurrentVideoIndex = v.videoIndex
                 found = true
