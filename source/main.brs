@@ -32,6 +32,7 @@ Sub SetHomeScene(contentID = invalid)
     m.loadingIndicator = m.scene.findNode("loadingIndicator")
     m.loadingIndicator1 = m.scene.findNode("loadingIndicator1")
 
+    ' Start loader if deep linked
     if contentID <> invalid
       m.loadingIndicator.control = "stop"
       StartLoader()
@@ -116,6 +117,7 @@ Sub SetHomeScene(contentID = invalid)
       ' Get video object and create VideoNode
       linkedVideo = GetVideo(contentID)
 
+      ' If contentID is for active video
       if linkedVideo.DoesExist("_id") and linkedVideo.active = true
         linkedVideoObject =  CreateVideoObject(linkedVideo)
         linkedVideoNode = createObject("roSGNode", "VideoNode")
@@ -144,10 +146,14 @@ Sub SetHomeScene(contentID = invalid)
         end if
       end if
 
-      ' Close loading screen if still visible (invalid video id)
+      ' Close loading screen if still visible
       if m.LoadingScreen.visible = true
         EndLoader()
-        m.scene.gridContent = m.scene.gridContent
+
+        ' Trigger grid screen refocus if visible
+        if m.gridScreen.visible = true
+          m.scene.gridContent = m.scene.gridContent
+        end if
       end if
     end if
 
