@@ -1,3 +1,7 @@
+### 1.1.2 (13/04/2017)
+
+- Patch to deep linking
+
 ### 1.1.1 (10/04/2017)
 
 - Resolved issue with resume watching when reentering app
