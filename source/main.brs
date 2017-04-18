@@ -253,6 +253,7 @@ Sub SetHomeScene(contentID = invalid)
                     AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
                 end if
                 if(m.on_air)
+                  if GetLimitStreamObject() <> invalid
                     GetLimitStreamObject().played = GetLimitStreamObject().played + 1
                     'print  GetLimitStreamObject().played
                     if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
@@ -286,6 +287,7 @@ Sub SetHomeScene(contentID = invalid)
                             end if
                         end if
                     end if
+                  end if
                 end if
             else if msg.getNode() = "DeviceLinking" and msg.getField() = "show" and msg.GetData() = true then
                 pin = m.deviceLinking.findNode("Pin")
