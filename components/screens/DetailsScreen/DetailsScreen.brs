@@ -121,37 +121,38 @@ Function PrepareVideoPlayer()
     nextVideoObject = m.top.videosTree[m.PlaylistRowIndex][m.CurrentVideoIndex]
     ' nextVideoNode = ContentList2SimpleNode(nextVideoObject)
     if(nextVideoObject <> invalid)
-        result = createObject("RoSGNode","ContentNode")
-        nextVideoNode = result.createChild("ContentNode")
+        ' result = createObject("RoSGNode","ContentNode")
+        ' nextVideoNode = result.createChild("ContentNode")
 
-        nextVideoNode.id = nextVideoObject.id
-        nextVideoNode.CONTENTTYPE = nextVideoObject.contenttype
-        nextVideoNode.DESCRIPTION = nextVideoObject.description
-        nextVideoNode.HDBACKGROUNDIMAGEURL = nextVideoObject.hdbackgroundimageurl
-        nextVideoNode.HDPOSTERURL = nextVideoObject.hdposterurl
-        nextVideoNode.inFavorites = nextVideoObject.infavorites
-        nextVideoNode.LENGTH = nextVideoObject.length
-        nextVideoNode.onAir = nextVideoObject.onair
-        nextVideoNode.RELEASEDATE = nextVideoObject.releasedate
-        nextVideoNode.STREAMFORMAT = nextVideoObject.streamformat
-        nextVideoNode.subscriptionRequired = nextVideoObject.subscriptionrequired
-        nextVideoNode.TITLE = nextVideoObject.title
-        nextVideoNode.URL = nextVideoObject.url
-        nextVideoNode.TestingVar = "hello"
-        nextVideoNode.setFields({TestingVar1: "hello"})
+        m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
+        m.top.content.id = nextVideoObject.id
+        m.top.content.CONTENTTYPE = nextVideoObject.contenttype
+        m.top.content.DESCRIPTION = nextVideoObject.description
+        m.top.content.HDBACKGROUNDIMAGEURL = nextVideoObject.hdbackgroundimageurl
+        m.top.content.HDPOSTERURL = nextVideoObject.hdposterurl
+        m.top.content.inFavorites = nextVideoObject.infavorites
+        m.top.content.LENGTH = nextVideoObject.length
+        m.top.content.onAir = nextVideoObject.onair
+        m.top.content.RELEASEDATE = nextVideoObject.releasedate
+        m.top.content.STREAMFORMAT = nextVideoObject.streamformat
+        m.top.content.TITLE = nextVideoObject.title
+        m.top.content.URL = nextVideoObject.url
+        
+        ' m.top.content.TestingVar = "hello"
+        ' m.top.content.setFields({TestingVar1: "hello"})
         ' result.appendChild(nextVideoNode)
 
-        print "Test Start"
-        print "nextVideoNode: "; nextVideoNode
-        print "result: "; result
-        print "Test: "; {TestingVar: "hello"}
-        print "Test End"
+        ' print "Test Start"
+        ' print "nextVideoNode: "; nextVideoNode
+        ' print "result: "; result
+        ' print "Test: "; {TestingVar: "hello"}
+        ' print "Test End"
 
         ' for each itemAA in nextVideoObject
         '     print "itemAA: "; itemAA
         ' end for
 
-        m.top.content = nextVideoNode
+        ' m.top.content = nextVideoNode
         ' m.top.content.onAir = nextVideoObject.onair
         ' m.top.content.STREAMFORMAT = "abc"
         ' m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
@@ -163,11 +164,11 @@ Function PrepareVideoPlayer()
         ' print "nextVideoNode Type: "; type(nextVideoNode)
         ' print "nextVideoObject.streamformat: "; nextVideoObject.streamformat
 
-        ' if(m.canWatchVideo)
-        '     m.top.triggerPlay = true
-        '     m.videoPlayer.state = "play"
-        ' end if
-        
+        if(m.canWatchVideo)
+            m.top.triggerPlay = true
+            m.videoPlayer.state = "play"
+        end if
+
     end if
 End Function
 
