@@ -100,6 +100,14 @@ Sub OnVideoPlayerStateChange()
         print "Current: "; m.top.content
         print "Current Type: "; type(m.top.content)
         print "m.CurrentVideoIndex: "; m.CurrentVideoIndex
+
+        m.videoPlayer.visible = false
+        m.top.ResumeVideo = m.top.createChild("ResumeVideo")
+        m.top.ResumeVideo.id = "ResumeVideo"
+        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
+        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id.tokenize(":")[0]  ' Delete video id and time from reg.
+        AddButtons()                                              ' Change buttons status
+
         if m.top.autoplay = true AND isLastVideoInPlaylist() = false
             m.CurrentVideoIndex = m.CurrentVideoIndex + 1
             PrepareVideoPlayer()
@@ -107,12 +115,7 @@ Sub OnVideoPlayerStateChange()
             m.CurrentVideoIndex = 0
             PrepareVideoPlayer()
         end if
-        
-        m.videoPlayer.visible = false
-        m.top.ResumeVideo = m.top.createChild("ResumeVideo")
-        m.top.ResumeVideo.id = "ResumeVideo"
-        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
-        AddButtons()                                              ' Change buttons status
+
     end if
 End Sub
 
@@ -137,7 +140,7 @@ Function PrepareVideoPlayer()
         m.top.content.STREAMFORMAT = nextVideoObject.streamformat
         m.top.content.TITLE = nextVideoObject.title
         m.top.content.URL = nextVideoObject.url
-        
+
         ' m.top.content.TestingVar = "hello"
         ' m.top.content.setFields({TestingVar1: "hello"})
         ' result.appendChild(nextVideoNode)
