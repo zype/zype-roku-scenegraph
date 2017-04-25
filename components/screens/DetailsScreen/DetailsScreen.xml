@@ -12,7 +12,8 @@
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="Buttons.itemSelected" onChange="onItemSelected" />
 
         <!-- Playback flag -->
-        <field id="videoPlayerVisible" type="bool" alwaysnotify="true" alias="VideoPlayer.visible"  onChange="onVideoVisibleChange" />
+        <!-- <field id="videoPlayerVisible" type="bool" alwaysnotify="true" alias="VideoPlayer.visible"  onChange="onVideoVisibleChange" /> -->
+        <field id="videoPlayerVisible" type="bool" alwaysnotify="true" onChange="onVideoVisibleChange" />
 
         <!-- Content fields -->
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
@@ -67,8 +68,8 @@
         <field id="DontShowSubscriptionPackages" type="bool" />
         <field id="ShowSubscriptionPackagesCallback" type="bool" onChange="onShowSubscriptionPackagesCallback"/>
 
-		<!-- Resume video task node -->
-		<field id="ResumeVideo" type="node" />
+    		<!-- Resume video task node -->
+    		<field id="ResumeVideo" type="node" />
 
         <field id="dataArray" type="roArray" />
 
@@ -76,9 +77,13 @@
 
         <!-- True value will immediately play the video loaded into the screen -->
         <field id="triggerPlay" type="bool" />
-        
+
         <!-- Gets populated by app configuration returned from zype API -->
         <field id="autoplay" type="bool" />
+
+        <!-- Video Player referencible by HomeScene -->
+        <field id="VideoPlayer" type="node" />
+        <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
     </interface>
 
     <!-- main handler -->
@@ -208,12 +213,12 @@
         </Group>
 
         <!--Playback node.-->
-        <Video
+        <!-- <Video
             id="VideoPlayer"
             visible="false"
             translation="[0, 0]"
             width="1280"
-            height="720"/>
+            height="720"/> -->
 
     </children>
 </component>

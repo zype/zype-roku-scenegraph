@@ -415,6 +415,8 @@ sub playRegularVideo(screen as Object)
     else
         print "FREE VIDEO"
 
+        m.detailsScreen.RemakeVideoPlayer = true
+
         if m.app.avod = true
           playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
         else
@@ -434,7 +436,11 @@ sub playVideo(screen as Object, auth As Object)
 
     ' show loading indicator before requesting ad and playing video
     m.loadingIndicator.control = "start"
+
     'm.VideoPlayer = screen.findNode("VideoPlayer")
+
+    m.VideoPlayer = screen.VideoPlayer
+
     m.on_air = screen.content.onAir
      m.VideoPlayer.observeField("position", m.port)
     if screen.content.onAir = true
@@ -444,7 +450,7 @@ sub playVideo(screen as Object, auth As Object)
     m.loadingIndicator.control = "stop"
     print "[Main] Playing video"
     m.videoPlayer.visible = true
-    m.videoPlayer.setFocus(true)
+    print "m.videoPlayer.setFocus(true): "; m.videoPlayer.setFocus(true)
     m.videoPlayer.control = "play"
 end sub
 
@@ -460,7 +466,10 @@ sub playVideoWithAds(screen as Object, auth as Object)
     ' show loading indicator before requesting ad and playing video
     m.loadingIndicator.control = "start"
     m.on_air = playerInfo.on_air
+
     'm.VideoPlayer = screen.findNode("VideoPlayer")
+    m.VideoPlayer = screen.VideoPlayer
+
     m.VideoPlayer.observeField("position", m.port)
 
     if playerInfo.on_air = true
@@ -513,7 +522,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.loadingIndicator.control = "stop"
         print "[Main] Playing video"
         m.videoPlayer.visible = true
-        m.videoPlayer.setFocus(true)
+        print "m.videoPlayer.setFocus(true): "; m.videoPlayer.setFocus(true)
         m.videoPlayer.control = "play"
     end if
 end sub
@@ -888,7 +897,10 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         'if(index = 1 and (_isSubscribed = true OR lclScreen.content.subscriptionRequired = false))
         if(index = 1)
         'if(index = 1 and _isSubscribed)
-            m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            ' m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            m.detailsScreen.RemakeVideoPlayer = true
+            m.VideoPlayer = m.detailsScreen.VideoPlayer
+
 
             m.VideoPlayer.seek = 0.00
             RemoveVideoIdForResumeFromReg(lclScreen.content.id)
@@ -899,7 +911,10 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         else if(index = 3)  ' This is going to be the resume button from detail screen
             videoId = GetVideoIdForResumeFromReg(lclScreen.content.id)
 
-            m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            ' m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            m.detailsScreen.RemakeVideoPlayer = true
+            m.VideoPlayer = m.detailsScreen.VideoPlayer
+
             m.VideoPlayer.seek = videoId
             playVideoButton(lclScreen)        ' Resume button clicked
 
