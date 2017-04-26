@@ -14,7 +14,7 @@ Function Init()
     m.buttons           =   m.top.findNode("Buttons")
 
     ' m.top.videoPlayer       =   m.top.findNode("VideoPlayer")
-    m.top.videoPlayer = CreateObject("roSGNode", "Video")
+    m.top.videoPlayer = m.top.createChild("Video")
     m.top.videoPlayer.visible = false
     m.top.videoPlayer.translation = [0,0]
     m.top.videoPlayer.width = 1280
@@ -56,7 +56,9 @@ End Function
 
 Function ReinitializeVideoPlayer()
   if m.top.RemakeVideoPlayer = true
-      m.top.videoPlayer = CreateObject("roSGNode", "Video")
+      m.top.removeChild(m.top.videoPlayer)
+
+      m.top.videoPlayer = m.top.createChild("Video")
       m.top.videoPlayer.visible = false
       m.top.videoPlayer.translation = [0,0]
       m.top.videoPlayer.width = 1280
