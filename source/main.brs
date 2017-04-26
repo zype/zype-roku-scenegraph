@@ -151,7 +151,9 @@ Sub SetHomeScene(contentID = invalid)
         ' print "msg.getNode(): "; msg.getNode()
         ' print "msg.getField(): "; msg.getField()
         if msgType = "roSGNodeEvent"
-            if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
+            if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
+                playRegularVideo(m.detailsScreen)
+            else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
                 content = m.gridScreen.focusedContent
@@ -349,11 +351,6 @@ Sub SetHomeScene(contentID = invalid)
                     m.deviceLinking.isDeviceLinked = false
                     m.detailsScreen.isDeviceLinked = false
                     m.detailsScreen.isLoggedIn = isLoggedIn()
-                end if
-            else if m.app.autoplay = true AND msg.getField() = "triggerPlay" then
-                print "triggerPlay: "; msg.getData()
-                if(msg.getData() = true)
-                    playRegularVideo(m.detailsScreen)
                 end if
             end if
 
