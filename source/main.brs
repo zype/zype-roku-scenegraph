@@ -248,11 +248,12 @@ Sub SetHomeScene(contentID = invalid)
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
                 print m.videoPlayer.position
-                if(m.videoPlayer.position >= 30)
+                if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
                     AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
                 end if
                 if(m.on_air)
+                  if GetLimitStreamObject() <> invalid
                     GetLimitStreamObject().played = GetLimitStreamObject().played + 1
                     'print  GetLimitStreamObject().played
                     if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
@@ -271,7 +272,8 @@ Sub SetHomeScene(contentID = invalid)
                                 ' print lclScreen.content.id
                                 ' playVideo(lclScreen, oauth.access_token)
 
-                                if IsEntitled(m.videoPlayer.content.id, {"access_token": oauth.access_token}) = false
+                                id = m.videoPlayer.content.id.tokenize(":")[0]
+                                if IsEntitled(id, {"access_token": oauth.access_token}) = false
                                     m.videoPlayer.visible = false
                                     m.videoPlayer.control = "stop"
                                     dialog = createObject("roSGNode", "Dialog")
@@ -285,6 +287,7 @@ Sub SetHomeScene(contentID = invalid)
                             end if
                         end if
                     end if
+                  end if
                 end if
             else if msg.getNode() = "DeviceLinking" and msg.getField() = "show" and msg.GetData() = true then
                 pin = m.deviceLinking.findNode("Pin")
@@ -453,7 +456,8 @@ sub playVideo(screen as Object, auth As Object)
     m.VideoPlayer.observeField("position", m.port)
 
     if screen.content.onAir = true
-        m.VideoPlayer.observeField("position", m.port)
+        m.VideoPlayer.content.live = true
+        m.VideoPlayer.content.playStart = 1000000000
     end if
 
     m.loadingIndicator.control = "stop"
