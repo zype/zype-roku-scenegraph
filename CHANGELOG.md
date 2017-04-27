@@ -1,3 +1,7 @@
+### 1.1.3 (27/04/2017)
+
+- Patch to on air live streams
+
 ### 1.1.2 (13/04/2017)
 
 - Patch to deep linking
