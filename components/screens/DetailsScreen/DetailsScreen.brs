@@ -12,7 +12,14 @@ Function Init()
     m.top.ShowSubscriptionPackagesCallback = false
 
     m.buttons           =   m.top.findNode("Buttons")
-    m.videoPlayer       =   m.top.findNode("VideoPlayer")
+
+    ' m.top.videoPlayer       =   m.top.findNode("VideoPlayer")
+    m.top.videoPlayer = m.top.createChild("Video")
+    m.top.videoPlayer.visible = false
+    m.top.videoPlayer.translation = [0,0]
+    m.top.videoPlayer.width = 1280
+    m.top.videoPlayer.height = 720
+
     ' m.poster            =   m.top.findNode("Poster")
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
@@ -45,7 +52,20 @@ Function Init()
 
     m.optionsIcon = m.top.findNode("OptionsIcon")
     m.optionsIcon.blendColor = m.global.brand_color
+End Function
 
+Function ReinitializeVideoPlayer()
+  if m.top.RemakeVideoPlayer = true
+      m.top.removeChild(m.top.videoPlayer)
+
+      m.top.videoPlayer = m.top.createChild("Video")
+      m.top.videoPlayer.visible = false
+      m.top.videoPlayer.translation = [0,0]
+      m.top.videoPlayer.width = 1280
+      m.top.videoPlayer.height = 720
+
+      m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+  end if
 End Function
 
 Function onShowSubscriptionPackagesCallback()
@@ -64,23 +84,23 @@ Sub onVisibleChange()
         m.buttons.jumpToItem = 0
         m.buttons.setFocus(true)
     else
-        m.videoPlayer.visible = false
-        m.videoPlayer.control = "stop"
+        m.top.videoPlayer.visible = false
+        m.top.videoPlayer.control = "stop"
     end if
 End Sub
 
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()
-    if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.videoPlayer.hasFocus() then
+    if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.top.videoPlayer.hasFocus() then
         m.buttons.setFocus(true)
     end if
 End Sub
 
 ' set proper focus on buttons and stops video if return from Playback to details
 Sub onVideoVisibleChange()
-    if m.videoPlayer.visible = false and m.top.visible = true
+    if m.top.videoPlayer.visible = false and m.top.visible = true
         m.buttons.setFocus(true)
-        m.videoPlayer.control = "stop"
+        m.top.videoPlayer.control = "stop"
         AddButtons()
     end if
 End Sub
@@ -88,21 +108,21 @@ End Sub
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
     print "OnVideoPlayerStateChange: "; m.videoPlayer.state
-    if m.videoPlayer.state = "error"
+    if m.top.videoPlayer.state = "error"
         ' error handling
-        m.videoPlayer.visible = false
-    else if m.videoPlayer.state = "playing"
+        m.top.videoPlayer.visible = false
+    else if m.top.videoPlayer.state = "playing"
         ' playback handling
         if(m.top.autoplay = true)
             m.top.triggerPlay = false
         end if
-    else if m.videoPlayer.state = "finished"
+    else if m.top.videoPlayer.state = "finished"
         print "Video finished playing"
         print "Current: "; m.top.content
         print "Current Type: "; type(m.top.content)
         print "m.CurrentVideoIndex: "; m.CurrentVideoIndex
 
-        m.videoPlayer.visible = false
+        ' m.top.videoPlayer.visible = false
         m.top.ResumeVideo = m.top.createChild("ResumeVideo")
         m.top.ResumeVideo.id = "ResumeVideo"
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
@@ -110,9 +130,13 @@ Sub OnVideoPlayerStateChange()
         AddButtons()                                              ' Change buttons status
 
         if m.top.autoplay = true AND isLastVideoInPlaylist() = false
+            m.top.videoPlayer.visible = true
+
             m.CurrentVideoIndex = m.CurrentVideoIndex + 1
             PrepareVideoPlayer()
-        else if isLastVideoInPlaylist() = true
+        else if m.top.autoplay = true AND isLastVideoInPlaylist() = true
+            m.top.videoPlayer.visible = true
+
             m.CurrentVideoIndex = 0
             PrepareVideoPlayer()
         end if
@@ -215,8 +239,9 @@ Function PrepareVideoPlayer()
         ' print "nextVideoObject.streamformat: "; nextVideoObject.streamformat
 
         if(m.canWatchVideo)
+            m.top.videoPlayer.visible = true
             m.top.triggerPlay = true
-            m.videoPlayer.state = "play"
+            m.top.videoPlayer.state = "play"
         end if
 
     end if
@@ -231,7 +256,7 @@ End Function
 
 ' on Button press handler
 Sub onItemSelected()
-    m.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+    m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
     ' first button pressed
     if m.top.itemSelected = 0
         if(m.top.SubscriptionPackagesShown = true)  ' If packages are shown and one of them was clicked, start wizard.
@@ -309,7 +334,7 @@ Sub OnContentChange()
         m.description.content   = m.top.content
         ' m.description.Description.width = "770"
         m.description.Description.height = "250"
-        m.videoPlayer.content   = m.top.content
+        m.top.videoPlayer.content   = m.top.content
         ' m.poster.uri            = m.top.content.hdBackgroundImageUrl
         m.background.uri        = m.top.content.hdBackgroundImageUrl
     end if
@@ -425,7 +450,7 @@ Function getStatusOfVideo() as boolean
     if(m.top.ResumeVideo.HasVideoIdValue)
         return true
     else
-        m.videoPlayer.seek = 0.00                           ' Start video from 0 if entry not saved.
+        m.top.videoPlayer.seek = 0.00                           ' Start video from 0 if entry not saved.
         return false
     end if
 
