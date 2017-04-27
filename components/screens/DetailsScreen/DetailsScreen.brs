@@ -148,21 +148,55 @@ Function PrepareVideoPlayer()
     nextVideoObject = m.top.videosTree[m.PlaylistRowIndex][m.CurrentVideoIndex]
     ' nextVideoNode = ContentList2SimpleNode(nextVideoObject)
     if(nextVideoObject <> invalid)
-        nextVideoNode = createObject("roSGNode", "VideoNode")
+        ' result = createObject("RoSGNode","ContentNode")
+        ' nextVideoNode = result.createChild("ContentNode")
 
-        ' Copy values over to nextVideoNode
-        for each key in nextVideoObject.keys()
-          nextVideoNode[key] = nextVideoObject[key]
-        end for
 
-        m.top.content = nextVideoNode
+
+        m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
+        m.top.content.id = nextVideoObject.id
+        m.top.content.CONTENTTYPE = nextVideoObject.contenttype
+        m.top.content.DESCRIPTION = nextVideoObject.description
+        m.top.content.HDBACKGROUNDIMAGEURL = nextVideoObject.hdbackgroundimageurl
+        m.top.content.HDPOSTERURL = nextVideoObject.hdposterurl
+        m.top.content.inFavorites = nextVideoObject.infavorites
+        m.top.content.LENGTH = nextVideoObject.length
+        m.top.content.onAir = nextVideoObject.onair
+        m.top.content.RELEASEDATE = nextVideoObject.releasedate
+        m.top.content.STREAMFORMAT = nextVideoObject.streamformat
+        m.top.content.TITLE = nextVideoObject.title
+        m.top.content.URL = nextVideoObject.url
+
+        ' m.top.content.TestingVar = "hello"
+        ' m.top.content.setFields({TestingVar1: "hello"})
+        ' result.appendChild(nextVideoNode)
+
+        ' print "Test Start"
+        ' print "nextVideoNode: "; nextVideoNode
+        ' print "result: "; result
+        ' print "Test: "; {TestingVar: "hello"}
+        ' print "Test End"
+
+        ' for each itemAA in nextVideoObject
+        '     print "itemAA: "; itemAA
+        ' end for
+
+        ' m.top.content = nextVideoNode
+        ' m.top.content.onAir = nextVideoObject.onair
+        ' m.top.content.STREAMFORMAT = "abc"
+        ' m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
 
         print "nextVideoObject: "; nextVideoObject
+        ' print "nextVideoNode: "; nextVideoNode
         print "New: "; m.top.content
+        ' print "m.canWatchVideo: "; m.canWatchVideo
+        ' print "nextVideoNode Type: "; type(nextVideoNode)
+        ' print "nextVideoObject.streamformat: "; nextVideoObject.streamformat
 
         if(m.canWatchVideo)
             m.top.videoPlayer.visible = true
             m.top.triggerPlay = true
+            m.top.videoPlayer.state = "play"
         end if
 
     end if
