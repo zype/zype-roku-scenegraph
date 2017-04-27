@@ -87,6 +87,7 @@ End Sub
 
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
+    print "OnVideoPlayerStateChange: "; m.videoPlayer.state
     if m.videoPlayer.state = "error"
         ' error handling
         m.videoPlayer.visible = false
@@ -127,19 +128,65 @@ Function PrepareVideoPlayer()
         ' result = createObject("RoSGNode","ContentNode")
         ' nextVideoNode = result.createChild("ContentNode")
 
+        print "================"
+        print "Change Start"
+        print "================"
+
+        print "subscriptionRequired Before: ";m.top.content.subscriptionRequired; " == After: ";nextVideoObject.subscriptionrequired  
         m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
+        print "subscriptionRequired ended"
+
+        print "id Before: ";m.top.content.id; " == After: ";nextVideoObject.id
         m.top.content.id = nextVideoObject.id
+        print "id ended"
+
+        print "CONTENTTYPE Before: ";m.top.content.CONTENTTYPE; " == After: ";nextVideoObject.contenttype
         m.top.content.CONTENTTYPE = nextVideoObject.contenttype
+        print "CONTENTTYPE ended"
+
+        print "DESCRIPTION Before: ";m.top.content.DESCRIPTION; " == After: ";nextVideoObject.description
         m.top.content.DESCRIPTION = nextVideoObject.description
+        print "DESCRIPTION ended"
+
+        print "HDBACKGROUNDIMAGEURL Before: ";m.top.content.HDBACKGROUNDIMAGEURL; " == After: ";nextVideoObject.hdbackgroundimageurl
         m.top.content.HDBACKGROUNDIMAGEURL = nextVideoObject.hdbackgroundimageurl
+        print "HDBACKGROUNDIMAGEURL ended"
+
+        print "HDPOSTERURL Before: ";m.top.content.HDPOSTERURL; " == After: ";nextVideoObject.hdposterurl
         m.top.content.HDPOSTERURL = nextVideoObject.hdposterurl
+        print "HDPOSTERURL ended"
+
+        print "inFavorites Before: ";m.top.content.inFavorites; " == After: ";nextVideoObject.inFavorites
         m.top.content.inFavorites = nextVideoObject.infavorites
+        print "inFavorites ended"
+
+        print "LENGTH Before: ";m.top.content.LENGTH; " == After: ";nextVideoObject.length
         m.top.content.LENGTH = nextVideoObject.length
+        print "LENGTH ended"
+
+        print "onAir Before: ";m.top.content.onAir; " == After: ";nextVideoObject.onair
         m.top.content.onAir = nextVideoObject.onair
+        print "onAir ended"
+
+        print "RELEASEDATE Before: ";m.top.content.RELEASEDATE; " == After: ";nextVideoObject.releasedate
         m.top.content.RELEASEDATE = nextVideoObject.releasedate
+        print "RELEASEDATE ended"
+
+        print "STREAMFORMAT Before: ";m.top.content.STREAMFORMAT; " == After: ";nextVideoObject.streamformat
         m.top.content.STREAMFORMAT = nextVideoObject.streamformat
+        print "STREAMFORMAT ended"
+
+        print "TITLE Before: ";m.top.content.TITLE; " == After: ";nextVideoObject.title
         m.top.content.TITLE = nextVideoObject.title
+        print "TITLE ended"
+
+        print "URL Before: ";m.top.content.URL; " == After: ";nextVideoObject.url
         m.top.content.URL = nextVideoObject.url
+        print "URL ended"
+
+        print "================"
+        print "Change End"
+        print "================"
 
         ' m.top.content.TestingVar = "hello"
         ' m.top.content.setFields({TestingVar1: "hello"})
@@ -160,9 +207,9 @@ Function PrepareVideoPlayer()
         ' m.top.content.STREAMFORMAT = "abc"
         ' m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
 
-        print "nextVideoObject: "; nextVideoObject
+        ' print "nextVideoObject: "; nextVideoObject
         ' print "nextVideoNode: "; nextVideoNode
-        print "New: "; m.top.content
+        ' print "New: "; m.top.content
         ' print "m.canWatchVideo: "; m.canWatchVideo
         ' print "nextVideoNode Type: "; type(nextVideoNode)
         ' print "nextVideoObject.streamformat: "; nextVideoObject.streamformat
@@ -189,12 +236,12 @@ Sub onItemSelected()
     if m.top.itemSelected = 0
         if(m.top.SubscriptionPackagesShown = true)  ' If packages are shown and one of them was clicked, start wizard.
             ' Subscription Wizard
-            print "Subscription Wizard"
+            ' print "Subscription Wizard"
         else
             if(m.top.SubscriptionButtonsShown = false)
-                print "====== Play Button was clicked"
+                ' print "====== Play Button was clicked"
             else
-                print "====== Subscription button clicked"
+                ' print "====== Subscription button clicked"
                 if(m.top.DontShowSubscriptionPackages = false)
                     AddPackagesButtons()
                 end if
@@ -209,20 +256,21 @@ Sub onItemSelected()
         print "m.btns[1] ->";Resume playing
 
         if(m.btns <> invalid and m.btns[m.top.itemSelected] = "Resume playing")
-            ? "[DetailsScreen] Resume button selected"
+            ' ? "[DetailsScreen] Resume button selected"
             m.top.itemSelected = 2          ' resume btn
         else
-            ? "[DetailsScreen] Favorite button selected"
+            ' ? "[DetailsScreen] Favorite button selected"
         end if
     else if m.top.itemSelected = 2          ' favorite btn
             m.top.itemSelected = 1
-            ? "[DetailsScreen] Favorite button selected"
+            ' ? "[DetailsScreen] Favorite button selected"
     end if
-    print "[DetailsScreen] m.top.SubscriptionButtonsShown; "; m.top.SubscriptionButtonsShown
+    ' print "[DetailsScreen] m.top.SubscriptionButtonsShown; "; m.top.SubscriptionButtonsShown
 End Sub
 
 ' Content change handler
 Sub OnContentChange()
+    print "OnContentChange" 
     ' print "Content: "; m.top.content
     m.top.SubscriptionPackagesShown = false
     ' print "Videos: "; m.top.videosTree[0][6]
@@ -231,13 +279,13 @@ Sub OnContentChange()
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
-        print "+++++++++++++++++++++++++++++++++++++++++"
-        print "m.top.content.subscriptionRequired: "; m.top.content.subscriptionRequired
-        print "m.top.isLoggedIn: "; m.top.isLoggedIn
-        print "m.top.isLoggedInViaNativeSVOD: "; m.top.isLoggedInViaNativeSVOD
-        print "m.top.NoAuthenticationEnabled: "; m.top.NoAuthenticationEnabled
-        print "m.top.JustBoughtNativeSubscription: "; m.top.JustBoughtNativeSubscription
-        print "+++++++++++++++++++++++++++++++++++++++++"
+        ' print "+++++++++++++++++++++++++++++++++++++++++"
+        ' print "m.top.content.subscriptionRequired: "; m.top.content.subscriptionRequired
+        ' print "m.top.isLoggedIn: "; m.top.isLoggedIn
+        ' print "m.top.isLoggedInViaNativeSVOD: "; m.top.isLoggedInViaNativeSVOD
+        ' print "m.top.NoAuthenticationEnabled: "; m.top.NoAuthenticationEnabled
+        ' print "m.top.JustBoughtNativeSubscription: "; m.top.JustBoughtNativeSubscription
+        ' print "+++++++++++++++++++++++++++++++++++++++++"
         'if(m.top.content.subscriptionRequired = false OR (idParts[1] = "True" AND m.top.isLoggedIn))
         if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
             m.canWatchVideo = true
@@ -249,7 +297,7 @@ Sub OnContentChange()
         if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.top.isLoggedInViaNativeSVOD = false)
             m.canWatchVideo = false
         end if
-        print "m.canWatchVideo";m.canWatchVideo
+        ' print "m.canWatchVideo";m.canWatchVideo
         if(m.canWatchVideo)
             AddButtons()
             m.top.SubscriptionButtonsShown = false
@@ -358,7 +406,7 @@ Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" 
     result = createObject("roSGNode",nodeType)
     if result <> invalid
         for each itemAA in contentList
-            print "itemAA_: "; itemAA
+            ' print "itemAA_: "; itemAA
             item = createObject("roSGNode", nodeType)
             item.setFields(itemAA)
             result.appendChild(item)
@@ -372,8 +420,8 @@ Function getStatusOfVideo() as boolean
     m.top.ResumeVideo.id = "ResumeVideo"
     m.top.ResumeVideo.HasVideoId = m.top.content.id         ' If video id entry is there in reg
     m.top.ResumeVideo.GetVideoIdTimer = m.top.content.id    ' Get when video was saved in reg.
-    print "m.top.content.id";m.top.content.id
-    print "m.top.ResumeVideo.HasVideoIdValue ->";m.top.ResumeVideo.HasVideoIdValue
+    ' print "m.top.content.id";m.top.content.id
+    ' print "m.top.ResumeVideo.HasVideoIdValue ->";m.top.ResumeVideo.HasVideoIdValue
     if(m.top.ResumeVideo.HasVideoIdValue)
         return true
     else
@@ -385,7 +433,7 @@ Function getStatusOfVideo() as boolean
 End Function
 
 Function FindPlaylistRowIndex()
-    print "FindPlaylistRowIndex"
+    ' print "FindPlaylistRowIndex"
     ' print "m.top.videosTree: "; m.top.videosTree
     contentId = invalid
     if(m.top.content <> invalid)
