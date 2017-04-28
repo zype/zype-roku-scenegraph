@@ -96,14 +96,10 @@ Sub SetHomeScene(contentID = invalid)
     m.scene.observeField("TriggerDeviceUnlink", m.port)
 
     m.deviceLinking = m.scene.findNode("DeviceLinking")
-    'm.deviceLinking.DeviceLinkingText = "Please visit " + m.app.device_link_url + " to link your device!"
     m.deviceLinking.DeviceLinkingURL = m.app.device_link_url
     m.deviceLinking.isDeviceLinked = deviceLinked
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
-
-    ' pl = CreatePlaylistObject(GetPlaylists({"id": "57928ae4e7b34c2c06000005"})[0])
-    ' print pl
 
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()

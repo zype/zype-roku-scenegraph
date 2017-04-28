@@ -47,6 +47,43 @@ Function Init()
     ' Set theme
     m.loadingIndicator.backgroundColor = m.global.theme.background_color
     m.loadingIndicator.imageUri = m.global.theme.loader_uri
+
+    m.IndexTracker = {}
+End Function
+
+' Add positions based on index starting from 0
+' If you add 2 positions: [1,3] and [2,4]
+  ' It should look like this at the end:
+    '  m.IndexTracker = {
+    '     "0": {
+    '       "row": 1,
+    '       "col": 3
+    '     },
+    '     "1": {
+    '       "row": 2,
+    '       "col": 4
+    '     }
+    ' }
+Function AddCurrentPositionToTracker() as Void
+    rowList = m.gridScreen.findNode("RowList")
+    rowItemSelected = rowList.rowItemSelected
+
+    playlistLevel = Str(m.IndexTracker.count())
+
+    m.IndexTracker[playlistLevel] = {}
+    m.IndexTracker[playlistLevel].row = rowItemSelected[0]
+    m.IndexTracker[playlistLevel].col = rowItemSelected[1]
+End Function
+
+Function GetLastPositionFromTracker() as Object
+    index = Str(m.IndexTracker.count() - 1)
+    return m.IndexTracker[index]
+End Function
+
+Function DeleteLastPositionFromTracker() as Void
+    index = Str(m.IndexTracker.count() - 1)
+
+    m.IndexTracker.Delete(index)
 End Function
 
 ' if content set, focus on GridScreen and remove loading indicator
@@ -61,6 +98,9 @@ Function OnRowItemSelected()
     ? m.gridScreen.focusedContent.contenttype
     if m.gridScreen.focusedContent.contentType = 2 then
         ? "[HomeScene] Playlist Selected"
+
+        AddCurrentPositionToTracker()
+
         m.contentStack.push(m.gridScreen.content)
         m.top.playlistItemSelected = true
     else
@@ -230,12 +270,20 @@ Function OnKeyEvent(key, press) as Boolean
                 m.screenStack.peek().setFocus(true)
                 result = true
 
+            ' Coming back from child playlist
             else if m.contentStack.count() > 0 and m.gridScreen.visible = true then
                 previousContent = m.contentStack.pop()
+
+                lastPosition = GetLastPositionFromTracker()
+
                 m.gridScreen.content = previousContent
-                m.top.rowItemFocused = [0, 0]
+
+                DeleteLastPositionFromTracker()
+
                 result = true
 
+                rowList = m.gridScreen.findNode("RowList")
+                rowList.jumpToRowItem = [lastPosition.row, lastPosition.col]
             else if m.deviceLinking.visible = true
                 ' if Device Linking is visible - it must be last element
                 print "m.screenStack: "; m.screenStack
