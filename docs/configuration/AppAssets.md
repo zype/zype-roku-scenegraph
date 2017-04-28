@@ -62,7 +62,31 @@ Below is a table with the filenames of the images that you will need to replace 
   <tr>
     <td>Overhead Logo<br><br>(Optional)</td>
     <td>overhangLogo.png</td>
-    <td>Logo that is used<br> in the top-left corner<br>and device linking page</td>
+    <td>Logo that is used<br> in the top-left corner of the app <br>and device linking page</td>
     <td>Max height 175px</td>
   </tr>
 </table>
+
+---
+
+### App Icon
+
+This is the icon that will show up on the Roku Home Menu. The image used changes based on the resolution that the Roku's display settings are set as.
+
+![Image of Roku Home Menu](images/roku-app-icon.jpg)
+
+### Splash Screen
+
+This is a full screen image that first appears when the Roku app is opened.
+
+![Image of Roku Splash Screen](images/roku-splash-screen.jpg)
+
+### Overhead Logo
+
+This image is used at the top-left corner of the screen in different parts of the app
+
+![Image of Overhead Logo](images/roku-overhead-logo.jpg)
+
+as well as in the Device Linking screen.
+
+![Image of Logo in Device Linking Screen](images/roku-device-linking.jpg)

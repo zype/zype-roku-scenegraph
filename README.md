@@ -31,7 +31,7 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 
 3. Inside the source folder, rename _config.tmpl.json_ to _config.json_. Then put your app key, client id and client secret from step 2 inside _config.json_.
 
-4. The SDK comes with default assets. Some assets will need be swapped out for your app: icon focus (fhd, hd, sd), icon side (hd, sd), splash screen (fhd, hd, sd) and the overhang logo. The dimensions of the overhang logo are up to you, but the other assets have specific sizes that [you can see here](docs/configuration/AppAssets.md).
+4. The SDK comes with default assets that you will need to swap with your own. You can find these assets in the _images_ folder. The images you will want to swap out are the app icon, splash screen and overhead logo. To swap in your images, you just need to rename your images and replace the ones in the _images_ folder. For more information on this, [you can see the documentation here](docs/configuration/AppAssets.md).
 
 5. You can now take a look at your app by side loading (uploading it to your Roku device) the app to a Roku device on the same internet connection. You can do this by updating the _app.mk_ file. Change _ROKU_DEV_TARGET_ to your Roku's IP address. You can then set _DEVPASSWORD_ to whatever password you want to use when setting up your Roku for development. For more information on sideloading and running your Roku app, [see the documentation here](https://sdkdocs.roku.com/display/sdkdoc/Loading+and+Running+Your+Application+Walkthrough).
 
