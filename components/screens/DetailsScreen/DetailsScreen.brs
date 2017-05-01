@@ -107,7 +107,7 @@ End Sub
 
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
-    print "OnVideoPlayerStateChange: "; m.videoPlayer.state
+    print "OnVideoPlayerStateChange: "; m.top.videoPlayer.state
     if m.top.videoPlayer.state = "error"
         ' error handling
         m.top.videoPlayer.visible = false
