@@ -139,7 +139,6 @@ Sub OnVideoPlayerStateChange()
             m.CurrentVideoIndex = 0
             PrepareVideoPlayer()
         end if
-
     end if
 End Sub
 
@@ -197,6 +196,10 @@ Function PrepareVideoPlayer()
             m.top.videoPlayer.visible = true
             m.top.triggerPlay = true
             m.top.videoPlayer.state = "play"
+        else
+            m.top.videoPlayer.visible = false
+            m.top.videoPlayer.setFocus(false)
+            m.subscribeButtons.setFocus(true)
         end if
 
     end if
