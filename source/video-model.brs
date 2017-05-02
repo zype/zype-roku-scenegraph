@@ -52,13 +52,10 @@ Function GetVideoThumbnail(attrs As Object) As Object
   src = ""
 
   for each item in properties.thumbnails
-    ' This is actually correct code
     if item.DoesExist("width")
       if item.width <> invalid and item.width >= 250 and item.width <= 500
         src = item.url
         exit for
-      else
-        src = item.url
       end if
     end if
   end for
@@ -77,21 +74,17 @@ Function GetVideoBackgroundImage(attrs As Object) As Object
   properties = attrs
   src = ""
 
+  maxWidth = 0
+
+  ' Search through all thumbnails for largest image
   for each item in properties.thumbnails
-    ' This is actually correct code
     if item.DoesExist("width")
-      if item.width <> invalid and item.width >= 500
-        src = item.url
-        exit for
-      else
+      if item.width <> invalid and item.width > maxWidth
+        maxWidth = item.width
         src = item.url
       end if
     end if
   end for
-
-  if src = "" and properties.thumbnails.count() > 0 and properties.thumbnails[0].url <> invalid
-    src = properties.thumbnails[0].url
-  end if
 
   return src
 End Function
