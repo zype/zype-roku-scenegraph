@@ -38,7 +38,7 @@
         <field id="SubscriptionPlans" type="roArray" />
 
 
-        <field id="deepLinkedID" type="string" onChange="OnDeepLink"/>        
+        <field id="deepLinkedID" type="string" onChange="OnDeepLink"/>
 
         <field id="TriggerDeviceUnlink" type="bool" />
     </interface>
