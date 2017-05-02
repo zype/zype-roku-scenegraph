@@ -128,9 +128,9 @@ Sub SetHomeScene(contentID = invalid)
         msgType = type(msg)
         print "------------------"
         'print "msg = "; msg
-
-        print "msg.getNode(): "; msg.getNode()
-        print "msg.getField(): "; msg.getField()
+        '
+        ' print "msg.getNode(): "; msg.getNode()
+        ' print "msg.getField(): "; msg.getField()
         if msgType = "roSGNodeEvent"
             if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
@@ -444,7 +444,6 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.VideoPlayer.observeField("position", m.port)
     end if
 
-    playContent = true
     adIface = Roku_Ads() 'RAF initialize
     'print "Roku_Ads library version: " + adIface.getLibVersion()
     adIface.setAdPrefs(true, 2)
@@ -457,7 +456,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
         adIface.setAdUrl(url)
     end if
 
-    ' Getting midroll ads
+    ' Getting midroll ads info from video's scheduled ads
     midrollAds = []
     if playerInfo.scheduledAds.count() > 1
       for each ad in playerInfo.scheduledAds
@@ -468,35 +467,18 @@ sub playVideoWithAds(screen as Object, auth as Object)
         midrollAds.push(midrollAd)
       end for
 
+      ' Remove first ad object since it will be preroll
       midrollAds.shift()
     end if
 
-
-    prerollAdsArray = []
-    for ads = 1 to 1
-      adPods = adIface.getAds()
-
-      ' if adPods array has at least one adPod
-      if adPods.count() > 0
-        thisPod = adPods[0].ads
-        for each a in thisPod
-          prerollAdsArray.push(a)
-        end for
-      end if
-    end for
-    preRollAds = {
-      viewed: false,
-      renderSequence: "preroll",
-      duration: 0,
-      renderTime: 0,
-      ads: prerollAdsArray
-    }
+    ' Fetch preroll ad
+    prerollAdPod = adIface.getAds()
 
     playContent = true
     'render pre-roll ads
-    if GetAppConfigs().avod = true and preRollAds.ads.count() > 0 then
+    if GetAppConfigs().avod = true and prerollAdPod.count() > 0 then
         m.loadingIndicator.control = "stop"
-        playContent = adIface.showAds(preRollAds)
+        playContent = adIface.showAds(prerollAdPod)
     end if
 
     ' Start playing video
@@ -525,14 +507,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
               midrollAdPod = adIface.getAds()
 
               ' Show midroll ad
-              midrollAd = {
-                viewed: false,
-                renderSequence: "midroll",
-                duration: midrollAdPod[0].duration,
-                renderTime: 0,
-                ads: [midrollAdPod[0].ads[0]]
-              }
-              adIface.showAds(midrollAd)
+              adIface.showAds(midrollAdPod)
 
               ' Remove midroll ad from array
               midrollAds.shift()
@@ -541,8 +516,8 @@ sub playVideoWithAds(screen as Object, auth as Object)
               m.videoPlayer.seek = currPos
               m.videoPlayer.control = "play"
 
-            ' Remove the first midroll ad if the currPos is past the midroll ad point
-            ' If they fast forward or resumed from point after the midroll ad
+            ' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
+            ' Keep removing the first midroll ad in array until no midroll ads before current position
             else if midrollAds.count() > 0 and currPos > midrollAds[0].offset
               while midrollAds.count() > 0 and currPos > midrollAds[0].offset
                 midrollAds.shift()
