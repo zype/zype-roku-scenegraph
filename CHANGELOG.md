@@ -1,3 +1,8 @@
+### 1.1.4 (02/05/2017)
+
+- Patch to thumbnail selection
+- Added index tracking for tracking position between playlist levels
+
 ### 1.1.3 (27/04/2017)
 
 - Patch to on air live streams
