@@ -10,7 +10,7 @@ Inside the _images_ folder, you only need to update the following images:
 |---------------|-------------------|-----------------------------------------------------------------|-----------------------------------|
 | App Icon      | icon_focus_hd.png | App Icon on Roku menu                                           | 540 x 405                         |
 | Splash Screen | splash_screen.png | Full screen image  when app first opens                         | 1920 x 1080                       |
-| Logo <br>(Optional, not Roku specific)         | overhangLogo.png  | Logo used in app on  top-left corner and  device linking screen | Width = 375  <br> 100 <= Height <= 200 |
+| Logo <br><br>(Optional, <br>not Roku specific)         | overhangLogo.png  | Logo used in app on  top-left corner and  device linking screen | W = 375  <br><br> 100 <= H <= 200 |
 
 __Note:__ You do not have to remove any of the existing images inside the _images_ folder. You just need to _replace_ select images with yours by renaming the image and replacing the image that is currently in the folder.
 
