@@ -1,9 +1,9 @@
 {
-  "app_key": "APPKEY",
+  "app_key": "<APPKEY>",
   "endpoint": "https://api.zype.com/",
   "player_endpoint": "https://player.zype.com/",
-  "client_id": "CLEINTID",
-  "client_secret": "CLIENTSECRET",
+  "client_id": "<CLEINTID>",
+  "client_secret": "<CLIENTSECRET>",
   "version": "1",
   "theme": "dark",
   "brand_color": "#ffffff"
