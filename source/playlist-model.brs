@@ -48,6 +48,7 @@ Function GetPlaylistThumbnail(attrs As Object) As Object
     end if
   end for
 
+  ' Assign src if thumbnail available but src still unassigned.
   if src = "" and properties.thumbnails.count() > 0 and properties.thumbnails[0].url <> invalid
     src = properties.thumbnails[0].url
   end if
@@ -73,6 +74,12 @@ Function GetPlaylistBackgroundImage(attrs As Object) As Object
       end if
     end if
   end for
+
+  ' Assign src if thumbnail available but src still unassigned.
+  ' Loop above does not assign src if it receives thumbnails without width assigned
+  if src = "" and properties.thumbnails.count() > 0 and properties.thumbnails[0].url <> invalid
+    src = properties.thumbnails[0].url
+  end if
 
   return src
 End Function
