@@ -2,9 +2,10 @@
   "app_key": "<APPKEY>",
   "endpoint": "https://api.zype.com/",
   "player_endpoint": "https://player.zype.com/",
-  "client_id": "<CLEINTID>",
-  "client_secret": "<CLIENTSECRET>",
+  "client_id": "<CLIENT_ID>",
+  "client_secret": "<CLIENT_SECRET>",
   "version": "1",
   "theme": "dark",
-  "brand_color": "#ffffff"
+  "brand_color": "#ffffff",
+  "git_description" : "<GIT_DESCRIPTION>"
 }
