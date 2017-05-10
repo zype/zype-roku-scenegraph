@@ -65,7 +65,7 @@
              In this time period, do not show the packages when Subscription button is clicked
         -->
         <field id="DontShowSubscriptionPackages" type="bool" />
-        <field id="ShowSubscriptionPackagesCallback" type="bool" onChange="onShowSubscriptionPackagesCallback"/>
+        <field id="ShowSubscriptionPackagesCallback" type="bool" alwaysNotify="true" onChange="onShowSubscriptionPackagesCallback"/>
 
 		<!-- Resume video task node -->
 		<field id="ResumeVideo" type="node" />
