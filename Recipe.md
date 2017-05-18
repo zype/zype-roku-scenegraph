@@ -12,7 +12,7 @@ IT or developer support strongly recommended. Creating the final app package req
 
 In order to package your Roku app, you will need a Roku device. If you use Zype's app publishing tools, you will get the code for the application; however Roku's process for packaging apps requires that you sideload and package the app on a Roku device before you download the package from the device itself. Because you need a Roku device to sideload the app on, you will also need a Roku account in order to setup the device.
 
-### Zype Roku Endpoint License
+#### Zype Roku Endpoint License
 
 To create a Zype Roku app you need a paid and current Zype account that includes purchase of a valid license for the Zype Roku endpoint API. Learn more about [Zype's Endpoint API Service](http://www.zype.com/services/endpoint-api/).
 
