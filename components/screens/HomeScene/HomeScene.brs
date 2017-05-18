@@ -312,7 +312,18 @@ Function OnKeyEvent(key, press) as Boolean
 
                 result = true
             end if
+        end if
+    end if
 
+    ' Dialog boxes handler
+    if not press then
+        print "Dialog: "; m.top.dialog
+        if(m.top.dialog <> invalid)
+            buttonIndex = m.top.dialog.buttonSelected
+            if(buttonIndex = 0 and key = "OK")
+                m.top.dialog.close = true
+            end if
+            print "buttonIndex: "; buttonIndex
         end if
     end if
 

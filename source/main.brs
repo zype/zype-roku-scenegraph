@@ -26,6 +26,7 @@ Sub SetHomeScene(contentID = invalid)
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
     screen.Show()
+    m.app = GetAppConfigs()
 
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
@@ -442,102 +443,34 @@ sub playVideo(screen as Object, auth As Object)
     screen.content.streamFormat = playerInfo.streamFormat
     screen.content.url = playerInfo.url
 
-    ' show loading indicator before requesting ad and playing video
-    m.loadingIndicator.control = "start"
+    ' If video source is not available
+    if(screen.content.streamFormat = "(null)")
+        dialog = createObject("roSGNode", "Dialog")
+        dialog.title = "Error!"
+        dialog.optionsDialog = true
+        dialog.message = "We're sorry, that video is no longer available. Please try another video."
+        dialog.buttons = ["OK"]
+        dialog.focusButton = 0
+        m.scene.dialog = dialog
+    else
+        ' show loading indicator before requesting ad and playing video
+        m.loadingIndicator.control = "start"
 
-    if m.VideoPlayer = invalid
-      m.VideoPlayer = screen.findNode("VideoPlayer")
-    end if
+        if m.VideoPlayer = invalid
+          m.VideoPlayer = screen.findNode("VideoPlayer")
+        end if
 
-    m.on_air = screen.content.onAir
-    m.VideoPlayer.observeField("position", m.port)
-
-    if screen.content.onAir = true
-        m.VideoPlayer.content.live = true
-        m.VideoPlayer.content.playStart = 1000000000
-    end if
-
-    m.loadingIndicator.control = "stop"
-    print "[Main] Playing video"
-
-    m.videoPlayer.visible = true
-
-    if m.LoadingScreen.visible = true
-      EndLoader()
-    end if
-
-    m.videoPlayer.setFocus(true)
-    m.videoPlayer.control = "play"
-end sub
-
-sub playVideoWithAds(screen as Object, auth as Object)
-
-    'print "FUNC: PlayVideoWithAds: ", screen.content
-    playerInfo = GetPlayerInfo(screen.content.id, auth)
-
-    screen.content.stream = playerInfo.stream
-    screen.content.streamFormat = playerInfo.streamFormat
-    screen.content.url = playerInfo.url
-
-    ' show loading indicator before requesting ad and playing video
-    m.loadingIndicator.control = "start"
-    m.on_air = playerInfo.on_air
-
-    if m.VideoPlayer = invalid
-      m.VideoPlayer = screen.findNode("VideoPlayer")
-    end if
-
-    m.VideoPlayer.observeField("position", m.port)
-
-    if playerInfo.on_air = true
+        m.on_air = screen.content.onAir
         m.VideoPlayer.observeField("position", m.port)
-    end if
 
-    playContent = true
-    if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-        adIface = Roku_Ads() 'RAF initialize
-        'print "Roku_Ads library version: " + adIface.getLibVersion()
-        adIface.setAdPrefs(true, 2)
-        adIface.setDebugOutput(true) 'for debug pupropse
-
-        ' Normally, would set publisher's ad URL here.
-        ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
-        if playerInfo.scheduledAds.count() > 0
-            url = playerInfo.scheduledAds[0].url
-            adIface.setAdUrl(url)
+        if screen.content.onAir = true
+            m.VideoPlayer.content.live = true
+            m.VideoPlayer.content.playStart = 1000000000
         end if
 
-        adsArray = []
-        for ads = 1 to 1
-          adPods = adIface.getAds()
-
-          ' if adPods array has at least one adPod
-          if adPods <> invalid and adPods.count() > 0
-            thisPod = adPods[0].ads
-            for each a in thisPod
-              adsArray.push(a)
-            end for
-          end if
-        end for
-        preRollAds = {
-          viewed: false,
-          renderSequence: "preroll",
-          duration: 0,
-          renderTime: 0,
-          ads: adsArray
-        }
-
-        playContent = true
-        'render pre-roll ads
-        if GetAppConfigs().avod = true and preRollAds.ads.count() > 0 then
-            m.loadingIndicator.control = "stop"
-            playContent = adIface.showAds(preRollAds)
-        end if
-    end if
-
-    if playContent then
         m.loadingIndicator.control = "stop"
         print "[Main] Playing video"
+
         m.videoPlayer.visible = true
 
         if m.LoadingScreen.visible = true
@@ -547,6 +480,96 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.videoPlayer.setFocus(true)
         m.videoPlayer.control = "play"
     end if
+
+end sub
+
+sub playVideoWithAds(screen as Object, auth as Object)
+
+    'print "FUNC: PlayVideoWithAds: ", screen.content
+    playerInfo = GetPlayerInfo(screen.content.id, auth)
+
+    print "screen.content.streamFormat: "; type(screen.content.streamFormat)
+    screen.content.stream = playerInfo.stream
+    screen.content.streamFormat = playerInfo.streamFormat
+    screen.content.url = playerInfo.url
+
+    ' If video source is not available
+    if(screen.content.streamFormat = "(null)")
+        dialog = createObject("roSGNode", "Dialog")
+        dialog.title = "Error!"
+        dialog.optionsDialog = true
+        dialog.message = "We're sorry, that video is no longer available. Please try another video."
+        dialog.buttons = ["OK"]
+        dialog.focusButton = 0
+        m.scene.dialog = dialog
+    else
+        ' show loading indicator before requesting ad and playing video
+        m.loadingIndicator.control = "start"
+        m.on_air = playerInfo.on_air
+
+        if m.VideoPlayer = invalid
+          m.VideoPlayer = screen.findNode("VideoPlayer")
+        end if
+
+        m.VideoPlayer.observeField("position", m.port)
+
+
+        playContent = true
+        if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
+            adIface = Roku_Ads() 'RAF initialize
+            'print "Roku_Ads library version: " + adIface.getLibVersion()
+            adIface.setAdPrefs(true, 2)
+            adIface.setDebugOutput(true) 'for debug pupropse
+
+            ' Normally, would set publisher's ad URL here.
+            ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
+            if playerInfo.scheduledAds.count() > 0
+                url = playerInfo.scheduledAds[0].url
+                adIface.setAdUrl(url)
+            end if
+
+            adsArray = []
+            for ads = 1 to 1
+              adPods = adIface.getAds()
+
+              ' if adPods array has at least one adPod
+              if adPods <> invalid and adPods.count() > 0
+                thisPod = adPods[0].ads
+                for each a in thisPod
+                  adsArray.push(a)
+                end for
+              end if
+            end for
+            preRollAds = {
+              viewed: false,
+              renderSequence: "preroll",
+              duration: 0,
+              renderTime: 0,
+              ads: adsArray
+            }
+
+            playContent = true
+            'render pre-roll ads
+            if GetAppConfigs().avod = true and preRollAds.ads.count() > 0 then
+                m.loadingIndicator.control = "stop"
+                playContent = adIface.showAds(preRollAds)
+            end if
+        end if
+
+        if playContent then
+            m.loadingIndicator.control = "stop"
+            print "[Main] Playing video"
+            m.videoPlayer.visible = true
+
+            if m.LoadingScreen.visible = true
+              EndLoader()
+            end if
+
+            m.videoPlayer.setFocus(true)
+            m.videoPlayer.control = "play"
+        end if
+    end if
+
 end sub
 
 sub SearchQuery(SearchString as String)

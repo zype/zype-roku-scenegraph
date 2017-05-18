@@ -66,6 +66,8 @@ Function MakeRequest(src As String, params As Object) As Object
         if code = 200
           response = ParseJson(msg.GetString())
           return response
+        else
+          return invalid
         end if
         exit while
       else if event = invalid
