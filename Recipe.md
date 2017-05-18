@@ -39,10 +39,8 @@ The Roku Developer Program can be enrolled in via [Roku's website](https://devel
 4. In order to submit to the Roku's app store you need to ensure that deep linking works as expected. There are more details on how to [test deep linking here](docs/testing/TestingDeepLinking.md).
 
 5. __(Optional)__ If you are testing native subscriptions you will need to first create subscriptions on the Zype platform. You can create subscriptions on the Zype platform by [following the documentation here](https://zype.zendesk.com/hc/en-us/articles/215492488-Creating-a-Subscription).
-
-__Note:__ Although it is recommended, you do not need a Braintree/Stripe account to create subscriptions on the Zype platform. You can head directly to [https://admin.zype.com/plans](https://admin.zype.com/plans) to create a plan without linking Braintree/Stripe.
-
-After you have created your subscriptions in the platform your can test native subscriptions by [following the documentation here](docs/testing/TestingNativeSubscriptions.md).
+  - __Note:__ Although it is recommended, you do not need a Braintree/Stripe account to create subscriptions on the Zype platform. You can head directly to [https://admin.zype.com/plans](https://admin.zype.com/plans) to create a plan without linking Braintree/Stripe.
+  - After you have created your subscriptions in the platform your can test native subscriptions by [following the documentation here](docs/testing/TestingNativeSubscriptions.md).
 
 #### Submitting to the Roku App Store
 
