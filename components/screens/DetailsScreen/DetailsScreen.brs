@@ -4,7 +4,6 @@
  ' configures buttons for Details screen
 Function Init()
     ? "[DetailsScreen] init"
-    'TestStoreFunction(2)
 
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
@@ -59,7 +58,6 @@ Function ReinitializeVideoPlayer()
       m.top.removeChild(m.top.videoPlayer)
 
       m.top.videoPlayer = m.top.createChild("Video")
-      m.top.videoPlayer.visible = false
       m.top.videoPlayer.translation = [0,0]
       m.top.videoPlayer.width = 1280
       m.top.videoPlayer.height = 720
@@ -145,13 +143,7 @@ End Sub
 Function PrepareVideoPlayer()
     print "PrepareVideoPlayer"
     nextVideoObject = m.top.videosTree[m.PlaylistRowIndex][m.CurrentVideoIndex]
-    ' nextVideoNode = ContentList2SimpleNode(nextVideoObject)
     if(nextVideoObject <> invalid)
-        ' result = createObject("RoSGNode","ContentNode")
-        ' nextVideoNode = result.createChild("ContentNode")
-
-
-
         m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
         m.top.content.id = nextVideoObject.id
         m.top.content.CONTENTTYPE = nextVideoObject.contenttype
@@ -166,31 +158,8 @@ Function PrepareVideoPlayer()
         m.top.content.TITLE = nextVideoObject.title
         m.top.content.URL = nextVideoObject.url
 
-        ' m.top.content.TestingVar = "hello"
-        ' m.top.content.setFields({TestingVar1: "hello"})
-        ' result.appendChild(nextVideoNode)
-
-        ' print "Test Start"
-        ' print "nextVideoNode: "; nextVideoNode
-        ' print "result: "; result
-        ' print "Test: "; {TestingVar: "hello"}
-        ' print "Test End"
-
-        ' for each itemAA in nextVideoObject
-        '     print "itemAA: "; itemAA
-        ' end for
-
-        ' m.top.content = nextVideoNode
-        ' m.top.content.onAir = nextVideoObject.onair
-        ' m.top.content.STREAMFORMAT = "abc"
-        ' m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
-
         print "nextVideoObject: "; nextVideoObject
-        ' print "nextVideoNode: "; nextVideoNode
         print "New: "; m.top.content
-        ' print "m.canWatchVideo: "; m.canWatchVideo
-        ' print "nextVideoNode Type: "; type(nextVideoNode)
-        ' print "nextVideoObject.streamformat: "; nextVideoObject.streamformat
 
         if(m.canWatchVideo)
             m.top.videoPlayer.visible = true
@@ -201,7 +170,6 @@ Function PrepareVideoPlayer()
             m.top.videoPlayer.setFocus(false)
             m.subscribeButtons.setFocus(true)
         end if
-
     end if
 End Function
 
