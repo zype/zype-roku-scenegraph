@@ -22,9 +22,9 @@ Function Init()
     ' m.poster            =   m.top.findNode("Poster")
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
-    m.PlaylistRowIndex  = invalid
-    m.CurrentVideoIndex = invalid
-    m.totalVideosCount  = 0
+    ' m.top.PlaylistRowIndex  = invalid
+    ' m.top.CurrentVideoIndex = invalid
+    ' m.totalVideosCount  = 0
 
     m.canWatchVideo = false
     m.buttons.setFocus(true)
@@ -117,7 +117,7 @@ Sub OnVideoPlayerStateChange()
         print "Video finished playing"
         print "Current: "; m.top.content
         print "Current Type: "; type(m.top.content)
-        print "m.CurrentVideoIndex: "; m.CurrentVideoIndex
+        print "m.top.CurrentVideoIndex: "; m.top.CurrentVideoIndex
 
         ' m.top.videoPlayer.visible = false
         m.top.ResumeVideo = m.top.createChild("ResumeVideo")
@@ -129,12 +129,12 @@ Sub OnVideoPlayerStateChange()
         if m.top.autoplay = true AND isLastVideoInPlaylist() = false
             m.top.videoPlayer.visible = true
 
-            m.CurrentVideoIndex = m.CurrentVideoIndex + 1
+            m.top.CurrentVideoIndex = m.top.CurrentVideoIndex + 1
             PrepareVideoPlayer()
         else if m.top.autoplay = true AND isLastVideoInPlaylist() = true
             m.top.videoPlayer.visible = true
 
-            m.CurrentVideoIndex = 0
+            m.top.CurrentVideoIndex = 0
             PrepareVideoPlayer()
         end if
     end if
@@ -142,7 +142,7 @@ End Sub
 
 Function PrepareVideoPlayer()
     print "PrepareVideoPlayer"
-    nextVideoObject = m.top.videosTree[m.PlaylistRowIndex][m.CurrentVideoIndex]
+    nextVideoObject = m.top.videosTree[m.top.PlaylistRowIndex][m.top.CurrentVideoIndex]
     if(nextVideoObject <> invalid)
         m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
         m.top.content.id = nextVideoObject.id
@@ -174,7 +174,7 @@ Function PrepareVideoPlayer()
 End Function
 
 Function isLastVideoInPlaylist()
-    if(m.CurrentVideoIndex = (m.totalVideosCount - 1))
+    if(m.top.CurrentVideoIndex = (m.top.totalVideosCount - 1))
         return true
     end if
     return false
@@ -224,7 +224,7 @@ Sub OnContentChange()
     ' print "Content: "; m.top.content
     m.top.SubscriptionPackagesShown = false
     ' print "Videos: "; m.top.videosTree[0][6]
-    FindPlaylistRowIndex()
+    ' FindPlaylistRowIndex()
 
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
@@ -384,10 +384,8 @@ End Function
 
 Function FindPlaylistRowIndex()
     print "FindPlaylistRowIndex"
-    ' print "m.top.videosTree: "; m.top.videosTree
     contentId = invalid
     if(m.top.content <> invalid)
-        ' print "m.top.content.id: "; m.top.content.id
         contentIdParts = m.top.content.id.tokenize(":")
         contentId = contentIdParts[0]
     end if
@@ -401,7 +399,7 @@ Function FindPlaylistRowIndex()
         For Each v in vt
             ' print "v: "; v
             if(v.id = contentId)
-                m.PlaylistRowIndex = index
+                m.top.PlaylistRowIndex = index
                 m.CurrentVideoIndex = v.videoIndex
                 found = true
             end if
