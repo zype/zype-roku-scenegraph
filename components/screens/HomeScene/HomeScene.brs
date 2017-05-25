@@ -65,6 +65,8 @@ Function OnRowItemSelected()
         ? "[HomeScene] Playlist Selected"
         m.contentStack.push(m.gridScreen.content)
         m.top.playlistItemSelected = true
+
+    ' Video selected
     else
         ? "[HomeScene] Detail Screen"
         m.gridScreen.visible = "false"
@@ -72,6 +74,11 @@ Function OnRowItemSelected()
         for each key in m.gridScreen.focusedContent.keys()
           m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
         end for
+
+        rowItemSelected = m.gridScreen.findNode("RowList").rowItemSelected
+        m.detailsScreen.PlaylistRowIndex = rowItemSelected[0]
+        m.detailsScreen.CurrentVideoIndex = rowItemSelected[1]
+        m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
 
         m.gridScreen.focusedContent = m.nextVideoNode
         m.detailsScreen.content = m.gridScreen.focusedContent

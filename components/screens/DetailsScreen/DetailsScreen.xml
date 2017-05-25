@@ -84,6 +84,10 @@
         <!-- Video Player referencible by HomeScene -->
         <field id="VideoPlayer" type="node" />
         <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
+
+        <field id="PlaylistRowIndex" type="integer" />
+        <field id="CurrentVideoIndex" type="integer" />
+        <field id="totalVideosCount" type="integer" />
     </interface>
 
     <!-- main handler -->
