@@ -46,11 +46,7 @@ Sub SetHomeScene(contentID = invalid)
     getUserPurchases()
     getProductsCatalog()
 
-    'm.scene.gridContent = ParseContent(GetContent())
-    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.plans = GetPlans({}, m.app.in_app_purchase, m.productsCatalog)
-    'm.scene.SubscriptionPlans = m.plans
-    'print "Type: "; type(m.productsCatalog)
 
     m.Menu = m.scene.findNode("Menu")
     m.Menu.isDeviceLinkingEnabled = m.app.device_linking
@@ -450,7 +446,7 @@ sub playVideo(screen as Object, auth As Object)
     m.loadingIndicator.control = "stop"
     print "[Main] Playing video"
     m.videoPlayer.visible = true
-    print "m.videoPlayer.setFocus(true): "; m.videoPlayer.setFocus(true)
+    m.videoPlayer.setFocus(true)
     m.videoPlayer.control = "play"
 end sub
 
@@ -522,7 +518,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.loadingIndicator.control = "stop"
         print "[Main] Playing video"
         m.videoPlayer.visible = true
-        print "m.videoPlayer.setFocus(true): "; m.videoPlayer.setFocus(true)
+        m.videoPlayer.setFocus(true)
         m.videoPlayer.control = "play"
     end if
 end sub

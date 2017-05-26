@@ -136,6 +136,10 @@ Sub OnVideoPlayerStateChange()
 
             m.top.CurrentVideoIndex = 0
             PrepareVideoPlayer()
+        else
+            m.top.videoPlayer.visible = false
+            m.top.videoPlayer.setFocus(false)
+            m.top.setFocus(true)
         end if
     end if
 End Sub
