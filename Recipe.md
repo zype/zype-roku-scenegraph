@@ -10,7 +10,7 @@ IT or developer support strongly recommended. Creating the final app package req
 
 #### Roku Device and Account
 
-In order to package your Roku app, you will need a Roku device. If you use Zype's app publishing tools, you will get the code for the application; however Roku's process for packaging apps requires that you sideload and package the app on a Roku device before you download the package from the device itself. Because you need a Roku device to sideload the app on, you will also need a Roku account in order to setup the device.
+In order to package your Roku app, you will need a Roku device. If you use Zype's app production tools, you will get the code for the application; however Roku's process for packaging apps requires that you sideload and package the app on a Roku device before you download the package from the device itself. Because you need a Roku device to sideload the app on, you will also need a Roku account in order to set up the device.
 
 #### Zype Roku Endpoint License
 
@@ -18,13 +18,13 @@ To create a Zype Roku app you need a paid and current Zype account that includes
 
 #### Enrollment in Roku's Developer Program
 
-The Roku Developer Program can be enrolled in via [Roku's website](https://developer.roku.com).
+The Roku Developer Program can be enrolled in via [Roku's developer website](https://developer.roku.com).
 
 ## Creating a New App with the SDK template
 
 #### Generate your bundle
 
-1. In order to generate your Roku app using the SDK, you will need to first create an Roku app on the Zype platform. If you have not done this yet, log in to your Zype account [here](https://admin.zype.com/users/sign_in), and click on the __Manage Apps__ link under the Publish menu in the left navigation. You will see a button to create a new app. Continue following the instructions provided within the app production software.
+1. In order to generate your Roku app using the SDK, you will need to first create a Roku app on the Zype platform. If you have not done this yet, log in to your Zype account [here](https://admin.zype.com/users/sign_in), and click on the __Manage Apps__ link under the Publish menu in the left navigation. You will see a button to create a new app. Continue following the instructions provided within the app production software.
 
 ![Image to be provided](http://imagetobeprovided.com)
 
