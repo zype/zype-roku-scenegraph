@@ -141,14 +141,7 @@ Sub SetHomeScene(contentID = invalid)
     while(true)
         msg = wait(0, m.port)
         msgType = type(msg)
-        print "------------------"
-        ' print "msg = "; msg
 
-        print "RunGarbageCollector(): "; RunGarbageCollector()
-
-        print "msg.getNode(): "; msg.getNode()
-        print "msg.getField(): "; msg.getField()
-        print "msg.getData(): "; msg.getData()
         if msgType = "roSGNodeEvent"
             if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
                 playRegularVideo(m.detailsScreen)
