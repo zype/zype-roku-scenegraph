@@ -90,16 +90,28 @@ End Sub
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.top.videoPlayer.hasFocus() then
+      if m.canWatchVideo <> invalid and m.canWatchVideo = true
+        AddButtons()
         m.buttons.setFocus(true)
+      else
+        AddActionButtons()
+        m.buttons.setFocus(true)
+      end if
     end if
 End Sub
 
 ' set proper focus on buttons and stops video if return from Playback to details
 Sub onVideoVisibleChange()
     if m.top.videoPlayer.visible = false and m.top.visible = true
+      if m.canWatchVideo <> invalid AND m.canWatchVideo = true
+        AddButtons()
         m.buttons.setFocus(true)
         m.top.videoPlayer.control = "stop"
-        AddButtons()
+      else
+        AddActionButtons()
+        m.buttons.setFocus(true)
+        m.top.videoPlayer.control = "stop"
+      end if
     end if
 End Sub
 
@@ -119,12 +131,10 @@ Sub OnVideoPlayerStateChange()
         print "Current Type: "; type(m.top.content)
         print "m.top.CurrentVideoIndex: "; m.top.CurrentVideoIndex
 
-        ' m.top.videoPlayer.visible = false
         m.top.ResumeVideo = m.top.createChild("ResumeVideo")
         m.top.ResumeVideo.id = "ResumeVideo"
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id.tokenize(":")[0]  ' Delete video id and time from reg.
-        AddButtons()                                              ' Change buttons status
 
         if m.top.autoplay = true AND isLastVideoInPlaylist() = false
             m.top.videoPlayer.visible = true
@@ -168,11 +178,11 @@ Function PrepareVideoPlayer()
         if(m.canWatchVideo)
             m.top.videoPlayer.visible = true
             m.top.triggerPlay = true
-            m.top.videoPlayer.state = "play"
         else
             m.top.videoPlayer.visible = false
             m.top.videoPlayer.setFocus(false)
-            m.subscribeButtons.setFocus(true)
+
+            m.buttons.setFocus(true)
         end if
     end if
 End Function

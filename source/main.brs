@@ -142,8 +142,12 @@ Sub SetHomeScene(contentID = invalid)
         msg = wait(0, m.port)
         msgType = type(msg)
 
+        print "msg.getField(): "; msg.getField()
+        print "msg.getData(): "; msg.getData()
+
         if msgType = "roSGNodeEvent"
             if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
+                m.detailsScreen.RemakeVideoPlayer = true
                 playRegularVideo(m.detailsScreen)
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
@@ -404,7 +408,7 @@ sub playRegularVideo(screen as Object)
     else
         print "FREE VIDEO"
 
-        m.detailsScreen.RemakeVideoPlayer = true
+        ' m.detailsScreen.RemakeVideoPlayer = true
 
         if m.app.avod = true
           playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
@@ -425,13 +429,13 @@ sub playVideo(screen as Object, auth As Object)
 
     ' show loading indicator before requesting ad and playing video
     m.loadingIndicator.control = "start"
-
-    'm.VideoPlayer = screen.findNode("VideoPlayer")
+    m.on_air = screen.content.onAir
 
     m.VideoPlayer = screen.VideoPlayer
+    m.VideoPlayer.observeField("position", m.port)
+    m.videoPlayer.content = screen.content
+    m.VideoPlayer.seek = m.VideoPlayer.seek
 
-    m.on_air = screen.content.onAir
-     m.VideoPlayer.observeField("position", m.port)
     if screen.content.onAir = true
         m.VideoPlayer.observeField("position", m.port)
     end if
@@ -439,6 +443,7 @@ sub playVideo(screen as Object, auth As Object)
     m.loadingIndicator.control = "stop"
     print "[Main] Playing video"
     m.videoPlayer.visible = true
+    screen.videoPlayerVisible = true
     m.videoPlayer.setFocus(true)
     m.videoPlayer.control = "play"
 end sub
@@ -456,10 +461,10 @@ sub playVideoWithAds(screen as Object, auth as Object)
     m.loadingIndicator.control = "start"
     m.on_air = playerInfo.on_air
 
-    'm.VideoPlayer = screen.findNode("VideoPlayer")
     m.VideoPlayer = screen.VideoPlayer
-
     m.VideoPlayer.observeField("position", m.port)
+    m.videoPlayer.content = screen.content
+    m.VideoPlayer.seek = m.VideoPlayer.seek
 
     if playerInfo.on_air = true
         m.VideoPlayer.observeField("position", m.port)
@@ -511,6 +516,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.loadingIndicator.control = "stop"
         print "[Main] Playing video"
         m.videoPlayer.visible = true
+        screen.videoPlayerVisible = true
         m.videoPlayer.setFocus(true)
         m.videoPlayer.control = "play"
     end if

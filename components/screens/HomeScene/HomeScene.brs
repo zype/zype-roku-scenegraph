@@ -177,7 +177,6 @@ Function OnKeyEvent(key, press) as Boolean
                 m.screenStack.peek().setFocus(true)
             end if
         else if key = "back"
-
             ' if Details opened
             if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
                 ? "1"
@@ -192,6 +191,12 @@ Function OnKeyEvent(key, press) as Boolean
             else if m.detailsScreen.videoPlayerVisible = true then
                 ? "2"
                 m.detailsScreen.videoPlayerVisible = false
+                m.detailsScreen.videoPlayer.control = "stop"
+                m.detailsScreen.videoPlayer.visible = false
+                m.detailsScreen.videoPlayer.setFocus(false)
+
+                m.detailsScreen.visible = true
+                m.detailsScreen.setFocus(true)
                 result = true
 
             ' if search opened
