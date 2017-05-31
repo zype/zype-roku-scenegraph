@@ -24,17 +24,27 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
 
 #### Generate your bundle
 
-1. In order to generate your Roku app using the SDK, you will need to first create a Roku app on the Zype platform. If you have not done this yet, log in to your Zype account [here](https://admin.zype.com/users/sign_in), and click on the __Manage Apps__ link under the Publish menu in the left navigation. You will see a button to create a new app. Continue following the instructions provided within the app production software.
+1. In order to generate your Roku app using the SDK, you will need to first create the app on the Zype platform. If you have not done this yet, log in to your Zype account [here](https://admin.zype.com/users/sign_in), and click on the __Manage Apps__ link under the Publish menu in the left navigation. You will see a button to create a new app. Continue following the instructions provided within the app production software.
 
-![Image to be provided](http://imagetobeprovided.com)
+![Manage Apps](docs/images/recipe-image1.jpg)
 
-2. Once you have your Roku app created in the Zype platform and have included your assets, click on __Get New Bundle__ and the configured app bundle will be emailed to you.
+![Creating a new app](docs/images/recipe-image2.jpg)
 
-![Image to be provided](http://imagetobeprovided.com)
+![Create Roku app](docs/images/recipe-image3.jpg)
+
+2. Once you have completed the flow to create your Roku app in the Zype platform click on __Get New Bundle__ and the configured app bundle will be emailed to you.
+
+![Get New Bundle](docs/images/recipe-image4.jpg)
 
 #### Installing and testing your new app
 
-3. Once you have received your new app, you will need to sideload the application in order to test it. You can view [Roku's documentation](https://sdkdocs.roku.com/display/sdkdoc/Loading+and+Running+Your+Application) for more details on how to sideload the application.
+3. Once you have received your new app, you will need to sideload the application in order to test it. First you need to enable [Developer Mode on your Roku device](https://github.com/rokudev/docs/blob/master/develop/getting-started/setup-guide.md). There are 2 ways to sideload your app:
+  - You can use the Application Installer Page [as explained here ](https://sdkdocs.roku.com/display/sdkdoc/Loading+and+Running+Your+Application#LoadingandRunningYourApplication-ApplicationInstallerPage).
+  - You can sideload it from your Terminal by updating the __app.mk__ file. Inside _app.mk_ you should update the __ROKU_DEV_TARGET__ to be your Roku device's IP address and the __DEVPASSWORD__ to be the password you set up when enabling Developer Mode. Once you have saved _app.mk_, you can navigate to your app's folder in the Terminal by entering `cd /path/to/my/app/folder`, then `make install` to sideload your app.
+
+  ![app.mk illustration](docs/images/recipe-image5.jpg)
+
+  ![Sideloading with Terminal](docs/images/recipe-image6.jpg)
 
 4. In order to submit to the Roku's app store you need to ensure that deep linking works as expected. There are more details on how to [test deep linking here](docs/testing/TestingDeepLinking.md).
 
