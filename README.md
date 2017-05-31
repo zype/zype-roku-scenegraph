@@ -11,6 +11,7 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 - Resume watch functionality
 - Deep linking to specific videos
 - Dynamic theme colors
+- Autoplay
 
 ## Unsupported Features
 

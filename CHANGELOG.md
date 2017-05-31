@@ -1,3 +1,7 @@
+### 1.2.0 (31/05/2017)
+
+- Added autoplay feature
+
 ### 1.1.4 (02/05/2017)
 
 - Patch to thumbnail selection
