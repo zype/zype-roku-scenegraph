@@ -4,7 +4,6 @@
  ' configures buttons for Details screen
 Function Init()
     ? "[DetailsScreen] init"
-    'TestStoreFunction(2)
 
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
@@ -12,10 +11,20 @@ Function Init()
     m.top.ShowSubscriptionPackagesCallback = false
 
     m.buttons           =   m.top.findNode("Buttons")
-    m.videoPlayer       =   m.top.findNode("VideoPlayer")
+
+    m.top.videoPlayer = m.top.createChild("Video")
+    m.top.videoPlayer.visible = false
+    m.top.videoPlayer.translation = [0,0]
+    m.top.videoPlayer.width = 1280
+    m.top.videoPlayer.height = 720
+    m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+
     ' m.poster            =   m.top.findNode("Poster")
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
+    ' m.top.PlaylistRowIndex  = invalid
+    ' m.top.CurrentVideoIndex = invalid
+    ' m.totalVideosCount  = 0
 
     m.canWatchVideo = false
     m.buttons.setFocus(true)
@@ -42,9 +51,20 @@ Function Init()
 
     m.optionsIcon = m.top.findNode("OptionsIcon")
     m.optionsIcon.blendColor = m.global.brand_color
+End Function
+
+Function ReinitializeVideoPlayer()
+  if m.top.RemakeVideoPlayer = true
+      m.top.removeChild(m.top.videoPlayer)
+
+      m.top.videoPlayer = m.top.createChild("Video")
+      m.top.videoPlayer.translation = [0,0]
+      m.top.videoPlayer.width = 1280
+      m.top.videoPlayer.height = 720
 
     ' Event listener for video player state. Needed to handle video player errors and completion
-    m.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+      m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+  end if
 End Function
 
 Function onShowSubscriptionPackagesCallback()
@@ -63,45 +83,124 @@ Sub onVisibleChange()
         m.buttons.jumpToItem = 0
         m.buttons.setFocus(true)
     else
-        m.videoPlayer.visible = false
-        m.videoPlayer.control = "stop"
+        m.top.videoPlayer.visible = false
+        m.top.videoPlayer.control = "stop"
     end if
 End Sub
 
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()
-    if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.videoPlayer.hasFocus() then
+    if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.top.videoPlayer.hasFocus() then
+      if m.canWatchVideo <> invalid and m.canWatchVideo = true
+        AddButtons()
         m.buttons.setFocus(true)
+      else
+        AddActionButtons()
+        m.buttons.setFocus(true)
+      end if
     end if
 End Sub
 
 ' set proper focus on buttons and stops video if return from Playback to details
 Sub onVideoVisibleChange()
-    if m.videoPlayer.visible = false and m.top.visible = true
-        m.buttons.setFocus(true)
-        m.videoPlayer.control = "stop"
+    if m.top.videoPlayer.visible = false and m.top.visible = true
+      if m.canWatchVideo <> invalid AND m.canWatchVideo = true
         AddButtons()
+        m.buttons.setFocus(true)
+        m.top.videoPlayer.control = "stop"
+      else
+        AddActionButtons()
+        m.buttons.setFocus(true)
+        m.top.videoPlayer.control = "stop"
+      end if
     end if
 End Sub
 
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
-    if m.videoPlayer.state = "error"
+    if m.top.videoPlayer.state = "error"
         ' error handling
-        m.videoPlayer.visible = false
-    else if m.videoPlayer.state = "playing"
+        m.top.videoPlayer.visible = false
+    else if m.top.videoPlayer.state = "playing"
         ' playback handling
-    else if m.videoPlayer.state = "finished"
-        m.videoPlayer.visible = false
+        if(m.top.autoplay = true)
+            m.top.triggerPlay = false
+        end if
+    else if m.top.videoPlayer.state = "finished"
+        print "Video finished playing"
+        print "Current: "; m.top.content
+        print "Current Type: "; type(m.top.content)
+        print "m.top.CurrentVideoIndex: "; m.top.CurrentVideoIndex
+
         m.top.ResumeVideo = m.top.createChild("ResumeVideo")
         m.top.ResumeVideo.id = "ResumeVideo"
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
-        AddButtons()                                              ' Change buttons status
+        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id.tokenize(":")[0]  ' Delete video id and time from reg.
+
+        if m.top.autoplay = true AND isLastVideoInPlaylist() = false
+            m.top.videoPlayer.visible = true
+
+            m.top.CurrentVideoIndex = m.top.CurrentVideoIndex + 1
+            PrepareVideoPlayer()
+        else if m.top.autoplay = true AND isLastVideoInPlaylist() = true
+            m.top.videoPlayer.visible = true
+
+            m.top.CurrentVideoIndex = 0
+            PrepareVideoPlayer()
+        else
+            m.top.videoPlayer.visible = false
+            m.top.videoPlayer.setFocus(false)
+            m.top.setFocus(true)
+        end if
     end if
 End Sub
 
+Function PrepareVideoPlayer()
+    print "PrepareVideoPlayer"
+    nextVideoObject = m.top.videosTree[m.top.PlaylistRowIndex][m.top.CurrentVideoIndex]
+    if(nextVideoObject <> invalid)
+        m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
+        m.top.content.id = nextVideoObject.id
+        m.top.content.CONTENTTYPE = nextVideoObject.contenttype
+        m.top.content.DESCRIPTION = nextVideoObject.description
+        m.top.content.HDBACKGROUNDIMAGEURL = nextVideoObject.hdbackgroundimageurl
+        m.top.content.HDPOSTERURL = nextVideoObject.hdposterurl
+        m.top.content.inFavorites = nextVideoObject.infavorites
+        m.top.content.LENGTH = nextVideoObject.length
+        m.top.content.onAir = nextVideoObject.onair
+        m.top.content.RELEASEDATE = nextVideoObject.releasedate
+        m.top.content.STREAMFORMAT = nextVideoObject.streamformat
+        m.top.content.TITLE = nextVideoObject.title
+        m.top.content.URL = nextVideoObject.url
+
+        print "nextVideoObject: "; nextVideoObject
+        print "New: "; m.top.content
+
+        if(m.canWatchVideo)
+            m.top.videoPlayer.visible = true
+            m.top.triggerPlay = true
+        else
+            m.top.videoPlayer.visible = false
+            m.top.videoPlayer.setFocus(false)
+
+            m.buttons.setFocus(true)
+        end if
+    end if
+End Function
+
+Function isLastVideoInPlaylist()
+    if(m.top.CurrentVideoIndex = (m.top.totalVideosCount - 1))
+        return true
+    end if
+    return false
+End Function
+
 ' on Button press handler
 Sub onItemSelected()
+' <<<<<<< HEAD
+' =======
+'     m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+' >>>>>>> autoplay-refactor-v2
     ' first button pressed
     if m.top.itemSelected = 0
         if(m.top.SubscriptionPackagesShown = true)  ' If packages are shown and one of them was clicked, start wizard.
@@ -140,8 +239,11 @@ End Sub
 
 ' Content change handler
 Sub OnContentChange()
-    print "Content: "; m.top.content
+    ' print "Content: "; m.top.content
     m.top.SubscriptionPackagesShown = false
+    ' print "Videos: "; m.top.videosTree[0][6]
+    ' FindPlaylistRowIndex()
+
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
@@ -175,7 +277,7 @@ Sub OnContentChange()
         m.description.content   = m.top.content
         ' m.description.Description.width = "770"
         m.description.Description.height = "250"
-        m.videoPlayer.content   = m.top.content
+        m.top.videoPlayer.content   = m.top.content
         ' m.poster.uri            = m.top.content.hdBackgroundImageUrl
         m.background.uri        = m.top.content.hdBackgroundImageUrl
     end if
@@ -272,6 +374,7 @@ Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" 
     result = createObject("roSGNode",nodeType)
     if result <> invalid
         for each itemAA in contentList
+            print "itemAA_: "; itemAA
             item = createObject("roSGNode", nodeType)
             item.setFields(itemAA)
             result.appendChild(item)
@@ -290,9 +393,47 @@ Function getStatusOfVideo() as boolean
     if(m.top.ResumeVideo.HasVideoIdValue)
         return true
     else
-        m.videoPlayer.seek = 0.00                           ' Start video from 0 if entry not saved.
+        m.top.videoPlayer.seek = 0.00                           ' Start video from 0 if entry not saved.
         return false
     end if
 
     return false
+End Function
+
+Function FindPlaylistRowIndex()
+    print "FindPlaylistRowIndex"
+    contentId = invalid
+    if(m.top.content <> invalid)
+        contentIdParts = m.top.content.id.tokenize(":")
+        contentId = contentIdParts[0]
+    end if
+    index = 0
+    found = false
+    totalVideos = 0
+    childCount = 0
+    For Each vt in m.top.videosTree
+        ' print "vt: "; vt
+        childCount = 0
+        For Each v in vt
+            ' print "v: "; v
+            if(v.id = contentId)
+                m.top.PlaylistRowIndex = index
+                m.CurrentVideoIndex = v.videoIndex
+                found = true
+            end if
+            childCount = childCount + 1
+        End For
+
+        if(found = true)
+            totalVideos = childCount
+            exit for
+        end if
+        index = index + 1
+    End For
+
+    m.totalVideosCount = totalVideos
+
+    ' For each p in m.top.dataArray
+    '     print "P: "; p.contentlist[0]
+    ' End for
 End Function

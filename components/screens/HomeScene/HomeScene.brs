@@ -49,6 +49,8 @@ Function Init()
     m.loadingIndicator.imageUri = m.global.theme.loader_uri
 
     m.IndexTracker = {}
+
+    m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
 End Function
 
 ' Add positions based on index starting from 0
@@ -103,13 +105,27 @@ Function OnRowItemSelected()
 
         m.contentStack.push(m.gridScreen.content)
         m.top.playlistItemSelected = true
+
+    ' Video selected
     else
         ? "[HomeScene] Detail Screen"
         m.gridScreen.visible = "false"
+
+        for each key in m.gridScreen.focusedContent.keys()
+          m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
+        end for
+
+        rowItemSelected = m.gridScreen.findNode("RowList").rowItemSelected
+        m.detailsScreen.PlaylistRowIndex = rowItemSelected[0]
+        m.detailsScreen.CurrentVideoIndex = rowItemSelected[1]
+        m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
+
+        m.gridScreen.focusedContent = m.nextVideoNode
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
         m.screenStack.push(m.detailsScreen)
+        print "m.gridScreen.focusedContent: "; type(m.gridScreen.focusedContent)
     end if
     print "Subscription Plans: "; m.top.SubscriptionPlans
 End Function
@@ -201,7 +217,6 @@ Function OnKeyEvent(key, press) as Boolean
                 m.screenStack.peek().setFocus(true)
             end if
         else if key = "back"
-
             ' if Details opened
             if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
                 ? "1"
@@ -216,6 +231,12 @@ Function OnKeyEvent(key, press) as Boolean
             else if m.detailsScreen.videoPlayerVisible = true then
                 ? "2"
                 m.detailsScreen.videoPlayerVisible = false
+                m.detailsScreen.videoPlayer.control = "stop"
+                m.detailsScreen.videoPlayer.visible = false
+                m.detailsScreen.videoPlayer.setFocus(false)
+
+                m.detailsScreen.visible = true
+                m.detailsScreen.setFocus(true)
                 result = true
 
             ' if search opened

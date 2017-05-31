@@ -44,18 +44,21 @@ Sub SetHomeScene(contentID = invalid)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
-
     m.app = GetAppConfigs()
+    m.playlistRows = []
+    m.videosList = []
+
+    'm.scene.gridContent = ParseContent(GetContent())
     m.contentID = contentID
 
+    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
+    print "gridContent: "; m.scene.gridContent
+    print "m.playlistRows: "; m.playlistRows[0]
+    print "m.app: "; m.app
     getUserPurchases()
     getProductsCatalog()
 
-    'm.scene.gridContent = ParseContent(GetContent())
-    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.plans = GetPlans({}, m.app.in_app_purchase, m.productsCatalog)
-    'm.scene.SubscriptionPlans = m.plans
-    'print "Type: "; type(m.productsCatalog)
 
     m.Menu = m.scene.findNode("Menu")
     m.Menu.isDeviceLinkingEnabled = m.app.device_linking
@@ -82,6 +85,10 @@ Sub SetHomeScene(contentID = invalid)
     m.detailsScreen.productsCatalog = m.productsCatalog
     m.detailsScreen.JustBoughtNativeSubscription = false
     m.detailsScreen.isLoggedIn = isLoggedIn()
+    m.detailsScreen.observeField("triggerPlay", m.port)
+    m.detailsScreen.dataArray = m.playlistRows
+    m.detailsScreen.videosTree = m.videosList
+    m.detailsScreen.autoplay = m.app.autoplay
 
     deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
     m.detailsScreen.isDeviceLinked = deviceLinked
@@ -157,13 +164,15 @@ Sub SetHomeScene(contentID = invalid)
     while(true)
         msg = wait(0, m.port)
         msgType = type(msg)
-        print "------------------"
-        'print "msg = "; msg
 
-        print "msg.getNode(): "; msg.getNode()
         print "msg.getField(): "; msg.getField()
+        print "msg.getData(): "; msg.getData()
+
         if msgType = "roSGNodeEvent"
-            if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
+            if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
+                m.detailsScreen.RemakeVideoPlayer = true
+                playRegularVideo(m.detailsScreen)
+            else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
                 content = m.gridScreen.focusedContent
@@ -171,7 +180,7 @@ Sub SetHomeScene(contentID = invalid)
 
                 rowList = m.gridScreen.findNode("RowList")
                 rowlist.jumpToRowItem = [0,0]
-                'print rowList
+
                 m.loadingIndicator.control = "stop"
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
                 m.loadingIndicator.control = "start"
@@ -192,7 +201,7 @@ Sub SetHomeScene(contentID = invalid)
                     lclScreen = m.detailsScreen
                 end if
 
-                'print "THIS IS THE CONTENT"; lclScreen.content
+                ' print "THIS IS THE CONTENT"; lclScreen.content
 
                 ' detailScreenIdFull = lclScreen.content.id
                 ' detailScreenIdObj = detailScreenIdFull.tokenize(":")
@@ -205,7 +214,7 @@ Sub SetHomeScene(contentID = invalid)
             else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" and msg.getData() = 1 then
                 print "[Main] Add to favorites"
 
-                'print msg.getNode()
+                ' print msg.getNode()
 
                 if msg.getNode() = "FavoritesDetailsScreen"
                     lclScreen = m.favoritesDetailsScreen
@@ -218,7 +227,7 @@ Sub SetHomeScene(contentID = invalid)
                     lclScreen = m.detailsScreen
                 end if
 
-                'print lclScreen
+                ' print lclSreen
 
                 ' detailScreenIdFull = lclScreen.content.id
                 ' detailScreenIdObj = detailScreenIdFull.tokenize(":")
@@ -426,6 +435,8 @@ sub playRegularVideo(screen as Object)
     else
         print "FREE VIDEO"
 
+        ' m.detailsScreen.RemakeVideoPlayer = true
+
         if m.app.avod = true
           playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
         else
@@ -455,13 +466,12 @@ sub playVideo(screen as Object, auth As Object)
     else
         ' show loading indicator before requesting ad and playing video
         m.loadingIndicator.control = "start"
-
-        if m.VideoPlayer = invalid
-          m.VideoPlayer = screen.findNode("VideoPlayer")
-        end if
-
         m.on_air = screen.content.onAir
+
+        m.VideoPlayer = screen.VideoPlayer
         m.VideoPlayer.observeField("position", m.port)
+        m.videoPlayer.content = screen.content
+        m.VideoPlayer.seek = m.VideoPlayer.seek
 
         if screen.content.onAir = true
             m.VideoPlayer.content.live = true
@@ -472,6 +482,7 @@ sub playVideo(screen as Object, auth As Object)
         print "[Main] Playing video"
 
         m.videoPlayer.visible = true
+        screen.videoPlayerVisible = true
 
         if m.LoadingScreen.visible = true
           EndLoader()
@@ -480,7 +491,6 @@ sub playVideo(screen as Object, auth As Object)
         m.videoPlayer.setFocus(true)
         m.videoPlayer.control = "play"
     end if
-
 end sub
 
 sub playVideoWithAds(screen as Object, auth as Object)
@@ -511,8 +521,10 @@ sub playVideoWithAds(screen as Object, auth as Object)
           m.VideoPlayer = screen.findNode("VideoPlayer")
         end if
 
+        m.VideoPlayer = screen.VideoPlayer
         m.VideoPlayer.observeField("position", m.port)
-
+        m.videoPlayer.content = screen.content
+        m.VideoPlayer.seek = m.VideoPlayer.seek
 
         playContent = true
         if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
@@ -560,6 +572,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
             m.loadingIndicator.control = "stop"
             print "[Main] Playing video"
             m.videoPlayer.visible = true
+            screen.videoPlayerVisible = true
 
             if m.LoadingScreen.visible = true
               EndLoader()
@@ -569,7 +582,6 @@ sub playVideoWithAds(screen as Object, auth as Object)
             m.videoPlayer.control = "play"
         end if
     end if
-
 end sub
 
 sub SearchQuery(SearchString as String)
@@ -589,10 +601,16 @@ function GetSearchContent(SearchString as String)
     params.AddReplace("q", SearchString)
     params.AddReplace("dpt", "true")
     videos = []
+    video_index = 0
     for each video in GetVideos(params)
         video.inFavorites = favs.DoesExist(video._id)
         'print video
+        video.playlist_id = 0
+        video.playlist_name = invalid
+        video.video_index = video_index
+        print video
         videos.push(CreateVideoObject(video))
+        video_index = video_index + 1
     end for
     row.ContentList = videos
 
@@ -643,10 +661,15 @@ function GetFavoritesContent()
                 row = {}
                 row.title = "Favorites"
                 row.ContentList = []
+                video_index = 0
                 for each fav in videoFavorites
                     vid = GetVideo(fav.video_id)
                     vid.inFavorites = favs.DoesExist(vid._id)
+                    vid.playlist_id = item._id
+                    vid.playlist_name = item.title
+                    vid.video_index = video_index
                     row.ContentList.push(CreateVideoObject(vid))
+                    video_index = video_index + 1
                 end for
                 list.push(row)
             end if
@@ -708,10 +731,15 @@ Function GetContent()
         params.AddReplace(query, item)
         params.AddReplace("dpt", "true")
         videos = []
-
+        video_index = 0
         for each video in GetVideos(params)
             video.inFavorites = favs.DoesExist(video._id)
+            video.playlist_id = 0
+            video.playlist_name = invalid
+            video.video_index = video_index
+            print video
             videos.push(CreateVideoObject(video))
+            video_index = video_index + 1
         end for
 
         row.ContentList = videos
@@ -732,9 +760,15 @@ function GetPlaylistContent(playlist_id as String)
         row = {}
         row.title = pl.title
         videos = []
+        video_index = 0
         for each video in GetPlaylistVideos(pl._id, {"dpt": "true", "per_page": GetAppConfigs().per_page})
             video.inFavorites = favs.DoesExist(video._id)
+            video.playlist_id = 0
+            video.playlist_name = invalid
+            video.video_index = video_index
+            print video
             videos.push(CreateVideoObject(video))
+            video_index = video_index + 1
         end for
         row.ContentList = videos
 
@@ -795,12 +829,20 @@ function GetPlaylistsAsRows(parent_id as String)
         if item.playlist_item_count > 0
             row.ContentList = []
             videos = []
+            video_index = 0
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
+                print "Playlist: "; item
                 video.inFavorites = favs.DoesExist(video._id)
                 print "video.id";video._id
+                video.playlist_id = item._id
+                video.playlist_name = item.title
+                video.video_index = video_index
+                print video
                 videos.push(CreateVideoObject(video))
+                video_index = video_index + 1
             end for
             row.ContentList = videos
+            m.videosList.push(videos)
         else
             pls = GetPlaylists({"parent_id": item._id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
             for each pl in pls
@@ -809,7 +851,7 @@ function GetPlaylistsAsRows(parent_id as String)
         endif
         list.push(row)
     end for
-
+	m.playlistRows = list
     return list
 end function
 
@@ -912,7 +954,10 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         'if(index = 1 and (_isSubscribed = true OR lclScreen.content.subscriptionRequired = false))
         if(index = 1)
         'if(index = 1 and _isSubscribed)
-            m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            ' m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            m.detailsScreen.RemakeVideoPlayer = true
+            m.VideoPlayer = m.detailsScreen.VideoPlayer
+
 
             m.VideoPlayer.seek = 0.00
             RemoveVideoIdForResumeFromReg(lclScreen.content.id)
@@ -923,7 +968,10 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
         else if(index = 3)  ' This is going to be the resume button from detail screen
             videoId = GetVideoIdForResumeFromReg(lclScreen.content.id)
 
-            m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            ' m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+            m.detailsScreen.RemakeVideoPlayer = true
+            m.VideoPlayer = m.detailsScreen.VideoPlayer
+
             m.VideoPlayer.seek = videoId
             playVideoButton(lclScreen)        ' Resume button clicked
 
