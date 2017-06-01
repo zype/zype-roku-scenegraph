@@ -487,6 +487,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.videoPlayer.setFocus(true)
         m.videoPlayer.control = "play"
 
+        sleep(500)
         ' If midroll ads exist, watch for midroll ads
         if midrollAds.count() > 0
           while midrollAds.count() > 0
