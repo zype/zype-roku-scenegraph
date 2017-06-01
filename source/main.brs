@@ -390,9 +390,7 @@ sub playRegularVideo(screen as Object)
     else
         print "FREE VIDEO"
 
-        play_ad = (screen.isLoggedIn = true and m.app.subscribe_to_watch_ad_free = false) or screen.isLoggedIn = false
-
-        if m.app.avod = true and play_ad
+        if m.app.avod = true
           playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
         else
           playVideo(screen, {"app_key": GetApiConfigs().app_key})
