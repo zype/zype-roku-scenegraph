@@ -520,6 +520,9 @@ sub playVideoWithAds(screen as Object, auth as Object)
               while midrollAds.count() > 0 and currPos > midrollAds[0].offset
                 midrollAds.shift()
               end while
+            else if m.videoPlayer.visible = false
+              m.videoPlayer.control = "none"
+              exit while
             end if
           end while
         end if
