@@ -75,6 +75,7 @@ Sub SetHomeScene(contentID = invalid)
 
     m.favorites = m.scene.findNode("Favorites")
     m.favorites.observeField("visible", m.port)
+    
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
@@ -89,6 +90,8 @@ Sub SetHomeScene(contentID = invalid)
     m.detailsScreen.dataArray = m.playlistRows
     m.detailsScreen.videosTree = m.videosList
     m.detailsScreen.autoplay = m.app.autoplay
+
+    m.favorites.isLoggedIn = isLoggedIn()
 
     deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
     m.detailsScreen.isDeviceLinked = deviceLinked
