@@ -665,8 +665,6 @@ function GetFavoritesContent()
                 for each fav in videoFavorites
                     vid = GetVideo(fav.video_id)
                     vid.inFavorites = favs.DoesExist(vid._id)
-                    vid.playlist_id = item._id
-                    vid.playlist_name = item.title
                     vid.video_index = video_index
                     row.ContentList.push(CreateVideoObject(vid))
                     video_index = video_index + 1
