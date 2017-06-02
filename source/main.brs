@@ -526,48 +526,44 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.videoPlayer.content = screen.content
         m.VideoPlayer.seek = m.VideoPlayer.seek
 
-        playContent = true
-        if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-            adIface = Roku_Ads() 'RAF initialize
-            'print "Roku_Ads library version: " + adIface.getLibVersion()
-            adIface.setAdPrefs(true, 2)
-            adIface.setDebugOutput(true) 'for debug pupropse
+        adIface = Roku_Ads() 'RAF initialize
+        'print "Roku_Ads library version: " + adIface.getLibVersion()
+        adIface.setAdPrefs(true, 2)
+        adIface.setDebugOutput(true) 'for debug pupropse
 
-            ' Normally, would set publisher's ad URL here.
-            ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
-            if playerInfo.scheduledAds.count() > 0
-                url = playerInfo.scheduledAds[0].url
-                adIface.setAdUrl(url)
-            end if
-
-            adsArray = []
-            for ads = 1 to 1
-              adPods = adIface.getAds()
-
-              ' if adPods array has at least one adPod
-              if adPods <> invalid and adPods.count() > 0
-                thisPod = adPods[0].ads
-                for each a in thisPod
-                  adsArray.push(a)
-                end for
-              end if
-            end for
-            preRollAds = {
-              viewed: false,
-              renderSequence: "preroll",
-              duration: 0,
-              renderTime: 0,
-              ads: adsArray
-            }
-
-            playContent = true
-            'render pre-roll ads
-            if GetAppConfigs().avod = true and preRollAds.ads.count() > 0 then
-                m.loadingIndicator.control = "stop"
-                playContent = adIface.showAds(preRollAds)
-            end if
+        ' Normally, would set publisher's ad URL here.
+        ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
+        if playerInfo.scheduledAds.count() > 0
+            url = playerInfo.scheduledAds[0].url
+            adIface.setAdUrl(url)
         end if
 
+        ' Getting midroll ads info from video's scheduled ads
+        midrollAds = []
+        if playerInfo.scheduledAds.count() > 1
+          for each ad in playerInfo.scheduledAds
+            midrollAd = {
+              url: ad.url,
+              offset: ad.offset,
+            }
+            midrollAds.push(midrollAd)
+          end for
+
+          ' Remove first ad object since it will be preroll
+          midrollAds.shift()
+        end if
+
+        ' Fetch preroll ad
+        prerollAdPod = adIface.getAds()
+
+        playContent = true
+        'render pre-roll ads
+        if GetAppConfigs().avod = true and prerollAdPod.count() > 0 then
+            m.loadingIndicator.control = "stop"
+            playContent = adIface.showAds(prerollAdPod)
+        end if
+
+        ' Start playing video
         if playContent then
             m.loadingIndicator.control = "stop"
             print "[Main] Playing video"
@@ -580,7 +576,51 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
             m.videoPlayer.setFocus(true)
             m.videoPlayer.control = "play"
-        end if
+
+            sleep(500)
+            ' If midroll ads exist, watch for midroll ads
+            if midrollAds.count() > 0
+              while midrollAds.count() > 0
+                currPos = m.videoPlayer.position
+
+                timeDiff = Abs(midrollAds[0].offset - currPos)
+                print "Next midroll ad: "; midrollAds[0].offset
+                print "Time until next midroll ad: "; timeDiff
+
+                ' Within half second of next midroll ad timing
+                if timeDiff <= 0.500
+                  m.videoPlayer.control = "stop"
+
+                  ' Get ad pod for mid roll ad
+                  adIface.setAdUrl(midrollAds[0].url)
+                  midrollAdPod = adIface.getAds()
+
+                  ' Show midroll ad
+                  adIface.showAds(midrollAdPod)
+
+                  ' Remove midroll ad from array
+                  midrollAds.shift()
+
+                  ' Start playing video at back from currPos just before midroll ad started
+                  m.videoPlayer.seek = currPos
+                  m.videoPlayer.control = "play"
+
+                ' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
+                ' Keep removing the first midroll ad in array until no midroll ads before current position
+                else if midrollAds.count() > 0 and currPos > midrollAds[0].offset
+                  while midrollAds.count() > 0 and currPos > midrollAds[0].offset
+                    midrollAds.shift()
+                  end while
+                else if m.videoPlayer.visible = false
+                  m.videoPlayer.control = "none"
+                  exit while
+                end if
+
+              end while ' end of midroll ad loop
+
+            end if ' end of midroll ad if statement
+
+        end if ' end of if playContent
     end if
 end sub
 
