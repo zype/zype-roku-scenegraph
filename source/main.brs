@@ -75,6 +75,7 @@ Sub SetHomeScene(contentID = invalid)
 
     m.favorites = m.scene.findNode("Favorites")
     m.favorites.observeField("visible", m.port)
+    
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
@@ -89,6 +90,8 @@ Sub SetHomeScene(contentID = invalid)
     m.detailsScreen.dataArray = m.playlistRows
     m.detailsScreen.videosTree = m.videosList
     m.detailsScreen.autoplay = m.app.autoplay
+
+    m.favorites.isLoggedIn = isLoggedIn()
 
     deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
     m.detailsScreen.isDeviceLinked = deviceLinked
@@ -318,6 +321,7 @@ Sub SetHomeScene(contentID = invalid)
                                     m.detailsScreen.isDeviceLinked = true
                                     m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
                                     m.detailsScreen.isLoggedIn = true
+                                    m.favorites.isLoggedIn = true
                                     m.deviceLinking.isDeviceLinked = true
                                     m.deviceLinking.setUnlinkFocus = true
                                     exit while
@@ -345,6 +349,7 @@ Sub SetHomeScene(contentID = invalid)
                                 m.detailsScreen.isDeviceLinked = true
                                 m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
                                 m.detailsScreen.isLoggedIn = true
+                                m.favorites.isLoggedIn = true
                                 exit while
                             end if
                         end if
@@ -374,6 +379,7 @@ Sub SetHomeScene(contentID = invalid)
                     m.deviceLinking.isDeviceLinked = false
                     m.detailsScreen.isDeviceLinked = false
                     m.detailsScreen.isLoggedIn = isLoggedIn()
+                    m.favorites.isLoggedIn = isLoggedIn()
                 end if
             end if
 
@@ -1030,6 +1036,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                     m.detailsScreen.isDeviceLinked = true
                     m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
                     m.detailsScreen.isLoggedIn = true
+                    m.favorites.isLoggedIn = true
                     return false
                 else
                     ' Find a way to show packages
@@ -1052,6 +1059,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                  if(result = true)
                      m.detailsScreen.JustBoughtNativeSubscription = true
                      m.detailsScreen.isLoggedIn = true
+                     m.favorites.isLoggedIn = true
                 '     getUserPurchases()  ' Update the user purchased inventory
                  end if
             end if
@@ -1070,6 +1078,7 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                  if(result = true)
                     m.detailsScreen.JustBoughtNativeSubscription = true
                     m.detailsScreen.isLoggedIn = true
+                    m.favorites.isLoggedIn = true
                  end if
             end if
         end if

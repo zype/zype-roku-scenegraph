@@ -25,6 +25,8 @@
 
         <!-- Alias to Results Video Title Text label -->
         <field id="VideoTitleText"  type="string" alias="VideoTitle.text"/>
+
+        <field id="isLoggedIn" type="bool" />
     </interface>
 
     <!-- main handler -->
