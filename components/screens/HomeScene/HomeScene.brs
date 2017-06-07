@@ -337,20 +337,10 @@ Function OnKeyEvent(key, press) as Boolean
     end if
 
     ' Dialog boxes handler
-    if not press then
+    ' press = false when key event happens to component inside children
+    if press = false then
         print "Dialog: "; m.top.dialog
-        if(m.top.dialog <> invalid)
-            buttonIndex = m.top.dialog.buttonSelected
-            if(buttonIndex = 0 and key = "OK")
-                m.top.dialog.close = true
-            end if
-            print "buttonIndex: "; buttonIndex
-        end if
-    end if
 
-    ' Dialog boxes handler
-    if not press then
-        print "Dialog: "; m.top.dialog
         if(m.top.dialog <> invalid)
             buttonIndex = m.top.dialog.buttonSelected
             if(buttonIndex = 0 AND key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation")
@@ -363,6 +353,29 @@ Function OnKeyEvent(key, press) as Boolean
             end if
             print "buttonIndex: "; buttonIndex; " buttonKey: "; key
         end if
+
+        if key = "OK" then
+          ' Search open and RowList item was clicked
+          '   - should copy over Search.content to DetailsScreen.content and refocus to DetailsScreen
+          if m.Search.visible = true and m.Search.focusedChild.id = "SearchDetailsScreen"
+            m.detailsScreen.content = m.Search.focusedContent
+
+            ' Hide Search
+            m.Search.visible = false
+            SearchDetailsScreen = m.Search.findNode("SearchDetailsScreen")
+            SearchDetailsScreen.visible = false
+            SearchDetailsScreen.setFocus(false)
+            m.Search.setFocus(false)
+
+
+            ' Refocus on DetailsScreen
+            m.screenStack.push(m.detailsScreen)
+
+            m.detailsScreen.visible = true
+            m.detailsScreen.setFocus(true)
+          end if
+        end if
     end if
+
     return result
 End Function

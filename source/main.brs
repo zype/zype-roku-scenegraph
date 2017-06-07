@@ -40,7 +40,7 @@ Sub SetHomeScene(contentID = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -75,7 +75,7 @@ Sub SetHomeScene(contentID = invalid)
 
     m.favorites = m.scene.findNode("Favorites")
     m.favorites.observeField("visible", m.port)
-    
+
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
@@ -385,6 +385,8 @@ Sub SetHomeScene(contentID = invalid)
 
         end if
     end while
+
+    print "You are exiting the app"
 
     if screen <> invalid then
         screen.Close()
@@ -1044,12 +1046,12 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                 end if
             end if
 
-            m.detailsScreen.SubscriptionButtonsShown = true
             if(m.detailsScreen.SubscriptionPackagesShown = false)
                 ' All subscription button code goes here
                 m.detailsScreen.SubscriptionPackagesShown = true
                 m.detailsScreen.ShowSubscriptionPackagesCallback = true
             else
+                m.detailsScreen.SubscriptionPackagesShown = false
                 ' First package was selected by the user. Start the wizard.
                 StartLoader()
                 result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
