@@ -95,6 +95,29 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
 
         end if
     end if
+
+
+    if not press then
+      ? "press: "; press
+      if key = "back"
+        ' if HomeScene.Details opened
+        if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false then
+
+            m.detailsScreen.visible = false
+            m.gridScreen.setFocus(true)
+            m.gridScreen.visible = true
+            m.top.isChildrensVisible = false
+            result = true
+
+        ' if video player opened
+        else if m.detailsScreen.videoPlayerVisible = true then
+            m.detailsScreen.videoPlayerVisible = false
+            result = true
+        end if
+
+      end if
+    end if
+
     return result
 end function
 

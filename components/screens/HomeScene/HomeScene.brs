@@ -225,6 +225,15 @@ Function OnKeyEvent(key, press) as Boolean
                 details.visible = false
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)
+
+                if m.screenStack.peek().id = "Search"
+                  SearchGrid = m.screenStack.peek().findNode("Grid")
+                  SearchGrid.visible = false
+
+                  SearchDetailsScreen = m.screenStack.peek().findNode("SearchDetailsScreen")
+                  SearchDetailsScreen.videoPlayerVisible = false
+                end if
+
                 result = true
 
             ' if video player opened
