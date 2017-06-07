@@ -40,7 +40,7 @@ Sub SetHomeScene(contentID = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -75,7 +75,7 @@ Sub SetHomeScene(contentID = invalid)
 
     m.favorites = m.scene.findNode("Favorites")
     m.favorites.observeField("visible", m.port)
-    
+
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
@@ -892,7 +892,8 @@ function GetPlaylistsAsRows(parent_id as String)
             for each pl in pls
                 row.ContentList.push(CreatePlaylistObject(pl))
             end for
-        endif
+            m.videosList.push(row.ContentList)
+        end if
         list.push(row)
     end for
 	m.playlistRows = list
