@@ -40,7 +40,7 @@ Sub SetHomeScene(contentID = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    m.store.FakeServer(true)
+    ' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
