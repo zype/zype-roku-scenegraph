@@ -40,7 +40,7 @@ Sub SetHomeScene(contentID = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -894,7 +894,8 @@ function GetPlaylistsAsRows(parent_id as String)
             for each pl in pls
                 row.ContentList.push(CreatePlaylistObject(pl))
             end for
-        endif
+            m.videosList.push(row.ContentList)
+        end if
         list.push(row)
     end for
 	m.playlistRows = list
