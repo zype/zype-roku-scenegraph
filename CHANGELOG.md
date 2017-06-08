@@ -1,3 +1,11 @@
+### 1.3.1 (08/06/2017)
+
+- Bug fixes for search and autoplay
+
+### 1.3.0 (02/06/2017)
+
+- Added support for midroll ads using ad timings
+
 ### 1.2.0 (31/05/2017)
 
 - Added autoplay feature

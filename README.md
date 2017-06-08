@@ -15,12 +15,11 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 
 ## Unsupported Features
 
-- Midroll ads
 - Closed Caption Support
 
 ## Monetizations Supported
 
-- Pre-roll Ads (VAST)
+- Pre-roll and Midroll Ads (VAST)
 - Native SVOD via In App Purchases
 - Universal SVOD via device linking
 
