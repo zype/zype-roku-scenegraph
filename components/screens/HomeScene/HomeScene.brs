@@ -356,7 +356,7 @@ Function OnKeyEvent(key, press) as Boolean
                 m.top.TriggerDeviceUnlink = true
                 m.top.dialog.close = true
                 m.top.dialog = invalid
-            else if((buttonIndex = 0 and key = "OK") OR (buttonIndex = 1 and key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation"))
+            else if((buttonIndex = 0 and key = "OK" AND m.top.dialog.title <> "Closed caption/audio configuration") OR (buttonIndex = 1 and key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation"))
                 m.top.dialog.close = true
                 m.top.dialog = invalid
             end if
