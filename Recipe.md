@@ -46,11 +46,9 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
 
   ![Sideloading with Terminal](docs/images/recipe-image6.jpg)
 
-4. In order to submit to the Roku's app store you need to ensure that deep linking works as expected. There are more details on how to [test deep linking here](docs/testing/TestingDeepLinking.md).
-
-5. __(Optional)__ If you are testing native subscriptions you will need to first create subscriptions on the Zype platform. You can create subscriptions on the Zype platform by [following the documentation here](https://zype.zendesk.com/hc/en-us/articles/215492488-Creating-a-Subscription).
-  - __Note:__ Although it is recommended, you do not need a Braintree/Stripe account to create subscriptions on the Zype platform. You can head directly to [https://admin.zype.com/plans](https://admin.zype.com/plans) to create a plan without linking Braintree/Stripe.
-  - After you have created your subscriptions in the platform your can test native subscriptions by [following the documentation here](docs/testing/TestingNativeSubscriptions.md).
+4. You should QA your app and make sure it passes [this checklist](https://docs.google.com/document/d/1W5yrsOy1m_Se6qzh6-dASv09xElPvb-HUHZe5bchfM0/edit?usp=sharing) before proceeding to submission.
+  - __[Guide to testing Deep Linking](docs/testing/TestingDeepLinking.md)__
+  - __[Guide to testing Native Subscriptions](docs/testing/TestingNativeSubscriptions.md)__
 
 #### Submitting to the Roku App Store
 
@@ -58,7 +56,9 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
   - Screenshots are not required for Roku apps, but you can also take screenshots of your app by [following the documentation here](https://github.com/rokudev/docs/blob/062c73061e7ab6eb3e752a24c8dcae537dc59e53/develop/developer-tools/developer-settings.md#screenshot-utility).
 
 7. After you have packaged your app you can start publishing your app by [following this documentation](https://github.com/rokudev/docs/blob/c74f97eee1101584b3113d71723a38e0a04cc35b/publish/channel-store/publishing.md). __There are a few things to note that are not explicitly stated in the documentation linked.__
-  - If you are doing native subscriptions, it is not enough to create the in channel subscriptions. You also need to make sure that they are marked as __Cleared for Sale__, otherwise the Roku testers will not see the subscriptions when they test on their end.
-  - All information related to testing your app needs to be stated in the __Test Accounts__ field under __Support Information__ when you are submitting. Everything from accounts needed to test device linking to deep linking parameters need to be included here. If you leave __Test Accounts__ empty, Roku will reject your app saying they do not have all the info needed to test your app.
+  - If you are doing native subscriptions, [remember to create them](https://docs.google.com/document/d/1wJJHF0jZosKGtuSLSo5zk2T9-bPCbvn7HKFXWywya4M/edit?usp=sharing).
+  - Remember to include all relevant testing information when submitting.
+    - [Remember to submit deep linking paramters](docs/submission/DeepLinkingSubmission.md)
+    - If you are using USVOD, remember to include credentials for a test account with a subscription
 
 8. Once submitted Roku will review your app (if it is public) against their submission guidelines. If your app is approved, they will update your app status and you should receive an email notification from Roku informing you that your app is live. You can then search for it on Roku's marketplace under the __Search__ tab.
