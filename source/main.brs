@@ -479,6 +479,11 @@ sub playVideo(screen as Object, auth As Object)
         m.VideoPlayer = screen.VideoPlayer
         m.VideoPlayer.observeField("position", m.port)
         m.videoPlayer.content = screen.content
+
+        if playerInfo.subtitles.count() > 0
+          m.videoPlayer.content.subtitleconfig = {TrackName: playerInfo.subtitles[0].url}
+        end if
+
         m.VideoPlayer.seek = m.VideoPlayer.seek
 
         if screen.content.onAir = true
@@ -532,6 +537,11 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.VideoPlayer = screen.VideoPlayer
         m.VideoPlayer.observeField("position", m.port)
         m.videoPlayer.content = screen.content
+
+        if playerInfo.subtitles.count() > 0
+          m.videoPlayer.content.subtitleconfig = {TrackName: playerInfo.subtitles[0].url}
+        end if
+
         m.VideoPlayer.seek = m.VideoPlayer.seek
 
         adIface = Roku_Ads() 'RAF initialize
