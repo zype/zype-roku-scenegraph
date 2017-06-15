@@ -409,7 +409,7 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
 
       if response.body.DoesExist("subtitles")
         for each subtitle in response.body.subtitles
-          info.subtitles.push({url: subtitle.file})
+          info.subtitles.push({ url: subtitle.file, language: subtitle.label })
         end for
       end if
 

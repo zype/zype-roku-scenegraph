@@ -481,7 +481,16 @@ sub playVideo(screen as Object, auth As Object)
         m.videoPlayer.content = screen.content
 
         if playerInfo.subtitles.count() > 0
-          m.videoPlayer.content.subtitleconfig = {TrackName: playerInfo.subtitles[0].url}
+          subtitleTracks = []
+
+          for each subtitle in playerInfo.subtitles
+            subtitleTracks.push({
+              TrackName: subtitle.url,
+              Language: subtitle.language
+            })
+          end for
+
+          m.videoPlayer.content.subtitleTracks = subtitleTracks
         end if
 
         m.VideoPlayer.seek = m.VideoPlayer.seek
@@ -539,7 +548,16 @@ sub playVideoWithAds(screen as Object, auth as Object)
         m.videoPlayer.content = screen.content
 
         if playerInfo.subtitles.count() > 0
-          m.videoPlayer.content.subtitleconfig = {TrackName: playerInfo.subtitles[0].url}
+          subtitleTracks = []
+
+          for each subtitle in playerInfo.subtitles
+            subtitleTracks.push({
+              TrackName: subtitle.url,
+              Language: subtitle.language
+            })
+          end for
+
+          m.videoPlayer.content.subtitleTracks = subtitleTracks
         end if
 
         m.VideoPlayer.seek = m.VideoPlayer.seek
