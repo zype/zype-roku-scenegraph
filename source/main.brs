@@ -67,7 +67,7 @@ Sub SetHomeScene(contentID = invalid)
 
     m.infoScreen = m.scene.findNode("InfoScreen")
     m.infoScreenText = m.infoScreen.findNode("Info")
-    m.infoScreenText.text = GetAppConfigs().info_text
+    m.infoScreenText.text = GetAppConfigs().about_page
 
     m.search = m.scene.findNode("Search")
     m.searchDetailsScreen = m.search.findNode("SearchDetailsScreen")
