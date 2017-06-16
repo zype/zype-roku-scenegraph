@@ -491,6 +491,8 @@ sub playVideo(screen as Object, auth As Object)
           end for
 
           m.videoPlayer.content.subtitleTracks = subtitleTracks
+        else
+          m.videoPlayer.content.subtitleTracks = []
         end if
 
         m.VideoPlayer.seek = m.VideoPlayer.seek
@@ -558,6 +560,8 @@ sub playVideoWithAds(screen as Object, auth as Object)
           end for
 
           m.videoPlayer.content.subtitleTracks = subtitleTracks
+        else
+          m.videoPlayer.content.subtitleTracks = []
         end if
 
         m.VideoPlayer.seek = m.VideoPlayer.seek
