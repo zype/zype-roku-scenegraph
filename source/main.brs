@@ -1229,8 +1229,18 @@ End Function
 '
 '   Brand color is string with a hex color, like so: "#FFFFFF"
 Function SetTheme()
-  theme = GetApiConfigs().theme
-  brand_color = GetApiConfigs().brand_color
+
+  if m.app.theme <> invalid
+    theme = m.app.theme
+  else
+    theme = GetAppConfigs().theme
+  end if
+
+  if m.app.brand_color <> invalid
+    brand_color = m.app.brand_color
+  else
+    brand_color = GetAppConfigs().brand_color
+  end if
 
   if m.global <> invalid
     m.global.addFields({ brand_color: brand_color })
