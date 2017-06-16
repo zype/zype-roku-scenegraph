@@ -203,7 +203,9 @@ Function OnKeyEvent(key, press) as Boolean
         if key = "options" then
             ' option key handler
 
-            if m.Menu.visible = false then ' Prevent multiple menu clicks
+            if m.detailsScreen.videoPlayer.hasFocus() then
+                result = true
+            else if m.Menu.visible = false then ' Prevent multiple menu clicks
                 ' add Menu screen to Screen stack
                 m.screenStack.push(m.Menu)
 
