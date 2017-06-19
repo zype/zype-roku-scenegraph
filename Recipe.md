@@ -55,10 +55,14 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
 5. Once you have thoroughly tested and approve your app, you can start packaging your app. It should be noted that if you are submitting an update to an existing Roku app, you need to update the version numbers in the __manifest__ and the __Makefile__, then re-sideload your app. For more information on how to package your app, [see the documentation here](https://github.com/rokudev/docs/blob/062c73061e7ab6eb3e752a24c8dcae537dc59e53/develop/developer-tools/developer-settings.md#application-packager).
   - Screenshots are not required for Roku apps, but you can also take screenshots of your app by [following the documentation here](https://github.com/rokudev/docs/blob/062c73061e7ab6eb3e752a24c8dcae537dc59e53/develop/developer-tools/developer-settings.md#screenshot-utility).
 
-6. After you have packaged your app you can start publishing your app by [following this documentation](https://github.com/rokudev/docs/blob/c74f97eee1101584b3113d71723a38e0a04cc35b/publish/channel-store/publishing.md). __There are a few things to note that are not explicitly stated in the documentation linked.__
+###### Creating Native Subscriptions
+
+6. __(Optional)__ If you are using native subscriptions in your app, please [follow the documentation here](docs/submission/CreatingNativeSubscriptions.md).
+
+7. After you have packaged your app you can start publishing your app by [following this documentation](https://github.com/rokudev/docs/blob/c74f97eee1101584b3113d71723a38e0a04cc35b/publish/channel-store/publishing.md). __There are a few things to note that are not explicitly stated in the documentation linked.__
   - If you are doing native subscriptions, [remember to create them](https://docs.google.com/document/d/1wJJHF0jZosKGtuSLSo5zk2T9-bPCbvn7HKFXWywya4M/edit?usp=sharing).
   - Remember to include all relevant testing information when submitting.
     - [Remember to submit deep linking paramters](docs/submission/DeepLinkingSubmission.md)
     - If you are using USVOD, remember to include credentials for a test account with a subscription
 
-7. Once submitted Roku will review your app (if it is public) against their submission guidelines. If your app is approved, they will update your app status and you should receive an email notification from Roku informing you that your app is live. You can then search for it on Roku's marketplace under the __Search__ tab.
+8. Once submitted Roku will review your app (if it is public) against their submission guidelines. If your app is approved, they will update your app status and you should receive an email notification from Roku informing you that your app is live. You can then search for it on Roku's marketplace under the __Search__ tab.
