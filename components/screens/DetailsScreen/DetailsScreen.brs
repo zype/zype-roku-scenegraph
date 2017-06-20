@@ -172,6 +172,7 @@ Function PrepareVideoPlayer()
         m.top.content.STREAMFORMAT = nextVideoObject.streamformat
         m.top.content.TITLE = nextVideoObject.title
         m.top.content.URL = nextVideoObject.url
+        m.top.content.POSTERTHUMBNAIL = nextVideoObject.posterThumbnail
 
         print "nextVideoObject: "; nextVideoObject
         print "New: "; m.top.content

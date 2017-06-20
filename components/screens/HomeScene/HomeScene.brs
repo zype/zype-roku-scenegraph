@@ -98,6 +98,7 @@ End Function
 Function OnRowItemSelected()
     ' On select any item on home scene, show Details node and hide Grid
     ? m.gridScreen.focusedContent.contenttype
+    stop
     if m.gridScreen.focusedContent.contentType = 2 then
         ? "[HomeScene] Playlist Selected"
 
