@@ -380,6 +380,7 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   info.on_air = false
   info.has_access = false
   info.scheduledAds = []
+  info.subtitles = []
 
   url = GetApiConfigs().player_endpoint + "embed/" + videoid + "/"
   ' params = AppendAppKeyToParams(urlParams)
@@ -403,6 +404,12 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
               info.scheduledAds.push({offset: ad.offset / 1000, url: ad.tag, played: false})
             end for
           end if
+        end for
+      end if
+
+      if response.body.DoesExist("subtitles")
+        for each subtitle in response.body.subtitles
+          info.subtitles.push({ url: subtitle.file, language: subtitle.label })
         end for
       end if
 
