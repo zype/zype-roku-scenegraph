@@ -143,8 +143,8 @@ Sub SetHomeScene(contentID = invalid)
         ' Trigger listener to push detailsScreen into HomeScene screenStack
         m.scene.DeepLinkedID = contentID
 
-        ' Start playing video if no monetization
-        if linkedVideo.subscription_required = false and linkedVideo.purchase_required = false
+        ' Start playing video if logged in or no monetization
+        if isLoggedIn() = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
           if m.app.avod = true
             playVideoWithAds(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
           else
