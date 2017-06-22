@@ -1,3 +1,7 @@
+### 1.4.0 (22/06/2017)
+
+- Added support for subtitles (SRT, WebVTT)
+
 ### 1.3.1 (08/06/2017)
 
 - Bug fixes for search and autoplay
