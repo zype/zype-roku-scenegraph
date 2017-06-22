@@ -824,6 +824,13 @@ function GetPlaylistContent(playlist_id as String)
             video.playlist_name = invalid
             video.video_index = video_index
             print video
+
+            if pl._id = "59496bec60caab12fa007821" OR pl._id = "594bde3af273a31371000480"
+              video.usePoster = true
+            else
+              video.usePoster = false
+            end if
+
             videos.push(CreateVideoObject(video))
             video_index = video_index + 1
         end for
@@ -908,12 +915,17 @@ function GetPlaylistsAsRows(parent_id as String)
 
             video_index = 0
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
-                print "Playlist: "; item
+                if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
+                  video.usePoster = true
+                else
+                  video.usePoster = false
+                end if
+
                 video.inFavorites = favs.DoesExist(video._id)
-                print "video.id";video._id
                 video.playlist_id = item._id
                 video.playlist_name = item.title
                 video.video_index = video_index
+
                 print video
                 videos.push(CreateVideoObject(video))
                 video_index = video_index + 1

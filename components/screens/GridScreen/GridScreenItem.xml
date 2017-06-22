@@ -13,7 +13,7 @@
   function itemContentChanged() as void
     itemData = m.top.itemContent
 
-    if itemData.posterThumbnail <> invalid AND itemData.posterThumbnail <> ""
+    if itemData.posterThumbnail <> invalid AND itemData.posterThumbnail <> "" AND itemData.usePoster
       m.itemImage.loadDisplayMode = "scaleToFit"
       m.itemImage.loadWidth = 147
       m.itemImage.loadHeight = 262

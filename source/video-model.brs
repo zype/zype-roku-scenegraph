@@ -39,7 +39,8 @@ Function CreateVideoObject(attrs As Object) As Object
     onAir: properties.on_air,
     subscriptionRequired: properties.subscription_required,
     contentId: properties._id,
-    mediaType: "movie"
+    mediaType: "movie",
+    usePoster: properties.usePoster
   }
 
   return video
