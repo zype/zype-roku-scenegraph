@@ -877,8 +877,13 @@ function GetPlaylistsAsRows(parent_id as String)
     favs = GetFavoritesIDs()
 
     if rawPlaylists.count() = 0
-      m.playlistsRowItemSizes = [[262, 147]]
-      m.playlistRowsSpacings = [0]
+      if parent_id = "59496bec60caab12fa007821" OR parent_id = "594bde3af273a31371000480"
+        m.playlistsRowItemSizes.push( [ 147, 262 ] )
+        m.playlistrowsSpacings.push( 50 )
+      else
+        m.playlistsRowItemSizes.push( [ 262, 147 ] )
+        m.playlistrowsSpacings.push( 0 )
+      end if
 
       return GetPlaylistContent(parent_id)
     end if
@@ -893,7 +898,7 @@ function GetPlaylistsAsRows(parent_id as String)
             row.ContentList = []
             videos = []
 
-            if item._id = "59496bec60caab12fa007821"
+            if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
               m.playlistsRowItemSizes.push( [ 147, 262 ] )
               m.playlistrowsSpacings.push( 50 )
             else
