@@ -328,6 +328,15 @@ Sub SetHomeScene(contentID = invalid)
                                     m.favorites.isLoggedIn = true
                                     m.deviceLinking.isDeviceLinked = true
                                     m.deviceLinking.setUnlinkFocus = true
+
+                                    ' Deep linked
+                                    if contentID <> invalid
+                                        di = CreateObject("roDeviceInfo")
+                                        ip_address = di.GetConnectionInfo().ip
+                                        url = "http://" + ip_address + ":8060/keydown/back"
+                                        MakePostRequest(url, {})
+                                    end if
+
                                     exit while
                                 end if
                             end if
