@@ -288,7 +288,7 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
     data = response.response
   end if
 
-  print "GetAppConfigs: "; data
+  ' print "GetAppConfigs: "; data
   return data
 End Function
 

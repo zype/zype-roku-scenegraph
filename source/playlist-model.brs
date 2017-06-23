@@ -26,7 +26,8 @@ Function CreatePlaylistObject(attrs As Object) As Object
     description: properties.description,
     hdbackgroundimageurl: GetPlaylistBackgroundImage(properties),
     contenttype: "series",
-    releasedate: " "
+    releasedate: " ",
+    poster: GetRandomBool()
   }
 
   return playlist

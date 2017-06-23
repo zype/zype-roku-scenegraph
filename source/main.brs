@@ -187,7 +187,13 @@ Sub SetHomeScene(contentID = invalid)
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
                 content = m.gridScreen.focusedContent
-                m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id))
+                print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+                print "Content: "; content
+                print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+                ' m.playlistsRowItemSizes = []
+                ' m.playlistRowsSpacings = []
+                print "m.playlistsRowItemSizes: "; m.playlistsRowItemSizes
+                m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, content.poster))
 
                 rowlist = m.gridScreen.findNode("RowList")
                 rowlist.rowItemSize = m.playlistsRowItemSizes
@@ -867,7 +873,7 @@ function GetContentPlaylists(parent_id as String)
     return list
 end function
 
-function GetPlaylistsAsRows(parent_id as String)
+function GetPlaylistsAsRows(parent_id as String, poster = false)
     ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
     parent_id = parent_id.tokenize(":")[0]
     if GetAppConfigs().per_page <> invalid
@@ -883,8 +889,10 @@ function GetPlaylistsAsRows(parent_id as String)
 
     favs = GetFavoritesIDs()
 
+    ' the case where the playlist does not have any more children. that means it is a video playlist
     if rawPlaylists.count() = 0
-      if parent_id = "59496bec60caab12fa007821" OR parent_id = "594bde3af273a31371000480"
+      'if parent_id = "59496bec60caab12fa007821" OR parent_id = "594bde3af273a31371000480"
+      if poster = true
         m.playlistsRowItemSizes.push( [ 147, 262 ] )
         m.playlistrowsSpacings.push( 50 )
       else
@@ -905,7 +913,11 @@ function GetPlaylistsAsRows(parent_id as String)
             row.ContentList = []
             videos = []
 
-            if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
+            ' Temporary true/false generator
+            item.poster = GetRandomBool()
+
+            'if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
+            if item.poster = true
               m.playlistsRowItemSizes.push( [ 147, 262 ] )
               m.playlistrowsSpacings.push( 50 )
             else
@@ -915,7 +927,8 @@ function GetPlaylistsAsRows(parent_id as String)
 
             video_index = 0
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
-                if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
+                'if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
+                if item.poster = true
                   video.usePoster = true
                 else
                   video.usePoster = false
@@ -926,7 +939,7 @@ function GetPlaylistsAsRows(parent_id as String)
                 video.playlist_name = item.title
                 video.video_index = video_index
 
-                print video
+                ' print video
                 videos.push(CreateVideoObject(video))
                 video_index = video_index + 1
             end for

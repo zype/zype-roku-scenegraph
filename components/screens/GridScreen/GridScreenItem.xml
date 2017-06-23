@@ -12,7 +12,8 @@
 <![CDATA[
   function itemContentChanged() as void
     itemData = m.top.itemContent
-
+    print "itemData: "; itemData
+    print "m.playlistsRowItemSizes: "; m.playlistsRowItemSizes
     if itemData.posterThumbnail <> invalid AND itemData.posterThumbnail <> "" AND itemData.usePoster
       m.itemImage.loadDisplayMode = "scaleToFit"
       m.itemImage.loadWidth = 147
