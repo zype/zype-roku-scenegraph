@@ -179,10 +179,14 @@ Sub SetHomeScene(contentID = invalid)
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
                 content = m.gridScreen.focusedContent
+
+                m.videosList = []
+
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id))
 
                 rowList = m.gridScreen.findNode("RowList")
                 rowlist.jumpToRowItem = [0,0]
+                m.detailsScreen.videosTree = m.videosList
 
                 m.loadingIndicator.control = "stop"
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
