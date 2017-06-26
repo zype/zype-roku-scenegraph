@@ -673,6 +673,12 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
             end if ' end of midroll ad if statement
 
+        else
+          m.detailsScreen.videoPlayer.visible = false
+          m.detailsScreen.videoPlayer.setFocus(false)
+
+          m.detailsScreen.visible = true
+          m.detailsScreen.setFocus(true)
         end if ' end of if playContent
     end if
 end sub
