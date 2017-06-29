@@ -105,13 +105,13 @@ End Function
 Function GetPosterThumbnail(attrs as Object) As Object
   properties = attrs
   src = ""
-
-  for each item in properties.images
-    if item.title = "poster-thumbnail"
-      src = item.url
-      exit for
-    end if
-  end for
-
+  if(properties.images <> invalid)
+    for each item in properties.images
+      if item.title = "poster-thumbnail"
+        src = item.url
+        exit for
+      end if
+    end for
+  end if
   return src
 End Function

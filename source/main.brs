@@ -62,9 +62,9 @@ Sub SetHomeScene(contentID = invalid)
     rowlist.rowItemSize = m.playlistsRowItemSizes
     rowlist.rowSpacings = m.playlistRowsSpacings
 
-    print "gridContent: "; m.scene.gridContent
-    print "m.playlistRows: "; m.playlistRows[0]
-    print "m.app: "; m.app
+    ' print "gridContent: "; m.scene.gridContent
+    ' print "m.playlistRows: "; m.playlistRows[0]
+    ' print "m.app: "; m.app
     getUserPurchases()
     getProductsCatalog()
 
@@ -759,7 +759,7 @@ Function ParseContent(list As Object)
                 item[key] = itemAA[key]
             end for
 
-            print "***********************************************"
+            ' print "***********************************************"
             'print itemAA
             ' Get the ID element from itemAA and check if the product against that id was subscribed
             if(isSubscribed(itemAA["subscriptionrequired"]))
