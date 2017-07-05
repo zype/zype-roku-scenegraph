@@ -45,6 +45,7 @@ Sub SetHomeScene(contentID = invalid)
     m.purchasedItems = []
     m.productsCatalog = []
     m.app = GetAppConfigs()
+    ' print "m.app: "; m.app
     m.playlistRows = []
     m.videosList = []
 
@@ -64,7 +65,7 @@ Sub SetHomeScene(contentID = invalid)
 
     ' print "gridContent: "; m.scene.gridContent
     ' print "m.playlistRows: "; m.playlistRows[0]
-    ' print "m.app: "; m.app
+    
     getUserPurchases()
     getProductsCatalog()
 
@@ -187,13 +188,18 @@ Sub SetHomeScene(contentID = invalid)
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
                 content = m.gridScreen.focusedContent
-                print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
-                print "Content: "; content
-                print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+                ' print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+                ' print "Content: "; content
+                ' print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
                 ' m.playlistsRowItemSizes = []
                 ' m.playlistRowsSpacings = []
-                print "m.playlistsRowItemSizes: "; m.playlistsRowItemSizes
-                m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, content.poster))
+                ' print "m.playlistsRowItemSizes: "; m.playlistsRowItemSizes
+
+                ' Get Playlist object from the platform
+                playlistObject = GetPlaylists({ id: content.id.tokenize(":")[0] })
+                ' print "playlistObject: "; playlistObject[0]
+                playlistThumbnailLayout = playlistObject[0].thumbnail_layout
+                m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
 
                 rowlist = m.gridScreen.findNode("RowList")
                 rowlist.rowItemSize = m.playlistsRowItemSizes
@@ -829,9 +835,10 @@ function GetPlaylistContent(playlist_id as String)
             video.playlist_id = 0
             video.playlist_name = invalid
             video.video_index = video_index
-            print video
+            ' print video
 
-            if pl._id = "59496bec60caab12fa007821" OR pl._id = "594bde3af273a31371000480"
+            ' if pl._id = "59496bec60caab12fa007821" OR pl._id = "594bde3af273a31371000480"
+            if pl.thumbnail_layout = "poster"
               video.usePoster = true
             else
               video.usePoster = false
@@ -873,7 +880,10 @@ function GetContentPlaylists(parent_id as String)
     return list
 end function
 
-function GetPlaylistsAsRows(parent_id as String, poster = false)
+function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = false)
+    ' print "GetPlaylistsAsRows called"
+    ' print "thumbnail_layout: "; thumbnail_layout
+    ' print "parent_id: "; parent_id
     ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
     parent_id = parent_id.tokenize(":")[0]
     if GetAppConfigs().per_page <> invalid
@@ -892,7 +902,7 @@ function GetPlaylistsAsRows(parent_id as String, poster = false)
     ' the case where the playlist does not have any more children. that means it is a video playlist
     if rawPlaylists.count() = 0
       'if parent_id = "59496bec60caab12fa007821" OR parent_id = "594bde3af273a31371000480"
-      if poster = true
+      if thumbnail_layout = "poster"
         m.playlistsRowItemSizes.push( [ 147, 262 ] )
         m.playlistrowsSpacings.push( 50 )
       else
@@ -912,12 +922,13 @@ function GetPlaylistsAsRows(parent_id as String, poster = false)
         if item.playlist_item_count > 0
             row.ContentList = []
             videos = []
-
+            
+            ' print "item.title: "; item.title; " === item.thumbnail_layout: "; item.thumbnail_layout
             ' Temporary true/false generator
-            item.poster = GetRandomBool()
+            ' item.poster = GetRandomBool()
 
             'if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
-            if item.poster = true
+            if item.thumbnail_layout = "poster"
               m.playlistsRowItemSizes.push( [ 147, 262 ] )
               m.playlistrowsSpacings.push( 50 )
             else
@@ -928,7 +939,7 @@ function GetPlaylistsAsRows(parent_id as String, poster = false)
             video_index = 0
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
                 'if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
-                if item.poster = true
+                if item.thumbnail_layout = "poster"
                   video.usePoster = true
                 else
                   video.usePoster = false

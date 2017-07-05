@@ -56,7 +56,7 @@ Function MakeRequest(src As String, params As Object) As Object
   ' print url ' uncomment to debug
   request.SetUrl(url)
 
-  print url
+  ' print url
 
   if request.AsyncGetToString()
     while true

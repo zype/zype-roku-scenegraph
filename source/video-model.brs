@@ -107,7 +107,7 @@ Function GetPosterThumbnail(attrs as Object) As Object
   src = ""
   if(properties.images <> invalid)
     for each item in properties.images
-      if item.title = "poster-thumbnail"
+      if item.layout = "poster"
         src = item.url
         exit for
       end if
