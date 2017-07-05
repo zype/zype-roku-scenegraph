@@ -12,12 +12,11 @@
 <![CDATA[
   function itemContentChanged() as void
     itemData = m.top.itemContent
-    'print "itemData: "; itemData
-    'print "m.playlistsRowItemSizes: "; m.playlistsRowItemSizes
+
     if itemData.usePoster
       m.itemImage.loadDisplayMode = "scaleToFit"
-      m.itemImage.loadWidth = 147
-      m.itemImage.loadHeight = 262
+      m.itemImage.Width = 147
+      m.itemImage.Height = 262
 
       if itemData.posterThumbnail <> invalid AND itemData.posterThumbnail <> ""
         m.itemImage.uri = itemData.posterThumbnail
@@ -26,8 +25,8 @@
       end if
     else
       m.itemImage.loadDisplayMode = "scaleToFit"
-      m.itemImage.loadWidth = 262
-      m.itemImage.loadHeight = 147
+      m.itemImage.Width = 262
+      m.itemImage.Height = 147
       m.itemImage.uri = itemData.HDPOSTERURL
     end if
 
@@ -40,7 +39,7 @@
 
 <children>
     <LayoutGroup layoutDirection="vert" vertAlignment="top" itemSpacings="20" translation="[0,0]" >
-        <Poster id="itemImage" translation="[0,0]" loadDisplayMode="scaleToFit" loadWidth="262" loadHeight="147" uri="" />
+        <Poster id="itemImage" translation="[0,0]" loadDisplayMode="scaleToFit" Width="262" Height="147" uri="" />
         <Label id="itemText" horizAlign="center" translation="[0,0]" font="font:MediumSystemFont" width="255" height="65" />
     </LayoutGroup>
 </children>
