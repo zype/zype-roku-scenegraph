@@ -180,8 +180,6 @@ Sub SetHomeScene(contentID = invalid)
                 m.gridScreen.playlistItemSelected = false
                 content = m.gridScreen.focusedContent
 
-                m.videosList = []
-
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id))
 
                 rowList = m.gridScreen.findNode("RowList")
@@ -870,6 +868,7 @@ function GetPlaylistContent(playlist_id as String)
         row.ContentList = videos
 
         list.push(row)
+        m.videosList.push(videos)
         return list
     else
         return GetContentPlaylists(pl._id)
@@ -901,6 +900,8 @@ function GetContentPlaylists(parent_id as String)
 end function
 
 function GetPlaylistsAsRows(parent_id as String)
+    m.videosList = []
+
     ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
     parent_id = parent_id.tokenize(":")[0]
     if GetAppConfigs().per_page <> invalid
