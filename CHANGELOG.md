@@ -1,3 +1,7 @@
+### 1.4.1 (06/07/2017)
+
+- Bug fixes for different features (autoplay, deep linking)
+
 ### 1.4.0 (22/06/2017)
 
 - Added support for subtitles (SRT, WebVTT)
