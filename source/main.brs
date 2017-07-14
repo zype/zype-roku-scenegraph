@@ -475,13 +475,8 @@ sub playVideo(screen as Object, auth As Object)
 
     ' If video source is not available
     if(screen.content.streamFormat = "(null)")
-        dialog = createObject("roSGNode", "Dialog")
-        dialog.title = "Error!"
-        dialog.optionsDialog = true
-        dialog.message = "We're sorry, that video is no longer available. Please try another video."
-        dialog.buttons = ["OK"]
-        dialog.focusButton = 0
-        m.scene.dialog = dialog
+      CloseVideoPlayer()
+      CreateVideoUnavailableDialog()
     else
         ' show loading indicator before requesting ad and playing video
         m.loadingIndicator.control = "start"
@@ -540,13 +535,8 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
     ' If video source is not available
     if(screen.content.streamFormat = "(null)")
-        dialog = createObject("roSGNode", "Dialog")
-        dialog.title = "Error!"
-        dialog.optionsDialog = true
-        dialog.message = "We're sorry, that video is no longer available. Please try another video."
-        dialog.buttons = ["OK"]
-        dialog.focusButton = 0
-        m.scene.dialog = dialog
+      CloseVideoPlayer()
+      CreateVideoUnavailableDialog()
     else
         ' show loading indicator before requesting ad and playing video
         m.loadingIndicator.control = "start"
@@ -672,13 +662,31 @@ sub playVideoWithAds(screen as Object, auth as Object)
             end if ' end of midroll ad if statement
 
         else
-          m.detailsScreen.videoPlayer.visible = false
-          m.detailsScreen.videoPlayer.setFocus(false)
-
-          m.detailsScreen.visible = true
-          m.detailsScreen.setFocus(true)
+          CloseVideoPlayer()
         end if ' end of if playContent
     end if
+end sub
+
+sub CloseVideoPlayer()
+  m.detailsScreen.videoPlayer.visible = false
+  m.detailsScreen.videoPlayer.setFocus(false)
+
+  if m.LoadingScreen.visible = true
+    EndLoader()
+  end if
+
+  m.detailsScreen.visible = true
+  m.detailsScreen.setFocus(true)
+end sub
+
+sub CreateVideoUnavailableDialog()
+  dialog = createObject("roSGNode", "Dialog")
+  dialog.title = "Error!"
+  dialog.optionsDialog = true
+  dialog.message = "We're sorry, that video is no longer available. Please try another video."
+  dialog.buttons = ["OK"]
+  dialog.focusButton = 0
+  m.scene.dialog = dialog
 end sub
 
 sub SearchQuery(SearchString as String)
