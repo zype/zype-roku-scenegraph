@@ -20,7 +20,7 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 
 ## Monetizations Supported
 
-- Pre-roll and Midroll Ads (VAST)
+- Pre-roll and Midroll (via [ad timings](https://support.zype.com/hc/en-us/articles/223153427-Ad-Timings)) Ads (VAST)
 - Native SVOD via In App Purchases
 - Universal SVOD via device linking
 
