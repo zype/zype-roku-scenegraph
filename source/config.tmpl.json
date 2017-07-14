@@ -2,6 +2,7 @@
   "app_key": "<APPKEY>",
   "endpoint": "https://api.zype.com/",
   "player_endpoint": "https://player.zype.com/",
+  "oauth_endpoint": "https://login.zype.com/",
   "client_id": "<CLIENT_ID>",
   "client_secret": "<CLIENT_SECRET>",
   "version": "1",
