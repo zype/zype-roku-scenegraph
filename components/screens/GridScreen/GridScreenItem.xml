@@ -5,22 +5,43 @@
 <component name="GridScreenItem" extends="Group">
 
 <interface>
-  <field id="itemContent" type="node" onChange="itemContentChanged"/>
+  <field id="itemContent" type="node" onChange="itemContentChanged" alwaysNotify="true"/>
 </interface>
 
 <script type="text/brightscript" >
 <![CDATA[
   function itemContentChanged() as void
-    print "inside itemContentChanged()"
+    'print "inside itemContentChanged()"
     itemData = m.top.itemContent
     m.itemImage.uri = itemData.HDPOSTERURL
     'm.itemText.text = itemData.TITLE
-    print "itemData: "; itemData
-    print "leave itemContentChanged()"
+    'print "itemData: "; itemData
+    'print "leave itemContentChanged()"
+
+    offset = m.itemImage.width - 32
+    m.statusImage.translation = [offset, 0]
+    m.statusImage.visible = false
+
+    'print "___________________________________________"
+    'print "content type: "; itemData.ContentType 
+    'print "m.global: "; m.global
+    if(itemData.ContentType = 4 AND itemData.SubscriptionRequired = true AND m.global.enable_lock_icons = true)
+      'print "Subscription Required: "; itemData.SubscriptionRequired; " -- Title: "; itemData.Title
+      m.statusImage.visible = true
+
+      if(m.global.isLoggedIn = true)
+        m.statusImage.uri = "pkg:/images/iconUnlocked.png"
+      else
+        m.statusImage.uri = "pkg:/images/iconLocked.png"
+      end if
+    end if
+    'print "==========================================="
   end function
+
   function init() as void
     print "Inside init"
     m.itemImage = m.top.findNode("itemImage")
+    m.statusImage = m.top.findNode("statusImage")
     'm.itemText = m.top.findNode("itemText")
     print "Leaving init"
   end function
@@ -28,8 +49,9 @@
 </script>
 
 <children>
-    <LayoutGroup layoutDirection="vert" vertAlignment="top" itemSpacings="20" translation="[0,0]" >
+    <LayoutGroup layoutDirection="vert" vertAlignment="top" horizAlignment="custom" itemSpacings="20" translation="[0,0]" >
         <Poster id="itemImage" translation="[0,0]" width="262" height="147" />
+        <Poster id="statusImage" translation="[0,0]" width="32" height="32" visible="false" />
         <Label id="itemText" horizAlign="center" translation="[0,0]" font="font:MediumSystemFont" width="255" height="65" />
     </LayoutGroup>
 </children>

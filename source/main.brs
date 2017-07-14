@@ -22,6 +22,7 @@ Sub SetHomeScene(contentID = invalid)
 
     SetTheme()
 
+    
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
@@ -51,10 +52,13 @@ Sub SetHomeScene(contentID = invalid)
     'm.scene.gridContent = ParseContent(GetContent())
     m.contentID = contentID
 
-    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
-    print "gridContent: "; m.scene.gridContent
-    print "m.playlistRows: "; m.playlistRows[0]
-    print "m.app: "; m.app
+    m.detailsScreen = m.scene.findNode("DetailsScreen")
+    m.global.addFields({ isLoggedIn: isLoggedIn() })
+    m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
+    m.scene.gridContent = m.gridContent
+    ' print "gridContent: "; m.scene.gridContent
+    ' print "m.playlistRows: "; m.playlistRows[0]
+    ' print "m.app: "; m.app
     getUserPurchases()
     getProductsCatalog()
 
@@ -79,7 +83,7 @@ Sub SetHomeScene(contentID = invalid)
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
-    m.detailsScreen = m.scene.findNode("DetailsScreen")
+    ' m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.detailsScreen.observeField("itemSelected", m.port)
     'm.detailsScreen.SubscriptionPlans = m.plans
     'm.detailsScreen.SubscriptionPlans = m.productsCatalog
@@ -99,9 +103,12 @@ Sub SetHomeScene(contentID = invalid)
     print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
     InitAuthenticationParams()
 
+
     m.scene.observeField("SearchString", m.port)
 
     m.gridScreen = m.scene.findNode("GridScreen")
+    ' m.gridScreenItem = m.scene.findNode("GridScreenItem")
+    ' m.gridScreenItem.isLoggedIn = isLoggedIn()
 
     m.scene.observeField("playlistItemSelected", m.port)
     m.scene.observeField("TriggerDeviceUnlink", m.port)
@@ -111,6 +118,8 @@ Sub SetHomeScene(contentID = invalid)
     m.deviceLinking.isDeviceLinked = deviceLinked
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
+
+    ' m.global.addFields({ enable_lock_icons: GetApiConfigs().enable_lock_icons })
 
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()
@@ -327,6 +336,9 @@ Sub SetHomeScene(contentID = invalid)
                                     m.deviceLinking.isDeviceLinked = true
                                     m.deviceLinking.setUnlinkFocus = true
 
+                                    m.global.isLoggedIn = true
+                                    m.scene.gridContent = m.gridContent
+
                                     ' Deep linked
                                     if contentID <> invalid
                                         di = CreateObject("roDeviceInfo")
@@ -391,6 +403,9 @@ Sub SetHomeScene(contentID = invalid)
                     m.detailsScreen.isDeviceLinked = false
                     m.detailsScreen.isLoggedIn = isLoggedIn()
                     m.favorites.isLoggedIn = isLoggedIn()
+
+                    m.global.isLoggedIn = false
+                    m.scene.gridContent = m.gridContent
                 end if
             end if
 
@@ -929,13 +944,13 @@ function GetPlaylistsAsRows(parent_id as String)
             videos = []
             video_index = 0
             for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
-                print "Playlist: "; item
+                ' print "Playlist: "; item
                 video.inFavorites = favs.DoesExist(video._id)
-                print "video.id";video._id
+                ' print "video.id";video._id
                 video.playlist_id = item._id
                 video.playlist_name = item.title
                 video.video_index = video_index
-                print video
+                ' print video
                 videos.push(CreateVideoObject(video))
                 video_index = video_index + 1
             end for
@@ -1296,6 +1311,7 @@ Function SetTheme()
 
   if m.global <> invalid
     m.global.addFields({ brand_color: brand_color })
+    m.global.addFields({ enable_lock_icons: GetApiConfigs().enable_lock_icons })
 
     if theme = "dark"
       m.global.addFields({ theme: DarkTheme() })
