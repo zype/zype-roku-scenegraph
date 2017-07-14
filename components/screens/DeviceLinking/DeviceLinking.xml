@@ -30,7 +30,7 @@
 
     <!-- Background Shade -->
     <Rectangle
-        id = "Shade"
+        id="Shade"
         width="1280"
         height="720"
         opacity="1"
@@ -39,11 +39,11 @@
 
     <Poster
         id="Logo"
-        uri="pkg:/images/overhangLogo.png"
         translation="[450,50]"
-        width="368"
+        loadDisplayMode="scaleToFit"
+        width="375"
         height="200"
-        />
+        uri="pkg:/images/overhangLogo.png" />
 
     <!-- Link Text 1 -->
     <Label
