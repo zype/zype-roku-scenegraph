@@ -40,7 +40,7 @@ Sub SetHomeScene(contentID = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -437,33 +437,38 @@ sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
     consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
 
-    ' Video requires subscription, device linking is true and user does not have native subscription
-    if screen.content.subscriptionRequired = true AND m.app.device_linking = true AND consumer.linked = true
-        print "SUBSCRIPTION REQUIRED"
+    ' ' Video requires subscription, device linking is true and user does not have native subscription
+    ' if screen.content.subscriptionRequired = true AND m.app.device_linking = true AND consumer.linked = true
+    '     print "SUBSCRIPTION REQUIRED"
+    '
+    '     ' Check if consumer is linked and has subscription
+    '     if consumer.subscription_count > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true OR m.detailsScreen.JustBoughtNativeSubscription = true
+    '       playVideo(screen, {"app_key": GetApiConfigs().app_key})
+    '     else
+    '       dialog = createObject("roSGNode", "Dialog")
+    '       dialog.title = "Subscription Required"
+    '       dialog.optionsDialog = true
+    '       dialog.message = "You are not subscribed to watch this content. Press * To Dismiss."
+    '       m.scene.dialog = dialog
+    '     end if
+    '
+    ' ' Has purchased native subscription or video does not require subscription
+    ' else
 
-        ' Check if consumer is linked and has subscription
-        if consumer.subscription_count > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true OR m.detailsScreen.JustBoughtNativeSubscription = true
-          playVideo(screen, {"app_key": GetApiConfigs().app_key})
+        if consumer.subscription_count <> invalid and consumer.subscription_count > 0
+          auth = {"access_token": RegReadAccessToken().access_token}
         else
-          dialog = createObject("roSGNode", "Dialog")
-          dialog.title = "Subscription Required"
-          dialog.optionsDialog = true
-          dialog.message = "You are not subscribed to watch this content. Press * To Dismiss."
-          m.scene.dialog = dialog
+          auth = {"app_key": GetApiConfigs().app_key}
         end if
 
-    ' Has purchased native subscription or video does not require subscription
-    else
-        print "FREE VIDEO"
-
-        ' m.detailsScreen.RemakeVideoPlayer = true
 
         if m.app.avod = true
-          playVideoWithAds(screen, {"app_key": GetApiConfigs().app_key})
+          playVideoWithAds(screen, auth)
         else
-          playVideo(screen, {"app_key": GetApiConfigs().app_key})
+          playVideo(screen, auth)
         end if
-    end if
+
+    ' end if
 end sub
 
 sub playVideo(screen as Object, auth As Object)
