@@ -381,6 +381,7 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   info.has_access = false
   info.scheduledAds = []
   info.subtitles = []
+  info.video = {}
 
   url = GetApiConfigs().player_endpoint + "embed/" + videoid + "/"
   ' params = AppendAppKeyToParams(urlParams)
@@ -429,7 +430,19 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
           end if
         end for
       end if
-    end if
+    end if ' end of if body
+
+    if response.DoesExist("video")
+      video = response.video
+
+      if video.DoesExist("title")
+        info.video.title = video.title
+      end if
+
+      if video.DoesExist("duration")
+        info.video.duration = video.duration
+      end if
+    end if ' end of if video
   end if
 
   return info

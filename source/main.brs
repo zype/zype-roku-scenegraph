@@ -112,7 +112,7 @@ Sub SetHomeScene(contentID = invalid)
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
 
-    raf_service = RafService()
+    m.raf_service = RafService()
 
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()
@@ -569,41 +569,33 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
         m.VideoPlayer.seek = m.VideoPlayer.seek
 
-        adIface = Roku_Ads() 'RAF initialize
-        'print "Roku_Ads library version: " + adIface.getLibVersion()
-        adIface.setAdPrefs(true, 2)
-        adIface.setDebugOutput(true) 'for debug pupropse
-
-        ' Normally, would set publisher's ad URL here.
-        ' Otherwise uses default Roku ad server (with single preroll placeholder ad)
+        ' Getting ad timings from video's scheduled ads
+        preroll_ad = invalid
+        midroll_ads = []
         if playerInfo.scheduledAds.count() > 0
-            url = playerInfo.scheduledAds[0].url
-            adIface.setAdUrl(url)
-        end if
-
-        ' Getting midroll ads info from video's scheduled ads
-        midrollAds = []
-        if playerInfo.scheduledAds.count() > 1
           for each ad in playerInfo.scheduledAds
-            midrollAd = {
-              url: ad.url,
-              offset: ad.offset,
-            }
-            midrollAds.push(midrollAd)
+            if ad.offset = 0
+              preroll_ad = {
+                url: ad.url,
+                offset: ad.offset
+              }
+            else
+              midrollAd = {
+                url: ad.url,
+                offset: ad.offset,
+              }
+              midroll_ads.push(midrollAd)
+            end if
           end for
-
-          ' Remove first ad object since it will be preroll
-          midrollAds.shift()
         end if
 
-        ' Fetch preroll ad
-        prerollAdPod = adIface.getAds()
+        m.loadingIndicator.control = "stop"
 
         playContent = true
-        'render pre-roll ads
-        if GetAppConfigs().avod = true and prerollAdPod.count() > 0 then
-            m.loadingIndicator.control = "stop"
-            playContent = adIface.showAds(prerollAdPod)
+
+        ' preroll ad
+        if preroll_ad <> invalid
+          playContent = m.raf_service.playAds(playerInfo.video, preroll_ad.url)
         end if
 
         ' Start playing video
@@ -622,27 +614,22 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
             sleep(500)
             ' If midroll ads exist, watch for midroll ads
-            if midrollAds.count() > 0
-              while midrollAds.count() > 0
+            if midroll_ads.count() > 0
+              while midroll_ads.count() > 0
                 currPos = m.videoPlayer.position
 
-                timeDiff = Abs(midrollAds[0].offset - currPos)
-                print "Next midroll ad: "; midrollAds[0].offset
+                timeDiff = Abs(midroll_ads[0].offset - currPos)
+                print "Next midroll ad: "; midroll_ads[0].offset
                 print "Time until next midroll ad: "; timeDiff
 
                 ' Within half second of next midroll ad timing
                 if timeDiff <= 0.500
                   m.videoPlayer.control = "stop"
 
-                  ' Get ad pod for mid roll ad
-                  adIface.setAdUrl(midrollAds[0].url)
-                  midrollAdPod = adIface.getAds()
-
-                  ' Show midroll ad
-                  adIface.showAds(midrollAdPod)
+                  m.raf_service.playAds(playerInfo.video, midroll_ads[0].url)
 
                   ' Remove midroll ad from array
-                  midrollAds.shift()
+                  midroll_ads.shift()
 
                   ' Start playing video at back from currPos just before midroll ad started
                   m.videoPlayer.seek = currPos
@@ -650,9 +637,9 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
                 ' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
                 ' Keep removing the first midroll ad in array until no midroll ads before current position
-                else if midrollAds.count() > 0 and currPos > midrollAds[0].offset
-                  while midrollAds.count() > 0 and currPos > midrollAds[0].offset
-                    midrollAds.shift()
+                else if midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
+                  while midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
+                    midroll_ads.shift()
                   end while
                 else if m.videoPlayer.visible = false
                   m.videoPlayer.control = "none"

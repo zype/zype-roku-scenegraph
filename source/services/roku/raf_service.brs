@@ -9,7 +9,7 @@ Library "Roku_Ads.brs"
 '
 ' Usage
 '     raf_service = RafService()
-'     raf_service.playAds(vidoe_info, ad_url, n)
+'     raf_service.playAds(video_info, ad_url)
 ' **************************************************
 function RafService() as object
   this = {}
@@ -24,9 +24,8 @@ function RafService() as object
   ' Parameters:
   '     video_player_info - response from Zype player API
   '     url               - ad tag url
-  '     n                 - number of ads to play
   ' ********************************************
-  this.playAds = function(video_player_info, url = invalid, n = 1) as boolean
+  this.playAds = function(video_player_info, url = invalid) as boolean
     if url <> invalid and url <> "" then m.raf.setAdUrl(url)
 
     ' ***************************************************************************************
@@ -39,14 +38,8 @@ function RafService() as object
     m.raf.setContentLength(video_player_info.duration)
     m.raf.setNielsenGenre("GV")
 
-    ads_array = []
-
-    for i = 1 to n
-      ad = m.raf.getAds()
-      ads_array.push(ad)
-    end for
-
-    ad_success = m.raf.showAds(ads_array)
+    ad = m.raf.getAds()
+    ad_success = m.raf.showAds(ad)
 
     return ad_success
   end function
