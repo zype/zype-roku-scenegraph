@@ -53,7 +53,7 @@ Sub SetHomeScene(contentID = invalid)
     m.contentID = contentID
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
-    m.global.addFields({ isLoggedIn: isLoggedIn() })
+    m.global.addFields({ isLoggedIn: isLoggedIn() AND m.detailsScreen.UniversalSubscriptionsCount > 0, UniversalSubscriptionsCount: m.detailsScreen.UniversalSubscriptionsCount })
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.scene.gridContent = m.gridContent
     ' print "gridContent: "; m.scene.gridContent
@@ -337,6 +337,7 @@ Sub SetHomeScene(contentID = invalid)
                                     m.deviceLinking.setUnlinkFocus = true
 
                                     m.global.isLoggedIn = true
+                                    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount 
                                     m.scene.gridContent = m.gridContent
 
                                     ' Deep linked
@@ -405,6 +406,7 @@ Sub SetHomeScene(contentID = invalid)
                     m.favorites.isLoggedIn = isLoggedIn()
 
                     m.global.isLoggedIn = false
+                    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
                     m.scene.gridContent = m.gridContent
                 end if
             end if

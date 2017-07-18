@@ -24,12 +24,12 @@
 
     'print "___________________________________________"
     'print "content type: "; itemData.ContentType 
-    'print "m.global: "; m.global
+    print "m.global: "; m.global
     if(itemData.ContentType = 4 AND itemData.SubscriptionRequired = true AND m.global.enable_lock_icons = true)
       'print "Subscription Required: "; itemData.SubscriptionRequired; " -- Title: "; itemData.Title
       m.statusImage.visible = true
 
-      if(m.global.isLoggedIn = true)
+      if(m.global.isLoggedIn = true AND m.global.UniversalSubscriptionsCount > 0)
         m.statusImage.uri = "pkg:/images/iconUnlocked.png"
       else
         m.statusImage.uri = "pkg:/images/iconLocked.png"
@@ -49,11 +49,13 @@
 </script>
 
 <children>
+  <Group>
     <LayoutGroup layoutDirection="vert" vertAlignment="top" horizAlignment="custom" itemSpacings="20" translation="[0,0]" >
         <Poster id="itemImage" translation="[0,0]" width="262" height="147" />
-        <Poster id="statusImage" translation="[0,0]" width="32" height="32" visible="false" />
+        <Poster id="statusImage" translation="[-50,-50]" width="32" height="32" visible="false" />
         <Label id="itemText" horizAlign="center" translation="[0,0]" font="font:MediumSystemFont" width="255" height="65" />
     </LayoutGroup>
+  </Group>
 </children>
 
 </component>
