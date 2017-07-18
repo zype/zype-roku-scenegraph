@@ -112,6 +112,8 @@ Sub SetHomeScene(contentID = invalid)
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
 
+    raf_service = RafService()
+
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()
 
