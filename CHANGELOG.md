@@ -1,3 +1,7 @@
+### 1.4.3 (18/07/2017)
+
+- Fixes to AVOD logic
+
 ### 1.4.2 (14/07/2017)
 
 - Minor UI changes
