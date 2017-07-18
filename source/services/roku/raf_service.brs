@@ -38,8 +38,12 @@ function RafService() as object
     m.raf.setContentLength(video_player_info.duration)
     m.raf.setNielsenGenre("GV")
 
-    ad = m.raf.getAds()
-    ad_success = m.raf.showAds(ad)
+    ads = m.raf.getAds()
+
+    ' If no ads from ad tag, try again with Roku ads
+    if ads.count() = 0 then m.raf.setAdUrl("") : ads = m.raf.GetAds()
+
+    ad_success = m.raf.showAds(ads)
 
     return ad_success
   end function
