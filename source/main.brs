@@ -436,7 +436,7 @@ end sub
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
     consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-
+    oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
     ' ' Video requires subscription, device linking is true and user does not have native subscription
     ' if screen.content.subscriptionRequired = true AND m.app.device_linking = true AND consumer.linked = true
     '     print "SUBSCRIPTION REQUIRED"
@@ -456,7 +456,7 @@ sub playRegularVideo(screen as Object)
     ' else
 
         if consumer.subscription_count <> invalid and consumer.subscription_count > 0
-          auth = {"access_token": RegReadAccessToken().access_token}
+          auth = {"access_token": oauth.access_token}
         else
           auth = {"app_key": GetApiConfigs().app_key}
         end if
