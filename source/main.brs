@@ -49,19 +49,28 @@ Sub SetHomeScene(contentID = invalid)
     m.playlistRows = []
     m.videosList = []
 
+    getUserPurchases()
+    getProductsCatalog()
+
     'm.scene.gridContent = ParseContent(GetContent())
     m.contentID = contentID
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
-    m.global.addFields({ isLoggedIn: isLoggedIn() AND m.detailsScreen.UniversalSubscriptionsCount > 0, UniversalSubscriptionsCount: m.detailsScreen.UniversalSubscriptionsCount })
+    m.global.addFields({ HasNativeSubscription: false, isLoggedIn: false, UniversalSubscriptionsCount: 0 })
+    _isLoggedIn = isLoggedIn()
+    m.global.isLoggedIn = _isLoggedIn AND (m.detailsScreen.UniversalSubscriptionsCount > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true)
+    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+
+    ' print "_isLoggedIn: "; _isLoggedIn
+    ' print "m.detailsScreen.UniversalSubscriptionsCount: "; m.detailsScreen.UniversalSubscriptionsCount
+    ' print "m.detailsScreen.isLoggedInViaNativeSVOD: "; m.detailsScreen.isLoggedInViaNativeSVOD
+    ' print "m.global [main]: "; m.global
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.scene.gridContent = m.gridContent
     ' print "gridContent: "; m.scene.gridContent
     ' print "m.playlistRows: "; m.playlistRows[0]
     ' print "m.app: "; m.app
-    getUserPurchases()
-    getProductsCatalog()
-
+    
     m.plans = GetPlans({}, m.app.in_app_purchase, m.productsCatalog)
 
     m.Menu = m.scene.findNode("Menu")
@@ -339,6 +348,9 @@ Sub SetHomeScene(contentID = invalid)
                                     m.global.isLoggedIn = true
                                     m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount 
                                     m.scene.gridContent = m.gridContent
+                                    ' m.deviceLinking.show = true
+                                    m.deviceLinking.setFocus(true)
+                                    m.deviceLinking.setUnlinkFocus = true
 
                                     ' Deep linked
                                     if contentID <> invalid
@@ -408,6 +420,8 @@ Sub SetHomeScene(contentID = invalid)
                     m.global.isLoggedIn = false
                     m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
                     m.scene.gridContent = m.gridContent
+                    ' m.deviceLinking.show = true
+                    m.deviceLinking.setFocus(true)
                 end if
             end if
 
@@ -1129,9 +1143,14 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                 'm.detailsScreen.SubscriptionPackagesShown = false
 
                  if(result = true)
+                     m.global.isLoggedIn = true
+                     m.global.HasNativeSubscription = true
                      m.detailsScreen.JustBoughtNativeSubscription = true
                      m.detailsScreen.isLoggedIn = true
                      m.favorites.isLoggedIn = true
+                     m.scene.gridContent = m.gridContent
+                     m.detailsScreen.setFocus(true)
+                     m.detailsScreen.ReFocusButtons = true
                 '     getUserPurchases()  ' Update the user purchased inventory
                  end if
             end if
@@ -1151,6 +1170,11 @@ Function handleButtonEvents(index, _isSubscribed, lclScreen)
                     m.detailsScreen.JustBoughtNativeSubscription = true
                     m.detailsScreen.isLoggedIn = true
                     m.favorites.isLoggedIn = true
+                    m.global.isLoggedIn = true
+                    m.global.HasNativeSubscription = true
+                    m.scene.gridContent = m.gridContent
+                    m.detailsScreen.setFocus(true)
+                    m.detailsScreen.ReFocusButtons = true
                  end if
             end if
         end if
@@ -1195,6 +1219,7 @@ Function InitAuthenticationParams()
 End Function
 
 Function isLoggedIn()
+    ' print "inside isLoggedIn"
     if(m.detailsScreen.NoAuthenticationEnabled = true)
         return true
     end if
@@ -1202,12 +1227,16 @@ Function isLoggedIn()
     if(isAuthViaNativeSVOD())
         m.detailsScreen.isLoggedInViaNativeSVOD = true
         m.detailsScreen.isLoggedInViaUniversalSVOD = false
+        m.global.HasNativeSubscription = true
+        ' print "isAuthViaNativeSVOD"
         return true
     else if (isAuthViaUniversalSVOD())
         m.detailsScreen.isLoggedInViaNativeSVOD = false
         m.detailsScreen.isLoggedInViaUniversalSVOD = true
+        ' print "isAuthViaUniversalSVOD"
         return true
     end if
+    ' print "leaving isLoggedIn"
     return false
 End Function
 
@@ -1256,8 +1285,10 @@ End Function
 '   Native SVOD - Check if user bought from native SVOD which is Roku Store
 '   Need to check if there are bought subscriptions associated with Roku Account
 Function isAuthViaNativeSVOD()
+    ' print "inside isAuthViaNativeSVOD function"
     subscribed = false
     for each pi in m.purchasedItems
+        ' print "pi: "; pi
         if(isPlanPurchased(pi.code)) ' Means the user has subscribed to atleast one of these
             subscribed = true
             exit for

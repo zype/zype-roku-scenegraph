@@ -20,7 +20,7 @@
         <field id="show" type="boolean"     onChange="On_show"            alwaysNotify="true"/>
 
         <field id="isDeviceLinked" type="boolean" onChange="onDeviceLinkingStateChanged"/>
-        <field id="setUnlinkFocus" type="boolean" onChange="setUnlinkFocusCallback"/>
+        <field id="setUnlinkFocus" type="boolean" onChange="setUnlinkFocusCallback" alwaysnotify="true"/>
     </interface>
 
     <!-- main handler -->

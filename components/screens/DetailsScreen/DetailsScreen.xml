@@ -88,6 +88,8 @@
         <field id="PlaylistRowIndex" type="integer" />
         <field id="CurrentVideoIndex" type="integer" />
         <field id="totalVideosCount" type="integer" />
+
+        <field id="ReFocusButtons" type="bool" alwaysNotify="true" onChange="OnFocusedChildChange" />
     </interface>
 
     <!-- main handler -->
