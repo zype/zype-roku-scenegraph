@@ -66,7 +66,7 @@ End Function
     '       "col": 4
     '     }
     ' }
-Function AddCurrentPositionToTracker() as Void
+Function AddCurrentPositionToTracker(data = invalid) as Void
     rowList = m.gridScreen.findNode("RowList")
     rowItemSelected = rowList.rowItemSelected
 
@@ -134,8 +134,12 @@ Function OnDeepLink()
   m.screenStack.push(m.detailsScreen)
 End Function
 
-function PushScreenIntoStack(screen) as void
+function PushScreenIntoScreenStack(screen) as void
   m.screenStack.push(screen)
+end function
+
+function PushContentIntoContentStack(content) as void
+  m.contentStack.push(content)
 end function
 
 ' On Menu Button Selected

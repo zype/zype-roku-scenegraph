@@ -158,7 +158,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
         else if mediaType = "season"
           transitionToNestedPlaylist(contentID)
-          m.scene.callFunc("PushScreenIntoStack", m.gridScreen)
         end if
 
 
@@ -415,6 +414,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 End Sub
 
 function transitionToNestedPlaylist(id) as void
+  m.scene.callFunc("AddCurrentPositionToTracker", invalid)
+  m.scene.callFunc("PushContentIntoContentStack", m.gridScreen.content)
+  m.scene.callFunc("PushScreenIntoScreenStack", m.gridScreen)
+
   m.gridScreen.playlistItemSelected = false
 
   m.gridScreen.content = ParseContent(GetPlaylistsAsRows(id))

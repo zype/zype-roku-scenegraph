@@ -42,7 +42,9 @@
 
         <field id="TriggerDeviceUnlink" type="bool" />
 
-        <function name="PushScreenIntoStack" />
+        <function name="AddCurrentPositionToTracker" />
+        <function name="PushScreenIntoScreenStack" />
+        <function name="PushContentIntoContentStack" />
     </interface>
 
     <!-- main handler -->
