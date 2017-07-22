@@ -5,15 +5,15 @@ Function Main (args as Dynamic) as Void
     if (args.ContentID <> invalid) and (args.MediaType <> invalid)
         if (args <> invalid)
             contentID   = args.contentID
-            mediaType   = args.mediatype
-            SetHomeScene(contentID)
+            mediaType   = LCase(args.mediatype)
+            SetHomeScene(contentID, mediaType)
         end if
     else
         SetHomeScene()
     end if
 End Function
 
-Sub SetHomeScene(contentID = invalid)
+Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen = CreateObject("roSGScreen")
 
     m.app = GetAppConfigs()
@@ -123,37 +123,44 @@ Sub SetHomeScene(contentID = invalid)
 
     ' Deep Linking
     if (contentID <> invalid)
-      ' Get video object and create VideoNode
-      linkedVideo = GetVideo(contentID)
+        if mediaType <> "season"
+          ' Get video object and create VideoNode
+          linkedVideo = GetVideo(contentID)
 
-      ' If contentID is for active video
-      if linkedVideo.DoesExist("_id") and linkedVideo.active = true
-        linkedVideoObject =  CreateVideoObject(linkedVideo)
-        linkedVideoNode = createObject("roSGNode", "VideoNode")
+          ' If contentID is for active video
+          if linkedVideo.DoesExist("_id") and linkedVideo.active = true
+            linkedVideoObject =  CreateVideoObject(linkedVideo)
+            linkedVideoNode = createObject("roSGNode", "VideoNode")
 
-        for each key in linkedVideoObject
-          linkedVideoNode[key] = linkedVideoObject[key]
-        end for
+            for each key in linkedVideoObject
+              linkedVideoNode[key] = linkedVideoObject[key]
+            end for
 
-        ' Set focused content to linkedVideoNode
-        m.gridScreen.focusedContent = linkedVideoNode
-        m.gridScreen.visible = "false"
-        m.detailsScreen.content = m.gridScreen.focusedContent
-        m.detailsScreen.setFocus(true)
-        m.detailsScreen.visible = "true"
+            ' Set focused content to linkedVideoNode
+            m.gridScreen.focusedContent = linkedVideoNode
+            m.gridScreen.visible = "false"
+            m.detailsScreen.content = m.gridScreen.focusedContent
+            m.detailsScreen.setFocus(true)
+            m.detailsScreen.visible = "true"
 
-        ' Trigger listener to push detailsScreen into HomeScene screenStack
-        m.scene.DeepLinkedID = contentID
+            ' Trigger listener to push detailsScreen into HomeScene screenStack
+            m.scene.DeepLinkedID = contentID
 
-        ' Start playing video if logged in or no monetization
-        if isLoggedIn() = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
-          if m.app.avod = true
-            playVideoWithAds(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
-          else
-            playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
+            ' Start playing video if logged in or no monetization
+            if isLoggedIn() = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
+              if m.app.avod = true
+                playVideoWithAds(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
+              else
+                playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
+              end if
+            end if
           end if
+
+        else if mediaType = "season"
+          transitionToNestedPlaylist(contentID)
+          m.scene.callFunc("PushScreenIntoStack", m.gridScreen)
         end if
-      end if
+
 
       ' Close loading screen if still visible
       if m.LoadingScreen.visible = true
@@ -407,6 +414,16 @@ Sub SetHomeScene(contentID = invalid)
     end if
 End Sub
 
+function transitionToNestedPlaylist(id) as void
+  m.gridScreen.playlistItemSelected = false
+
+  m.gridScreen.content = ParseContent(GetPlaylistsAsRows(id))
+
+  rowList = m.gridScreen.findNode("RowList")
+  rowlist.jumpToRowItem = [0,0]
+  m.detailsScreen.videosTree = m.videosList
+end function
+
 sub playLiveVideo(screen as Object)
     'print "THE KEY: "; GetApiConfigs()
     if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
@@ -436,7 +453,6 @@ end sub
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
     consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
     ' ' Video requires subscription, device linking is true and user does not have native subscription
     ' if screen.content.subscriptionRequired = true AND m.app.device_linking = true AND consumer.linked = true
     '     print "SUBSCRIPTION REQUIRED"
@@ -456,6 +472,7 @@ sub playRegularVideo(screen as Object)
     ' else
 
         if consumer.subscription_count <> invalid and consumer.subscription_count > 0
+          oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
           auth = {"access_token": oauth.access_token}
         else
           auth = {"app_key": GetApiConfigs().app_key}

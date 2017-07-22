@@ -41,6 +41,8 @@
         <field id="deepLinkedID" type="string" onChange="OnDeepLink"/>
 
         <field id="TriggerDeviceUnlink" type="bool" />
+
+        <function name="PushScreenIntoStack" />
     </interface>
 
     <!-- main handler -->

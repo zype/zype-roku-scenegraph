@@ -134,6 +134,10 @@ Function OnDeepLink()
   m.screenStack.push(m.detailsScreen)
 End Function
 
+function PushScreenIntoStack(screen) as void
+  m.screenStack.push(screen)
+end function
+
 ' On Menu Button Selected
 Function OnMenuButtonSelected()
     ? "[HomeScene] Menu Button Selected"
