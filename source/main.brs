@@ -123,7 +123,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     ' Deep Linking
     if (contentID <> invalid)
-        if mediaType <> "season"
+        if mediaType <> "season" and mediaType <> "series"
           ' Get video object and create VideoNode
           linkedVideo = GetVideo(contentID)
 
@@ -156,7 +156,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             end if
           end if
 
-        else if mediaType = "season"
+        else if mediaType = "season" or mediaType = "series"
           transitionToNestedPlaylist(contentID)
         end if
 
