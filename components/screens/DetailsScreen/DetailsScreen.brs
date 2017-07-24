@@ -283,6 +283,10 @@ Sub OnContentChange()
     end if
 End Sub
 
+function currentButtonSelected(index as integer) as string
+    return m.buttons.content.getChild(index - 1).TITLE
+end function
+
 Sub AddButtons()
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
     m.top.ResumeVideo.id = "ResumeVideo"
@@ -325,6 +329,10 @@ Sub AddButtons()
             else
                 btns.push("Favorite")
             end if
+        end if
+
+        if m.global.svod_enabled and m.global.is_subscribed = false
+          btns.push("Subscribe to watch ad free")
         end if
 
         m.btns = btns

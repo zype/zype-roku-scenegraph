@@ -88,6 +88,8 @@
         <field id="PlaylistRowIndex" type="integer" />
         <field id="CurrentVideoIndex" type="integer" />
         <field id="totalVideosCount" type="integer" />
+
+        <function name="currentButtonSelected" />
     </interface>
 
     <!-- main handler -->

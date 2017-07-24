@@ -40,7 +40,7 @@ Sub SetHomeScene(contentID = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -113,6 +113,15 @@ Sub SetHomeScene(contentID = invalid)
     m.deviceLinking.observeField("itemSelected", m.port)
 
     m.raf_service = RafService()
+
+    if m.app.in_app_purchase or m.app.device_linking
+      svod_enabled = true
+    else
+      svod_enabled = false
+    end if
+
+    m.global.addFields({ svod_enabled: svod_enabled })
+    m.global.addFields({ is_subscribed: isLoggedIn() })
 
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()
@@ -258,6 +267,21 @@ Sub SetHomeScene(contentID = invalid)
                 _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
 
                 handleButtonEvents(3, _isSubscribed, lclScreen)
+            else if (msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" and (msg.getData() = 3) then
+                print "4th button clicked"
+
+                if msg.getNode() = "DetailsScreen"
+                    print "Screen"
+                    lclScreen = m.detailsScreen
+                end if
+
+                detailScreenIdFull = lclScreen.content.id
+                detailScreenIdObj = detailScreenIdFull.tokenize(":")
+                detailScreenId = detailScreenIdObj[0]
+                '_isSubscribed = isSubscribed(detailScreenId)
+                _isSubscribed = isSubscribed(lclScreen.content.subscription_required)
+
+                handleButtonEvents(4, _isSubscribed, lclScreen)
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
@@ -1047,15 +1071,16 @@ End Function
 
 Function handleButtonEvents(index, _isSubscribed, lclScreen)
     print "Handle Event: "; isSubscribed
-    'if((isLoggedIn() AND _isSubscribed = true) OR lclScreen.content.subscriptionRequired = false)    ' Play / Favorite buttons
     if(m.detailsScreen.NoAuthenticationEnabled = true OR (m.detailsScreen.isLoggedIn = true AND m.detailsScreen.UniversalSubscriptionsCount > 0) OR lclScreen.content.subscriptionRequired = false OR m.detailsScreen.JustBoughtNativeSubscription = true OR m.detailsScreen.isLoggedInViaNativeSVOD = true)    ' Play / Favorite buttons
         print "Play/Favorite"
         m.detailsScreen.SubscriptionButtonsShown = false
         ' This is going to be the Play button
-        'if(index = 1 and (_isSubscribed = true OR lclScreen.content.subscriptionRequired = false))
-        if(index = 1)
-        'if(index = 1 and _isSubscribed)
-            ' m.VideoPlayer = lclScreen.findNode("VideoPlayer")
+
+        button_selected = m.detailsScreen.callFunc("currentButtonSelected", index)
+
+        if button_selected = "Subscribe to watch ad free"
+            m.detailsScreen.ShowSubscriptionPackagesCallback = true
+        else if(index = 1)
             m.detailsScreen.RemakeVideoPlayer = true
             m.VideoPlayer = m.detailsScreen.VideoPlayer
 
