@@ -42,6 +42,8 @@
 
         <field id="TriggerDeviceUnlink" type="bool" />
 
+        <field id="videoliststack" type="array"  />
+
         <function name="AddCurrentPositionToTracker" />
         <function name="PushScreenIntoScreenStack" />
         <function name="PushContentIntoContentStack" />

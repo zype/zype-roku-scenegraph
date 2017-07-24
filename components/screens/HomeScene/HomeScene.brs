@@ -318,6 +318,12 @@ Function OnKeyEvent(key, press) as Boolean
 
                 m.gridScreen.content = previousContent
 
+                video_list_stack =  m.top.videoliststack
+                video_list_stack.pop()
+                m.top.videoliststack = video_list_stack
+
+                m.detailsScreen.videosTree = m.top.videoliststack.peek()
+
                 DeleteLastPositionFromTracker()
 
                 result = true

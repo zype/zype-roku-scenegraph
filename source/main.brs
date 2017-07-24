@@ -88,7 +88,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.isLoggedIn = isLoggedIn()
     m.detailsScreen.observeField("triggerPlay", m.port)
     m.detailsScreen.dataArray = m.playlistRows
-    m.detailsScreen.videosTree = m.videosList
+
+    m.scene.videoliststack = [m.videosList]
+    m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 
     m.favorites.isLoggedIn = isLoggedIn()
@@ -192,7 +194,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
                 rowList = m.gridScreen.findNode("RowList")
                 rowlist.jumpToRowItem = [0,0]
-                m.detailsScreen.videosTree = m.videosList
+
+                current_video_list_stack = m.scene.videoliststack
+                current_video_list_stack.push(m.videosList)
+                m.scene.videoliststack = current_video_list_stack
+
+                m.detailsScreen.videosTree = m.scene.videoliststack.peek()
 
                 m.loadingIndicator.control = "stop"
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
@@ -424,7 +431,12 @@ function transitionToNestedPlaylist(id) as void
 
   rowList = m.gridScreen.findNode("RowList")
   rowlist.jumpToRowItem = [0,0]
-  m.detailsScreen.videosTree = m.videosList
+
+  current_video_list_stack = m.scene.videoliststack
+  current_video_list_stack.push(m.videosList)
+  m.scene.videoliststack = current_video_list_stack
+
+  m.detailsScreen.videosTree = m.scene.videoliststack.peek()
 end function
 
 sub playLiveVideo(screen as Object)
