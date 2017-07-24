@@ -224,7 +224,7 @@ Sub onItemSelected()
 
         print "m.btns[1] ->";Resume playing
 
-        if(m.btns <> invalid and m.btns[m.top.itemSelected] = "Resume playing")
+        if(m.btns <> invalid and m.btns[m.top.itemSelected].role = "resume")
             ? "[DetailsScreen] Resume button selected"
             m.top.itemSelected = 2          ' resume btn
         else
@@ -318,28 +318,33 @@ Sub AddButtons()
         result = []
 
         if(statusOfVideo = false)
-            btns = ["Play"]
+            btns = [
+              {title: "Play", role: "play"}
+            ]
         else
-            btns = ["Play from beginning", "Resume playing"]
+            btns = [
+              {title: "Play from beginning", role: "play"},
+              {title: "Resume playing", role: "resume"}
+            ]
         end if
 
         if(m.top.BothActive AND m.top.isDeviceLinked)
             if m.top.content.inFavorites = true
-                btns.push("Unfavorite")
+                btns.push({title: "Unfavorite", role: "favorite"})
             else
-                btns.push("Favorite")
+                btns.push({title: "Favorite", role: "favorite"})
             end if
         end if
 
         if m.global.svod_enabled and m.global.is_subscribed = false
-          btns.push("Subscribe to watch ad free")
+          btns.push({title: "Watch ad free", role: "swaf"})
         end if
 
         m.btns = btns
-        for each button in btns
-            result.push({title : button})
-        end for
-        m.buttons.content = ContentList2SimpleNode(result)
+        ' for each button in btns
+        '     result.push({title : button})
+        ' end for
+        m.buttons.content = ContentList2SimpleNode(btns)
     end if
 End Sub
 
@@ -347,14 +352,18 @@ Sub AddActionButtons()
     if m.top.content <> invalid then
         ' create buttons
         result = []
-        btns = ["Subscribe"]', "Link Device"]
+        btns = [
+          {title: "Subscribe", role: "subscribe"}
+        ]
         if(m.top.BothActive AND m.top.isDeviceLinked = false)
-            btns.push("Link Device")
+            btns.push({ title: "Link Device", role: "device_linking" })
         end if
-        for each button in btns
-            result.push({title : button})
-        end for
-        m.buttons.content = ContentList2SimpleNode(result)
+
+
+        ' for each button in btns
+        '     result.push({title : button})
+        ' end for
+        m.buttons.content = ContentList2SimpleNode(btns)
     end if
 End Sub
 
