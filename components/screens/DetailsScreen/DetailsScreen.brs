@@ -19,16 +19,11 @@ Function Init()
     m.top.videoPlayer.height = 720
     m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
 
-    ' m.poster            =   m.top.findNode("Poster")
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
-    ' m.top.PlaylistRowIndex  = invalid
-    ' m.top.CurrentVideoIndex = invalid
-    ' m.totalVideosCount  = 0
 
     m.canWatchVideo = false
     m.buttons.setFocus(true)
-    'm.plans = GetPlans({})
 
     ' Set theme
     m.AppBackground = m.top.findNode("AppBackground")
@@ -78,7 +73,6 @@ End Function
 ' set proper focus to buttons if Details opened and stops Video if Details closed
 Sub onVisibleChange()
     ? "[DetailsScreen] onVisibleChange"
-    'print "[DetailsScreen] m.top.SubscriptionButtonsShown; "; m.top.SubscriptionButtonsShown
     if m.top.visible = true then
         m.buttons.jumpToItem = 0
         m.buttons.setFocus(true)
@@ -197,64 +191,21 @@ End Function
 
 ' on Button press handler
 Sub onItemSelected()
-' <<<<<<< HEAD
-' =======
-'     m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
-' >>>>>>> autoplay-refactor-v2
-    ' first button pressed
-    if m.top.itemSelected = 0
-        if(m.top.SubscriptionPackagesShown = true)  ' If packages are shown and one of them was clicked, start wizard.
-            ' Subscription Wizard
-            print "Subscription Wizard"
-        else
-            if(m.top.SubscriptionButtonsShown = false)
-                print "====== Play Button was clicked"
-            else
-                print "====== Subscription button clicked"
-                if(m.top.DontShowSubscriptionPackages = false)
-                    AddPackagesButtons()
-                end if
-                'm.top.SubscriptionPackagesShown = true
-                'print "Subscription Plans++: "; m.top.SubscriptionPlans[0]
-            end if
-        end if
+    index = m.top.itemSelected
+    m.top.itemSelectedRole = currentButtonRole(index)
 
-    ' second button pressed
-   else if m.top.itemSelected = 1          'favorite btn
-
-        print "m.btns[1] ->";Resume playing
-
-        if(m.btns <> invalid and m.btns[m.top.itemSelected].role = "resume")
-            ? "[DetailsScreen] Resume button selected"
-            m.top.itemSelected = 2          ' resume btn
-        else
-            ? "[DetailsScreen] Favorite button selected"
-        end if
-    else if m.top.itemSelected = 2          ' favorite btn
-            m.top.itemSelected = 1
-            ? "[DetailsScreen] Favorite button selected"
+    if m.top.itemSelectedRole = "subscribe"
+      AddPackagesButtons()
     end if
-    print "[DetailsScreen] m.top.SubscriptionButtonsShown; "; m.top.SubscriptionButtonsShown
 End Sub
 
 ' Content change handler
 Sub OnContentChange()
-    ' print "Content: "; m.top.content
     m.top.SubscriptionPackagesShown = false
-    ' print "Videos: "; m.top.videosTree[0][6]
-    ' FindPlaylistRowIndex()
 
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
-        print "+++++++++++++++++++++++++++++++++++++++++"
-        print "m.top.content.subscriptionRequired: "; m.top.content.subscriptionRequired
-        print "m.top.isLoggedIn: "; m.top.isLoggedIn
-        print "m.top.isLoggedInViaNativeSVOD: "; m.top.isLoggedInViaNativeSVOD
-        print "m.top.NoAuthenticationEnabled: "; m.top.NoAuthenticationEnabled
-        print "m.top.JustBoughtNativeSubscription: "; m.top.JustBoughtNativeSubscription
-        print "+++++++++++++++++++++++++++++++++++++++++"
-        'if(m.top.content.subscriptionRequired = false OR (idParts[1] = "True" AND m.top.isLoggedIn))
         if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
             m.canWatchVideo = true
         else
@@ -275,16 +226,18 @@ Sub OnContentChange()
         end if
 
         m.description.content   = m.top.content
-        ' m.description.Description.width = "770"
         m.description.Description.height = "250"
         m.top.videoPlayer.content   = m.top.content
-        ' m.poster.uri            = m.top.content.hdBackgroundImageUrl
         m.background.uri        = m.top.content.hdBackgroundImageUrl
     end if
 End Sub
 
 function currentButtonSelected(index as integer) as string
-    return m.buttons.content.getChild(index - 1).TITLE
+    return m.buttons.content.getChild(index).title
+end function
+
+function currentButtonRole(index as integer) as string
+    return m.buttons.content.getChild(index).role
 end function
 
 Sub AddButtons()
@@ -296,21 +249,11 @@ Sub AddButtons()
     if(statusOfVideo = true)
         if(m.top.ResumeVideo.GetVideoIdTimerValue = "notimer")
         else
-          '  print "m.top.ResumeVideo.GetVideoIdTimerValue ->";m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
             startDate = CreateObject("roDateTime")
             timeDiff = startDate.asSeconds() - m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
-          '  print "m.top.ResumeVideo.GetVideoIdTimerValue.ToInt()";m.top.ResumeVideo.GetVideoIdTimerValue.ToInt()
-          '  print "startDate.asSeconds()";startDate.asSeconds()
-          '  print "timeDiff";timeDiff
-          'Check if time has exceeded 1 hour
-            ' if(timeDiff 3600)
-            '    m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id
-            ' end if
+
         end if
     end if
-
-
-
 
 
     if m.top.content <> invalid then
@@ -341,10 +284,8 @@ Sub AddButtons()
         end if
 
         m.btns = btns
-        ' for each button in btns
-        '     result.push({title : button})
-        ' end for
-        m.buttons.content = ContentList2SimpleNode(btns)
+
+        m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
     end if
 End Sub
 
@@ -359,36 +300,30 @@ Sub AddActionButtons()
             btns.push({ title: "Link Device", role: "device_linking" })
         end if
 
-
-        ' for each button in btns
-        '     result.push({title : button})
-        ' end for
-        m.buttons.content = ContentList2SimpleNode(btns)
+        m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
     end if
 End Sub
 
 Sub AddPackagesButtons()
     if m.top.content <> invalid then
         ' create buttons
-        result = []
         btns = []
         'for each plan in m.top.SubscriptionPlans
         for each plan in m.top.ProductsCatalog
-           'btns.push(plan["name"] + " at " + plan["amount"] + " " + plan["currency"])
-           btns.push(plan["title"] + " at " + plan["cost"])
+           btns.push({
+            title: plan["title"] + " at " + plan["cost"],
+            role: "native_sub"
+          })
         end for
 
-        for each button in btns
-            result.push({title : button})
-        end for
-        m.buttons.content = ContentList2SimpleNode(result)
+        m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
     end if
 End Sub
 
 '///////////////////////////////////////////'
 ' Helper function convert AA to Node
 Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" as String) as Object
-    result = createObject("roSGNode",nodeType)
+    result = createObject("roSGNode","ContentNode")
     if result <> invalid
         for each itemAA in contentList
             print "itemAA_: "; itemAA
@@ -415,42 +350,4 @@ Function getStatusOfVideo() as boolean
     end if
 
     return false
-End Function
-
-Function FindPlaylistRowIndex()
-    print "FindPlaylistRowIndex"
-    contentId = invalid
-    if(m.top.content <> invalid)
-        contentIdParts = m.top.content.id.tokenize(":")
-        contentId = contentIdParts[0]
-    end if
-    index = 0
-    found = false
-    totalVideos = 0
-    childCount = 0
-    For Each vt in m.top.videosTree
-        ' print "vt: "; vt
-        childCount = 0
-        For Each v in vt
-            ' print "v: "; v
-            if(v.id = contentId)
-                m.top.PlaylistRowIndex = index
-                m.CurrentVideoIndex = v.videoIndex
-                found = true
-            end if
-            childCount = childCount + 1
-        End For
-
-        if(found = true)
-            totalVideos = childCount
-            exit for
-        end if
-        index = index + 1
-    End For
-
-    m.totalVideosCount = totalVideos
-
-    ' For each p in m.top.dataArray
-    '     print "P: "; p.contentlist[0]
-    ' End for
 End Function

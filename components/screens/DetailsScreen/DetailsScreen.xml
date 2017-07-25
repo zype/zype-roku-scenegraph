@@ -11,6 +11,8 @@
         <!-- Button press handler -->
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="Buttons.itemSelected" onChange="onItemSelected" />
 
+        <field id="itemSelectedRole" type="string" />
+
         <!-- Playback flag -->
         <!-- <field id="videoPlayerVisible" type="bool" alwaysnotify="true" alias="VideoPlayer.visible"  onChange="onVideoVisibleChange" /> -->
         <field id="videoPlayerVisible" type="bool" alwaysnotify="true" onChange="onVideoVisibleChange" />
