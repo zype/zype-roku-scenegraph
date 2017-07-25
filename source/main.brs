@@ -27,7 +27,6 @@ Sub SetHomeScene(contentID = invalid)
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
     screen.Show()
-    m.app = GetAppConfigs()
 
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
@@ -45,7 +44,6 @@ Sub SetHomeScene(contentID = invalid)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
-    m.app = GetAppConfigs()
     m.playlistRows = []
     m.videosList = []
 
@@ -54,7 +52,6 @@ Sub SetHomeScene(contentID = invalid)
 
     m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     print "gridContent: "; m.scene.gridContent
-    print "m.playlistRows: "; m.playlistRows[0]
     print "m.app: "; m.app
     getUserPurchases()
     getProductsCatalog()
@@ -68,7 +65,7 @@ Sub SetHomeScene(contentID = invalid)
 
     m.infoScreen = m.scene.findNode("InfoScreen")
     m.infoScreenText = m.infoScreen.findNode("Info")
-    m.infoScreenText.text = GetAppConfigs().about_page
+    m.infoScreenText.text = m.app.about_page
 
     m.search = m.scene.findNode("Search")
     m.searchDetailsScreen = m.search.findNode("SearchDetailsScreen")
@@ -92,6 +89,21 @@ Sub SetHomeScene(contentID = invalid)
     m.detailsScreen.videosTree = m.videosList
     m.detailsScreen.autoplay = m.app.autoplay
 
+    if m.app.in_app_purchase or m.app.device_linking
+      svod_enabled = true
+    else
+      svod_enabled = false
+    end if
+
+    if isAuthViaNativeSVOD() or currentConsumer().subscription_count > 0
+      is_subscribed = true
+    else
+      is_subscribed = false
+    end if
+
+    m.global.addFields({ svod_enabled: svod_enabled })
+    m.global.addFields({ is_subscribed: is_subscribed })
+
     m.favorites.isLoggedIn = isLoggedIn()
 
     deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
@@ -114,15 +126,6 @@ Sub SetHomeScene(contentID = invalid)
     m.deviceLinking.observeField("itemSelected", m.port)
 
     m.raf_service = RafService()
-
-    if m.app.in_app_purchase or m.app.device_linking
-      svod_enabled = true
-    else
-      svod_enabled = false
-    end if
-
-    m.global.addFields({ svod_enabled: svod_enabled })
-    m.global.addFields({ is_subscribed: isLoggedIn() })
 
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()
@@ -644,11 +647,9 @@ function GetSearchContent(SearchString as String)
     video_index = 0
     for each video in GetVideos(params)
         video.inFavorites = favs.DoesExist(video._id)
-        'print video
         video.playlist_id = 0
         video.playlist_name = invalid
         video.video_index = video_index
-        print video
         videos.push(CreateVideoObject(video))
         video_index = video_index + 1
     end for
@@ -692,7 +693,6 @@ function GetFavoritesContent()
 
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
     if HasUDID() = true and deviceLinking.linked = true
-        'print "Consumer ID: "; deviceLinking.consumer_id
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         videoFavorites = GetVideoFavorites(deviceLinking.consumer_id, {"access_token": oauth.access_token, "per_page": "100"})
 
@@ -734,8 +734,6 @@ Function ParseContent(list As Object)
                 item[key] = itemAA[key]
             end for
 
-            print "***********************************************"
-            'print itemAA
             ' Get the ID element from itemAA and check if the product against that id was subscribed
             if(isSubscribed(itemAA["subscriptionrequired"]))
                 isSub = "True"
@@ -755,8 +753,8 @@ Function ParseContent(list As Object)
 End Function
 
 Function GetContent()
-    rowTitles = GetCategory(GetAppConfigs().category_id).values
-    categoryTitle = GetCategory(GetAppConfigs().category_id).title
+    rowTitles = GetCategory(m.app.category_id).values
+    categoryTitle = GetCategory(m.app.category_id).title
     query = "category[" + categoryTitle + "]"
 
     favs = GetFavoritesIDs()
@@ -775,7 +773,6 @@ Function GetContent()
             video.playlist_id = 0
             video.playlist_name = invalid
             video.video_index = video_index
-            print video
             videos.push(CreateVideoObject(video))
             video_index = video_index + 1
         end for
@@ -799,12 +796,11 @@ function GetPlaylistContent(playlist_id as String)
         row.title = pl.title
         videos = []
         video_index = 0
-        for each video in GetPlaylistVideos(pl._id, {"dpt": "true", "per_page": GetAppConfigs().per_page})
+        for each video in GetPlaylistVideos(pl._id, {"dpt": "true", "per_page": m.app.per_page})
             video.inFavorites = favs.DoesExist(video._id)
             video.playlist_id = 0
             video.playlist_name = invalid
             video.video_index = video_index
-            print video
             videos.push(CreateVideoObject(video))
             video_index = video_index + 1
         end for
@@ -819,10 +815,9 @@ function GetPlaylistContent(playlist_id as String)
 end function
 
 function GetContentPlaylists(parent_id as String)
-    ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
     parent_id = parent_id.tokenize(":")[0]
-    if GetAppConfigs().per_page <> invalid
-      per_page = GetAppConfigs().per_page
+    if m.app.per_page <> invalid
+      per_page = m.app.per_page
     else
       per_page = 500
     end if
@@ -845,10 +840,9 @@ end function
 function GetPlaylistsAsRows(parent_id as String)
     m.videosList = []
 
-    ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
     parent_id = parent_id.tokenize(":")[0]
-    if GetAppConfigs().per_page <> invalid
-      per_page = GetAppConfigs().per_page
+    if m.app.per_page <> invalid
+      per_page = m.app.per_page
     else
       per_page = 500
     end if
@@ -866,19 +860,15 @@ function GetPlaylistsAsRows(parent_id as String)
         row = {}
         row.title = item.title
         row.ContentList = []
-        ' row.ContentList.push(CreatePlaylistObject(item))
         if item.playlist_item_count > 0
             row.ContentList = []
             videos = []
             video_index = 0
-            for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
-                print "Playlist: "; item
+            for each video in GetPlaylistVideos(item._id, {"per_page": m.app.per_page})
                 video.inFavorites = favs.DoesExist(video._id)
-                print "video.id";video._id
                 video.playlist_id = item._id
                 video.playlist_name = item.title
                 video.video_index = video_index
-                print video
                 videos.push(CreateVideoObject(video))
                 video_index = video_index + 1
             end for
@@ -1105,7 +1095,6 @@ Function playVideoButton(lclScreen)
 End Function
 
 Function markFavoriteButton(lclScreen)
-    print "lclScreen: ";lclScreen.content
     idParts = lclScreen.content.id.tokenize(":")
     id = idParts[0]
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
@@ -1187,13 +1176,13 @@ Function SetTheme()
   if m.app.theme <> invalid
     theme = m.app.theme
   else
-    theme = GetAppConfigs().theme
+    theme = m.app.theme
   end if
 
   if m.app.brand_color <> invalid
     brand_color = m.app.brand_color
   else
-    brand_color = GetAppConfigs().brand_color
+    brand_color = m.app.brand_color
   end if
 
   if m.global <> invalid

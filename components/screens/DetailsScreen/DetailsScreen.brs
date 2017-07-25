@@ -333,7 +333,6 @@ Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" 
     result = createObject("roSGNode","ContentNode")
     if result <> invalid
         for each itemAA in contentList
-            print "itemAA_: "; itemAA
             item = createObject("roSGNode", nodeType)
             item.setFields(itemAA)
             result.appendChild(item)
@@ -347,8 +346,7 @@ Function getStatusOfVideo() as boolean
     m.top.ResumeVideo.id = "ResumeVideo"
     m.top.ResumeVideo.HasVideoId = m.top.content.id         ' If video id entry is there in reg
     m.top.ResumeVideo.GetVideoIdTimer = m.top.content.id    ' Get when video was saved in reg.
-    print "m.top.content.id";m.top.content.id
-    print "m.top.ResumeVideo.HasVideoIdValue ->";m.top.ResumeVideo.HasVideoIdValue
+
     if(m.top.ResumeVideo.HasVideoIdValue)
         return true
     else
