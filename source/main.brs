@@ -95,7 +95,9 @@ Sub SetHomeScene(contentID = invalid)
       svod_enabled = false
     end if
 
-    if isAuthViaNativeSVOD() or currentConsumer().subscription_count > 0
+    current_consumer = currentConsumer()
+
+    if isAuthViaNativeSVOD() or (current_consumer.linked and current_consumer.subscription_count > 0)
       is_subscribed = true
     else
       is_subscribed = false
