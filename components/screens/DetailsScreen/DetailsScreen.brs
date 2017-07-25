@@ -279,7 +279,7 @@ Sub AddButtons()
             end if
         end if
 
-        if m.global.svod_enabled and m.global.is_subscribed = false
+        if m.global.swaf and m.global.svod_enabled and m.global.is_subscribed = false
           btns.push({title: "Watch ad free", role: "swaf"})
         end if
 
@@ -288,6 +288,13 @@ Sub AddButtons()
         m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
     end if
 End Sub
+
+function ShowSubscribeButtons() as void
+  if m.top.ShowSubscribeButtons = true
+    AddActionButtons()
+    m.buttons.setFocus(true)
+  end if
+end function
 
 Sub AddActionButtons()
     if m.top.content <> invalid then

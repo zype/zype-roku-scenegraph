@@ -9,5 +9,5 @@
   "theme": "dark",
   "brand_color": "#ffffff",
   "git_description" : "<GIT_DESCRIPTION>",
-  "swaf_button": false
+  "subscribe_to_watch_ad_free": false
 }

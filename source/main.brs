@@ -19,6 +19,7 @@ Sub SetHomeScene(contentID = invalid)
     m.app = GetAppConfigs()
 
     m.global = screen.getGlobalNode()
+    m.global.addFields({ swaf: GetApiConfigs().subscribe_to_watch_ad_free })
 
     SetTheme()
 
@@ -40,7 +41,7 @@ Sub SetHomeScene(contentID = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    m.store.FakeServer(true)
+    ' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -276,12 +277,14 @@ Sub SetHomeScene(contentID = invalid)
                                 print "refreshing PIN"
                                 pin.text = GetPin(GetUdidFromReg())
 
-                                deviceLinkingObj = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-                                if deviceLinkingObj.linked then
+                                consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                                if consumer.linked then
                                     pin.text = "You are linked!"
 
+                                    if consumer.subscription_count > 0 then m.global.is_subscribed = true
+
                                     m.detailsScreen.isDeviceLinked = true
-                                    m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
+                                    m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
                                     m.detailsScreen.isLoggedIn = true
                                     m.favorites.isLoggedIn = true
                                     m.deviceLinking.isDeviceLinked = true
@@ -313,14 +316,18 @@ Sub SetHomeScene(contentID = invalid)
                         else
                             print "refreshing PIN"
 
-                            deviceLinkingObj = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-                            if deviceLinkingObj.linked then
+                            consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                            if consumer.linked then
                                 pin.text = "The device is linked"
 
+                                if consumer.subscription_count > 0 then m.global.is_subscribed = true
+
                                 m.detailsScreen.isDeviceLinked = true
-                                m.detailsScreen.UniversalSubscriptionsCount = deviceLinkingObj.subscription_count
+                                m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
                                 m.detailsScreen.isLoggedIn = true
                                 m.favorites.isLoggedIn = true
+                                m.deviceLinking.isDeviceLinked = true
+                                m.deviceLinking.setUnlinkFocus = true
                                 exit while
                             end if
                         end if
@@ -346,6 +353,8 @@ Sub SetHomeScene(contentID = invalid)
                 res = UnlinkDevice(isDeviceLinked.consumer_id, isDeviceLinked.pin, {})
                 if(res <> invalid)
                     print "Unlink Completed"
+                    m.global.is_subscribed = isLoggedIn()
+
                     m.scene.TriggerDeviceUnlink = false
                     m.deviceLinking.isDeviceLinked = false
                     m.detailsScreen.isDeviceLinked = false
@@ -504,10 +513,12 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
         m.VideoPlayer.seek = m.VideoPlayer.seek
 
+        no_ads = (m.global.swaf and m.global.is_subscribed)
+
         ' Getting ad timings from video's scheduled ads
         preroll_ad = invalid
         midroll_ads = []
-        if playerInfo.scheduledAds.count() > 0
+        if playerInfo.scheduledAds.count() > 0 and no_ads = false
           for each ad in playerInfo.scheduledAds
             if ad.offset = 0
               preroll_ad = {
@@ -993,7 +1004,7 @@ function handleButtonEvents(index, screen)
       playVideoButton(screen)
     else if button_role = "favorite"
       markFavoriteButton(screen)
-    else if button_role = "subscribe" or button_role = "swaf"
+    else if button_role = "subscribe"
       consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
       if m.app.device_linking and consumer.linked and consumer.subscription_count > 0
           m.detailsScreen.DontShowSubscriptionPackages = true
@@ -1005,12 +1016,16 @@ function handleButtonEvents(index, screen)
           m.detailsScreen.ShowSubscriptionPackagesCallback = true
       end if
 
+    else if button_role = "swaf"
+      ' Add "Subscribe" and "Link Device"
+      m.detailsScreen.ShowSubscribeButtons = true
     else if button_role = "native_sub"
       StartLoader()
       result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
       EndLoader()
 
        if(result = true)
+          m.global.is_subscribed = true
           m.detailsScreen.JustBoughtNativeSubscription = true
           m.detailsScreen.isLoggedIn = true
           m.favorites.isLoggedIn = true
