@@ -11,18 +11,11 @@
 <script type="text/brightscript" >
 <![CDATA[
   function itemContentChanged() as void
-    print "inside itemContentChanged()"
     itemData = m.top.itemContent
     m.itemImage.uri = itemData.HDPOSTERURL
-    'm.itemText.text = itemData.TITLE
-    print "itemData: "; itemData
-    print "leave itemContentChanged()"
   end function
   function init() as void
-    print "Inside init"
     m.itemImage = m.top.findNode("itemImage")
-    'm.itemText = m.top.findNode("itemText")
-    print "Leaving init"
   end function
 ]]>
 </script>

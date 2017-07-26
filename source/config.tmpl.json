@@ -8,5 +8,6 @@
   "version": "1",
   "theme": "dark",
   "brand_color": "#ffffff",
-  "git_description" : "<GIT_DESCRIPTION>"
+  "git_description" : "<GIT_DESCRIPTION>",
+  "subscribe_to_watch_ad_free": false
 }

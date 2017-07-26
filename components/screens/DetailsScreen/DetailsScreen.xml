@@ -11,6 +11,8 @@
         <!-- Button press handler -->
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="Buttons.itemSelected" onChange="onItemSelected" />
 
+        <field id="itemSelectedRole" type="string" />
+
         <!-- Playback flag -->
         <!-- <field id="videoPlayerVisible" type="bool" alwaysnotify="true" alias="VideoPlayer.visible"  onChange="onVideoVisibleChange" /> -->
         <field id="videoPlayerVisible" type="bool" alwaysnotify="true" onChange="onVideoVisibleChange" />
@@ -85,9 +87,13 @@
         <field id="VideoPlayer" type="node" />
         <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
 
+        <field id="ShowSubscribeButtons" type="bool" alwaysNotify="true" onChange="ShowSubscribeButtons" />
+
         <field id="PlaylistRowIndex" type="integer" />
         <field id="CurrentVideoIndex" type="integer" />
         <field id="totalVideosCount" type="integer" />
+
+        <function name="currentButtonSelected" />
     </interface>
 
     <!-- main handler -->
@@ -138,7 +144,7 @@
         <!--Control buttons.-->
         <LabelList
             id="Buttons"
-            translation="[106,550]"
+            translation="[106,500]"
             color="0xf5f5f5"
             focusedColor="0xf5f5f5"
             numRows="5"
