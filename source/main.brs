@@ -5,15 +5,15 @@ Function Main (args as Dynamic) as Void
     if (args.ContentID <> invalid) and (args.MediaType <> invalid)
         if (args <> invalid)
             contentID   = args.contentID
-            mediaType   = args.mediatype
-            SetHomeScene(contentID)
+            mediaType   = LCase(args.mediatype)
+            SetHomeScene(contentID, mediaType)
         end if
     else
         SetHomeScene()
     end if
 End Function
 
-Sub SetHomeScene(contentID = invalid)
+Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen = CreateObject("roSGScreen")
 
     m.app = GetAppConfigs()
@@ -88,7 +88,9 @@ Sub SetHomeScene(contentID = invalid)
     m.detailsScreen.isLoggedIn = isLoggedIn()
     m.detailsScreen.observeField("triggerPlay", m.port)
     m.detailsScreen.dataArray = m.playlistRows
-    m.detailsScreen.videosTree = m.videosList
+
+    m.scene.videoliststack = [m.videosList]
+    m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 
     m.favorites.isLoggedIn = isLoggedIn()
@@ -123,37 +125,43 @@ Sub SetHomeScene(contentID = invalid)
 
     ' Deep Linking
     if (contentID <> invalid)
-      ' Get video object and create VideoNode
-      linkedVideo = GetVideo(contentID)
+        if mediaType <> "season" and mediaType <> "series"
+          ' Get video object and create VideoNode
+          linkedVideo = GetVideo(contentID)
 
-      ' If contentID is for active video
-      if linkedVideo.DoesExist("_id") and linkedVideo.active = true
-        linkedVideoObject =  CreateVideoObject(linkedVideo)
-        linkedVideoNode = createObject("roSGNode", "VideoNode")
+          ' If contentID is for active video
+          if linkedVideo.DoesExist("_id") and linkedVideo.active = true
+            linkedVideoObject =  CreateVideoObject(linkedVideo)
+            linkedVideoNode = createObject("roSGNode", "VideoNode")
 
-        for each key in linkedVideoObject
-          linkedVideoNode[key] = linkedVideoObject[key]
-        end for
+            for each key in linkedVideoObject
+              linkedVideoNode[key] = linkedVideoObject[key]
+            end for
 
-        ' Set focused content to linkedVideoNode
-        m.gridScreen.focusedContent = linkedVideoNode
-        m.gridScreen.visible = "false"
-        m.detailsScreen.content = m.gridScreen.focusedContent
-        m.detailsScreen.setFocus(true)
-        m.detailsScreen.visible = "true"
+            ' Set focused content to linkedVideoNode
+            m.gridScreen.focusedContent = linkedVideoNode
+            m.gridScreen.visible = "false"
+            m.detailsScreen.content = m.gridScreen.focusedContent
+            m.detailsScreen.setFocus(true)
+            m.detailsScreen.visible = "true"
 
-        ' Trigger listener to push detailsScreen into HomeScene screenStack
-        m.scene.DeepLinkedID = contentID
+            ' Trigger listener to push detailsScreen into HomeScene screenStack
+            m.scene.DeepLinkedID = contentID
 
-        ' Start playing video if logged in or no monetization
-        if isLoggedIn() = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
-          if m.app.avod = true
-            playVideoWithAds(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
-          else
-            playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
+            ' Start playing video if logged in or no monetization
+            if isLoggedIn() = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
+              if m.app.avod = true
+                playVideoWithAds(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
+              else
+                playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
+              end if
+            end if
           end if
+
+        else if mediaType = "season" or mediaType = "series"
+          transitionToNestedPlaylist(contentID)
         end if
-      end if
+
 
       ' Close loading screen if still visible
       if m.LoadingScreen.visible = true
@@ -186,7 +194,12 @@ Sub SetHomeScene(contentID = invalid)
 
                 rowList = m.gridScreen.findNode("RowList")
                 rowlist.jumpToRowItem = [0,0]
-                m.detailsScreen.videosTree = m.videosList
+
+                current_video_list_stack = m.scene.videoliststack
+                current_video_list_stack.push(m.videosList)
+                m.scene.videoliststack = current_video_list_stack
+
+                m.detailsScreen.videosTree = m.scene.videoliststack.peek()
 
                 m.loadingIndicator.control = "stop"
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
@@ -406,6 +419,25 @@ Sub SetHomeScene(contentID = invalid)
         screen = invalid
     end if
 End Sub
+
+function transitionToNestedPlaylist(id) as void
+  m.scene.callFunc("AddCurrentPositionToTracker", invalid)
+  m.scene.callFunc("PushContentIntoContentStack", m.gridScreen.content)
+  m.scene.callFunc("PushScreenIntoScreenStack", m.gridScreen)
+
+  m.gridScreen.playlistItemSelected = false
+
+  m.gridScreen.content = ParseContent(GetPlaylistsAsRows(id))
+
+  rowList = m.gridScreen.findNode("RowList")
+  rowlist.jumpToRowItem = [0,0]
+
+  current_video_list_stack = m.scene.videoliststack
+  current_video_list_stack.push(m.videosList)
+  m.scene.videoliststack = current_video_list_stack
+
+  m.detailsScreen.videosTree = m.scene.videoliststack.peek()
+end function
 
 sub playLiveVideo(screen as Object)
     'print "THE KEY: "; GetApiConfigs()

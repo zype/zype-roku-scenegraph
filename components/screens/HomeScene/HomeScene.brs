@@ -66,7 +66,7 @@ End Function
     '       "col": 4
     '     }
     ' }
-Function AddCurrentPositionToTracker() as Void
+Function AddCurrentPositionToTracker(data = invalid) as Void
     rowList = m.gridScreen.findNode("RowList")
     rowItemSelected = rowList.rowItemSelected
 
@@ -133,6 +133,14 @@ End Function
 Function OnDeepLink()
   m.screenStack.push(m.detailsScreen)
 End Function
+
+function PushScreenIntoScreenStack(screen) as void
+  m.screenStack.push(screen)
+end function
+
+function PushContentIntoContentStack(content) as void
+  m.contentStack.push(content)
+end function
 
 ' On Menu Button Selected
 Function OnMenuButtonSelected()
@@ -309,6 +317,12 @@ Function OnKeyEvent(key, press) as Boolean
                 lastPosition = GetLastPositionFromTracker()
 
                 m.gridScreen.content = previousContent
+
+                video_list_stack =  m.top.videoliststack
+                video_list_stack.pop()
+                m.top.videoliststack = video_list_stack
+
+                m.detailsScreen.videosTree = m.top.videoliststack.peek()
 
                 DeleteLastPositionFromTracker()
 
