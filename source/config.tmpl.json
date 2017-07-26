@@ -9,5 +9,6 @@
   "theme": "dark",
   "brand_color": "#ffffff",
   "git_description" : "<GIT_DESCRIPTION>",
+  "enable_lock_icons": false,
   "subscribe_to_watch_ad_free": false
 }
