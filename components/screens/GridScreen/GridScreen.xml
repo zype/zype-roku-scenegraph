@@ -42,7 +42,7 @@
             itemComponentName="GridScreenItem"
             focusBitmapUri="pkg:/images/focus_grid_light.9.png"
             translation="[-60, 410]"
-            itemSize="[1327, 218]"
+            itemSize="[1327, 250]"
             numRows="2"
             itemSpacing="[0,0]"
             focusXOffset="[147]"

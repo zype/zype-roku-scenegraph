@@ -93,6 +93,8 @@
         <field id="CurrentVideoIndex" type="integer" />
         <field id="totalVideosCount" type="integer" />
 
+        <field id="ReFocusButtons" type="bool" alwaysNotify="true" onChange="OnFocusedChildChange" />
+
         <function name="currentButtonSelected" />
     </interface>
 

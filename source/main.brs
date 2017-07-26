@@ -19,9 +19,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.app = GetAppConfigs()
 
     m.global = screen.getGlobalNode()
-    m.global.addFields({ swaf: GetApiConfigs().subscribe_to_watch_ad_free })
 
     SetTheme()
+
 
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
@@ -47,14 +47,21 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.playlistRows = []
     m.videosList = []
 
+    getUserPurchases()
+    getProductsCatalog()
+
     'm.scene.gridContent = ParseContent(GetContent())
     m.contentID = contentID
 
-    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
-    print "gridContent: "; m.scene.gridContent
-    print "m.app: "; m.app
-    getUserPurchases()
-    getProductsCatalog()
+    m.detailsScreen = m.scene.findNode("DetailsScreen")
+    m.global.addFields({ HasNativeSubscription: false, isLoggedIn: false, UniversalSubscriptionsCount: 0 })
+    _isLoggedIn = isLoggedIn()
+    m.global.isLoggedIn = _isLoggedIn AND (m.detailsScreen.UniversalSubscriptionsCount > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true)
+    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+
+    m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
+    m.scene.gridContent = m.gridContent
+
 
     m.plans = GetPlans({}, m.app.in_app_purchase, m.productsCatalog)
 
@@ -77,7 +84,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
-    m.detailsScreen = m.scene.findNode("DetailsScreen")
+    ' m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.detailsScreen.observeField("itemSelected", m.port)
     'm.detailsScreen.SubscriptionPlans = m.plans
     'm.detailsScreen.SubscriptionPlans = m.productsCatalog
@@ -116,9 +123,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
     InitAuthenticationParams()
 
+
     m.scene.observeField("SearchString", m.port)
 
     m.gridScreen = m.scene.findNode("GridScreen")
+    ' m.gridScreenItem = m.scene.findNode("GridScreenItem")
+    ' m.gridScreenItem.isLoggedIn = isLoggedIn()
 
     m.scene.observeField("playlistItemSelected", m.port)
     m.scene.observeField("TriggerDeviceUnlink", m.port)
@@ -308,6 +318,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                                     m.deviceLinking.isDeviceLinked = true
                                     m.deviceLinking.setUnlinkFocus = true
 
+                                    m.global.isLoggedIn = true
+                                    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+                                    m.scene.gridContent = m.gridContent
+                                    ' m.deviceLinking.show = true
+                                    m.deviceLinking.setFocus(true)
+                                    m.deviceLinking.setUnlinkFocus = true
+
                                     ' Deep linked
                                     if contentID <> invalid
                                         di = CreateObject("roDeviceInfo")
@@ -378,6 +395,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     m.detailsScreen.isDeviceLinked = false
                     m.detailsScreen.isLoggedIn = isLoggedIn()
                     m.favorites.isLoggedIn = isLoggedIn()
+
+                    m.global.isLoggedIn = false
+                    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+                    m.scene.gridContent = m.gridContent
+                    ' m.deviceLinking.show = true
+                    m.deviceLinking.setFocus(true)
                 end if
             end if
 
@@ -1050,9 +1073,15 @@ function handleButtonEvents(index, screen)
 
        if(result = true)
           m.global.is_subscribed = true
+
           m.detailsScreen.JustBoughtNativeSubscription = true
           m.detailsScreen.isLoggedIn = true
           m.favorites.isLoggedIn = true
+          m.global.isLoggedIn = true
+          m.global.HasNativeSubscription = true
+          m.scene.gridContent = m.gridContent
+          m.detailsScreen.setFocus(true)
+          m.detailsScreen.ReFocusButtons = true
        end if
     else if button_role = "device_linking"
       m.deviceLinking.show = true
@@ -1104,6 +1133,7 @@ Function InitAuthenticationParams()
 End Function
 
 Function isLoggedIn()
+    ' print "inside isLoggedIn"
     if(m.detailsScreen.NoAuthenticationEnabled = true)
         return true
     end if
@@ -1111,12 +1141,16 @@ Function isLoggedIn()
     if(isAuthViaNativeSVOD())
         m.detailsScreen.isLoggedInViaNativeSVOD = true
         m.detailsScreen.isLoggedInViaUniversalSVOD = false
+        m.global.HasNativeSubscription = true
+        ' print "isAuthViaNativeSVOD"
         return true
     else if (isAuthViaUniversalSVOD())
         m.detailsScreen.isLoggedInViaNativeSVOD = false
         m.detailsScreen.isLoggedInViaUniversalSVOD = true
+        ' print "isAuthViaUniversalSVOD"
         return true
     end if
+    ' print "leaving isLoggedIn"
     return false
 End Function
 
@@ -1164,8 +1198,10 @@ End Function
 '   Native SVOD - Check if user bought from native SVOD which is Roku Store
 '   Need to check if there are bought subscriptions associated with Roku Account
 Function isAuthViaNativeSVOD()
+    ' print "inside isAuthViaNativeSVOD function"
     subscribed = false
     for each pi in m.purchasedItems
+        ' print "pi: "; pi
         if(isPlanPurchased(pi.code)) ' Means the user has subscribed to atleast one of these
             subscribed = true
             exit for
@@ -1221,6 +1257,8 @@ Function SetTheme()
 
   if m.global <> invalid
     m.global.addFields({ brand_color: brand_color })
+    m.global.addFields({ enable_lock_icons: GetApiConfigs().enable_lock_icons })
+    m.global.addFields({ swaf: GetApiConfigs().subscribe_to_watch_ad_free })
 
     if theme = "dark"
       m.global.addFields({ theme: DarkTheme() })
