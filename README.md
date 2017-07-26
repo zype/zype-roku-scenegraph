@@ -28,6 +28,10 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 
 In order to create an app using the Zype Roku Scenegraph, please follow the instructions inside this [Recipe](Recipe.md).
 
+## Testing Native Subscriptions
+
+In order to test native subscriptions, you need to setup the fake Roku store before sideloading. For more information on how to do this, [see here](docs/testing/TestingNativeSubscriptions.md)
+
 ## Device Endpoint Notes
 
 Older Roku devices will have less powerful hardware and therefore less processing power. One noticeable difference when running the apps on newer Roku devices (Roku 4 and newer) is that the loading indicator/spinner will have an animation. This feature was taken out for older Roku devices which did not have hardware to support animations and rendering of higher resolution images.

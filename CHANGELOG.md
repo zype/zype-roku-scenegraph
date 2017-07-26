@@ -1,3 +1,8 @@
+### 1.5.0 (26/07/2017)
+
+- Lock icons for subscription videos (manual setting in _source/config.json_ file)
+- Subscribe to watch ad free feature (manual setting in _source/config.json_ file)
+
 ### 1.4.3 (18/07/2017)
 
 - Fixes to AVOD logic
