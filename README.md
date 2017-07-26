@@ -9,10 +9,12 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 - Live Streaming videos
 - Video Favorites (available with device linking)
 - Resume watch functionality
-- Deep linking to specific videos
+- Deep linking to videos and playlists
 - Dynamic theme colors
 - Autoplay
 - Subtitle Support (WebVTT, SRT)
+- Subscribe to watch ad free (setting in config file)
+- Lock icons for subscription videos
 
 ## Unsupported Features
 
