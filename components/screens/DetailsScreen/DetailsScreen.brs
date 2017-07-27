@@ -280,7 +280,7 @@ Sub AddButtons()
         end if
 
         if m.global.swaf and m.global.svod_enabled and m.global.is_subscribed = false
-          btns.push({title: "Watch ad free", role: "swaf"})
+          btns.push({title: "Watch Ad Free", role: "swaf"})
         end if
 
         m.btns = btns
