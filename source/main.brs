@@ -14,10 +14,6 @@ Function Main (args as Dynamic) as Void
 End Function
 
 Sub SetHomeScene(contentID = invalid, mediaType = invalid)
-    m.current_user = CurrentUser()
-
-    stop
-
     screen = CreateObject("roSGScreen")
 
     m.app = GetAppConfigs()
@@ -44,12 +40,16 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
     m.playlistRows = []
     m.videosList = []
+
+    m.current_user = CurrentUser()
+    m.roku_store_service = RokuStoreService(m.store, m.port)
+    stop
 
     getUserPurchases()
     getProductsCatalog()

@@ -1,6 +1,5 @@
 '****************************************************
 ' CurrentUser model
-'   - Initialize with
 '
 ' Dependencies
 '     source/oauth.brs
