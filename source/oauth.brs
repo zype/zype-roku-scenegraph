@@ -137,19 +137,19 @@ function ClearOAuth()
 end function
 
 function RetrieveToken(params as object) as object
-    url = GetApiConfigs().oauth_endpoint + "oauth/token"
+    url = GetApiConfigs().oauth_endpoint  "oauth/token"
     req = RequestPost(url, params)
     return req
 end function
 
 function RetrieveTokenStatus(params as object) as object
-    url = GetApiConfigs().oauth_endpoint + "oauth/token/info"
+    url = GetApiConfigs().oauth_endpoint  "oauth/token/info"
     req = RequestPost(url, params)
     return req
 end function
 
 function RefreshToken(params as dynamic) as object
-    url = GetApiConfigs().oauth_endpoint + "oauth/token"
+    url = GetApiConfigs().oauth_endpoint  "oauth/token"
     req = RequestPost(url, params)
     return req
 end function
@@ -171,7 +171,7 @@ Function RequestPost(url As String, data As dynamic)
     roUrlTransfer.AddHeader("Content-Type", "application/json")
     roUrlTransfer.AddHeader("Accept", "application/json")
     json = FormatJson(data)
-    ' print "Posting to " + roUrlTransfer.GetUrl() + ": " + json
+    ' print "Posting to "  roUrlTransfer.GetUrl()  ": "  json
 
     if(roUrlTransfer.AsyncPostFromString(json))
       while(true)
@@ -193,4 +193,48 @@ Function RequestPost(url As String, data As dynamic)
       end while
     end if
     return invalid
+End Function
+
+Function RequestTokenByEmail(client_id as String, client_secret as String, email as String, password as String)
+  print "client_id: "; client_id; " --- client_secret: "; client_secret; " --- email: "; email; " --- password: "; password
+  data = CreateObject("roAssociativeArray")
+  data.AddReplace("client_id", client_id)
+  data.AddReplace("client_secret", client_secret)
+  data.AddReplace("username", email)
+  data.AddReplace("password", password)
+  data.AddReplace("grant_type", "password")
+
+  res = RetrieveToken(data)
+  if res <> invalid
+    RegWriteAccessToken(res)
+  end if
+End Function
+
+Function Login(client_id as String, client_secret as String, email as String, password as String)
+  oauth = RegReadAccessToken()
+  if oauth = invalid
+    ResetAccessToken()
+    RequestTokenByEmail(client_id, client_secret, email, password)
+  else if IsExpired(oauth.created_at.ToInt(), oauth.expires_in.ToInt())
+    ResetAccessToken()
+    data = {
+      "client_id": client_id,
+      "client_secret": client_secret,
+      "refresh_token": oauth.refresh_token,
+      "grant_type": "refresh_token"
+    }
+    res = RefreshToken(data)
+    if res <> invalid
+      RegWriteAccessToken(res)
+    end if
+  end if
+
+  return RegReadAccessToken()
+End Function
+
+Function Logout()
+  oauth = RegReadAccessToken()
+  if oauth <> invalid
+    ResetAccessToken()
+  end if
 End Function
