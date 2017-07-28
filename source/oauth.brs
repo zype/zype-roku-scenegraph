@@ -137,19 +137,19 @@ function ClearOAuth()
 end function
 
 function RetrieveToken(params as object) as object
-    url = GetApiConfigs().oauth_endpoint  "oauth/token"
+    url = GetApiConfigs().oauth_endpoint + "oauth/token"
     req = RequestPost(url, params)
     return req
 end function
 
 function RetrieveTokenStatus(params as object) as object
-    url = GetApiConfigs().oauth_endpoint  "oauth/token/info"
+    url = GetApiConfigs().oauth_endpoint + "oauth/token/info"
     req = RequestPost(url, params)
     return req
 end function
 
 function RefreshToken(params as dynamic) as object
-    url = GetApiConfigs().oauth_endpoint  "oauth/token"
+    url = GetApiConfigs().oauth_endpoint + "oauth/token"
     req = RequestPost(url, params)
     return req
 end function

@@ -733,6 +733,43 @@ Function UnlinkDevice(consumer_id, pin, urlParams as Object)
     return data
 End Function
 
+'****************************
+' Consumer functions
+'****************************
+function GetConsumer(consumer_id, access_token) as object
+  url = GetApiConfigs().endpoint + "consumers/" + consumer_id
+  response = MakeRequest(url, {access_token: access_token})
+
+  if response <> invalid
+    return response.response
+  else
+    return invalid
+  end if
+end function
+
+Function GetConsumerIDFromAccessToken(access_token)
+  token_status = RetrieveTokenStatus({ access_token: access_token })
+
+  if token_status <> invalid
+    return token_status.resource_owner_id
+  else
+    return invalid
+  end if
+End Function
+
+function CreateConsumer(urlParams as object) as object
+  url = GetApiConfigs().endpoint + "consumers"
+  params = AppendAppKeyToParams(urlParams)
+
+  response = MakePostRequest(url, params)
+
+  if response <> invalid then
+    return response.response
+  else
+    return invalid
+  end if
+end function
+
 '**********************************************************************************
 ' This is a work in progress. This function is supposed to send back consumer data
 ' after the successful native store purchase
