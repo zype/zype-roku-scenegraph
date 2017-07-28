@@ -144,12 +144,12 @@ end function
 
 function RetrieveTokenStatus(params as object) as object
     url = GetApiConfigs().oauth_endpoint + "oauth/token/info"
-    req = RequestPost(url, params)
+    req = MakeRequest(url, params)
     return req
 end function
 
 function RefreshToken(params as dynamic) as object
-    url = GetApiConfigs().oauth_endpoint + "oauth/token"
+    url = GetApiConfigs().endpoint + "oauth/token"
     req = RequestPost(url, params)
     return req
 end function
