@@ -747,16 +747,6 @@ function GetConsumer(consumer_id, access_token) as object
   end if
 end function
 
-Function GetConsumerIDFromAccessToken(access_token)
-  token_status = RetrieveTokenStatus({ access_token: access_token })
-
-  if token_status <> invalid
-    return token_status.resource_owner_id
-  else
-    return invalid
-  end if
-End Function
-
 function CreateConsumer(urlParams as object) as object
   url = GetApiConfigs().endpoint + "consumers"
   params = AppendAppKeyToParams(urlParams)

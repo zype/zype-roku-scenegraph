@@ -14,6 +14,10 @@ Function Main (args as Dynamic) as Void
 End Function
 
 Sub SetHomeScene(contentID = invalid, mediaType = invalid)
+    m.current_user = CurrentUser()
+
+    stop
+
     screen = CreateObject("roSGScreen")
 
     m.app = GetAppConfigs()
@@ -98,22 +102,22 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 
-    if m.app.in_app_purchase or m.app.device_linking
-      svod_enabled = true
-    else
-      svod_enabled = false
-    end if
-
-    current_consumer = currentConsumer()
-
-    if isAuthViaNativeSVOD() or (current_consumer.linked and current_consumer.subscription_count > 0)
-      is_subscribed = true
-    else
-      is_subscribed = false
-    end if
-
-    m.global.addFields({ svod_enabled: svod_enabled })
-    m.global.addFields({ is_subscribed: is_subscribed })
+    ' if m.app.in_app_purchase or m.app.device_linking
+    '   svod_enabled = true
+    ' else
+    '   svod_enabled = false
+    ' end if
+    '
+    ' current_consumer = currentConsumer()
+    '
+    ' if isAuthViaNativeSVOD() or (current_consumer.linked and current_consumer.subscription_count > 0)
+    '   is_subscribed = true
+    ' else
+    '   is_subscribed = false
+    ' end if
+    '
+    ' m.global.addFields({ svod_enabled: svod_enabled })
+    ' m.global.addFields({ is_subscribed: is_subscribed })
 
     m.favorites.isLoggedIn = isLoggedIn()
 
