@@ -7,6 +7,7 @@
 <component name="AuthSelection" extends="Group" initialFocus="Plans" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
     <interface>
         <field id="plans" type="array" alwaysNotify="true" onChange="SetNativePlans" />
+        <field id="itemSelected" type="integer" alwaysNotify="true" onChange="OnItemSelected" />
 
         <field id="PlanSelected" type="intarray" alias="Plans.rowItemSelected" alwaysNotify="true" onChange="onPlanSelection" />
 

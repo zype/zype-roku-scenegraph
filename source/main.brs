@@ -104,6 +104,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.AuthSelection = m.scene.findNode("AuthSelection")
     m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
 
+    m.UniversalAuthSelection = m.scene.findNode("UniversalAuthSelection")
+    m.UniversalAuthSelection.observeField("itemSelected", m.port)
+
     ' if m.app.in_app_purchase or m.app.device_linking
     '   svod_enabled = true
     ' else
@@ -241,7 +244,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "UniversalAuthSelction") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -250,6 +253,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.searchDetailsScreen
                 else if msg.getNode() = "DetailsScreen"
                     lclScreen = m.detailsScreen
+                else if msg.getNode() = "UniversalAuthSelction"
+                    lclScreen = "UniversalAuthSelction"
                 end if
 
                 index = msg.getData()
@@ -1096,6 +1101,8 @@ function handleButtonEvents(index, screen)
 
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
+    else if button_role = "transition" and button_target = "UniversalAuthSelection"
+      m.scene.transitionTo = "UniversalAuthSelection"
     end if
 end function
 

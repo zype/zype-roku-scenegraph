@@ -24,6 +24,11 @@ function OnItemSelected() as void
   m.top.itemSelectedTarget = currentButtonTarget(m, index)
 end function
 
+function onVisibleChange() as void
+    if m.top.visible = true
+      m.u_auth_buttons.setFocus(true)
+    end if
+end function
 
 function helpers() as object
   this = {}
@@ -53,6 +58,8 @@ function initializers() as object
       { title: "Sign in with email", role: "transition", target: "SignInScreen" }
     ]
     self.u_auth_buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+
+    self.top.observeField("visible", "onVisibleChange")
   end function
 
   return this

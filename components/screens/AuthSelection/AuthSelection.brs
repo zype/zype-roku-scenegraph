@@ -30,6 +30,10 @@ function OnKeyEvent(key as string, press as boolean) as boolean
     return result
 end function
 
+function onItemSelected() as void
+    if m.helpers.focusedChild(m) = "OAuthTransition" then m.top.itemSelectedRole = "transition" : m.top.itemSelectedTarget = "UniversalAuthSelection"
+end function
+
 function onPlanSelection() as void
     selected_plan = m.helpers.planSelected(m)
     stop

@@ -146,6 +146,9 @@ function PushContentIntoContentStack(content) as void
 end function
 
 function transitionToScreen() as void
+  m.screenStack.peek().visible = false
+  m.screenStack.peek().setFocus(false)
+
   screen = m.top.findNode(m.top.transitionTo)
 
   if focusedChild() = "GridScreen" then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
