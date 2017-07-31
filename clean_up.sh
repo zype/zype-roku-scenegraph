@@ -5,4 +5,4 @@ rm "$DIR/README.md"
 find "$DIR" -name "*.DS_Store" -type f -delete
 rm -rf "$DIR/.git"
 rm "$DIR/.gitignore"
-rm -rf "$DIR/csfake"
+rm "$DIR/images/overhangLogo.png"

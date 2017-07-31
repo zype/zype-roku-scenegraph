@@ -5,7 +5,7 @@
 <component name="GridScreenItem" extends="Group">
 
 <interface>
-  <field id="itemContent" type="node" onChange="itemContentChanged"/>
+  <field id="itemContent" type="node" onChange="itemContentChanged" alwaysNotify="true"/>
 </interface>
 
 <script type="text/brightscript" >
@@ -30,16 +30,37 @@
       m.itemImage.uri = itemData.HDPOSTERURL
     end if
 
+    m.itemImage.uri = itemData.HDPOSTERURL
+
+    offset = m.itemImage.loadwidth - 32 - 5
+    m.statusImage.translation = [offset, 5]
+    m.statusImage.visible = false
+
+    if(itemData.ContentType = 4 AND itemData.SubscriptionRequired = true AND m.global.enable_lock_icons = true)
+      m.statusImage.visible = true
+
+      if(m.global.isLoggedIn = true AND (m.global.UniversalSubscriptionsCount > 0 OR m.global.HasNativeSubscription = true))
+        m.statusImage.uri = "pkg:/images/iconUnlocked.png"
+      else
+        m.statusImage.uri = "pkg:/images/iconLocked.png"
+      end if
+    end if
   end function
+
   function init() as void
     m.itemImage = m.top.findNode("itemImage")
+    m.statusImage = m.top.findNode("statusImage")
   end function
 ]]>
 </script>
 
 <children>
-    <LayoutGroup layoutDirection="vert" vertAlignment="top" itemSpacings="20" translation="[0,0]" >
-        <Poster id="itemImage" translation="[0,0]" loadDisplayMode="scaleToFit" Width="262" Height="147" uri="" />
+    <LayoutGroup layoutDirection="vert" vertAlignment="top" horizAlignment="custom" translation="[0,0]" >
+        <Group>
+          <Poster id="itemImage" translation="[0,0]" loadDisplayMode="scaleToFit" loadwidth="262" loadheight="147" />
+          <Poster id="statusImage" translation="[-50,-50]" width="32" height="32" visible="false" />
+        </Group>
+
         <Label id="itemText" horizAlign="center" translation="[0,0]" font="font:MediumSystemFont" width="255" height="65" />
     </LayoutGroup>
 </children>

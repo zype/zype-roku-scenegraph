@@ -1,3 +1,24 @@
+### 1.5.0 (26/07/2017)
+
+- Lock icons for subscription videos (manual setting in _source/config.json_ file)
+- Subscribe to watch ad free feature (manual setting in _source/config.json_ file)
+
+### 1.4.3 (18/07/2017)
+
+- Fixes to AVOD logic
+
+### 1.4.2 (14/07/2017)
+
+- Minor UI changes
+
+### 1.4.1 (06/07/2017)
+
+- Bug fixes for different features (autoplay, deep linking)
+
+### 1.4.0 (22/06/2017)
+
+- Added support for subtitles (SRT, WebVTT)
+
 ### 1.3.1 (08/06/2017)
 
 - Bug fixes for search and autoplay

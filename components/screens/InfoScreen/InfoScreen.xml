@@ -26,9 +26,10 @@
         <Poster
             id="PosterOverhang"
             translation="[100, 30]"
-            uri="pkg:/images/overhangLogo.png"
-            width="184"
-            height="100" />
+            loadDisplayMode="scaleToFit"
+            loadwidth="500"
+            loadheight="100"
+            uri="pkg:/images/overhangLogo.png" />
 
         <Label
             id="Info"

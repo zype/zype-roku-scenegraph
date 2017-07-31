@@ -1,7 +1,7 @@
 '///////////////////////////////////////////////
 ' Make Purchase
 ' For SVOD there are going to be 2 products as per the Subscription plans in Zype Admin Panel
-' 1) Monthly Subscription 
+' 1) Monthly Subscription
 ' 2) Yearly Subscription
 
 Function makePurchase(title, code, store, port, products)
@@ -15,13 +15,13 @@ Function makePurchase(title, code, store, port, products)
     end if
     order = [{
         code: code
-        qty: 1        
+        qty: 1
     }]
-    
+
     val = store.SetOrder(order)
     res = store.DoOrder()
     success = false
-    _data = {} 
+    _data = {}
 
     _data.userData = result
     _data.order = order
@@ -77,10 +77,8 @@ Function isValidProduct(code, products)
 End Function
 
 Function startSubscriptionWizard(plans, index, store, port, productsCatalog)
-    print "plans: "; plans[index - 1]
-    ' 584ac20e70d7637d5da333de
-    'return makePurchase(plans[index - 1].name, plans[index - 1]._id, store, port, productsCatalog)
-    return makePurchase(productsCatalog[index - 1].title, plans[index - 1]._id, store, port, productsCatalog)
+    print "plans: "; plans[index]
+    return makePurchase(productsCatalog[index].title, plans[index]._id, store, port, productsCatalog)
 End Function
 
 Function PrepareConsumerData(data)

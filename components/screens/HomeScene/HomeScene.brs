@@ -71,7 +71,7 @@ End Function
     '       "col": 4
     '     }
     ' }
-Function AddCurrentPositionToTracker() as Void
+Function AddCurrentPositionToTracker(data = invalid) as Void
     rowList = m.gridScreen.findNode("RowList")
     rowItemSelected = rowList.rowItemSelected
 
@@ -171,6 +171,14 @@ End Function
 Function OnDeepLink()
   m.screenStack.push(m.detailsScreen)
 End Function
+
+function PushScreenIntoScreenStack(screen) as void
+  m.screenStack.push(screen)
+end function
+
+function PushContentIntoContentStack(content) as void
+  m.contentStack.push(content)
+end function
 
 ' On Menu Button Selected
 Function OnMenuButtonSelected()
@@ -350,6 +358,12 @@ Function OnKeyEvent(key, press) as Boolean
 
                 m.gridScreen.content = previousContent
 
+                video_list_stack =  m.top.videoliststack
+                video_list_stack.pop()
+                m.top.videoliststack = video_list_stack
+
+                m.detailsScreen.videosTree = m.top.videoliststack.peek()
+
                 DeleteLastPositionFromTracker()
                 DeleteLastPosterPlaylists()
 
@@ -360,12 +374,6 @@ Function OnKeyEvent(key, press) as Boolean
                 rowList.rowSpacings = lastRowSpacings
                 rowList.jumpToRowItem = [lastPosition.row, lastPosition.col]
             else if m.deviceLinking.visible = true
-                ' if Device Linking is visible - it must be last element
-                print "m.screenStack: "; m.screenStack
-                print "m.screenStack[0]: "; m.screenStack[0]
-                print "m.screenStack[1]: "; m.screenStack[1]
-                print "m.detailsScreen.visible: "; m.detailsScreen.visible
-
                 ' If link device was launched from detail screen, do not run the following two lines.
                 if (m.detailsScreen.visible = false)
                     search = m.screenStack.pop()
@@ -374,11 +382,6 @@ Function OnKeyEvent(key, press) as Boolean
 
                 m.deviceLinking.show = false
                 m.deviceLinking.setFocus(false)
-
-                print "m.screenStack: "; m.screenStack
-                print "m.screenStack[0]: "; m.screenStack[0]
-                print "m.screenStack[1]: "; m.screenStack[1]
-                'm.detailsScreen.setFocus(true)
 
                 ' after Device Linking screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                 ' open last screen before search and focus it
