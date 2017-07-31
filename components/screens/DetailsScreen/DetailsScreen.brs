@@ -5,6 +5,8 @@
 Function Init()
     ? "[DetailsScreen] init"
 
+    m.content_helpers = ContentHelpers()
+
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
     m.top.DontShowSubscriptionPackages = true
@@ -193,6 +195,7 @@ End Function
 Sub onItemSelected()
     index = m.top.itemSelected
     m.top.itemSelectedRole = currentButtonRole(index)
+    m.top.itemSelectedTarget = currentButtonTarget(index)
 
     if m.top.itemSelectedRole = "subscribe"
       AddPackagesButtons()
@@ -240,6 +243,10 @@ function currentButtonRole(index as integer) as string
     return m.buttons.content.getChild(index).role
 end function
 
+function currentButtonTarget(index as integer) as string
+    return m.buttons.content.getChild(index).target
+end function
+
 Sub AddButtons()
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
     m.top.ResumeVideo.id = "ResumeVideo"
@@ -285,7 +292,7 @@ Sub AddButtons()
 
         m.btns = btns
 
-        m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
+        m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
 
@@ -307,7 +314,9 @@ Sub AddActionButtons()
             btns.push({ title: "Link Device", role: "device_linking" })
         end if
 
-        m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
+        btns.push({ title: "Transition to native/universal flow", role: "transition", target: "AuthSelection" })
+
+        m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
 
@@ -323,23 +332,9 @@ Sub AddPackagesButtons()
           })
         end for
 
-        m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
+        m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
-
-'///////////////////////////////////////////'
-' Helper function convert AA to Node
-Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" as String) as Object
-    result = createObject("roSGNode","ContentNode")
-    if result <> invalid
-        for each itemAA in contentList
-            item = createObject("roSGNode", nodeType)
-            item.setFields(itemAA)
-            result.appendChild(item)
-        end for
-    end if
-    return result
-End Function
 
 Function getStatusOfVideo() as boolean
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")

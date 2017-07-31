@@ -49,7 +49,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.current_user = CurrentUser()
     m.roku_store_service = RokuStoreService(m.store, m.port)
-    stop
 
     getUserPurchases()
     getProductsCatalog()
@@ -102,13 +101,16 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 
+    m.AuthSelection = m.scene.findNode("AuthSelection")
+    m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
+
     ' if m.app.in_app_purchase or m.app.device_linking
     '   svod_enabled = true
     ' else
     '   svod_enabled = false
     ' end if
     '
-    ' current_consumer = currentConsumer()
+    ' current_consumer = CurrentUser()
     '
     ' if isAuthViaNativeSVOD() or (current_consumer.linked and current_consumer.subscription_count > 0)
     '   is_subscribed = true
@@ -1038,6 +1040,7 @@ End Function
 '///////////////////////////////////
 function handleButtonEvents(index, screen)
     button_role = screen.itemSelectedRole
+    button_target = screen.itemSelectedTarget
 
     if button_role = "play"
       RemakeVideoPlayer()
@@ -1090,6 +1093,11 @@ function handleButtonEvents(index, screen)
     else if button_role = "device_linking"
       m.deviceLinking.show = true
       m.deviceLinking.setFocus(true)
+
+    else if button_role = "transition" and button_target = "AuthSelection"
+      m.scene.callFunc("PushScreenIntoScreenStack", m.AuthSelection)
+      m.AuthSelection.visible = true
+      m.AuthSelection.setFocus(true)
     end if
 end function
 

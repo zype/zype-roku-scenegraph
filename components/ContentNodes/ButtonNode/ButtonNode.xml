@@ -4,6 +4,7 @@
 
 	<interface>
 		<field id="role" type="string" />
+		<field id="target" type="string" />
 	</interface>
 
 </component>

@@ -12,6 +12,7 @@
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="Buttons.itemSelected" onChange="onItemSelected" />
 
         <field id="itemSelectedRole" type="string" />
+        <field id="itemSelectedTarget" type="string" />
 
         <!-- Playback flag -->
         <!-- <field id="videoPlayerVisible" type="bool" alwaysnotify="true" alias="VideoPlayer.visible"  onChange="onVideoVisibleChange" /> -->
@@ -98,6 +99,8 @@
         <function name="currentButtonSelected" />
     </interface>
 
+    <!-- helpers -->
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/DetailsScreen/DetailsScreen.brs" />
 

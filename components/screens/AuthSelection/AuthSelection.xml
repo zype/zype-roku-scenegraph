@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!-- node that renders AuthSelection
+    should display buttons for native subscription plans and button linking to sign in
+ -->
+<component name="AuthSelection" extends="Group" initialFocus="Plans" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+        <field id="plans" type="array" alwaysNotify="true" onChange="SetNativePlans" />
+
+        <field id="PlanSelected" type="intarray" alias="Plans.rowItemSelected" alwaysNotify="true" onChange="onPlanSelection" />
+
+        <!-- <function name="SetNativePlans" />
+        <function name="GetNativePlans" /> -->
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
+    <script type="text/brightscript" uri="pkg:/components/screens/AuthSelection/AuthSelection.brs" />
+
+    <children>
+      <Rectangle
+          id="Background"
+          color="#151515"
+          width="1280"
+          height="720"
+          opacity="1"
+          translation="[0,0]" />
+
+      <Group id="TextContainer" translation="[200,0]">
+        <Poster
+          id="Logo"
+          uri="pkg:/images/overhangLogo.png"
+          loadDisplayMode="scaleToFit"
+          width="200"
+          height="150"
+          translation="[350,50]" />
+
+        <Label
+          id="Header"
+          width="880"
+          horizAlign="center"
+          text="Select your plan"
+          translation="[0,200]" >
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="40"/>
+        </Label>
+
+        <Label
+          id="Description"
+          width="880"
+          horizAlign="center"
+          wrap="true"
+          text=""
+          translation="[0,270]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="25"/>
+        </Label>
+      </Group>
+
+      <RowList
+        id="Plans"
+        itemComponentName="PlanButton"
+        translation="[200, 400]"
+        numRows="1"
+        focusBitmapUri="pkg:/images/focus_grid_light.9.png"
+        itemSize="[880,200]"
+        itemSpacing="[0,0]"
+        rowItemSize="[[400,150]]"
+        rowItemSpacing="[[40,0]]" />
+
+      <Group id="OAuthTransition" translation="[200,600]">
+        <Label
+          id="OAuthLabel"
+          width="440"
+          text="Already have an account?"
+          translation="[0,0]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="20"/>
+        </Label>
+
+        <LabelList
+            id="OAuthButton"
+            translation="[440,0]"
+            color="0xf5f5f5"
+            focusedColor="0xf5f5f5"
+            itemSize="[100, 50]"
+            numRows="1"
+            vertFocusAnimationStyle="floatingFocus"
+            textHorizAlign="center"
+            font="dictionary:ButtonFont"
+            focusedFont="dictionary:ButtonFont"
+            focusBitmapUri="pkg:/images/button-focus.png"
+            />
+      </Group>
+
+    </children>
+</component>

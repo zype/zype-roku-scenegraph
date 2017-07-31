@@ -29,6 +29,9 @@ Function Init()
     ' Info Screen
     m.infoScreen = m.top.findNode("InfoScreen")
 
+    ' Auth Selection Screen
+    m.AuthSelection = m.top.findNode("AuthSelection")
+
     ' Observer to handle Item selection on RowList inside GridScreen (alias="GridScreen.rowItemSelected")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
@@ -306,6 +309,15 @@ Function OnKeyEvent(key, press) as Boolean
 
                 ' after menu pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                 ' open last screen before search and focus it
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+                result = true
+
+            ' if auth select opened
+            else if m.AuthSelection.visible = true then
+                auth_select = m.screenStack.pop()
+                auth_select.visible = false
+
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)
                 result = true

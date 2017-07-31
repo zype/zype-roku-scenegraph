@@ -96,6 +96,11 @@
             id="InfoScreen"
             visible="false"/>
 
+        <!-- Auth selection screen -->
+        <AuthSelection
+          id="AuthSelection"
+          visible="false" />
+
         <!-- Font for loading indicator -->
         <Label>
             <Font id="loadingIndicatorFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="16"/>
