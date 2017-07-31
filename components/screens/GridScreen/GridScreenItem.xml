@@ -30,8 +30,6 @@
       m.itemImage.uri = itemData.HDPOSTERURL
     end if
 
-    m.itemImage.uri = itemData.HDPOSTERURL
-
     offset = m.itemImage.loadwidth - 32 - 5
     m.statusImage.translation = [offset, 5]
     m.statusImage.visible = false

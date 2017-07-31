@@ -44,26 +44,15 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
-<<<<<<< HEAD
-    m.app = GetAppConfigs()
-    ' print "m.app: "; m.app
     m.playlistRows = []
     m.videosList = []
 
     m.playlistsRowItemSizes = []
     m.playlistRowsSpacings = []
-=======
-    m.playlistRows = []
-    m.videosList = []
-
-    getUserPurchases()
-    getProductsCatalog()
->>>>>>> origin
 
     'm.scene.gridContent = ParseContent(GetContent())
     m.contentID = contentID
 
-<<<<<<< HEAD
     m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
 
     m.gridScreen = m.scene.findNode("GridScreen")
@@ -74,10 +63,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     ' print "gridContent: "; m.scene.gridContent
     ' print "m.playlistRows: "; m.playlistRows[0]
-    
+
     getUserPurchases()
     getProductsCatalog()
-=======
+
     m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.global.addFields({ HasNativeSubscription: false, isLoggedIn: false, UniversalSubscriptionsCount: 0 })
     _isLoggedIn = isLoggedIn()
@@ -86,8 +75,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.scene.gridContent = m.gridContent
-
->>>>>>> origin
 
     m.plans = GetPlans({}, m.app.in_app_purchase, m.productsCatalog)
 
@@ -152,13 +139,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.scene.observeField("SearchString", m.port)
 
-<<<<<<< HEAD
-=======
-    m.gridScreen = m.scene.findNode("GridScreen")
-    ' m.gridScreenItem = m.scene.findNode("GridScreenItem")
-    ' m.gridScreenItem.isLoggedIn = isLoggedIn()
-
->>>>>>> origin
     m.scene.observeField("playlistItemSelected", m.port)
     m.scene.observeField("TriggerDeviceUnlink", m.port)
 
@@ -243,13 +223,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
                 content = m.gridScreen.focusedContent
-<<<<<<< HEAD
-                ' print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
-                ' print "Content: "; content
-                ' print "$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
-                ' m.playlistsRowItemSizes = []
-                ' m.playlistRowsSpacings = []
-                ' print "m.playlistsRowItemSizes: "; m.playlistsRowItemSizes
 
                 ' Get Playlist object from the platform
                 playlistObject = GetPlaylists({ id: content.id.tokenize(":")[0] })
@@ -260,10 +233,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 rowlist = m.gridScreen.findNode("RowList")
                 rowlist.rowItemSize = m.playlistsRowItemSizes
                 rowlist.rowSpacings = m.playlistRowsSpacings
-=======
-
-                m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id))
->>>>>>> origin
 
                 rowlist.jumpToRowItem = [0,0]
 
@@ -838,11 +807,6 @@ Function ParseContent(list As Object)
                 item[key] = itemAA[key]
             end for
 
-<<<<<<< HEAD
-            ' print "***********************************************"
-            'print itemAA
-=======
->>>>>>> origin
             ' Get the ID element from itemAA and check if the product against that id was subscribed
             if(isSubscribed(itemAA["subscriptionrequired"]))
                 isSub = "True"
@@ -910,18 +874,13 @@ function GetPlaylistContent(playlist_id as String)
             video.playlist_id = 0
             video.playlist_name = invalid
             video.video_index = video_index
-<<<<<<< HEAD
-            ' print video
 
-            ' if pl._id = "59496bec60caab12fa007821" OR pl._id = "594bde3af273a31371000480"
             if pl.thumbnail_layout = "poster"
               video.usePoster = true
             else
               video.usePoster = false
             end if
 
-=======
->>>>>>> origin
             videos.push(CreateVideoObject(video))
             video_index = video_index + 1
         end for
@@ -958,17 +917,9 @@ function GetContentPlaylists(parent_id as String)
     return list
 end function
 
-<<<<<<< HEAD
 function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = false)
-    ' print "GetPlaylistsAsRows called"
-    ' print "thumbnail_layout: "; thumbnail_layout
-    ' print "parent_id: "; parent_id
-    ' https://admin.zype.com/playlists/579116fc6689bc0d1d00f092
-=======
-function GetPlaylistsAsRows(parent_id as String)
     m.videosList = []
 
->>>>>>> origin
     parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
@@ -1005,12 +956,7 @@ function GetPlaylistsAsRows(parent_id as String)
         if item.playlist_item_count > 0
             row.ContentList = []
             videos = []
-            
-            ' print "item.title: "; item.title; " === item.thumbnail_layout: "; item.thumbnail_layout
-            ' Temporary true/false generator
-            ' item.poster = GetRandomBool()
 
-            'if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
             if item.thumbnail_layout = "poster"
               m.playlistsRowItemSizes.push( [ 147, 262 ] )
               m.playlistrowsSpacings.push( 50 )
@@ -1020,27 +966,17 @@ function GetPlaylistsAsRows(parent_id as String)
             end if
 
             video_index = 0
-<<<<<<< HEAD
-            for each video in GetPlaylistVideos(item._id, {"per_page": GetAppConfigs().per_page})
-                'if item._id = "59496bec60caab12fa007821" OR item._id = "594bde3af273a31371000480"
+            for each video in GetPlaylistVideos(item._id, {"per_page": m.app.per_page})
                 if item.thumbnail_layout = "poster"
                   video.usePoster = true
                 else
                   video.usePoster = false
                 end if
 
-=======
-            for each video in GetPlaylistVideos(item._id, {"per_page": m.app.per_page})
->>>>>>> origin
                 video.inFavorites = favs.DoesExist(video._id)
                 video.playlist_id = item._id
                 video.playlist_name = item.title
                 video.video_index = video_index
-<<<<<<< HEAD
-
-                ' print video
-=======
->>>>>>> origin
                 videos.push(CreateVideoObject(video))
                 video_index = video_index + 1
             end for
