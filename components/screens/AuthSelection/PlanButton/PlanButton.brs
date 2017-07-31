@@ -44,10 +44,10 @@ function initializers() as object
     self.plan_name.color = self.global.theme.primary_text_color
 
     self.trial_period = self.top.findNode("TrialPeriod")
-    self.plan_name.color = self.global.theme.primary_text_color
+    self.trial_period.color = self.global.theme.primary_text_color
 
     self.cost = self.top.findNode("Cost")
-    self.plan_name.color = self.global.theme.primary_text_color
+    self.cost.color = self.global.theme.primary_text_color
   end function
 
   this.setButtonText = function(self) as void
