@@ -44,6 +44,9 @@
 
         <field id="videoliststack" type="array"  />
 
+        <!-- Name of screen to transition to -->
+        <field id="transitionTo" type="string" alwaysNotify="true" onChange="transitionToScreen" />
+
         <function name="AddCurrentPositionToTracker" />
         <function name="PushScreenIntoScreenStack" />
         <function name="PushContentIntoContentStack" />

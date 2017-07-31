@@ -145,6 +145,21 @@ function PushContentIntoContentStack(content) as void
   m.contentStack.push(content)
 end function
 
+function transitionToScreen() as void
+  screen = m.top.findNode(m.top.transitionTo)
+
+  if focusedChild() = "GridScreen" then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
+
+  PushScreenIntoScreenStack(screen)
+
+  screen.visible = true
+  screen.setFocus(true)
+end function
+
+function focusedChild() as string
+  return m.top.focusedChild.id
+end function
+
 ' On Menu Button Selected
 Function OnMenuButtonSelected()
     ? "[HomeScene] Menu Button Selected"

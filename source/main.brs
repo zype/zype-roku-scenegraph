@@ -1095,9 +1095,7 @@ function handleButtonEvents(index, screen)
       m.deviceLinking.setFocus(true)
 
     else if button_role = "transition" and button_target = "AuthSelection"
-      m.scene.callFunc("PushScreenIntoScreenStack", m.AuthSelection)
-      m.AuthSelection.visible = true
-      m.AuthSelection.setFocus(true)
+      m.scene.transitionTo = "AuthSelection"
     end if
 end function
 
