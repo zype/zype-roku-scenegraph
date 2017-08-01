@@ -4,7 +4,7 @@
 <!-- node that renders UniversalAuthSelection
     should display buttons for selecting method of universal authentication (sign in / device link)
  -->
-<component name="UniversalAuthSelection" extends="Group" initialFocus="Plans" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+<component name="UniversalAuthSelection" extends="Group" initialFocus="UAuthMethods" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
     <interface>
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="UAuthMethods.itemSelected" onChange="onItemSelected" />
 

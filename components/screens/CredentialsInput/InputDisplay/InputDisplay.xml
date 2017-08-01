@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- node that renders InputDisplay
+    should display textEditBox for showing text input
+ -->
+<component name="InputDisplay" extends="Group" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
+    <script type="text/brightscript" uri="pkg:/components/screens/CredentialsInput/InputDisplay/InputDisplay.brs" />
+
+    <children>
+
+    </children>
+</component>
