@@ -16,6 +16,8 @@ end function
 ' ************************************************************************
 function OnKeyEvent(key as string, press as boolean) as boolean
     ? ">>> AuthSelection >>> OnKeyEvent"
+    ? "press: "; press
+    ? "key: "; key
 
     result = false
 
@@ -111,6 +113,8 @@ function initializers() as object
     self.oauth_button.focusBitmapUri = self.global.theme.button_filledin_uri
     self.oauth_button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
     self.oauth_button.content = self.content_helpers.oneDimList2ContentNode([{title: "Sign In"}], "ButtonNode")
+
+    self.top.observeField("itemSelected", "onItemSelected")
   end function
 
   this.setUpPlanButtons = function(self, plans) as void

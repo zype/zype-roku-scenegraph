@@ -103,6 +103,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.AuthSelection = m.scene.findNode("AuthSelection")
     m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
+    m.AuthSelection.observeField("itemSelected", m.port)
 
     m.UniversalAuthSelection = m.scene.findNode("UniversalAuthSelection")
     m.UniversalAuthSelection.observeField("itemSelected", m.port)
@@ -244,7 +245,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "UniversalAuthSelction") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelction") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -253,8 +254,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.searchDetailsScreen
                 else if msg.getNode() = "DetailsScreen"
                     lclScreen = m.detailsScreen
+                else if msg.getNode() = "AuthSelection"
+                    lclScreen = m.AuthSelection
                 else if msg.getNode() = "UniversalAuthSelction"
-                    lclScreen = "UniversalAuthSelction"
+                    lclScreen = m.UniversalAuthSelction
                 end if
 
                 index = msg.getData()
