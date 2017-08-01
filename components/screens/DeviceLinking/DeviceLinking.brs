@@ -16,16 +16,6 @@ Function Init()
 
     di = CreateObject("roDeviceInfo")
     m.pin = m.top.findNode("Pin")
-End Function
-
-' onChange handler for "show" field
-Sub On_show()
-    print " [DeviceLinking] On_show()"
-
-    m.top.visible = m.top.show
-    m.top.setFocus(m.top.show)
-    m.pin.text = "" ' Setting it empty because after the screen loads, it will load either pin or message
-    'm.linkText.text = "Please visit " + m.top.DeviceLinkingURL + " to link your device!"
 
     m.background.color = m.global.theme.background_color
 
@@ -42,6 +32,16 @@ Sub On_show()
 
     m.unlinkButton.focusedColor = m.global.theme.primary_text_color
     m.unlinkButton.focusBitmapUri = m.global.theme.button_focus_uri
+End Function
+
+' onChange handler for "show" field
+Sub On_show()
+    print " [DeviceLinking] On_show()"
+
+    m.top.visible = m.top.show
+    m.top.setFocus(m.top.show)
+    m.pin.text = "" ' Setting it empty because after the screen loads, it will load either pin or message
+    'm.linkText.text = "Please visit " + m.top.DeviceLinkingURL + " to link your device!"
 
     if(m.top.isDeviceLinked = true)
         CreateUnlinkButton()

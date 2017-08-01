@@ -1111,6 +1111,9 @@ function handleButtonEvents(index, screen)
       pin = m.DeviceLinking.findNode("Pin")
       if m.current_user.getInfo().linked = true then pin.text = "You are linked" else pin.text = GetPin(GetUdidFromReg())
 
+      website = m.DeviceLinking.findNode("LinkText2")
+      website.text = m.app.device_link_url
+
       m.scene.transitionTo = "DeviceLinking"
     end if
 end function
