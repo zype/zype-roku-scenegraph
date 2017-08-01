@@ -2,11 +2,45 @@ sub init()
   m.private = {}
 
   m.content_helpers = ContentHelpers()
-  m.helpers = helpers()
   m.initializers = initializers()
+  m.helpers = helpers()
 
   m.initializers.initChildren(m)
 end sub
+
+function onKeyEvent(key as string, press as boolean) as boolean
+  ? ">>> " + m.helpers.id(m) + " >>> onKeyEvent"
+
+  result = false
+
+  if press
+    if key = "down"
+      if m.helpers.focusedChild(m) = "Inputs" then m.submit_button.setFocus(true) : result = true
+    else if key = "up"
+      if m.helpers.focusedChild(m) = "SubmitButton" then m.inputs.setFocus(true) : result = true
+    end if
+  end if
+
+  return result
+end function
+
+function setHeader() as void
+  m.header_label.text = m.top.header
+end function
+
+function helpers() as object
+  this = {}
+
+  this.id = function(self) as string
+    return self.top.id
+  end function
+
+  this.focusedChild = function(self) as string
+    return self.top.focusedChild.id
+  end function
+
+  return this
+end function
 
 function initializers() as object
   this = {}

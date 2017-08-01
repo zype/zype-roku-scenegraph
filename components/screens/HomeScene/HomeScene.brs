@@ -35,6 +35,9 @@ Function Init()
     ' Universal Auth Selection (OAuth - signin / device link)
     m.UniversalAuthSelection = m.top.findNode("UniversalAuthSelection")
 
+    m.SignInScreen = m.top.findNode("SignInScreen")
+    m.SignUpScreen = m.top.findNode("SignUpScreen")
+
     ' Observer to handle Item selection on RowList inside GridScreen (alias="GridScreen.rowItemSelected")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
@@ -345,14 +348,32 @@ Function OnKeyEvent(key, press) as Boolean
                 m.screenStack.peek().setFocus(true)
                 result = true
 
-          ' if oauth select opened
-          else if m.UniversalAuthSelection.visible = true then
-              oauth_select = m.screenStack.pop()
-              oauth_select.visible = false
+            ' if oauth select opened
+            else if m.UniversalAuthSelection.visible = true then
+                oauth_select = m.screenStack.pop()
+                oauth_select.visible = false
 
-              m.screenStack.peek().visible = true
-              m.screenStack.peek().setFocus(true)
-              result = true
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+                result = true
+
+            ' if sign in opened
+            else if m.SignInScreen.visible = true then
+                sign_in = m.screenStack.pop()
+                sign_in.visible = false
+
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+                result = true
+
+            ' if sign up opened
+            else if m.SignUpScreen.visible = true then
+                sign_up = m.screenStack.pop()
+                sign_up.visible = false
+
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+                result = true
 
             ' Coming back from child playlist
             else if m.contentStack.count() > 0 and m.gridScreen.visible = true then

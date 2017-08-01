@@ -108,6 +108,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.UniversalAuthSelection = m.scene.findNode("UniversalAuthSelection")
     m.UniversalAuthSelection.observeField("itemSelected", m.port)
 
+    m.SignInScreen = m.scene.findNode("SignInScreen")
+    m.SignInScreen.header = "Sign in to existing account"
+
+    m.SignUpScreen = m.scene.findNode("SignUpScreen")
+    m.SignUpScreen.header = "Create an account"
+
     ' if m.app.in_app_purchase or m.app.device_linking
     '   svod_enabled = true
     ' else
@@ -137,8 +143,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.scene.observeField("SearchString", m.port)
 
     m.gridScreen = m.scene.findNode("GridScreen")
-    ' m.gridScreenItem = m.scene.findNode("GridScreenItem")
-    ' m.gridScreenItem.isLoggedIn = isLoggedIn()
 
     m.scene.observeField("playlistItemSelected", m.port)
     m.scene.observeField("TriggerDeviceUnlink", m.port)
@@ -152,9 +156,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.raf_service = RafService()
 
     LoadLimitStream() ' Load LimitStream Object
-    'print GetLimitStreamObject()
-
-    'isAuthViaUniversalSVOD()
 
     startDate = CreateObject("roDateTime")
 
@@ -1115,6 +1116,9 @@ function handleButtonEvents(index, screen)
       website.text = m.app.device_link_url
 
       m.scene.transitionTo = "DeviceLinking"
+
+    else if button_role = "transition" and button_target = "SignInScreen"
+      m.scene.transitionTo = "SignInScreen"
     end if
 end function
 

@@ -41,7 +41,8 @@ Sub On_show()
     m.top.visible = m.top.show
     m.top.setFocus(m.top.show)
     m.pin.text = "" ' Setting it empty because after the screen loads, it will load either pin or message
-    'm.linkText.text = "Please visit " + m.top.DeviceLinkingURL + " to link your device!"
+
+    m.linkText2.text = m.top.DeviceLinkingURL
 
     if(m.top.isDeviceLinked = true)
         CreateUnlinkButton()

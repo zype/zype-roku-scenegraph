@@ -16,8 +16,6 @@ end function
 ' ************************************************************************
 function OnKeyEvent(key as string, press as boolean) as boolean
     ? ">>> AuthSelection >>> OnKeyEvent"
-    ? "press: "; press
-    ? "key: "; key
 
     result = false
 
