@@ -18,6 +18,13 @@ REM
 '******************************************************
 Function CreatePlaylistObject(attrs As Object) As Object
   properties = attrs
+  isPoster = false
+  
+  if properties.thumbnail_layout = "poster"
+    isPoster = true
+  else
+    isPoster = false
+  end if
 
   playlist = {
     id: properties._id,
@@ -26,7 +33,8 @@ Function CreatePlaylistObject(attrs As Object) As Object
     description: properties.description,
     hdbackgroundimageurl: GetPlaylistBackgroundImage(properties),
     contenttype: "series",
-    releasedate: " "
+    releasedate: " ",
+    poster: isPoster
   }
 
   return playlist

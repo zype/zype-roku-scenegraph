@@ -48,7 +48,12 @@ Function Init()
     m.loadingIndicator.backgroundColor = m.global.theme.background_color
     m.loadingIndicator.imageUri = m.global.theme.loader_uri
 
+    ' For tracking position bwtn playlist levels
     m.IndexTracker = {}
+
+    ' For tracking thumbnail sizes and row spacing bwtn levels
+    m.rowItemSizes = {}
+    m.rowSpacings  = {}
 
     m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
 End Function
@@ -88,6 +93,38 @@ Function DeleteLastPositionFromTracker() as Void
     m.IndexTracker.Delete(index)
 End Function
 
+
+Function AddPosterPlaylists() as Void
+    rowList = m.gridScreen.findNode("RowList")
+    rowItemSizes = rowList.rowItemSize
+    rowSpacings = rowList.rowSpacings
+
+    playlistLevel = Str(m.rowItemSizes.count())
+
+    m.rowItemSizes[playlistLevel] = rowItemSizes
+    m.rowSpacings[playlistLevel] = rowSpacings
+End Function
+
+Function GetLastRowItemSizes() as Object
+    index = Str(m.rowItemSizes.count() - 1)
+    return m.rowItemSizes[index]
+End Function
+
+Function GetLastRowSpacings() as Object
+    index = Str(m.rowSpacings.count() - 1)
+    return m.rowSpacings[index]
+End Function
+
+Function DeleteLastPosterPlaylists() as Void
+    index = Str(m.rowItemSizes.count() - 1)
+
+    m.rowItemSizes.Delete(index)
+    m.rowSpacings.Delete(index)
+End Function
+
+
+
+
 ' if content set, focus on GridScreen and remove loading indicator
 Function OnChangeContent()
     m.gridScreen.setFocus(true)
@@ -102,6 +139,7 @@ Function OnRowItemSelected()
         ? "[HomeScene] Playlist Selected"
 
         AddCurrentPositionToTracker()
+        AddPosterPlaylists()
 
         m.contentStack.push(m.gridScreen.content)
         m.top.playlistItemSelected = true
@@ -315,6 +353,8 @@ Function OnKeyEvent(key, press) as Boolean
                 previousContent = m.contentStack.pop()
 
                 lastPosition = GetLastPositionFromTracker()
+                lastRowItemSizes = GetLastRowItemSizes()
+                lastRowSpacings = GetLastRowSpacings()
 
                 m.gridScreen.content = previousContent
 
@@ -325,10 +365,13 @@ Function OnKeyEvent(key, press) as Boolean
                 m.detailsScreen.videosTree = m.top.videoliststack.peek()
 
                 DeleteLastPositionFromTracker()
+                DeleteLastPosterPlaylists()
 
                 result = true
 
                 rowList = m.gridScreen.findNode("RowList")
+                rowList.rowItemSize = lastRowItemSizes
+                rowList.rowSpacings = lastRowSpacings
                 rowList.jumpToRowItem = [lastPosition.row, lastPosition.col]
             else if m.deviceLinking.visible = true
                 ' If link device was launched from detail screen, do not run the following two lines.

@@ -32,13 +32,15 @@ Function CreateVideoObject(attrs As Object) As Object
     length: properties.duration,
     description: properties.description,
     hdbackgroundimageurl: GetVideoBackgroundImage(properties),
+    posterThumbnail: GetPosterThumbnail(properties),
     contenttype: "episode",
     releasedate: FormateDate(properties.created_at),
     inFavorites: properties.inFavorites,
     onAir: properties.on_air,
     subscriptionRequired: properties.subscription_required,
     contentId: properties._id,
-    mediaType: "movie"
+    mediaType: "movie",
+    usePoster: properties.usePoster
   }
 
   return video
@@ -93,5 +95,23 @@ Function GetVideoBackgroundImage(attrs As Object) As Object
     src = properties.thumbnails[0].url
   end if
 
+  return src
+End Function
+
+
+'******************************************************
+' Get the url for a video poster thumbnail as a background
+'******************************************************
+Function GetPosterThumbnail(attrs as Object) As Object
+  properties = attrs
+  src = ""
+  if(properties.images <> invalid)
+    for each item in properties.images
+      if item.layout = "poster"
+        src = item.url
+        exit for
+      end if
+    end for
+  end if
   return src
 End Function

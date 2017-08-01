@@ -12,7 +12,23 @@
 <![CDATA[
   function itemContentChanged() as void
     itemData = m.top.itemContent
-    m.itemImage.uri = itemData.HDPOSTERURL
+
+    if itemData.usePoster
+      m.itemImage.loadDisplayMode = "scaleToFit"
+      m.itemImage.Width = 147
+      m.itemImage.Height = 262
+
+      if itemData.posterThumbnail <> invalid AND itemData.posterThumbnail <> ""
+        m.itemImage.uri = itemData.posterThumbnail
+      else
+        m.itemImage.uri = itemData.HDPOSTERURL
+      end if
+    else
+      m.itemImage.loadDisplayMode = "scaleToFit"
+      m.itemImage.Width = 262
+      m.itemImage.Height = 147
+      m.itemImage.uri = itemData.HDPOSTERURL
+    end if
 
     offset = m.itemImage.loadwidth - 32 - 5
     m.statusImage.translation = [offset, 5]

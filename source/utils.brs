@@ -782,3 +782,16 @@ Function FormateDate(date As String) As String
     dt.FromISO8601String(formated_date)
     return dt.AsDateString("short-date")
 End Function
+
+'******************************************************
+' Generates either a true of false. 50% chance of both
+'******************************************************
+Function GetRandomBool()
+    ' generates a number greater than 0 and less than 100
+    n = RND(100)
+    if(n <= 50)
+        return true
+    else
+        return false
+    end if
+End Function
