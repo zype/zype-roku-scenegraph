@@ -21,7 +21,7 @@
     if(itemData.ContentType = 4 AND itemData.SubscriptionRequired = true AND m.global.enable_lock_icons = true)
       m.statusImage.visible = true
 
-      if(m.global.isLoggedIn = true AND (m.global.UniversalSubscriptionsCount > 0 OR m.global.HasNativeSubscription = true))
+      if(m.global.isLoggedInWithSubscription = true AND (m.global.UniversalSubscriptionsCount > 0 OR m.global.HasNativeSubscription = true))
         m.statusImage.uri = "pkg:/images/iconUnlocked.png"
       else
         m.statusImage.uri = "pkg:/images/iconLocked.png"
