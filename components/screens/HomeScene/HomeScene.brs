@@ -151,6 +151,8 @@ end function
 function transitionToScreen() as void
   if focusedChild() = "GridScreen" then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
 
+  if focusedChild() = "DeviceLinking" then stop
+
   m.screenStack.peek().visible = false
   m.screenStack.peek().setFocus(false)
 

@@ -18,10 +18,10 @@ function OnKeyEvent(key as string, press as boolean) as boolean
     return result
 end function
 
-function OnItemSelected() as void
+function onItemSelected() as void
   index = m.top.itemSelected
-  m.top.itemSelectedRole = currentButtonRole(m, index)
-  m.top.itemSelectedTarget = currentButtonTarget(m, index)
+  m.top.itemSelectedRole = m.helpers.currentButtonRole(m, index)
+  m.top.itemSelectedTarget = m.helpers.currentButtonTarget(m, index)
 end function
 
 function onVisibleChange() as void

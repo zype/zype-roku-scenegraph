@@ -215,6 +215,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
         print "msg.getField(): "; msg.getField()
         print "msg.getData(): "; msg.getData()
+        print "msg.getNode(): "; msg.getNode()
 
         if msgType = "roSGNodeEvent"
             if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
@@ -245,7 +246,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelction") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -256,8 +257,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.detailsScreen
                 else if msg.getNode() = "AuthSelection"
                     lclScreen = m.AuthSelection
-                else if msg.getNode() = "UniversalAuthSelction"
-                    lclScreen = m.UniversalAuthSelction
+                else if msg.getNode() = "UniversalAuthSelection"
+                    lclScreen = m.UniversalAuthSelection
                 end if
 
                 index = msg.getData()
@@ -1106,6 +1107,11 @@ function handleButtonEvents(index, screen)
       m.scene.transitionTo = "AuthSelection"
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
       m.scene.transitionTo = "UniversalAuthSelection"
+    else if button_role = "transition" and button_target = "DeviceLinking"
+      pin = m.DeviceLinking.findNode("Pin")
+      if m.current_user.getInfo().linked = true then pin.text = "You are linked" else pin.text = GetPin(GetUdidFromReg())
+
+      m.scene.transitionTo = "DeviceLinking"
     end if
 end function
 
