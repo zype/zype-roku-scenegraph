@@ -10,7 +10,6 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
   ? ">>> " + m.helpers.id(m) + " >>> onKeyEvent"
-
   result = false
 
   if press
@@ -22,6 +21,10 @@ function onKeyEvent(key as string, press as boolean) as boolean
   end if
 
   return result
+end function
+
+function onVisibleChange() as void
+  if m.top.visible = true then m.inputs.setFocus(true)
 end function
 
 function setHeader() as void
@@ -46,12 +49,14 @@ function initializers() as object
   this = {}
 
   this.initChildren = function(self) as void
+    self.top.observeField("visible", "onVisibleChange")
+
     self.header_label = self.top.findNode("HeaderLabel")
     self.header_label.color = self.global.theme.primary_text_color
 
     inputs_content = [
-      [ { title: "email", name: "email", value: "" } ],
-      [ { title: "password", name: "password", value: "" } ]
+      [ { title: "Email", name: "email", value: "" } ],
+      [ { title: "Password", name: "password", value: "" } ]
     ]
 
     self.inputs = self.top.findNode("Inputs")
