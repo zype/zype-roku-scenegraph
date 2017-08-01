@@ -72,6 +72,7 @@
         <Label
           id="OAuthLabel"
           width="440"
+          horizAlign="center"
           text="Already have an account?"
           translation="[0,0]">
           <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="20"/>
@@ -79,7 +80,7 @@
 
         <LabelList
             id="OAuthButton"
-            translation="[440,0]"
+            translation="[500,0]"
             color="0xf5f5f5"
             focusedColor="0xf5f5f5"
             itemSize="[100, 50]"

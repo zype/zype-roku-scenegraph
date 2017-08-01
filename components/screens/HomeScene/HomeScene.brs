@@ -32,6 +32,9 @@ Function Init()
     ' Auth Selection Screen
     m.AuthSelection = m.top.findNode("AuthSelection")
 
+    ' Universal Auth Selection (OAuth - signin / device link)
+    m.UniversalAuthSelection = m.top.findNode("UniversalAuthSelection")
+
     ' Observer to handle Item selection on RowList inside GridScreen (alias="GridScreen.rowItemSelected")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
@@ -146,12 +149,12 @@ function PushContentIntoContentStack(content) as void
 end function
 
 function transitionToScreen() as void
+  if focusedChild() = "GridScreen" then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
+
   m.screenStack.peek().visible = false
   m.screenStack.peek().setFocus(false)
 
   screen = m.top.findNode(m.top.transitionTo)
-
-  if focusedChild() = "GridScreen" then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
 
   PushScreenIntoScreenStack(screen)
 
@@ -339,6 +342,15 @@ Function OnKeyEvent(key, press) as Boolean
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)
                 result = true
+
+          ' if oauth select opened
+          else if m.UniversalAuthSelection.visible = true then
+              oauth_select = m.screenStack.pop()
+              oauth_select.visible = false
+
+              m.screenStack.peek().visible = true
+              m.screenStack.peek().setFocus(true)
+              result = true
 
             ' Coming back from child playlist
             else if m.contentStack.count() > 0 and m.gridScreen.visible = true then

@@ -99,9 +99,14 @@
             id="InfoScreen"
             visible="false"/>
 
-        <!-- Auth selection screen -->
+        <!-- Auth selection screen - choose native svod purchase + signup or oauth -->
         <AuthSelection
           id="AuthSelection"
+          visible="false" />
+
+        <!-- OAuth selection - choose signin / device link -->
+        <UniversalAuthSelection
+          id="UniversalAuthSelection"
           visible="false" />
 
         <!-- Font for loading indicator -->

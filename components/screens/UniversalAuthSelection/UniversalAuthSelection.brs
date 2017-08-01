@@ -38,11 +38,11 @@ function helpers() as object
   end function
 
   this.currentButtonRole = function(self, index) as string
-    self.u_auth_buttons.content.getChild(index).role
+    return self.u_auth_buttons.content.getChild(index).role
   end function
 
   this.currentButtonTarget = function(self, index) as string
-    self.u_auth_buttons.content.getChild(index).target
+    return self.u_auth_buttons.content.getChild(index).target
   end function
 
   return this
@@ -57,7 +57,7 @@ function initializers() as object
       { title: "Link Device", role: "transition", target: "DeviceLinking" },
       { title: "Sign in with email", role: "transition", target: "SignInScreen" }
     ]
-    self.u_auth_buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+    self.u_auth_buttons.content = self.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
 
     self.top.observeField("visible", "onVisibleChange")
   end function
