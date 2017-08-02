@@ -10,6 +10,8 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
   ? ">>> InputKeyboard >>> onKeyEvent"
+  ? "press: "; press
+  ? "key: "; key
 
   result = false
 
@@ -33,7 +35,7 @@ function onInputTypeChange() as void
 
   if input_type = "Password" then m.keyboard.textEditBox.secureMode = true else m.keyboard.textEditBox.secureMode = false
 
-  m.header.text = input_type + ":"
+  m.header.text = input_type
 end function
 
 function helpers() as object

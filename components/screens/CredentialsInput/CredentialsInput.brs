@@ -15,8 +15,6 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
   ? ">>> " + m.helpers.id(m) + " >>> onKeyEvent"
-  ? "press: "; press
-  ? "key: "; key
 
   result = false
 
@@ -26,32 +24,22 @@ function onKeyEvent(key as string, press as boolean) as boolean
     else if key = "up"
       if m.helpers.focusedChild(m) = "SubmitButton" then m.inputs.setFocus(true) : result = true
     else if key = "back"
-      if m.helpers.focusedChild(m) = "InputKeyboard" then m.inputs.setFocus(true) : result = true
+      if m.helpers.focusedChild(m) = "InputKeyboard" then
+        m.inputs.setFocus(true)
+        m.helpers.hideKeyboard(m)
+        result = true
+      end if
     end if
 
-  ' press = false
-  '   key event from a child
-  else
-    if key = "OK"
-      if m.helpers.focusedChild(m) = "Inputs"
-        m.input_keyboard.type = m.helpers.currentFocusedInput(m)
-        m.input_keyboard.visible = true
-        m.input_keyboard.setFocus(true)
-      else if m.helpers.focusedChild(m) = "InputKeyboard"
-        handleInput()
-      end if
-    else if key = "back"
-      ' if m.helpers.focusedChild(m) = "InputKeyboard"
-      '   if m.input_keyboard.type = "Email"
-      '     current_input =
-      '   end if
-      '
-      '
-      ' end if
-    end if
-  end if
+  end if ' press = true
 
   return result
+end function
+
+function onInputSelect() as void
+  m.input_keyboard.type = m.helpers.currentFocusedInput(m)
+  m.input_keyboard.visible = true
+  m.input_keyboard.setFocus(true)
 end function
 
 function onVisibleChange() as void
@@ -69,14 +57,20 @@ function handleInput() as void
   input_type = m.input_keyboard.type
   input_value = m.input_keyboard.value
 
-  if input_type = "Email"
-    current_input = m.helpers.emailInputNode(m)
-  else if input_type = "Password"
-    current_input = m.helpers.passwordInputNode(m)
-  end if
-
-  current_input.value = input_value
+  ' if input_type = "Email"
+  '   current_input = m.helpers.emailInputNode(m)
+  ' else if input_type = "Password"
+  '   current_input = m.helpers.passwordInputNode(m)
+  ' end if
+  '
+  ' current_input.value = input_value
   m.inputs.setFocus(true)
+
+  if input_type = "Email"
+    m.inputs.jumpToRowItem = [0,0]
+  else if input_type = "Password"
+    m.inputs.jumpToRowItem = [1,0]
+  end if
 end function
 
 function helpers() as object
@@ -105,6 +99,11 @@ function helpers() as object
 
   this.keyboardValue = function(self) as string
     return self.input_keyboard.value
+  end function
+
+  this.hideKeyboard = function(self) as void
+    self.input_keyboard.visible = false
+    self.input_keyboard.setFocus(false)
   end function
 
   return this

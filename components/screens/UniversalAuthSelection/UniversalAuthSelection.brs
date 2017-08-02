@@ -10,14 +10,6 @@ sub init()
   m.initializers.initChildren(m)
 end sub
 
-function OnKeyEvent(key as string, press as boolean) as boolean
-    ? ">>> UniversalAuthSelection >>> OnKeyEvent"
-
-    result = false
-
-    return result
-end function
-
 function onItemSelected() as void
   index = m.top.itemSelected
   m.top.itemSelectedRole = m.helpers.currentButtonRole(m, index)
