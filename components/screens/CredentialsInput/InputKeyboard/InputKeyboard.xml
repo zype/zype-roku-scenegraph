@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- node that renders InputKeyboard for accepting user input
+ -->
+<component name="InputKeyboard" extends="Group" initialFocus="Keyboard" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+      <field id="type" type="string" alwaysNotify="true" onChange="onInputTypeChange" />
+      <field id="value" type="String" alias="Keyboard.text" />
+
+      <field id="confirmClicked" type="integer" alwaysNotify="true" alias="ConfirmButton.itemSelected" />
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
+    <script type="text/brightscript" uri="pkg:/components/screens/CredentialsInput/InputKeyboard/InputKeyboard.brs" />
+
+    <children>
+
+      <Rectangle
+        id="Background"
+        color="0x151515"
+        width="1280"
+        height="720"
+        translation="[0,0]" />
+
+      <Label
+        id="Header"
+        width="1280"
+        horizAlign="center"
+        text=""
+        translation="[0,50]">
+        <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="40"/>
+      </Label>
+
+      <Keyboard
+         id="Keyboard"
+         keyColor="0xf5f5f5"
+         focusedKeyColor="0x151515"
+         translation="[200, 150]" />
+
+      <LabelList
+        id="ConfirmButton"
+        translation="[500,500]"
+        color="0xf5f5f5"
+        focusedColor="0xf5f5f5"
+        itemSize="[300, 60]"
+        numRows="1"
+        vertFocusAnimationStyle="floatingFocus"
+        textHorizAlign="center"
+        font="dictionary:ButtonFont"
+        focusedFont="dictionary:ButtonFont"
+        focusBitmapUri="pkg:/images/button-focus.png" />
+
+    </children>
+</component>
