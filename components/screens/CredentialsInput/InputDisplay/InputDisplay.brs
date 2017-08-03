@@ -13,32 +13,36 @@ end sub
 function onContentUpdate() as void
   input_data = m.top.itemContent
 
-  m.input_box.text = input_data.title
+  m.input_box.hintText = input_data.title
   m.top.name = input_data.name
+  m.top.value = input_data.value
 end function
 
-function onItemFocused() as void
-  if m.top.listHasFocus
+function onInputFocus() as void
+  ? "InputDisplay >>> onInputFocus"
+  ? "m.top.rowHasFocus: "; m.top.rowHasFocus
+  ? "m.top.name: "; m.top.name
+  ? "m.top.value: "; m.top.value
+
+  if m.top.rowHasFocus
     m.input_box.text = m.top.value
-    m.input_text.text = m.top.value
+    ' m.input_text.text = m.top.value
 
     m.input_box.cursorPosition = len(m.input_box.text)
-    m.input_box.active = true
+    if len(m.input_box.text) > 0 then m.input_box.active = true else m.input_box.active = false
 
-    m.input_text.visible = false
+    ' m.input_text.visible = false
     m.input_box.setFocus(true)
   else
-    m.input_box.text = m.top.value
 
-    if m.top.name = "password"
-      m.input_text.text = m.text_helpers.securedPassword(m.top.value)
+    if m.top.name = "password" and len(m.top.value) > 0
+      m.input_box.text = m.text_helpers.securedPassword(m.top.value)
     else
-      m.input_text.text = m.top.value
+      m.input_box.text = m.top.value
     end if
 
-    m.input_box.active = false
-
     m.input_text.visible = true
+    m.input_box.active = false
     m.input_box.setFocus(false)
   end if
 end function

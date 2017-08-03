@@ -10,9 +10,6 @@ end sub
 
 function onKeyEvent(key as string, press as boolean) as boolean
   ? ">>> InputKeyboard >>> onKeyEvent"
-  ? "press: "; press
-  ? "key: "; key
-
   result = false
 
   if press

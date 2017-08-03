@@ -1,9 +1,7 @@
 sub init()
   m.private = {
-    current_input: {
-      email: "",
-      password: ""
-    }
+    email: "",
+    password: ""
   }
 
   m.content_helpers = ContentHelpers()
@@ -57,13 +55,19 @@ function handleInput() as void
   input_type = m.input_keyboard.type
   input_value = m.input_keyboard.value
 
-  ' if input_type = "Email"
-  '   current_input = m.helpers.emailInputNode(m)
-  ' else if input_type = "Password"
-  '   current_input = m.helpers.passwordInputNode(m)
-  ' end if
-  '
-  ' current_input.value = input_value
+  if input_type = "Email"
+    data = {
+      email: input_value,
+      password: m.private.password
+    }
+  else if input_type = "Password"
+    data = {
+      email: m.private.email,
+      password: input_value
+    }
+  end if
+
+  m.helpers.reassignInputs(m, data)
   m.inputs.setFocus(true)
 
   if input_type = "Email"
@@ -104,6 +108,18 @@ function helpers() as object
   this.hideKeyboard = function(self) as void
     self.input_keyboard.visible = false
     self.input_keyboard.setFocus(false)
+  end function
+
+  this.reassignInputs = function(self, data) as void
+    self.private.email = data.email
+    self.private.password = data.password
+
+    inputs_content = [
+      [ { title: "Email", name: "email", value: self.private.email } ],
+      [ { title: "Password", name: "password", value: self.private.password } ]
+    ]
+
+    self.inputs.content = self.content_helpers.twoDimList2ContentNode(inputs_content, "InputNode")
   end function
 
   return this
