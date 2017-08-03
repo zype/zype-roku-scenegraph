@@ -37,6 +37,13 @@ end function
 function onInputSelect() as void
   m.input_keyboard.type = m.helpers.currentFocusedInput(m)
   m.input_keyboard.visible = true
+
+  if m.input_keyboard.type = "Email"
+    m.input_keyboard.value = m.private.email
+  else if m.input_keyboard.type = "Password"
+    m.input_keyboard.value = m.private.password
+  end if
+
   m.input_keyboard.setFocus(true)
 end function
 

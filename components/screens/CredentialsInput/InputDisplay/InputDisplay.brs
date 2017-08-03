@@ -19,31 +19,21 @@ function onContentUpdate() as void
 end function
 
 function onInputFocus() as void
-  ? "InputDisplay >>> onInputFocus"
-  ? "m.top.rowHasFocus: "; m.top.rowHasFocus
-  ? "m.top.name: "; m.top.name
-  ? "m.top.value: "; m.top.value
-
   if m.top.rowHasFocus
     m.input_box.text = m.top.value
-    ' m.input_text.text = m.top.value
+    m.helpers.showInputBox(m)
+    if m.top.name = "password" then m.input_box.secureMode = true else m.input_box.secureMode = false
 
-    m.input_box.cursorPosition = len(m.input_box.text)
-    if len(m.input_box.text) > 0 then m.input_box.active = true else m.input_box.active = false
-
-    ' m.input_text.visible = false
-    m.input_box.setFocus(true)
+    m.input_text.visible = false
   else
-
-    if m.top.name = "password" and len(m.top.value) > 0
-      m.input_box.text = m.text_helpers.securedPassword(m.top.value)
+    if m.top.name = "password"
+      m.input_text.text = m.text_helpers.securedPassword(m.top.value)
     else
-      m.input_box.text = m.top.value
+      m.input_text.text = m.top.value
     end if
 
     m.input_text.visible = true
-    m.input_box.active = false
-    m.input_box.setFocus(false)
+    m.helpers.hideInputBox(m)
   end if
 end function
 
@@ -56,6 +46,19 @@ function helpers() as object
 
   this.focusedChild = function(self) as string
     return self.top.focusedChild.id
+  end function
+
+  this.showInputBox = function(self) as void
+    if len(self.top.value) > 0 then self.input_box.active = true else self.input_box.active = false
+
+    self.input_box.cursorPosition = len(self.top.value)
+    self.input_box.visible = true
+    self.input_box.setFocus(true)
+  end function
+
+  this.hideInputBox = function(self) as void
+    if len(self.top.value) > 0 then self.input_box.visible = false : self.input_box.active  = false
+    self.input_box.setFocus(false)
   end function
 
   return this
