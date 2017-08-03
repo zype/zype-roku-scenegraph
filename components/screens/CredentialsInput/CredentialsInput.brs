@@ -11,6 +11,7 @@ sub init()
   m.initializers.initChildren(m)
 end sub
 
+' Key pressed
 function onKeyEvent(key as string, press as boolean) as boolean
   ? ">>> " + m.helpers.id(m) + " >>> onKeyEvent"
 
@@ -34,6 +35,7 @@ function onKeyEvent(key as string, press as boolean) as boolean
   return result
 end function
 
+' User clicked "OK" on email/password input field
 function onInputSelect() as void
   m.input_keyboard.type = m.helpers.currentFocusedInput(m)
   m.input_keyboard.visible = true
@@ -45,6 +47,14 @@ function onInputSelect() as void
   end if
 
   m.input_keyboard.setFocus(true)
+end function
+
+function onItemSelected() as void
+  if m.helpers.focusedChild(m) = "SubmitButton"
+    m.top.itemSelectedRole = "submitCredentials"
+    m.top.email = m.private.email
+    m.top.password = m.private.password
+  end if
 end function
 
 function onVisibleChange() as void

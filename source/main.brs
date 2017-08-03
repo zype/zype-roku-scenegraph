@@ -110,6 +110,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.SignInScreen = m.scene.findNode("SignInScreen")
     m.SignInScreen.header = "Sign in to existing account"
+    m.SignInScreen.observeField("itemSelected", m.port)
 
     m.SignUpScreen = m.scene.findNode("SignUpScreen")
     m.SignUpScreen.header = "Create an account"
@@ -247,7 +248,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -260,6 +261,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.AuthSelection
                 else if msg.getNode() = "UniversalAuthSelection"
                     lclScreen = m.UniversalAuthSelection
+                else if msg.getNode() = "SignInScreen"
+                    lclScreen = m.SignInScreen
+                else if msg.getNode() = "SignUpScreen"
+                    lclScreen = m.SignUpScreen
                 end if
 
                 index = msg.getData()
@@ -1103,6 +1108,12 @@ function handleButtonEvents(index, screen)
     else if button_role = "device_linking"
       m.deviceLinking.show = true
       m.deviceLinking.setFocus(true)
+
+    else if button_role = "submitCredentials" and screen.id = "SignInScreen"
+      stop
+
+    else if button_role = "submitCredentials" and screen.id = "SignUpScreen"
+      stop
 
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
