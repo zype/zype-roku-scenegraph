@@ -1110,7 +1110,6 @@ function handleButtonEvents(index, screen)
       m.deviceLinking.setFocus(true)
 
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
-      stop
       login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
 
       if login_response <> invalid
@@ -1127,6 +1126,10 @@ function handleButtonEvents(index, screen)
 
         sleep(500)
         CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+
+
+        ' Add code for signed in displays / buttons
+
       else
         sleep(500)
         CreateDialog(m.scene, "Error", "Could not find user with that email and password.", ["Close"])
@@ -1142,9 +1145,12 @@ function handleButtonEvents(index, screen)
 
         user_info = m.current_user.getInfo()
 
+        ' Still need to add handler to get plan code selected
+        plan_code = m.UniversalAuthSelection.plan_code
+
         ' Make nsvod purchase
         purchase_subscription = m.roku_store_service.makePurchase({
-          code: CODE,
+          code: plan_code,
           qty: 1
         })
 
@@ -1153,8 +1159,8 @@ function handleButtonEvents(index, screen)
           recent_purchase = m.roku_store_service.getRecentPurchase()
 
           bifrost_params = {
-            consumer_id: user_info.consumer_id,
-            site_id: SITE_ID,
+            consumer_id: user_info._id,
+            site_id: m.app.site_id,
             subscription_plan_id: recent_purchase.code,
             roku_api_key: GetApiConfigs().roku_api_key,
             transaction_id: recent_purchase.purchaseId
@@ -1164,7 +1170,7 @@ function handleButtonEvents(index, screen)
           if native_sub_status.is_valid
             ' Create Subscription on platform
             subscription_params = {
-              "subscription[consumer_id]": user_info.consumer_id,
+              "subscription[consumer_id]": user_info._id,
               "subscription[plan_id]": recent_purchase.code,
               "subscription[third_party_id]": "roku"
             }
@@ -1183,14 +1189,8 @@ function handleButtonEvents(index, screen)
 
                 sleep(500)
                 CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
-            end if
-          else
-            ' try again later
-          end if
-        else
-
-        end if
-
+            end if ' create_subscription_response <> invalid
+          end if ' native_sub_status.valid
 
         ' User cancelled purchase or error from Roku store
         else

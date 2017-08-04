@@ -19,12 +19,12 @@
                         <maxQty i:nil="true"/>
                         <name>Monthly Subscription</name>
                         <productType>MonthlySub</productType>
-                        <purchaseDate>2013-04-29T22:17:48</purchaseDate>
+                        <purchaseDate>2013-04-28T22:17:48</purchaseDate>
                         <purchaseId>871e9522ace140a99821a1ab010bb0d7</purchaseId>
                         <qty>1</qty>
-                        <renewalDate>2014-04-29T22:17:48</renewalDate>
+                        <renewalDate>2013-04-29T22:17:48</renewalDate>
                         <upsellProduct i:nil="true"/>
-                </product>  -->
+                </product> -->
 
                 <!--Abstract 2-->
                 <!-- <product xmlns="">
@@ -39,8 +39,8 @@
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
                         <inStock>false</inStock>
                         <maxQty i:nil="true"/>
-                        <name>Monthly Subscription</name>
-                        <productType>MonthlySub</productType>
+                        <name>Yearly Subscription</name>
+                        <productType>YearlySub</productType>
                         <purchaseDate>2013-04-29T22:17:48</purchaseDate>
                         <purchaseId>871e9522ace140a99821a1ab010bb0d7</purchaseId>
                         <qty>1</qty>

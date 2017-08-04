@@ -57,11 +57,14 @@ function RokuStoreService(store, message_port) as object
     recent_purchase = purchases[0]
 
     for each purchase in purchases
-      purchase_date = CreateObject("roDateTime").FromISO8601String(purchase.purchaseDate)
-      recent_purchase_date = CreateObject("roDateTime").FromISO8601String(recent_purchase.purchaseDate)
+      purchase_dt = CreateObject("roDateTime")
+      purchase_dt.FromISO8601String(purchase.purchaseDate)
+
+      recent_dt = CreateObject("roDateTime")
+      recent_dt.FromISO8601String(recent_purchase.purchaseDate)
 
       ' Found more recent purchase
-      if purchase_date.asSeconds() > recent_purchase_date.asSeconds() then recent_purchase = purchase
+      if purchase_dt.asSeconds() > recent_dt.asSeconds() then recent_purchase = purchase
     end for
 
     return recent_purchase

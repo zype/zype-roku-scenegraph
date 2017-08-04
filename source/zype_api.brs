@@ -556,11 +556,6 @@ function IsLinked(urlParams as Object) as Object
     end while
   end if
 
-  if result.linked = false
-    ResetAccessToken()
-    ClearOAuth()
-  end if
-
   return result
 end function
 
