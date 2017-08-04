@@ -1111,9 +1111,94 @@ function handleButtonEvents(index, screen)
 
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
       stop
+      login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+
+      if login_response <> invalid
+
+        user_info = m.current_user.getInfo()
+
+        m.DetailsScreen.isDeviceLinked = true
+        m.Favorites.isLoggedIn = true
+
+        if user_info.subscription_count > 0
+          m.DetailsScreen.isLoggedIn = true
+          m.DetailsScreen.UniversalSubscriptionsCount = user_info.subscription_count
+        end if
+
+        sleep(500)
+        CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+      else
+        sleep(500)
+        CreateDialog(m.scene, "Error", "Could not find user with that email and password.", ["Close"])
+      end if
 
     else if button_role = "submitCredentials" and screen.id = "SignUpScreen"
       stop
+
+      create_consumer_response = CreateConsumer({ email: screen.email, password: screen.password })
+
+      if create_consumer_response <> invalid
+        login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+
+        user_info = m.current_user.getInfo()
+
+        ' Make nsvod purchase
+        purchase_subscription = m.roku_store_service.makePurchase({
+          code: CODE,
+          qty: 1
+        })
+
+        if purchase_subscription
+          ' Get recent purchase
+          recent_purchase = m.roku_store_service.getRecentPurchase()
+
+          bifrost_params = {
+            consumer_id: user_info.consumer_id,
+            site_id: SITE_ID,
+            subscription_plan_id: recent_purchase.code,
+            roku_api_key: GetApiConfigs().roku_api_key,
+            transaction_id: recent_purchase.purchaseId
+          }
+          native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
+
+          if native_sub_status.is_valid
+            ' Create Subscription on platform
+            subscription_params = {
+              "subscription[consumer_id]": user_info.consumer_id,
+              "subscription[plan_id]": recent_purchase.code,
+              "subscription[third_party_id]": "roku"
+            }
+            create_subscription_response = CreateSubscription(subscription_params)
+
+            if create_subscription_response <> invalid
+              user_info = m.current_user.getInfo()
+
+                m.DetailsScreen.isDeviceLinked = true
+                m.Favorites.isLoggedIn = true
+
+                if user_info.subscription_count > 0
+                  m.DetailsScreen.isLoggedIn = true
+                  m.DetailsScreen.UniversalSubscriptionsCount = user_info.subscription_count
+                end if
+
+                sleep(500)
+                CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
+            end if
+          else
+            ' try again later
+          end if
+        else
+
+        end if
+
+
+        ' User cancelled purchase or error from Roku store
+        else
+          CreateDialog(m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
+        end if
+      else
+        CreateDialog(m.scene, "Error", "It appears that email was taken.", ["Close"])
+      end if
 
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"

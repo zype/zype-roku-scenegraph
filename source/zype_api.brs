@@ -760,19 +760,26 @@ function CreateConsumer(urlParams as object) as object
   end if
 end function
 
-'**********************************************************************************
-' This is a work in progress. This function is supposed to send back consumer data
-' after the successful native store purchase
-'**********************************************************************************
-Function SaveSubscriptionData(_data, urlParams as Object)
-  url = GetApiConfigs().endpoint + "save-subscription/"
-  params = AppendAppKeyToParams(urlParams)
-  response = MakePostRequest(url, _data)
-  if response <> invalid
-    data = response.response
-  else if response = invalid
-    data = invalid
-  end if
+' Calls BiFrost API to check if native subscription is valid
+'   Return: { "success": true/false, "is_valid": true/false, "expired": true/false }
+'
+'   Required params: consumer_id, site_id, subscription_plan_id, device_type (roku), roku_api_key, transaction_id (from roku receipt)
+'
+function GetNativeSubscriptionStatus(params as object) as object
+  url = GetApiConfigs().bifrost_endpoint + "api/v1/subscribe"
+  response = MakePostRequest(url, params)
 
-  return data
-End Function
+  if response <> invalid then return response.response else return invalid
+end function
+
+' Create subscription for consumer
+'
+'   Required params: subscription[consumer_id], subscription[plan_id], subscription[third_party_id]
+function CreateSubscription(params as object) as object
+  url = GetApiConfigs().endpoint + "subscriptions"
+  params.api_key = GetApiConfigs().zype_api_key
+
+  response = MakePostRequest(url, params)
+
+  if response <> invalid then return response.response else return invalid
+end function

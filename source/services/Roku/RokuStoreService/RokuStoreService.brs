@@ -49,5 +49,23 @@ function RokuStoreService(store, message_port) as object
     return order
   end function
 
+  this.getRecentPurchase = function() as object
+    purchases = m.getPurchases()
+
+    if purchases.count() = 0 then return invalid
+
+    recent_purchase = purchases[0]
+
+    for each purchase in purchases
+      purchase_date = CreateObject("roDateTime").FromISO8601String(purchase.purchaseDate)
+      recent_purchase_date = CreateObject("roDateTime").FromISO8601String(recent_purchase.purchaseDate)
+
+      ' Found more recent purchase
+      if purchase_date.asSeconds() > recent_purchase_date.asSeconds() then recent_purchase = purchase
+    end for
+
+    return recent_purchase
+  end function
+
   return this
 end function
