@@ -22,13 +22,34 @@ function RafService() as object
 
   ' ********************************************
   ' Parameters:
+  '     url - ad tag url
+  ' ********************************************
+  this.replaceMacros = function(url)
+    manifest = readManifest()
+
+    url = strReplace(url, "[uuid]", "ROKU_ADS_TRACKING_ID")
+    url = strReplace(url, "[app_name]", manifest.title)
+    ' Replace app[bundle]
+    ' Replace app[domain]
+    url = strReplace(url, "[device_type]", "7")
+    url = strReplace(url, "[device_make]", "Roku")
+    url = strReplace(url, "[device_model]", "ROKU_ADS_DEVICE_MODEL")
+    url = strReplace(url, "[device_ifa]", "ROKU_ADS_TRACKING_ID")
+    url = strReplace(url, "[vpi]", "ROKU")
+    url = strReplace(url, "[app_id]", "ROKU_ADS_APP_ID")
+
+    return url
+  end function
+
+  ' ********************************************
+  ' Parameters:
   '     video_player_info - response from Zype player API
   '     url               - ad tag url
   ' ********************************************
   this.playAds = function(video_player_info, url = invalid) as boolean
     if url <> invalid and url <> ""
-      url = RafService().ReplaceMacros(url)
-      m.raf.setAdUrl(url)
+      ad_url = m.replaceMacros(url)
+      m.raf.setAdUrl(ad_url)
     end if
 
     ' ***************************************************************************************
@@ -49,28 +70,6 @@ function RafService() as object
     ad_success = m.raf.showAds(ads)
 
     return ad_success
-  end function
-
-  ' ********************************************
-  ' Parameters:
-  '     url - ad tag url
-  ' ********************************************
-  this.ReplaceMacros = function(url)
-    manifest = readManifest()
-    
-    url = strReplace(url, "[uuid]", "ROKU_ADS_TRACKING_ID")
-    url = strReplace(url, "[app_name]", manifest.title)
-    ' Replace app[bundle]
-    ' Replace app[domain]
-    url = strReplace(url, "[device_type]", "7")
-    url = strReplace(url, "[device_make]", "Roku")
-    url = strReplace(url, "[device_model]", "ROKU_ADS_DEVICE_MODEL")
-    url = strReplace(url, "[device_ifa]", "ROKU_ADS_TRACKING_ID")
-    url = strReplace(url, "[vpi]", "ROKU")
-    url = strReplace(url, "[app_id]", "ROKU_ADS_APP_ID")
-    
-    print url
-    return url
   end function
 
   return this
