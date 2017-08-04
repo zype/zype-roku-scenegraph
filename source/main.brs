@@ -482,7 +482,7 @@ sub playRegularVideo(screen as Object)
           auth = {"app_key": GetApiConfigs().app_key}
         end if
 
-
+        print "m.app.avod: "; m.app.avod
         if m.app.avod = true
           playVideoWithAds(screen, auth)
         else
