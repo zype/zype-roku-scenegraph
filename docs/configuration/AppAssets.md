@@ -1,6 +1,6 @@
 # What Images Do I Need To Update
 
-There are a handful of images that need to be updated when you are starting from scratch. Roku only requires certain assets when submitting. For the up to date info on the required assets, you can reference [Roku's documentation](https://github.com/rokudev/docs/blob/master/develop/specifications/manifest.md).
+There are a handful of images that need to be updated when you are starting from scratch. Roku only requires certain assets when submitting. For the up to date info on the required assets, you can reference [Roku's documentation](https://sdkdocs.roku.com/display/sdkdoc/Roku+Channel+Manifest#RokuChannelManifest-RequiredAttributes).
 
 Inside the _images_ folder, you only need to update the following images:
 
