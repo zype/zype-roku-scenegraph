@@ -38,6 +38,8 @@ Function Init()
     m.SignInScreen = m.top.findNode("SignInScreen")
     m.SignUpScreen = m.top.findNode("SignUpScreen")
 
+    m.AcountScreen = m.top.findNode("AccountScreen")
+
     ' Observer to handle Item selection on RowList inside GridScreen (alias="GridScreen.rowItemSelected")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
@@ -174,59 +176,23 @@ Function OnMenuButtonSelected()
     ? "[HomeScene] Menu Button Selected"
     ? m.Menu.itemSelected
 
+    button_role = m.Menu.itemSelectedRole
+    button_target = m.Menu.itemSelectedTarget
+
     ' Menu is visible - it must be last element
     menu = m.screenStack.pop()
     menu.visible = false
-    if m.Menu.itemSelected = -1 then ' Home
-        if m.detailsScreen.visible = true or m.gridScreen.visible = true then ' if Details or Grid (Home) opened
-            m.screenStack.peek().visible = true
-            m.screenStack.peek().setFocus(true)
-        else ' must be Search or About opened
-            screen = m.screenStack.pop()
-            screen.visible = false
 
-            m.screenStack.peek().visible = true
-            m.screenStack.peek().setFocus(true)
-        end if
-    else if m.Menu.itemSelected = 3 then ' Favorites
-        m.screenStack.peek().visible = false ' hide last opened screen
-
-        ' add Favorites screen to Screen stack
-        m.screenStack.push(m.Favorites)
-
-        ' show and focus Favorites
-        m.Favorites.visible = true
-        m.Favorites.setFocus(true)
-
-    else if m.Menu.itemSelected = 0 then ' Search
-        m.screenStack.peek().visible = false ' hide last opened screen
-
-        ' add Search screen to Screen stack
-        m.screenStack.push(m.Search)
-
-        ' show and focus Search
-        m.Search.visible = true
-        m.Search.setFocus(true)
-
-        m.top.SearchString = ""
-                m.top.ResultsText = ""
-    else if m.Menu.itemSelected = 2 then ' Device Linking
-        m.screenStack.peek().visible = false ' hide last opened screen
-
-        ' add Device Linking screen to screen stack
-        m.screenStack.push(m.deviceLinking)
-
-        ' show and focus Device Linking
-        m.deviceLinking.show = true
-        m.deviceLinking.setFocus(true)
-    else if m.Menu.itemSelected = 1 then ' About
-        m.screenStack.peek().visible = false ' hide last opened screen
-
-        ' add Search screen to Screen stack
-        m.screenStack.push(m.infoScreen)
-        ' show and focus Search
-        m.infoScreen.visible = true
-        m.infoScreen.setFocus(true)
+    if button_role = "transition" and button_target = "Search"
+      m.top.SearchString = ""
+      m.top.ResultsText = ""
+      m.top.transitionTo = "Search"
+    else if button_role = "transition" and button_target = "InfoScreen"
+      m.top.transitionTo = "InfoScreen"
+    else if button_role = "transition" and button_target = "Favorites"
+      m.top.transitionTo = "Favorites"
+    else if button_role = "transition" and button_target = "AccountScreen"
+      m.top.transitionTo = "AccountScreen"
     end if
 End Function
 
@@ -368,6 +334,15 @@ Function OnKeyEvent(key, press) as Boolean
             else if m.SignUpScreen.visible = true then
                 sign_up = m.screenStack.pop()
                 sign_up.visible = false
+
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+                result = true
+
+            ' if account screen opened
+            else if m.AccountScreen.visible = true then
+                account = m.screenStack.pop()
+                account.visible = false
 
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)

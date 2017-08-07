@@ -8,17 +8,14 @@
     <interface>
         <!-- Button press handler -->
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="MenuButtons.itemSelected" onChange="onItemSelected" />
-
-        <!-- Row List Content Node -->
-        <!--<field id="content" type="node" alias="RowList.content" onChange="onContentChange"/>-->
-
-        <!-- Row item selection handler -->
-        <!--<field id="rowItemSelected" type="intarray" alwaysnotify="true" alias="RowList.rowItemSelected"/>-->
+        <field id="itemSelectedRole" type="string" />
+        <field id="itemSelectedTarget" type="string" />
 
         <field id="isDeviceLinkingEnabled" type="bool" onChange="InitSidebarButtons"/>
     </interface>
 
     <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
     <script type="text/brightscript" uri="pkg:/components/screens/Menu/Menu.brs" />
 
     <children>
@@ -29,7 +26,7 @@
 
         <!-- Background Shade -->
         <Rectangle
-            id = "Shade"
+            id="Shade"
             width="600"
             height="720"
             color="0x151515"
@@ -51,23 +48,6 @@
             focusedFont="dictionary:MenuFont"
             focusBitmapUri="pkg:/images/button-focus-light.png"
             />
-
-        <!--Menu grid -->
-        <!--<RowList
-            id="RowList"
-            focusBitmapUri="pkg:/images/focus_grid_light.9.png"
-            translation="[-60, 400]"
-            itemSize="[1327, 218]"
-            numRows="1"
-            itemSpacing="[13, 0]"
-            focusXOffset="[147]"
-            rowFocusAnimationStyle="fixedFocusWrap"
-            rowItemSize="[[262, 147]]"
-            rowItemSpacing="[[16, 3]]"
-            showRowLabel="true"
-            showRowCounter="true"
-            rowLabelOffset="[[147, 20]]"
-            />-->
     </children>
 
 </component>

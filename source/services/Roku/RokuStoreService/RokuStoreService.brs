@@ -19,23 +19,34 @@ function RokuStoreService(store, message_port) as object
 
   this.getNativeSubscriptionPlans = function() as object
     catalog = m.getCatalog()
-    return m.helpers.filterCatalog(catalog, ["MonthlySub", "YearlySub"])
+    return m.helpers.filterItems(catalog, ["MonthlySub", "YearlySub"])
   end function
 
   this.getConsumables = function() as object
     catalog = m.getCatalog()
-    return m.helpers.filterCatalog(catalog, ["Consumable"])
+    return m.helpers.filterItems(catalog, ["Consumable"])
   end function
 
   this.getNonconsumables = function() as object
     catalog = m.getCatalog()
-    return m.helpers.filterCatalog(catalog, ["NonConsumable"])
+    return m.helpers.filterItems(catalog, ["NonConsumable"])
   end function
 
   ' Get all IAPs user has purchased
   this.getPurchases = function() as object
     m.store.GetPurchases()
     return m.helpers.getStoreResponse(m.port)
+  end function
+
+  this.getUserNativeSubscriptionPurchases = function() as object
+    native_subscriptions = m.helpers.filterItems(m.getPurchases(), ["MonthlySub", "YearlySub"])
+    valid_native_subscriptions = []
+
+    for each subscription in native_subscriptions
+      if m.helpers.isExpired(subscription.expirationDate) = false then valid_native_subscriptions.push(subscription)
+    end for
+
+    return valid_native_subscriptions
   end function
 
   ' Accepts and purchases array of IAP items

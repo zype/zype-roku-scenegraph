@@ -115,6 +115,20 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.SignUpScreen = m.scene.findNode("SignUpScreen")
     m.SignUpScreen.header = "Create an account"
 
+    current_user_info = m.current_user.getInfo()
+    if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
+    if current_user_info._id <> invalid then is_logged_in = true else is_logged_in = false
+    if current_user_info.email <> invalid then user_email = current_user_info.email else user_email = ""
+
+    m.global.addFields({ auth: {
+      nativeSubCount: m.roku_store_service.getUserNativeSubscriptionPurchases().count(),
+      universalSubCount: universal_sub_count,
+      isLoggedIn: is_logged_in,
+      isLinked: current_user_info.linked,
+      email: user_email
+    } })
+
+
     ' if m.app.in_app_purchase or m.app.device_linking
     '   svod_enabled = true
     ' else

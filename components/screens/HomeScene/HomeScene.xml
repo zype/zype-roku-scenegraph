@@ -119,6 +119,11 @@
           id="SignUpScreen"
           visible="false" />
 
+        <!-- Account Screen - shows signin / signout button -->
+        <AccountScreen
+          id="AccountScreen"
+          visible="false" />
+
         <!-- Font for loading indicator -->
         <Label>
             <Font id="loadingIndicatorFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="16"/>
