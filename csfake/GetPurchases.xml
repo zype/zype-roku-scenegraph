@@ -11,7 +11,7 @@
                         <code>5845c95dc7e83b0feb000833</code>
                         <cost>$1.99</cost>
                         <description/>
-                        <expirationDate>2014-04-29T22:17:48</expirationDate>
+                        <expirationDate>2017-08-29T22:17:48</expirationDate>
                         <freeTrialQuantity>0</freeTrialQuantity>
                         <freeTrialType>None</freeTrialType>
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
@@ -19,10 +19,10 @@
                         <maxQty i:nil="true"/>
                         <name>Monthly Subscription</name>
                         <productType>MonthlySub</productType>
-                        <purchaseDate>2013-04-28T22:17:48</purchaseDate>
+                        <purchaseDate>2017-07-29T22:17:48</purchaseDate>
                         <purchaseId>871e9522ace140a99821a1ab010bb0d7</purchaseId>
                         <qty>1</qty>
-                        <renewalDate>2013-04-29T22:17:48</renewalDate>
+                        <renewalDate>2017-08-29T22:17:48</renewalDate>
                         <upsellProduct i:nil="true"/>
                 </product> -->
 
@@ -33,7 +33,7 @@
                         <code>56d7594a0f8aca08010008e3_m</code>
                         <cost>$9.99</cost>
                         <description/>
-                        <expirationDate>2014-04-29T22:17:48</expirationDate>
+                        <expirationDate>2017-06-29T22:17:48</expirationDate>
                         <freeTrialQuantity>0</freeTrialQuantity>
                         <freeTrialType>None</freeTrialType>
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
@@ -41,10 +41,10 @@
                         <maxQty i:nil="true"/>
                         <name>Yearly Subscription</name>
                         <productType>YearlySub</productType>
-                        <purchaseDate>2013-04-29T22:17:48</purchaseDate>
+                        <purchaseDate>2016-06-29T22:17:48</purchaseDate>
                         <purchaseId>871e9522ace140a99821a1ab010bb0d7</purchaseId>
                         <qty>1</qty>
-                        <renewalDate>2014-04-29T22:17:48</renewalDate>
+                        <renewalDate>2017-06-29T22:17:48</renewalDate>
                         <upsellProduct i:nil="true"/>
                 </product> -->
                 <!--<product xmlns="">
