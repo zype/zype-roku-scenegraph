@@ -286,7 +286,10 @@ Sub AddButtons()
             end if
         end if
 
-        if m.global.swaf and m.global.svod_enabled and m.global.is_subscribed = false
+        if m.global.in_app_purchase or m.global.device_linking then svod_enabled = true else svod_enabled = false
+        if m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0 then is_subscribed = true else is_subscribed = false
+
+        if m.global.swaf and svod_enabled and is_subscribed = false
           btns.push({title: "Watch Ad Free", role: "swaf"})
         end if
 

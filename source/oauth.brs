@@ -235,6 +235,7 @@ End Function
 Function Logout()
   oauth = RegReadAccessToken()
   if oauth <> invalid
+    ClearOAuth()
     ResetAccessToken()
   end if
 End Function

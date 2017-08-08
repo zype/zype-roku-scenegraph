@@ -20,13 +20,29 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.global = screen.getGlobalNode()
 
-    SetTheme()
+    m.current_user = CurrentUser()
 
+    SetTheme()
 
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
     screen.Show()
+
+    m.store = CreateObject("roChannelStore")
+    m.store.FakeServer(true)
+    m.store.SetMessagePort(m.port)
+    m.purchasedItems = []
+    m.productsCatalog = []
+    m.playlistRows = []
+    m.videosList = []
+
+    m.roku_store_service = RokuStoreService(m.store, m.port)
+    m.auth_state_service = AuthStateService()
+
+    SetMonetizationSettings()
+    SetGlobalAuthObject()
+    SetFeatures()
 
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
@@ -38,17 +54,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       m.loadingIndicator.control = "stop"
       StartLoader()
     end if
-
-    m.store = CreateObject("roChannelStore")
-    m.store.FakeServer(true)
-    m.store.SetMessagePort(m.port)
-    m.purchasedItems = []
-    m.productsCatalog = []
-    m.playlistRows = []
-    m.videosList = []
-
-    m.current_user = CurrentUser()
-    m.roku_store_service = RokuStoreService(m.store, m.port)
 
     getUserPurchases()
     getProductsCatalog()
@@ -119,37 +124,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.AccountScreen = m.scene.findNode("AccountScreen")
     m.AccountScreen.observeField("itemSelected", m.port)
-
-    current_user_info = m.current_user.getInfo()
-    if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
-    if current_user_info._id <> invalid then is_logged_in = true else is_logged_in = false
-    if current_user_info.email <> invalid then user_email = current_user_info.email else user_email = ""
-
-    m.global.addFields({ auth: {
-      nativeSubCount: m.roku_store_service.getUserNativeSubscriptionPurchases().count(),
-      universalSubCount: universal_sub_count,
-      isLoggedIn: is_logged_in,
-      isLinked: current_user_info.linked,
-      email: user_email
-    } })
-
-
-    ' if m.app.in_app_purchase or m.app.device_linking
-    '   svod_enabled = true
-    ' else
-    '   svod_enabled = false
-    ' end if
-    '
-    ' current_consumer = CurrentUser()
-    '
-    ' if isAuthViaNativeSVOD() or (current_consumer.linked and current_consumer.subscription_count > 0)
-    '   is_subscribed = true
-    ' else
-    '   is_subscribed = false
-    ' end if
-    '
-    ' m.global.addFields({ svod_enabled: svod_enabled })
-    ' m.global.addFields({ is_subscribed: is_subscribed })
 
     m.favorites.isLoggedIn = isLoggedIn()
 
@@ -658,7 +632,9 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
         m.VideoPlayer.seek = m.VideoPlayer.seek
 
-        no_ads = (m.global.swaf and m.global.is_subscribed)
+        if m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0 then is_subscribed = true else is_subscribed = false
+
+        no_ads = (m.global.swaf and is_subscribed)
 
         ' Getting ad timings from video's scheduled ads
         preroll_ad = invalid
@@ -1170,15 +1146,25 @@ function handleButtonEvents(index, screen)
           m.detailsScreen.ReFocusButtons = true
        end if
     else if button_role = "device_linking"
+      m.scene.transitionTo = "DeviceLinking"
       goIntoDeviceLinkingFlow()
-      m.deviceLinking.show = true
-      m.deviceLinking.setFocus(true)
+
+    else if button_role = "signout"
+      LogOut()
+      CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
+
+      user_info = m.current_user.getInfo()
+      m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+      m.AccountScreen.visible = false
+      m.AccountScreen.visible = true
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
       login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
 
       if login_response <> invalid
 
         user_info = m.current_user.getInfo()
+        m.auth_state_service.updateAuthWithUserInfo(user_info)
 
         m.DetailsScreen.isDeviceLinked = true
         m.Favorites.isLoggedIn = true
@@ -1188,12 +1174,10 @@ function handleButtonEvents(index, screen)
           m.DetailsScreen.UniversalSubscriptionsCount = user_info.subscription_count
         end if
 
+        m.scene.transitionTo = "AccountScreen"
+
         sleep(500)
         CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
-
-
-        ' Add code for signed in displays / buttons
-
       else
         sleep(500)
         CreateDialog(m.scene, "Error", "Could not find user with that email and password.", ["Close"])
@@ -1453,8 +1437,6 @@ Function SetTheme()
 
   if m.global <> invalid
     m.global.addFields({ brand_color: brand_color })
-    m.global.addFields({ enable_lock_icons: GetApiConfigs().enable_lock_icons })
-    m.global.addFields({ swaf: GetApiConfigs().subscribe_to_watch_ad_free })
 
     if theme = "dark"
       m.global.addFields({ theme: DarkTheme() })
@@ -1465,3 +1447,37 @@ Function SetTheme()
     end if
   end if
 End Function
+
+function SetMonetizationSettings() as void
+  if m.app <> invalid
+    m.global.addFields({
+      avod: m.app.avod,
+      in_app_purchase: m.app.in_app_purchase,
+      device_linking: m.app.device_linking
+    })
+  end if
+end function
+
+function SetFeatures() as void
+  configs = GetApiConfigs()
+
+  m.global.addFields({
+    swaf: configs.subscribe_to_watch_ad_free,
+    enable_lock_icons: configs.enable_lock_icons
+  })
+end function
+
+function SetGlobalAuthObject() as void
+  current_user_info = m.current_user.getInfo()
+  if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
+  if current_user_info._id <> invalid then is_logged_in = true else is_logged_in = false
+  if current_user_info.email <> invalid then user_email = current_user_info.email else user_email = ""
+
+  m.global.addFields({ auth: {
+    nativeSubCount: m.roku_store_service.getUserNativeSubscriptionPurchases().count(),
+    universalSubCount: universal_sub_count,
+    isLoggedIn: is_logged_in,
+    isLinked: current_user_info.linked,
+    email: user_email
+  } })
+end function
