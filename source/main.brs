@@ -104,6 +104,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.AuthSelection = m.scene.findNode("AuthSelection")
     m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
     m.AuthSelection.observeField("itemSelected", m.port)
+    m.AuthSelection.observeField("planSelected", m.port)
 
     m.UniversalAuthSelection = m.scene.findNode("UniversalAuthSelection")
     m.UniversalAuthSelection.observeField("itemSelected", m.port)
@@ -114,6 +115,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.SignUpScreen = m.scene.findNode("SignUpScreen")
     m.SignUpScreen.header = "Create an account"
+    m.SignUpScreen.observeField("itemSelected", m.port)
 
     m.AccountScreen = m.scene.findNode("AccountScreen")
     m.AccountScreen.observeField("itemSelected", m.port)
@@ -290,6 +292,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 index = msg.getData()
 
                 handleButtonEvents(index, lclscreen)
+
+            else if msg.getNode() = "AuthSelection" and msg.getField() = "planSelected" then
+                current_plan_selected = m.AuthSelection.currentPlanSelected
+                m.scene.transitionTo = "SignUpScreen"
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
@@ -1194,9 +1200,7 @@ function handleButtonEvents(index, screen)
       end if
 
     else if button_role = "submitCredentials" and screen.id = "SignUpScreen"
-      stop
-
-      create_consumer_response = CreateConsumer({ email: screen.email, password: screen.password })
+      create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password })
 
       if create_consumer_response <> invalid
         login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
@@ -1204,13 +1208,15 @@ function handleButtonEvents(index, screen)
         user_info = m.current_user.getInfo()
 
         ' Still need to add handler to get plan code selected
-        plan_code = m.UniversalAuthSelection.plan_code
+        plan = m.AuthSelection.currentPlanSelected
+
+        order = [{
+          code: plan.code,
+          qty: 1
+        }]
 
         ' Make nsvod purchase
-        purchase_subscription = m.roku_store_service.makePurchase({
-          code: plan_code,
-          qty: 1
-        })
+        purchase_subscription = m.roku_store_service.makePurchase(order)
 
         if purchase_subscription
           ' Get recent purchase
@@ -1223,6 +1229,9 @@ function handleButtonEvents(index, screen)
             roku_api_key: GetApiConfigs().roku_api_key,
             transaction_id: recent_purchase.purchaseId
           }
+
+          stop
+
           native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
 
           if native_sub_status.is_valid
@@ -1232,9 +1241,13 @@ function handleButtonEvents(index, screen)
               "subscription[plan_id]": recent_purchase.code,
               "subscription[third_party_id]": "roku"
             }
+
+            m.global.auth.nativeSubCount = m.global.auth.nativeSubCount + 1
             create_subscription_response = CreateSubscription(subscription_params)
 
             if create_subscription_response <> invalid
+              m.global.auth.universalSubCount = m.global.auth.universalSubCount + 1
+
               user_info = m.current_user.getInfo()
 
                 m.DetailsScreen.isDeviceLinked = true

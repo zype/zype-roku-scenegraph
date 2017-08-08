@@ -35,10 +35,7 @@ function onItemSelected() as void
 end function
 
 function onPlanSelection() as void
-    selected_plan = m.helpers.planSelected(m)
-    stop
-
-    ' Need code to trigger transition to Sign Up
+    m.top.currentPlanSelected = m.helpers.planSelected(m)
 end function
 
 function onVisibleChange() as void

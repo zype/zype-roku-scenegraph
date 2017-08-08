@@ -54,6 +54,8 @@ function onItemSelected() as void
     m.top.itemSelectedRole = "submitCredentials"
     m.top.email = m.private.email
     m.top.password = m.private.password
+
+    ? "You are submitting these credentials: "; m.top.email tab(4); m.top.password
   end if
 end function
 

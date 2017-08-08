@@ -56,8 +56,8 @@ function RokuStoreService(store, message_port) as object
     m.store.SetOrder(order)
     m.store.DoOrder()
 
-    order = m.helpers.getStoreResponse(m.port)
-    return order
+    order_response = m.helpers.getStoreResponse(m.port)
+    if order_response <> invalid then return true else return false
   end function
 
   this.getRecentPurchase = function() as object

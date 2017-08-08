@@ -8,11 +8,14 @@
     <interface>
         <field id="plans" type="array" alwaysNotify="true" onChange="SetNativePlans" />
 
+        <!-- OAuthButton fields -->
         <field id="itemSelected" type="integer" alias="OAuthButton.itemSelected" alwaysNotify="true" onChange="OnItemSelected" />
         <field id="itemSelectedRole" type="string" />
         <field id="itemSelectedTarget" type="string" />
 
-        <field id="PlanSelected" type="intarray" alias="Plans.rowItemSelected" alwaysNotify="true" onChange="onPlanSelection" />
+        <!-- Plan(s) fields -->
+        <field id="planSelected" type="intarray" alias="Plans.rowItemSelected" alwaysNotify="true" onChange="onPlanSelection" />
+        <field id="currentPlanSelected" type="node" />
     </interface>
 
     <!-- main handler -->
