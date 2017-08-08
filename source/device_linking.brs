@@ -21,7 +21,8 @@ function GetUdidFromReg() as String
     Udid = RegRead("UDID", "DeviceLinking")
 
     if Udid = invalid
-        Udid = ""
+        Udid = GenerateUdid()
+        Udid = AddUdidToReg(Udid)
     end if
 
     return Udid

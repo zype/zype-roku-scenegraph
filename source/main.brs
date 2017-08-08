@@ -115,6 +115,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.SignUpScreen = m.scene.findNode("SignUpScreen")
     m.SignUpScreen.header = "Create an account"
 
+    m.AccountScreen = m.scene.findNode("AccountScreen")
+    m.AccountScreen.observeField("itemSelected", m.port)
+
     current_user_info = m.current_user.getInfo()
     if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
     if current_user_info._id <> invalid then is_logged_in = true else is_logged_in = false
@@ -167,6 +170,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.deviceLinking.isDeviceLinked = deviceLinked
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
+    m.deviceLinking.pinText = GetPin(GetUdidFromReg())
 
     m.raf_service = RafService()
 
@@ -262,7 +266,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -279,6 +283,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.SignInScreen
                 else if msg.getNode() = "SignUpScreen"
                     lclScreen = m.SignUpScreen
+                else if msg.getNode() = "AccountScreen"
+                    lclScreen = m.AccountScreen
                 end if
 
                 index = msg.getData()
@@ -449,6 +455,44 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
         screen = invalid
     end if
 End Sub
+
+function goIntoDeviceLinkingFlow() as void
+  pin = m.DeviceLinking.findNode("Pin")
+  user_info = m.current_user.getInfo()
+
+  m.deviceLinking.show = true
+
+  if user_info.linked then pin.text = "You are linked" else pin.text = GetPin(GetUdidFromReg())
+
+  website = m.DeviceLinking.findNode("LinkText2")
+  website.text = m.app.device_link_url
+
+  while true
+      if m.deviceLinking.show = false
+          exit while
+      else
+          print "refreshing PIN"
+
+          linked_user = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+
+          if linked_user.linked then
+              pin.text = "The device is linked"
+
+              if linked_user.subscription_count > 0 then m.global.is_subscribed = true
+
+              m.detailsScreen.isDeviceLinked = true
+              m.detailsScreen.UniversalSubscriptionsCount = linked_user.subscription_count
+              m.detailsScreen.isLoggedIn = true
+              m.favorites.isLoggedIn = true
+              m.deviceLinking.isDeviceLinked = true
+              m.deviceLinking.setUnlinkFocus = true
+              exit while
+          end if
+      end if
+
+      sleep(5000)
+  end while
+end function
 
 function transitionToNestedPlaylist(id) as void
   m.scene.callFunc("AddCurrentPositionToTracker", invalid)
@@ -1120,9 +1164,9 @@ function handleButtonEvents(index, screen)
           m.detailsScreen.ReFocusButtons = true
        end if
     else if button_role = "device_linking"
+      goIntoDeviceLinkingFlow()
       m.deviceLinking.show = true
       m.deviceLinking.setFocus(true)
-
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
       login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
 
@@ -1219,13 +1263,9 @@ function handleButtonEvents(index, screen)
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
       m.scene.transitionTo = "UniversalAuthSelection"
     else if button_role = "transition" and button_target = "DeviceLinking"
-      pin = m.DeviceLinking.findNode("Pin")
-      if m.current_user.getInfo().linked = true then pin.text = "You are linked" else pin.text = GetPin(GetUdidFromReg())
-
-      website = m.DeviceLinking.findNode("LinkText2")
-      website.text = m.app.device_link_url
-
       m.scene.transitionTo = "DeviceLinking"
+
+      goIntoDeviceLinkingFlow()
 
     else if button_role = "transition" and button_target = "SignInScreen"
       m.scene.transitionTo = "SignInScreen"

@@ -8,10 +8,16 @@ sub init()
   m.initializers.initChildren(m)
 end sub
 
+function onItemSelected() as void
+  index = m.top.itemSelected
+  m.top.itemSelectedRole = m.helpers.currentButtonRole(m, index)
+  m.top.itemSelectedTarget = m.helpers.currentButtonTarget(m, index)
+end function
+
 function onVisibleChange() as void
   if m.top.visible
     if m.global.auth.isLoggedIn
-      m.header.text = "Signed in as: " + m.global.auth.userEmail
+      m.header.text = "Signed in as: " + m.global.auth.email
 
       btn = [ { title: "Sign out", role: "signout", target: "" } ]
       m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
@@ -31,6 +37,14 @@ function helpers() as object
 
   this.focusedChild = function(self) as string
     return self.top.focusedChild.id
+  end function
+
+  this.currentButtonRole = function(self, index) as string
+    return self.button.content.getChild(index).role
+  end function
+
+  this.currentButtonTarget = function(self, index) as string
+    return self.button.content.getChild(index).target
   end function
 
   return this

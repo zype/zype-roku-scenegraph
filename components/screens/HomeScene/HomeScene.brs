@@ -38,7 +38,7 @@ Function Init()
     m.SignInScreen = m.top.findNode("SignInScreen")
     m.SignUpScreen = m.top.findNode("SignUpScreen")
 
-    m.AcountScreen = m.top.findNode("AccountScreen")
+    m.AccountScreen = m.top.findNode("AccountScreen")
 
     ' Observer to handle Item selection on RowList inside GridScreen (alias="GridScreen.rowItemSelected")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
