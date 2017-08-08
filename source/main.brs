@@ -62,10 +62,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.contentID = contentID
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
-    m.global.addFields({ HasNativeSubscription: false, isLoggedIn: false, UniversalSubscriptionsCount: 0 })
-    _isLoggedIn = isLoggedIn()
-    m.global.isLoggedIn = _isLoggedIn AND (m.detailsScreen.UniversalSubscriptionsCount > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true)
-    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+    ' m.global.addFields({ HasNativeSubscription: false, isLoggedIn: false, UniversalSubscriptionsCount: 0 })
+    ' _isLoggedIn = isLoggedIn()
+    ' m.global.isLoggedIn = _isLoggedIn AND (m.detailsScreen.UniversalSubscriptionsCount > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true)
+    ' m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
 
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.scene.gridContent = m.gridContent
@@ -92,13 +92,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
-    ' m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.detailsScreen.observeField("itemSelected", m.port)
-    'm.detailsScreen.SubscriptionPlans = m.plans
-    'm.detailsScreen.SubscriptionPlans = m.productsCatalog
     m.detailsScreen.productsCatalog = m.productsCatalog
-    m.detailsScreen.JustBoughtNativeSubscription = false
-    m.detailsScreen.isLoggedIn = isLoggedIn()
     m.detailsScreen.observeField("triggerPlay", m.port)
     m.detailsScreen.dataArray = m.playlistRows
 
@@ -125,13 +120,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.AccountScreen = m.scene.findNode("AccountScreen")
     m.AccountScreen.observeField("itemSelected", m.port)
 
-    m.favorites.isLoggedIn = isLoggedIn()
+    ' m.favorites.isLoggedIn = isLoggedIn()
 
-    deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
-    m.detailsScreen.isDeviceLinked = deviceLinked
-
-    print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
-    InitAuthenticationParams()
+    ' deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
+    ' m.detailsScreen.isDeviceLinked = deviceLinked
+    '
+    ' print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
+    ' InitAuthenticationParams()
 
 
     m.scene.observeField("SearchString", m.port)
@@ -141,12 +136,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.scene.observeField("playlistItemSelected", m.port)
     m.scene.observeField("TriggerDeviceUnlink", m.port)
 
+    user_info = m.current_user.getInfo()
+
     m.deviceLinking = m.scene.findNode("DeviceLinking")
     m.deviceLinking.DeviceLinkingURL = m.app.device_link_url
-    m.deviceLinking.isDeviceLinked = deviceLinked
+    m.deviceLinking.isDeviceLinked = user_info.linked
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
-    m.deviceLinking.pinText = GetPin(GetUdidFromReg())
 
     m.raf_service = RafService()
 
@@ -292,7 +288,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                             dialog.message = GetLimitStreamObject().message
                             m.scene.dialog = dialog
                         else
-                            oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+                            oauth = GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
                             if oauth <> invalid
                                 id = m.videoPlayer.content.id.tokenize(":")[0]
                                 if IsEntitled(id, {"access_token": oauth.access_token}) = false
@@ -312,85 +308,87 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                   end if
                 end if
             else if msg.getNode() = "DeviceLinking" and msg.getField() = "show" and msg.GetData() = true then
-                pin = m.deviceLinking.findNode("Pin")
+                m.scene.transitionTo = "DeviceLinking"
+                goIntoDeviceLinkingFlow()
 
-                if HasUDID() = true then
-                    print "Has UDID"
-                    if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
-                        pin.text = "You are already linked!"
-                    else
-                        while true
-                            if m.deviceLinking.show = false
-                                exit while
-                            else
-                                print "refreshing PIN"
-                                pin.text = GetPin(GetUdidFromReg())
 
-                                consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-                                if consumer.linked then
-                                    pin.text = "You are linked!"
-
-                                    if consumer.subscription_count > 0 then m.global.is_subscribed = true
-
-                                    m.detailsScreen.isDeviceLinked = true
-                                    m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
-                                    m.detailsScreen.isLoggedIn = true
-                                    m.favorites.isLoggedIn = true
-                                    m.deviceLinking.isDeviceLinked = true
-                                    m.deviceLinking.setUnlinkFocus = true
-
-                                    m.global.isLoggedIn = true
-                                    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
-                                    m.scene.gridContent = m.gridContent
-                                    ' m.deviceLinking.show = true
-                                    m.deviceLinking.setFocus(true)
-                                    m.deviceLinking.setUnlinkFocus = true
-
-                                    ' Deep linked
-                                    if contentID <> invalid
-                                        di = CreateObject("roDeviceInfo")
-                                        ip_address = di.GetConnectionInfo().ip
-                                        url = "http://" + ip_address + ":8060/keydown/back"
-                                        MakePostRequest(url, {})
-                                    end if
-
-                                    exit while
-                                end if
-                            end if
-
-                            sleep(5000)
-                        end while
-                    end if
-                else
-                    print "Adding UDID"
-                    AddUdidToReg(GenerateUdid())
-                    pin.text = GetPin(GetUdidFromReg())
-
-                    while true
-                        if m.deviceLinking.show = false
-                            exit while
-                        else
-                            print "refreshing PIN"
-
-                            consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-                            if consumer.linked then
-                                pin.text = "The device is linked"
-
-                                if consumer.subscription_count > 0 then m.global.is_subscribed = true
-
-                                m.detailsScreen.isDeviceLinked = true
-                                m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
-                                m.detailsScreen.isLoggedIn = true
-                                m.favorites.isLoggedIn = true
-                                m.deviceLinking.isDeviceLinked = true
-                                m.deviceLinking.setUnlinkFocus = true
-                                exit while
-                            end if
-                        end if
-
-                        sleep(5000)
-                    end while
-                end if
+                ' if HasUDID() = true then
+                '     print "Has UDID"
+                '     if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
+                '         pin.text = "You are already linked!"
+                '     else
+                '         while true
+                '             if m.deviceLinking.show = false
+                '                 exit while
+                '             else
+                '                 print "refreshing PIN"
+                '                 pin.text = GetPin(GetUdidFromReg())
+                '
+                '                 consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                '                 if consumer.linked then
+                '                     pin.text = "You are linked!"
+                '
+                '                     if consumer.subscription_count > 0 then m.global.is_subscribed = true
+                '
+                '                     m.detailsScreen.isDeviceLinked = true
+                '                     m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
+                '                     m.detailsScreen.isLoggedIn = true
+                '                     m.favorites.isLoggedIn = true
+                '                     m.deviceLinking.isDeviceLinked = true
+                '                     m.deviceLinking.setUnlinkFocus = true
+                '
+                '                     m.global.isLoggedIn = true
+                '                     m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+                '                     m.scene.gridContent = m.gridContent
+                '                     ' m.deviceLinking.show = true
+                '                     m.deviceLinking.setFocus(true)
+                '                     m.deviceLinking.setUnlinkFocus = true
+                '
+                '                     ' Deep linked
+                '                     if contentID <> invalid
+                '                         di = CreateObject("roDeviceInfo")
+                '                         ip_address = di.GetConnectionInfo().ip
+                '                         url = "http://" + ip_address + ":8060/keydown/back"
+                '                         MakePostRequest(url, {})
+                '                     end if
+                '
+                '                     exit while
+                '                 end if
+                '             end if
+                '
+                '             sleep(5000)
+                '         end while
+                '     end if
+                ' else
+                '     print "Adding UDID"
+                '     AddUdidToReg(GenerateUdid())
+                '     pin.text = GetPin(GetUdidFromReg())
+                '
+                '     while true
+                '         if m.deviceLinking.show = false
+                '             exit while
+                '         else
+                '             print "refreshing PIN"
+                '
+                '             consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                '             if consumer.linked then
+                '                 pin.text = "The device is linked"
+                '
+                '                 if consumer.subscription_count > 0 then m.global.is_subscribed = true
+                '
+                '                 m.detailsScreen.isDeviceLinked = true
+                '                 m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
+                '                 m.detailsScreen.isLoggedIn = true
+                '                 m.favorites.isLoggedIn = true
+                '                 m.deviceLinking.isDeviceLinked = true
+                '                 m.deviceLinking.setUnlinkFocus = true
+                '                 exit while
+                '             end if
+                '         end if
+                '
+                '         sleep(5000)
+                '     end while
+                ' end if
             else if msg.getNode() = "DeviceLinking" AND msg.getField() = "itemSelected" then
                 print "[Main] Device Linking -> Item Selected"
 
@@ -407,22 +405,35 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             else if msg.getField() = "TriggerDeviceUnlink" AND msg.GetData() = true then
                 isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
                 res = UnlinkDevice(isDeviceLinked.consumer_id, isDeviceLinked.pin, {})
-                if(res <> invalid)
-                    print "Unlink Completed"
-                    m.global.is_subscribed = isLoggedIn()
 
-                    m.scene.TriggerDeviceUnlink = false
-                    m.deviceLinking.isDeviceLinked = false
-                    m.detailsScreen.isDeviceLinked = false
-                    m.detailsScreen.isLoggedIn = isLoggedIn()
-                    m.favorites.isLoggedIn = isLoggedIn()
+                if res <> invalid
+                  m.scene.TriggerDeviceUnlink = false
+                  m.auth_state_service.updateAuthWithUserInfo(m.current_user.getInfo())
 
-                    m.global.isLoggedIn = false
-                    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
-                    m.scene.gridContent = m.gridContent
-                    ' m.deviceLinking.show = true
-                    m.deviceLinking.setFocus(true)
+                  m.scene.gridContent = m.gridContent
+
+                  m.deviceLinking.isDeviceLinked = true
+                  m.deviceLinking.setFocus(true)
                 end if
+
+                ' if(res <> invalid)
+                '     print "Unlink Completed"
+                '     m.global.is_subscribed = isLoggedIn()
+                '
+                '     m.scene.TriggerDeviceUnlink = false
+                '     m.deviceLinking.isDeviceLinked = false
+                '     m.detailsScreen.isDeviceLinked = false
+                '     m.detailsScreen.isLoggedIn = isLoggedIn()
+                '     m.favorites.isLoggedIn = isLoggedIn()
+                '
+                '     m.global.isLoggedIn = false
+                '     m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+                '     m.scene.gridContent = m.gridContent
+                '     ' m.deviceLinking.show = true
+                '     m.deviceLinking.setFocus(true)
+                ' end if
+
+
             end if
 
         end if
@@ -440,8 +451,6 @@ function goIntoDeviceLinkingFlow() as void
   pin = m.DeviceLinking.findNode("Pin")
   user_info = m.current_user.getInfo()
 
-  m.deviceLinking.show = true
-
   if user_info.linked then pin.text = "You are linked" else pin.text = GetPin(GetUdidFromReg())
 
   website = m.DeviceLinking.findNode("LinkText2")
@@ -452,18 +461,16 @@ function goIntoDeviceLinkingFlow() as void
           exit while
       else
           print "refreshing PIN"
+          pin_status = PinStatus({"linked_device_id": GetUdidFromReg()})
 
-          linked_user = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-
-          if linked_user.linked then
+          if pin_status.linked then
               pin.text = "The device is linked"
+              GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
 
-              if linked_user.subscription_count > 0 then m.global.is_subscribed = true
+              user_info = m.current_user.getInfo()
+              m.auth_state_service.updateAuthWithUserInfo(user_info)
 
-              m.detailsScreen.isDeviceLinked = true
-              m.detailsScreen.UniversalSubscriptionsCount = linked_user.subscription_count
-              m.detailsScreen.isLoggedIn = true
-              m.favorites.isLoggedIn = true
+              m.detailsScreen.UniversalSubscriptionsCount = user_info.subscription_count
               m.deviceLinking.isDeviceLinked = true
               m.deviceLinking.setUnlinkFocus = true
               exit while
@@ -497,7 +504,7 @@ sub playLiveVideo(screen as Object)
     if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
         playVideo(screen, {"app_key": GetApiConfigs().app_key})
     else
-        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+        oauth = GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         if oauth <> invalid
 
             if IsEntitled(screen.content.id, {"access_token": oauth.access_token}) = true
@@ -519,7 +526,7 @@ sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
     consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
         if consumer.subscription_count <> invalid and consumer.subscription_count > 0
-          oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+          oauth = GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
           auth = {"access_token": oauth.access_token}
         else
           auth = {"app_key": GetApiConfigs().app_key}
@@ -786,10 +793,12 @@ end function
 
 function GetFavoritesIDs()
     videoFavs = {}
-    deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    if HasUDID() = true and deviceLinking.linked = true
-        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-        videoFavorites = GetVideoFavorites(deviceLinking.consumer_id, {"access_token": oauth.access_token, "per_page": "100"})
+
+    if m.global.auth.isLoggedIn
+        user_info = m.current_user.getInfo()
+        oauth_info = m.current_user.getOAuth()
+
+        videoFavorites = GetVideoFavorites(user_info._id, {"access_token": oauth_info.access_token, "per_page": "100"})
 
         ' print videoFavorites
         if videoFavorites <> invalid
@@ -809,10 +818,11 @@ function GetFavoritesContent()
 
     favs = GetFavoritesIDs()
 
-    deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    if HasUDID() = true and deviceLinking.linked = true
-        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-        videoFavorites = GetVideoFavorites(deviceLinking.consumer_id, {"access_token": oauth.access_token, "per_page": "100"})
+    if m.global.auth.isLoggedIn
+        user_info = m.current_user.getInfo()
+        oauth_info = m.current_user.getOAuth()
+
+        videoFavorites = GetVideoFavorites(user_info._id, {"access_token": oauth_info.access_token, "per_page": "100"})
 
         if videoFavorites <> invalid
             if videoFavorites.count() > 0
@@ -1147,9 +1157,13 @@ function handleButtonEvents(index, screen)
        end if
     else if button_role = "device_linking"
       m.scene.transitionTo = "DeviceLinking"
-      goIntoDeviceLinkingFlow()
+      m.DeviceLinking.show = true
 
     else if button_role = "signout"
+      user_info = m.current_user.getInfo()
+      pin = GetPin(GetUdidFromReg())
+      if user_info.linked then UnlinkDevice(user_info._id, pin, {})
+
       LogOut()
       CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
 
@@ -1261,8 +1275,7 @@ function handleButtonEvents(index, screen)
       m.scene.transitionTo = "UniversalAuthSelection"
     else if button_role = "transition" and button_target = "DeviceLinking"
       m.scene.transitionTo = "DeviceLinking"
-
-      goIntoDeviceLinkingFlow()
+      m.DeviceLinking.show = true
 
     else if button_role = "transition" and button_target = "SignInScreen"
       m.scene.transitionTo = "SignInScreen"
@@ -1345,29 +1358,24 @@ End Function
 Function markFavoriteButton(lclScreen)
     idParts = lclScreen.content.id.tokenize(":")
     id = idParts[0]
-    deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+    ' deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
     'deviceLinking.linked = false
-    if HasUDID() = true and deviceLinking.linked = true
+
+    if m.global.auth.isLoggedIn
         favs = GetFavoritesIDs()
-        print "Consumer ID: "; deviceLinking.consumer_id
-        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+
+        user_info = m.current_user.getInfo()
+        oauth_info = m.current_user.getOAuth()
+
         if lclScreen.content.inFavorites = false
             print "CreateVideoFavorite"
-            CreateVideoFavorite(deviceLinking.consumer_id, {"access_token": oauth.access_token, "video_id": id })
+            CreateVideoFavorite(user_info._id, {"access_token": oauth_info.access_token, "video_id": id })
             lclScreen.content.inFavorites = true
         else
             print "DeleteVideoFavorite"
-            DeleteVideoFavorite(deviceLinking.consumer_id, favs[id], {"access_token": oauth.access_token, "video_id": id, "_method": "delete"})
+            DeleteVideoFavorite(user_info._id, favs[id], {"access_token": oauth_info.access_token, "video_id": id, "_method": "delete"})
             lclScreen.content.inFavorites = false
         end if
-    else
-        ' Means device is not linked. Show a message dialog
-        dialog = createObject("roSGNode", "Dialog")
-        dialog.title = "Link Your Device"
-        dialog.optionsDialog = true
-        dialog.message = "Please link your device in order to add this video to favorites."
-        dialog.buttons = ["OK"]
-        m.scene.dialog = dialog
     end if
 End Function
 

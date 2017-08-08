@@ -40,6 +40,16 @@ end function
 
 function onVisibleChange() as void
     if m.top.visible = true
+      if m.global.auth.isLoggedIn = false then
+        m.oauth_button.content = m.content_helpers.oneDimList2ContentNode([{title: "Sign In"}], "ButtonNode")
+        m.oauth_label.text = "Already have an account?"
+        m.oauth_label.visible = true
+      else
+        m.oauth_button.content = invalid
+        m.oauth_label.text = ""
+        m.oauth_label.visible = false
+      end if
+
       m.plan_buttons.setFocus(true)
     end if
 end function
@@ -107,7 +117,9 @@ function initializers() as object
     self.oauth_button.focusedColor = self.global.theme.background_color
     self.oauth_button.focusBitmapUri = self.global.theme.button_filledin_uri
     self.oauth_button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
-    self.oauth_button.content = self.content_helpers.oneDimList2ContentNode([{title: "Sign In"}], "ButtonNode")
+
+    self.oauth_label = self.top.findNode("OAuthLabel")
+    self.oauth_label.color = self.global.theme.primary_text_color
 
     self.top.observeField("itemSelected", "onItemSelected")
   end function

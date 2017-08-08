@@ -76,7 +76,8 @@
           id="OAuthLabel"
           width="440"
           horizAlign="center"
-          text="Already have an account?"
+          text=""
+          visible="false"
           translation="[0,0]">
           <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="20"/>
         </Label>

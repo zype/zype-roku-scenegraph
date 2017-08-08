@@ -22,13 +22,13 @@
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
 
         <!-- If User is Logged In -->
-        <field id="isLoggedIn" type="bool"  alwaysnotify="true" onChange="OnContentChange"/>
+        <!-- <field id="isLoggedIn" type="bool"  alwaysnotify="true" onChange="OnContentChange"/> -->
 
         <!-- If User is Logged In via Native SVOD -->
-        <field id="isLoggedInViaNativeSVOD" type="bool"/>
+        <!-- <field id="isLoggedInViaNativeSVOD" type="bool"/> -->
 
         <!-- If User is Logged In via Universal SVOD -->
-        <field id="isLoggedInViaUniversalSVOD" type="bool"/>
+        <!-- <field id="isLoggedInViaUniversalSVOD" type="bool"/> -->
 
         <!-- Subscription Buttons Shown -->
         <field id="SubscriptionButtonsShown" type="bool" />
@@ -40,28 +40,28 @@
         <field id="SubscriptionPlans" type="roArray" />
 
         <!-- Products Catalog -->
-        <field id="ProductsCatalog" type="roArray" />
+        <!-- <field id="ProductsCatalog" type="roArray" /> -->
 
         <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
 
         <!-- No Authentication Enabled -->
-        <field id="NoAuthenticationEnabled" type="bool" />
+        <!-- <field id="NoAuthenticationEnabled" type="bool" /> -->
 
         <!-- Only Native SVOD -->
-        <field id="OnlyNativeSVOD" type="bool" />
+        <!-- <field id="OnlyNativeSVOD" type="bool" /> -->
 
         <!-- BothActive -->
-        <field id="BothActive" type="bool" />
+        <!-- <field id="BothActive" type="bool" /> -->
 
         <!-- isDeviceLinked -->
-        <field id="isDeviceLinked" type="bool" />
+        <!-- <field id="isDeviceLinked" type="bool" /> -->
 
         <!-- Universal Subscriptions Count -->
-        <field id="UniversalSubscriptionsCount" type="integer" />
+        <!-- <field id="UniversalSubscriptionsCount" type="integer" /> -->
 
         <!-- JustBoughtNativeSubscription -->
         <!-- This is just a flag to mark in the system that the user just bought via IAP and should be able to Play -->
-        <field id="JustBoughtNativeSubscription" type="bool" />
+        <!-- <field id="JustBoughtNativeSubscription" type="bool" /> -->
 
         <!-- DontShowSubscriptionPackages -->
         <!-- This is when we click the subscription button and there might be a new subscription on the server

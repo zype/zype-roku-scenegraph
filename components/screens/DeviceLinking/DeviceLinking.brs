@@ -53,7 +53,7 @@ Sub On_show()
 End Sub
 
 Function onDeviceLinkingStateChanged()
-    if(m.top.isDeviceLinked = false)
+    if m.global.auth.isLinked = false  '(m.top.isDeviceLinked = false)
         m.unlinkButton.content = invalid
         m.pin.text = "Device Unlinked Successfully!"
         m.top.setUnlinkFocus = false
@@ -64,7 +64,7 @@ End Function
 
 Function setUnlinkFocusCallback()
     print "setUnlinkFocusCallback"
-    if(m.top.isDeviceLinked = true)
+    if m.global.auth.isLinked = true  '(m.top.isDeviceLinked = true)
         m.unlinkButton.setFocus(true)
     end if
 End Function

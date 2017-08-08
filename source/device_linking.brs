@@ -65,22 +65,22 @@ function AddLinkingPinToReg(pin)
     return pin
 end function
 
-' Needs to be modified
-function _IsLinked(udid as string) as Boolean
-    pinStatus = PinStatus({"linked_device_id": udid})
-    result = false
-    if pinStatus <> invalid
-        result = pinStatus.linked
-    end if
-
-    if result = false
-        ' Reset tokens
-        ResetAccessToken()
-        ClearOAuth()
-    end if
-
-    return result
-end function
+' ' Needs to be modified
+' function _IsLinked(udid as string) as Boolean
+'     pinStatus = PinStatus({"linked_device_id": udid})
+'     result = false
+'     if pinStatus <> invalid
+'         result = pinStatus.linked
+'     end if
+'
+'     if result = false
+'         ' Reset tokens
+'         ResetAccessToken()
+'         ClearOAuth()
+'     end if
+'
+'     return result
+' end function
 
 function GetPin(udid as string) as Object
     pinData = AcquirePin({"linked_device_id": udid, "type": "roku"})

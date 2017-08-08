@@ -1,4 +1,4 @@
-function GetAccessToken(client_id as String, client_secret as String, udid as String, pin as String)
+function GetAccessTokenWithPin(client_id as String, client_secret as String, udid as String, pin as String)
   oauth = RegReadAccessToken()
 
 

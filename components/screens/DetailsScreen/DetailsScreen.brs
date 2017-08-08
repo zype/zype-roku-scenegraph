@@ -209,24 +209,37 @@ Sub OnContentChange()
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
-        if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
-            m.canWatchVideo = true
+        is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
+        svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
+
+        if m.top.content.subscriptionRequired = false or (svod_enabled and is_subscribed)
+          m.canWatchVideo = true
+          AddButtons()
+          m.top.SubscriptionButtonsShown = false
         else
-            m.canWatchVideo = false
+          m.canWatchVideo = false
+          AddActionButtons()
+          m.top.SubscriptionButtonsShown = true
         end if
 
-        ' If all else is good and device is linked but there's no subscription found on the server then show native subscription buttons.
-        if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.top.isLoggedInViaNativeSVOD = false)
-            m.canWatchVideo = false
-        end if
-        print "m.canWatchVideo";m.canWatchVideo
-        if(m.canWatchVideo)
-            AddButtons()
-            m.top.SubscriptionButtonsShown = false
-        else
-            AddActionButtons()
-            m.top.SubscriptionButtonsShown = true
-        end if
+        ' if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
+        '     m.canWatchVideo = true
+        ' else
+        '     m.canWatchVideo = false
+        ' end if
+        '
+        ' ' If all else is good and device is linked but there's no subscription found on the server then show native subscription buttons.
+        ' if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.top.isLoggedInViaNativeSVOD = false)
+        '     m.canWatchVideo = false
+        ' end if
+        ' print "m.canWatchVideo";m.canWatchVideo
+        ' if(m.canWatchVideo)
+        '     AddButtons()
+        '     m.top.SubscriptionButtonsShown = false
+        ' else
+        '     AddActionButtons()
+        '     m.top.SubscriptionButtonsShown = true
+        ' end if
 
         m.description.content   = m.top.content
         m.description.Description.height = "250"
@@ -278,7 +291,7 @@ Sub AddButtons()
             ]
         end if
 
-        if(m.top.BothActive AND m.top.isDeviceLinked)
+        if m.global.device_linking and m.global.auth.isLoggedIn
             if m.top.content.inFavorites = true
                 btns.push({title: "Unfavorite", role: "favorite"})
             else
@@ -310,14 +323,14 @@ Sub AddActionButtons()
     if m.top.content <> invalid then
         ' create buttons
         result = []
-        btns = [
-          {title: "Subscribe", role: "subscribe"}
-        ]
-        if(m.top.BothActive AND m.top.isDeviceLinked = false)
-            btns.push({ title: "Link Device", role: "device_linking" })
-        end if
+        ' btns = [
+        '   {title: "Subscribe", role: "subscribe"}
+        ' ]
+        ' if(m.top.BothActive AND m.top.isDeviceLinked = false)
+        '     btns.push({ title: "Link Device", role: "device_linking" })
+        ' end if
 
-        btns.push({ title: "Transition to native/universal flow", role: "transition", target: "AuthSelection" })
+        btns = [{ title: "Transition to native/universal flow", role: "transition", target: "AuthSelection" }]
 
         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
