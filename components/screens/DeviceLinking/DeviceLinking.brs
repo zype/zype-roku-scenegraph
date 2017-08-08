@@ -12,8 +12,6 @@ Function Init()
 
     m.unlinkButton = m.top.findNode("UnlinkButton")
 
-    'm.linkText.text = "Please, visit havoc.com to link your device!"
-
     di = CreateObject("roDeviceInfo")
     m.pin = m.top.findNode("Pin")
 
@@ -44,7 +42,7 @@ Sub On_show()
 
     m.linkText2.text = m.top.DeviceLinkingURL
 
-    if(m.top.isDeviceLinked = true)
+    if(m.global.auth.isLinked = true)
         CreateUnlinkButton()
         m.unlinkButton.setFocus(true)
     else
@@ -53,7 +51,7 @@ Sub On_show()
 End Sub
 
 Function onDeviceLinkingStateChanged()
-    if m.global.auth.isLinked = false  '(m.top.isDeviceLinked = false)
+    if m.global.auth.isLinked = false
         m.unlinkButton.content = invalid
         m.pin.text = "Device Unlinked Successfully!"
         m.top.setUnlinkFocus = false
@@ -64,14 +62,13 @@ End Function
 
 Function setUnlinkFocusCallback()
     print "setUnlinkFocusCallback"
-    if m.global.auth.isLinked = true  '(m.top.isDeviceLinked = true)
+    if m.global.auth.isLinked = true
         m.unlinkButton.setFocus(true)
     end if
 End Function
 
 Function CreateUnlinkButton()
     result = []
-    'btns = ["Unlink Device"]
     result.push({title : "Unlink Device"})
     m.unlinkButton.content = ContentList2SimpleNode(result)
 End Function

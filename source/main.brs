@@ -58,18 +58,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     getUserPurchases()
     getProductsCatalog()
 
-    'm.scene.gridContent = ParseContent(GetContent())
     m.contentID = contentID
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
-    ' m.global.addFields({ HasNativeSubscription: false, isLoggedIn: false, UniversalSubscriptionsCount: 0 })
-    ' _isLoggedIn = isLoggedIn()
-    ' m.global.isLoggedIn = _isLoggedIn AND (m.detailsScreen.UniversalSubscriptionsCount > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true)
-    ' m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
 
+    'm.scene.gridContent = ParseContent(GetContent()) ' Uses featured categories (depreciated)
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.scene.gridContent = m.gridContent
-
 
     m.plans = GetPlans({}, m.app.in_app_purchase, m.productsCatalog)
 
@@ -119,15 +114,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.AccountScreen = m.scene.findNode("AccountScreen")
     m.AccountScreen.observeField("itemSelected", m.port)
-
-    ' m.favorites.isLoggedIn = isLoggedIn()
-
-    ' deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
-    ' m.detailsScreen.isDeviceLinked = deviceLinked
-    '
-    ' print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
-    ' InitAuthenticationParams()
-
 
     m.scene.observeField("SearchString", m.port)
 
@@ -267,8 +253,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 current_plan_selected = m.AuthSelection.currentPlanSelected
                 m.scene.transitionTo = "SignUpScreen"
             else if msg.getField() = "position"
-                ' print m.videoPlayer.position
-                ' print GetLimitStreamObject().limit
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
                     AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
@@ -277,7 +261,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 if(m.on_air)
                   if GetLimitStreamObject() <> invalid
                     GetLimitStreamObject().played = GetLimitStreamObject().played + 1
-                    'print  GetLimitStreamObject().played
                     if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
                         if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
                             m.videoPlayer.visible = false
@@ -310,85 +293,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             else if msg.getNode() = "DeviceLinking" and msg.getField() = "show" and msg.GetData() = true then
                 m.scene.transitionTo = "DeviceLinking"
                 goIntoDeviceLinkingFlow()
-
-
-                ' if HasUDID() = true then
-                '     print "Has UDID"
-                '     if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
-                '         pin.text = "You are already linked!"
-                '     else
-                '         while true
-                '             if m.deviceLinking.show = false
-                '                 exit while
-                '             else
-                '                 print "refreshing PIN"
-                '                 pin.text = GetPin(GetUdidFromReg())
-                '
-                '                 consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-                '                 if consumer.linked then
-                '                     pin.text = "You are linked!"
-                '
-                '                     if consumer.subscription_count > 0 then m.global.is_subscribed = true
-                '
-                '                     m.detailsScreen.isDeviceLinked = true
-                '                     m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
-                '                     m.detailsScreen.isLoggedIn = true
-                '                     m.favorites.isLoggedIn = true
-                '                     m.deviceLinking.isDeviceLinked = true
-                '                     m.deviceLinking.setUnlinkFocus = true
-                '
-                '                     m.global.isLoggedIn = true
-                '                     m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
-                '                     m.scene.gridContent = m.gridContent
-                '                     ' m.deviceLinking.show = true
-                '                     m.deviceLinking.setFocus(true)
-                '                     m.deviceLinking.setUnlinkFocus = true
-                '
-                '                     ' Deep linked
-                '                     if contentID <> invalid
-                '                         di = CreateObject("roDeviceInfo")
-                '                         ip_address = di.GetConnectionInfo().ip
-                '                         url = "http://" + ip_address + ":8060/keydown/back"
-                '                         MakePostRequest(url, {})
-                '                     end if
-                '
-                '                     exit while
-                '                 end if
-                '             end if
-                '
-                '             sleep(5000)
-                '         end while
-                '     end if
-                ' else
-                '     print "Adding UDID"
-                '     AddUdidToReg(GenerateUdid())
-                '     pin.text = GetPin(GetUdidFromReg())
-                '
-                '     while true
-                '         if m.deviceLinking.show = false
-                '             exit while
-                '         else
-                '             print "refreshing PIN"
-                '
-                '             consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-                '             if consumer.linked then
-                '                 pin.text = "The device is linked"
-                '
-                '                 if consumer.subscription_count > 0 then m.global.is_subscribed = true
-                '
-                '                 m.detailsScreen.isDeviceLinked = true
-                '                 m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
-                '                 m.detailsScreen.isLoggedIn = true
-                '                 m.favorites.isLoggedIn = true
-                '                 m.deviceLinking.isDeviceLinked = true
-                '                 m.deviceLinking.setUnlinkFocus = true
-                '                 exit while
-                '             end if
-                '         end if
-                '
-                '         sleep(5000)
-                '     end while
-                ' end if
             else if msg.getNode() = "DeviceLinking" AND msg.getField() = "itemSelected" then
                 print "[Main] Device Linking -> Item Selected"
 
@@ -415,28 +319,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                   m.deviceLinking.isDeviceLinked = true
                   m.deviceLinking.setFocus(true)
                 end if
+            end if ' end of field checking
 
-                ' if(res <> invalid)
-                '     print "Unlink Completed"
-                '     m.global.is_subscribed = isLoggedIn()
-                '
-                '     m.scene.TriggerDeviceUnlink = false
-                '     m.deviceLinking.isDeviceLinked = false
-                '     m.detailsScreen.isDeviceLinked = false
-                '     m.detailsScreen.isLoggedIn = isLoggedIn()
-                '     m.favorites.isLoggedIn = isLoggedIn()
-                '
-                '     m.global.isLoggedIn = false
-                '     m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
-                '     m.scene.gridContent = m.gridContent
-                '     ' m.deviceLinking.show = true
-                '     m.deviceLinking.setFocus(true)
-                ' end if
-
-
-            end if
-
-        end if
+        end if ' end of msgType = "roSGNodeEvent"
     end while
 
     print "You are exiting the app"
@@ -465,12 +350,14 @@ function goIntoDeviceLinkingFlow() as void
 
           if pin_status.linked then
               pin.text = "The device is linked"
+
+              ' get and store access token locally
               GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
 
+              ' get updated user info and update global auth state
               user_info = m.current_user.getInfo()
               m.auth_state_service.updateAuthWithUserInfo(user_info)
 
-              m.detailsScreen.UniversalSubscriptionsCount = user_info.subscription_count
               m.deviceLinking.isDeviceLinked = true
               m.deviceLinking.setUnlinkFocus = true
               exit while
@@ -1123,38 +1010,38 @@ function handleButtonEvents(index, screen)
       playVideoButton(screen)
     else if button_role = "favorite"
       markFavoriteButton(screen)
-    else if button_role = "subscribe"
-      consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-      if m.app.device_linking and consumer.linked and consumer.subscription_count > 0
-          m.detailsScreen.DontShowSubscriptionPackages = true
-          m.detailsScreen.isDeviceLinked = true
-          m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
-          m.detailsScreen.isLoggedIn = true
-          m.favorites.isLoggedIn = true
-      else
-          m.detailsScreen.ShowSubscriptionPackagesCallback = true
-      end if
+    ' else if button_role = "subscribe"
+    '   consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+    '   if m.app.device_linking and consumer.linked and consumer.subscription_count > 0
+    '       m.detailsScreen.DontShowSubscriptionPackages = true
+    '       m.detailsScreen.isDeviceLinked = true
+    '       m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
+    '       m.detailsScreen.isLoggedIn = true
+    '       m.favorites.isLoggedIn = true
+    '   else
+    '       m.detailsScreen.ShowSubscriptionPackagesCallback = true
+    '   end if
 
     else if button_role = "swaf"
       ' Add "Subscribe" and "Link Device"
       m.detailsScreen.ShowSubscribeButtons = true
-    else if button_role = "native_sub"
-      StartLoader()
-      result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
-      EndLoader()
-
-       if(result = true)
-          m.global.is_subscribed = true
-
-          m.detailsScreen.JustBoughtNativeSubscription = true
-          m.detailsScreen.isLoggedIn = true
-          m.favorites.isLoggedIn = true
-          m.global.isLoggedIn = true
-          m.global.HasNativeSubscription = true
-          m.scene.gridContent = m.gridContent
-          m.detailsScreen.setFocus(true)
-          m.detailsScreen.ReFocusButtons = true
-       end if
+    ' else if button_role = "native_sub"
+    '   StartLoader()
+    '   result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
+    '   EndLoader()
+    '
+    '    if(result = true)
+    '       m.global.is_subscribed = true
+    '
+    '       m.detailsScreen.JustBoughtNativeSubscription = true
+    '       m.detailsScreen.isLoggedIn = true
+    '       m.favorites.isLoggedIn = true
+    '       m.global.isLoggedIn = true
+    '       m.global.HasNativeSubscription = true
+    '       m.scene.gridContent = m.gridContent
+    '       m.detailsScreen.setFocus(true)
+    '       m.detailsScreen.ReFocusButtons = true
+    '    end if
     else if button_role = "device_linking"
       m.scene.transitionTo = "DeviceLinking"
       m.DeviceLinking.show = true
@@ -1176,17 +1063,9 @@ function handleButtonEvents(index, screen)
       login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
 
       if login_response <> invalid
-
+        ' get recent user info and update global auth state
         user_info = m.current_user.getInfo()
         m.auth_state_service.updateAuthWithUserInfo(user_info)
-
-        m.DetailsScreen.isDeviceLinked = true
-        m.Favorites.isLoggedIn = true
-
-        if user_info.subscription_count > 0
-          m.DetailsScreen.isLoggedIn = true
-          m.DetailsScreen.UniversalSubscriptionsCount = user_info.subscription_count
-        end if
 
         m.scene.transitionTo = "AccountScreen"
 
@@ -1204,6 +1083,7 @@ function handleButtonEvents(index, screen)
         login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
 
         user_info = m.current_user.getInfo()
+        m.auth_state_service.updateAuthWithUserInfo(user_info)
 
         ' Still need to add handler to get plan code selected
         plan = m.AuthSelection.currentPlanSelected
@@ -1240,24 +1120,15 @@ function handleButtonEvents(index, screen)
               "subscription[third_party_id]": "roku"
             }
 
-            m.global.auth.nativeSubCount = m.global.auth.nativeSubCount + 1
+            m.auth_state_service.incrementNativeSubCount()
             create_subscription_response = CreateSubscription(subscription_params)
 
             if create_subscription_response <> invalid
-              m.global.auth.universalSubCount = m.global.auth.universalSubCount + 1
-
               user_info = m.current_user.getInfo()
+              m.auth_state_service.updateAuthWithUserInfo(user_info)
 
-                m.DetailsScreen.isDeviceLinked = true
-                m.Favorites.isLoggedIn = true
-
-                if user_info.subscription_count > 0
-                  m.DetailsScreen.isLoggedIn = true
-                  m.DetailsScreen.UniversalSubscriptionsCount = user_info.subscription_count
-                end if
-
-                sleep(500)
-                CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
+              sleep(500)
+              CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
             end if ' create_subscription_response <> invalid
           end if ' native_sub_status.valid
 
@@ -1301,52 +1172,6 @@ Function EndLoader()
     m.detailsScreen.setFocus(true)
 End Function
 
-Function InitAuthenticationParams()
-
-    ' Case 1: No Authentication
-    if(m.app.device_linking = false AND m.app.in_app_purchase = false)
-        m.detailsScreen.NoAuthenticationEnabled = true
-        m.detailsScreen.OnlyNativeSVOD = false
-        m.detailsScreen.BothActive = false
-
-    ' Case 2: Only Native SVOD
-    else if(m.app.device_linking = false AND m.app.in_app_purchase = true)
-        m.detailsScreen.NoAuthenticationEnabled = false
-        m.detailsScreen.OnlyNativeSVOD = true
-        m.detailsScreen.BothActive = false
-
-    ' Case 3: Both Native SVOD and Device Linking
-    else if(m.app.device_linking = true AND m.app.in_app_purchase = true)
-        m.detailsScreen.NoAuthenticationEnabled = false
-        m.detailsScreen.OnlyNativeSVOD = false
-        m.detailsScreen.BothActive = true
-
-    end if
-
-End Function
-
-Function isLoggedIn()
-    ' print "inside isLoggedIn"
-    if(m.detailsScreen.NoAuthenticationEnabled = true)
-        return true
-    end if
-
-    if(isAuthViaNativeSVOD())
-        m.detailsScreen.isLoggedInViaNativeSVOD = true
-        m.detailsScreen.isLoggedInViaUniversalSVOD = false
-        m.global.HasNativeSubscription = true
-        ' print "isAuthViaNativeSVOD"
-        return true
-    else if (isAuthViaUniversalSVOD())
-        m.detailsScreen.isLoggedInViaNativeSVOD = false
-        m.detailsScreen.isLoggedInViaUniversalSVOD = true
-        ' print "isAuthViaUniversalSVOD"
-        return true
-    end if
-    ' print "leaving isLoggedIn"
-    return false
-End Function
-
 Function playVideoButton(lclScreen)
     if lclScreen.content.onAir = false
         playRegularVideo(lclScreen)
@@ -1358,8 +1183,6 @@ End Function
 Function markFavoriteButton(lclScreen)
     idParts = lclScreen.content.id.tokenize(":")
     id = idParts[0]
-    ' deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    'deviceLinking.linked = false
 
     if m.global.auth.isLoggedIn
         favs = GetFavoritesIDs()
@@ -1377,46 +1200,6 @@ Function markFavoriteButton(lclScreen)
             lclScreen.content.inFavorites = false
         end if
     end if
-End Function
-
-'////////////////////////////////////////////////////////////////////
-'   Authentication Mechanisms
-'////////////////////////////////////////////////////////////////////
-
-'   Native SVOD - Check if user bought from native SVOD which is Roku Store
-'   Need to check if there are bought subscriptions associated with Roku Account
-Function isAuthViaNativeSVOD()
-    ' print "inside isAuthViaNativeSVOD function"
-    subscribed = false
-    for each pi in m.purchasedItems
-        ' print "pi: "; pi
-        if(isPlanPurchased(pi.code)) ' Means the user has subscribed to atleast one of these
-            subscribed = true
-            exit for
-        end if
-    end for
-    return subscribed
-End Function
-
-' ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-' Universal SVOD - Check via Device Linking if the API server returns a count that says user bought something
-' Need to check device linking and subscription_count here.
-Function isAuthViaUniversalSVOD()
-    if(m.app.device_linking = false)
-        return false
-    end if
-
-    deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    m.detailsScreen.UniversalSubscriptionsCount = deviceLinking.subscription_count
-    if(deviceLinking.linked = false)
-        return false
-    end if
-
-    if(HasUDID() = true)
-        return true
-    end if
-
-    return false
 End Function
 
 ' ////////////////////////////////////////////////////////////////////////////////////////////////////////////

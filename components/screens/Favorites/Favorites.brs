@@ -33,7 +33,6 @@ Function OnRowItemSelected()
     ' On select any item on home scene, show Details node and hide Grid
     m.gridScreen.visible = "false"
     m.detailsScreen.content = m.top.focusedContent
-    ' m.detailsScreen.isLoggedIn = m.top.isLoggedIn
     m.detailsScreen.setFocus(true)
     m.detailsScreen.visible = "true"
     m.detailsScreen.IsOptionsLabelVisible = "false"

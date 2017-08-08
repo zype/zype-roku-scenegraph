@@ -100,12 +100,5 @@
         focusBitmapUri="pkg:/images/button-focus.png"
         />
 
-    <!-- Linking PIN -->
-    <!--<Label
-        id="Pin"
-        color="0x333333"
-        translation="[60,100]"
-        text=""/>-->
-
     </children>
 </component>

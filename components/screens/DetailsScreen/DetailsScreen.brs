@@ -222,25 +222,6 @@ Sub OnContentChange()
           m.top.SubscriptionButtonsShown = true
         end if
 
-        ' if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
-        '     m.canWatchVideo = true
-        ' else
-        '     m.canWatchVideo = false
-        ' end if
-        '
-        ' ' If all else is good and device is linked but there's no subscription found on the server then show native subscription buttons.
-        ' if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.top.isLoggedInViaNativeSVOD = false)
-        '     m.canWatchVideo = false
-        ' end if
-        ' print "m.canWatchVideo";m.canWatchVideo
-        ' if(m.canWatchVideo)
-        '     AddButtons()
-        '     m.top.SubscriptionButtonsShown = false
-        ' else
-        '     AddActionButtons()
-        '     m.top.SubscriptionButtonsShown = true
-        ' end if
-
         m.description.content   = m.top.content
         m.description.Description.height = "250"
         m.top.videoPlayer.content   = m.top.content
@@ -271,10 +252,8 @@ Sub AddButtons()
         else
             startDate = CreateObject("roDateTime")
             timeDiff = startDate.asSeconds() - m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
-
         end if
     end if
-
 
     if m.top.content <> invalid then
         ' create buttons
@@ -322,35 +301,28 @@ end function
 Sub AddActionButtons()
     if m.top.content <> invalid then
         ' create buttons
-        result = []
-        ' btns = [
-        '   {title: "Subscribe", role: "subscribe"}
-        ' ]
-        ' if(m.top.BothActive AND m.top.isDeviceLinked = false)
-        '     btns.push({ title: "Link Device", role: "device_linking" })
-        ' end if
-
         btns = [{ title: "Transition to native/universal flow", role: "transition", target: "AuthSelection" }]
 
         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
 
-Sub AddPackagesButtons()
-    if m.top.content <> invalid then
-        ' create buttons
-        btns = []
-        'for each plan in m.top.SubscriptionPlans
-        for each plan in m.top.ProductsCatalog
-           btns.push({
-            title: plan["title"] + " at " + plan["cost"],
-            role: "native_sub"
-          })
-        end for
-
-        m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
-    end if
-End Sub
+'   Shouldn't be needed as details screen no longer handles showing the plans (AuthSelection)
+' Sub AddPackagesButtons()
+'     if m.top.content <> invalid then
+'         ' create buttons
+'         btns = []
+'         'for each plan in m.top.SubscriptionPlans
+'         for each plan in m.top.ProductsCatalog
+'            btns.push({
+'             title: plan["title"] + " at " + plan["cost"],
+'             role: "native_sub"
+'           })
+'         end for
+'
+'         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+'     end if
+' End Sub
 
 Function getStatusOfVideo() as boolean
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")

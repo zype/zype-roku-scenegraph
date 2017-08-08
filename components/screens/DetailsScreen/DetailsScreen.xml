@@ -15,20 +15,10 @@
         <field id="itemSelectedTarget" type="string" />
 
         <!-- Playback flag -->
-        <!-- <field id="videoPlayerVisible" type="bool" alwaysnotify="true" alias="VideoPlayer.visible"  onChange="onVideoVisibleChange" /> -->
         <field id="videoPlayerVisible" type="bool" alwaysnotify="true" onChange="onVideoVisibleChange" />
 
         <!-- Content fields -->
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
-
-        <!-- If User is Logged In -->
-        <!-- <field id="isLoggedIn" type="bool"  alwaysnotify="true" onChange="OnContentChange"/> -->
-
-        <!-- If User is Logged In via Native SVOD -->
-        <!-- <field id="isLoggedInViaNativeSVOD" type="bool"/> -->
-
-        <!-- If User is Logged In via Universal SVOD -->
-        <!-- <field id="isLoggedInViaUniversalSVOD" type="bool"/> -->
 
         <!-- Subscription Buttons Shown -->
         <field id="SubscriptionButtonsShown" type="bool" />
@@ -43,25 +33,6 @@
         <!-- <field id="ProductsCatalog" type="roArray" /> -->
 
         <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
-
-        <!-- No Authentication Enabled -->
-        <!-- <field id="NoAuthenticationEnabled" type="bool" /> -->
-
-        <!-- Only Native SVOD -->
-        <!-- <field id="OnlyNativeSVOD" type="bool" /> -->
-
-        <!-- BothActive -->
-        <!-- <field id="BothActive" type="bool" /> -->
-
-        <!-- isDeviceLinked -->
-        <!-- <field id="isDeviceLinked" type="bool" /> -->
-
-        <!-- Universal Subscriptions Count -->
-        <!-- <field id="UniversalSubscriptionsCount" type="integer" /> -->
-
-        <!-- JustBoughtNativeSubscription -->
-        <!-- This is just a flag to mark in the system that the user just bought via IAP and should be able to Play -->
-        <!-- <field id="JustBoughtNativeSubscription" type="bool" /> -->
 
         <!-- DontShowSubscriptionPackages -->
         <!-- This is when we click the subscription button and there might be a new subscription on the server
@@ -133,14 +104,6 @@
             translation="[0, 0]"
         />
 
-        <!--<Rectangle
-            id = "Shade"
-            width="1280"
-            height="720"
-            color="0x000000"
-            opacity="0.5"
-            />-->
-
         <!-- Custom fonts -->
         <Label>
             <Font id="ButtonFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="22"/>
@@ -174,27 +137,11 @@
             focusBitmapUri="pkg:/images/button-focus-light.png"
             />
 
-        <!--Black hud at bottom of the Details Screen.-->
-        <!--<Rectangle
-            id="testRectangle"
-            color="0x000000FF"
-            width="1280"
-            height="251"
-            translation="[0, 462]" />-->
-
         <!--Item description.-->
         <Description
             id="Description"
             translation="[106, 140]"
             itemSpacings="[7,17]" />
-
-        <!--Item poster.-->
-        <!--<Poster
-            id="Poster"
-            translation="[60, 495]"
-            width="317"
-            height="178"
-            />-->
 
         <!-- Overhang -->
         <Group
@@ -227,14 +174,6 @@
                uri="pkg:/images/options.png"/>
            </Group>
         </Group>
-
-        <!--Playback node.-->
-        <!-- <Video
-            id="VideoPlayer"
-            visible="false"
-            translation="[0, 0]"
-            width="1280"
-            height="720"/> -->
-
+        
     </children>
 </component>
