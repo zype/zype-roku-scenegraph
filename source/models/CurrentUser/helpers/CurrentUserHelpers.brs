@@ -18,7 +18,7 @@ function CurrentUserHelpers() as object
   this.consumerFromAccessToken = function(access_token) as object
     consumer_id = m.consumerIdFromAccessToken(access_token)
 
-    if consumer_id <> invalid then return GetConsumer(consumer_id, access_token) else return invalid
+    if consumer_id <> invalid then return GetConsumer(consumer_id, access_token) else LogOut() : return invalid
   end function
 
   this.LinkedUser = function() as object

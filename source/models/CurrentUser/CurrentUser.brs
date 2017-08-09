@@ -24,11 +24,18 @@ function CurrentUser() as object
   ' Get user info from Zype platform using access token
   this.getInfo = function() as object
     auth = m.getOAuth()
-    consumer = {linked: false}
+    consumer = {
+      _id: "",
+      linked: false
+    }
 
     if auth <> invalid and auth.access_token <> invalid
-      consumer = m.helpers.consumerFromAccessToken(auth.access_token)
-      if m.helpers.linkedUser() <> invalid then consumer.linked = true else consumer.linked = false
+      consumer_info = m.helpers.consumerFromAccessToken(auth.access_token)
+
+      if consumer_info <> invalid
+        consumer = consumer_info
+        if m.helpers.linkedUser() <> invalid then consumer.linked = true else consumer.linked = false
+      end if
     end if
 
     return consumer

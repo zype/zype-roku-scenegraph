@@ -58,8 +58,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       StartLoader()
     end if
 
-    getUserPurchases()
-    getProductsCatalog()
+    ' getUserPurchases()
+    ' getProductsCatalog()
 
     m.contentID = contentID
 
