@@ -12,10 +12,11 @@ function BiFrostService() as object
     for each n_sub in native_subs
       bifrost_params = {
         consumer_id: user_info._id,
-        site_id: m.app.site_id,
+        site_id: GetApiConfigs().zype_api_key,
         subscription_plan_id: n_sub.code,
         roku_api_key: GetApiConfigs().roku_api_key,
-        transaction_id: n_sub.purchaseId
+        transaction_id: n_sub.purchaseId,
+        device_type: "roku"
       }
 
       n_sub_status = GetNativeSubscriptionStatus(bifrost_params)

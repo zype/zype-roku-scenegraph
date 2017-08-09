@@ -194,6 +194,8 @@ Function MakePostRequest(src As String, params As Object) As Object
   if url.InStr(0, "https") = 0
     request.SetCertificatesFile("common:/certs/ca-bundle.crt")
     request.AddHeader("X-Roku-Reserved-Dev-Id", "")
+    request.AddHeader("Bearer", GetApiConfigs().bearer_header)
+    request.AddHeader("Authorization", GetApiConfigs().authorization_header)
     request.InitClientCertificates()
   end if
 

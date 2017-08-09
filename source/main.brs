@@ -30,7 +30,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen.Show()
 
     m.store = CreateObject("roChannelStore")
-    m.store.FakeServer(true)
+    ' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -1137,10 +1137,11 @@ function handleNativeToUniversal() as void
 
     bifrost_params = {
       consumer_id: user_info._id,
-      site_id: m.app.site_id,
+      site_id: GetApiConfigs().zype_api_key,
       subscription_plan_id: recent_purchase.code,
       roku_api_key: GetApiConfigs().roku_api_key,
-      transaction_id: recent_purchase.purchaseId
+      transaction_id: recent_purchase.purchaseId,
+      device_type: "roku"
     }
 
     ' Check is subscription went through with BiFrost
