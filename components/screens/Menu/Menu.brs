@@ -27,7 +27,7 @@ Function InitSidebarButtons()
       { title: "About", role: "transition", target: "InfoScreen"}
     ]
 
-    if(m.top.isDeviceLinkingEnabled = true)
+    if(m.global.device_linking = true)
         menuButtons.push( { title: "Account", role: "transition", target: "AccountScreen" } )
         menuButtons.push( { title: "Favorites", role: "transition", target: "Favorites" } )
     end if
