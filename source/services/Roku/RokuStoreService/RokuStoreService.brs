@@ -52,12 +52,16 @@ function RokuStoreService(store, message_port) as object
   ' Accepts and purchases array of IAP items
   '
   ' order = [ { code: iap_code, qty: quantity }, ...  ]
-  this.makePurchase = function(order) as boolean
+  this.makePurchase = function(order) as object
     m.store.SetOrder(order)
     m.store.DoOrder()
 
     order_response = m.helpers.getStoreResponse(m.port)
-    if order_response <> invalid then return true else return false
+
+    ' If order failed, roku store returns 0, else roku store returns roArray of receipt
+    success = (type(order_response) <> "Integer" and type(order_response) <> "roInt")
+
+    if success then return { receipt: order_response[0], success: true} else return {receipt: invalid, success: false}
   end function
 
   this.getRecentPurchase = function() as object

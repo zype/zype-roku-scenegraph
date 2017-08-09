@@ -1129,11 +1129,11 @@ function handleNativeToUniversal() as void
   ' Make nsvod purchase
   purchase_subscription = m.roku_store_service.makePurchase(order)
 
-  if purchase_subscription
+  if purchase_subscription.success
     m.auth_state_service.incrementNativeSubCount()
 
     ' Get recent purchase
-    recent_purchase = m.roku_store_service.getRecentPurchase()
+    recent_purchase = purchase_subscription.receipt
 
     bifrost_params = {
       consumer_id: user_info._id,
