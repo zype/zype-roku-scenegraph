@@ -39,6 +39,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.roku_store_service = RokuStoreService(m.store, m.port)
     m.auth_state_service = AuthStateService()
+    m.bifrost_service = BiFrostService()
+    m.zype_subscription_service = ZypeSubscriptionService()
+    m.raf_service = RafService()
 
     SetMonetizationSettings()
     SetGlobalAuthObject()
@@ -130,7 +133,21 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
 
-    m.raf_service = RafService()
+    ' User previously purchased native subscription but BiFrost was not able to validate
+    ' Try creating universal subscription
+    if m.global.auth.isLoggedIn and m.global.auth.nativeSubCount > 0 and m.global.auth.universalSubCount = 0
+      native_subs_purchased = m.roku_store_service.getUserNativeSubscriptionPurchases()
+
+      for each native_sub in native_subs_purchased
+        u_sub_success = m.zype_subscription_service.createUniversalFromNative(user_info, native_sub)
+
+        ' if successful creation, stop creating subscriptions
+        if u_sub_success then exit for
+      end for
+
+      user_info = m.current_user.getInfo()
+      m.auth_state_service.updateAuthWithUserInfo(user_info)
+    end if
 
     LoadLimitStream() ' Load LimitStream Object
 
@@ -250,8 +267,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 handleButtonEvents(index, lclscreen)
 
             else if msg.getNode() = "AuthSelection" and msg.getField() = "planSelected" then
-                current_plan_selected = m.AuthSelection.currentPlanSelected
-                m.scene.transitionTo = "SignUpScreen"
+                if m.global.auth.isLoggedIn then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
             else if msg.getField() = "position"
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
@@ -1024,7 +1040,7 @@ function handleButtonEvents(index, screen)
 
     else if button_role = "swaf"
       ' Add "Subscribe" and "Link Device"
-      m.detailsScreen.ShowSubscribeButtons = true
+      ' m.detailsScreen.ShowSubscribeButtons = true
     ' else if button_role = "native_sub"
     '   StartLoader()
     '   result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
@@ -1043,7 +1059,6 @@ function handleButtonEvents(index, screen)
     '       m.detailsScreen.ReFocusButtons = true
     '    end if
     else if button_role = "device_linking"
-      m.scene.transitionTo = "DeviceLinking"
       m.DeviceLinking.show = true
 
     else if button_role = "signout"
@@ -1082,60 +1097,7 @@ function handleButtonEvents(index, screen)
       if create_consumer_response <> invalid
         login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
 
-        user_info = m.current_user.getInfo()
-        m.auth_state_service.updateAuthWithUserInfo(user_info)
-
-        ' Still need to add handler to get plan code selected
-        plan = m.AuthSelection.currentPlanSelected
-
-        order = [{
-          code: plan.code,
-          qty: 1
-        }]
-
-        ' Make nsvod purchase
-        purchase_subscription = m.roku_store_service.makePurchase(order)
-
-        if purchase_subscription
-          ' Get recent purchase
-          recent_purchase = m.roku_store_service.getRecentPurchase()
-
-          bifrost_params = {
-            consumer_id: user_info._id,
-            site_id: m.app.site_id,
-            subscription_plan_id: recent_purchase.code,
-            roku_api_key: GetApiConfigs().roku_api_key,
-            transaction_id: recent_purchase.purchaseId
-          }
-
-          stop
-
-          native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
-
-          if native_sub_status.is_valid
-            ' Create Subscription on platform
-            subscription_params = {
-              "subscription[consumer_id]": user_info._id,
-              "subscription[plan_id]": recent_purchase.code,
-              "subscription[third_party_id]": "roku"
-            }
-
-            m.auth_state_service.incrementNativeSubCount()
-            create_subscription_response = CreateSubscription(subscription_params)
-
-            if create_subscription_response <> invalid
-              user_info = m.current_user.getInfo()
-              m.auth_state_service.updateAuthWithUserInfo(user_info)
-
-              sleep(500)
-              CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
-            end if ' create_subscription_response <> invalid
-          end if ' native_sub_status.valid
-
-        ' User cancelled purchase or error from Roku store
-        else
-          CreateDialog(m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
-        end if
+        handleNativeToUniversal()
       else
         CreateDialog(m.scene, "Error", "It appears that email was taken.", ["Close"])
       end if
@@ -1145,13 +1107,64 @@ function handleButtonEvents(index, screen)
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
       m.scene.transitionTo = "UniversalAuthSelection"
     else if button_role = "transition" and button_target = "DeviceLinking"
-      m.scene.transitionTo = "DeviceLinking"
       m.DeviceLinking.show = true
-
+      m.DeviceLinking.setFocus(true)
     else if button_role = "transition" and button_target = "SignInScreen"
       m.scene.transitionTo = "SignInScreen"
     end if
 end function
+
+function handleNativeToUniversal() as void
+  ' Get updated user info
+  user_info = m.current_user.getInfo()
+  m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+  plan = m.AuthSelection.currentPlanSelected
+
+  order = [{
+    code: plan.code,
+    qty: 1
+  }]
+
+  ' Make nsvod purchase
+  purchase_subscription = m.roku_store_service.makePurchase(order)
+
+  if purchase_subscription
+    m.auth_state_service.incrementNativeSubCount()
+
+    ' Get recent purchase
+    recent_purchase = m.roku_store_service.getRecentPurchase()
+
+    bifrost_params = {
+      consumer_id: user_info._id,
+      site_id: m.app.site_id,
+      subscription_plan_id: recent_purchase.code,
+      roku_api_key: GetApiConfigs().roku_api_key,
+      transaction_id: recent_purchase.purchaseId
+    }
+
+    ' Check is subscription went through with BiFrost
+    native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
+
+    if native_sub_status.is_valid
+      ' Create Subscription on platform
+      create_subscription_response = m.zype_subscription_service.createUniversalFromNative(user_info, recent_purchase)
+
+      if create_subscription_response <> invalid
+        user_info = m.current_user.getInfo()
+        m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+        sleep(500)
+        CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
+      end if ' create_subscription_response <> invalid
+    end if ' native_sub_status.valid
+
+  ' User cancelled purchase or error from Roku store
+  else
+    CreateDialog(m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
+  end if
+end function
+
 
 ' Seting details screen's RemakeVideoPlayer value to true recreates Video component
 '     Roku Video component performance degrades significantly after multiple uses, so we make a new one
@@ -1264,8 +1277,11 @@ function SetGlobalAuthObject() as void
   if current_user_info._id <> invalid then is_logged_in = true else is_logged_in = false
   if current_user_info.email <> invalid then user_email = current_user_info.email else user_email = ""
 
+  native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
+  valid_native_subs = m.bifrost_service.validSubscriptions(current_user_info, native_sub_purchases)
+
   m.global.addFields({ auth: {
-    nativeSubCount: m.roku_store_service.getUserNativeSubscriptionPurchases().count(),
+    nativeSubCount: valid_native_subs.count(),
     universalSubCount: universal_sub_count,
     isLoggedIn: is_logged_in,
     isLinked: current_user_info.linked,

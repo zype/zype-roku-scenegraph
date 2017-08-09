@@ -371,12 +371,14 @@ Function OnKeyEvent(key, press) as Boolean
             else if m.deviceLinking.visible = true
                 ' If link device was launched from detail screen, do not run the following two lines.
                 if (m.detailsScreen.visible = false)
-                    search = m.screenStack.pop()
-                    search.show = false
+                    details = m.screenStack.pop()
+                    details.show = false
                 end if
 
                 m.deviceLinking.show = false
                 m.deviceLinking.setFocus(false)
+
+                if m.screenStack.peek().id = "DeviceLinking" then m.screenStack.pop()
 
                 ' after Device Linking screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                 ' open last screen before search and focus it
