@@ -23,6 +23,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.current_user = CurrentUser()
 
     SetTheme()
+    SetFeatures()
+    SetMonetizationSettings()
 
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
@@ -40,12 +42,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.roku_store_service = RokuStoreService(m.store, m.port)
     m.auth_state_service = AuthStateService()
     m.bifrost_service = BiFrostService()
-    m.zype_subscription_service = ZypeSubscriptionService()
     m.raf_service = RafService()
 
-    SetMonetizationSettings()
     SetGlobalAuthObject()
-    SetFeatures()
 
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
@@ -133,21 +132,18 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
 
-    ' User previously purchased native subscription but BiFrost was not able to validate
-    ' Try creating universal subscription
-    if m.global.auth.isLoggedIn and m.global.auth.nativeSubCount > 0 and m.global.auth.universalSubCount = 0
-      native_subs_purchased = m.roku_store_service.getUserNativeSubscriptionPurchases()
+    m.TestInfoScreen = m.scene.findNode("TestInfoScreen")
 
-      for each native_sub in native_subs_purchased
-        u_sub_success = m.zype_subscription_service.createUniversalFromNative(user_info, native_sub)
+    ' Set Test Info for displaying on live apps since no debugging or crash logs
+    native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
+    test_info_string = ""
+    for each native_sub in native_sub_purchases
+      test_info_string = test_info_string + FormatJSON(native_sub) + chr(10)
+    end for
 
-        ' if successful creation, stop creating subscriptions
-        if u_sub_success then exit for
-      end for
+    m.TestInfoScreen.info = test_info_string
 
-      user_info = m.current_user.getInfo()
-      m.auth_state_service.updateAuthWithUserInfo(user_info)
-    end if
+
 
     LoadLimitStream() ' Load LimitStream Object
 
@@ -1140,24 +1136,19 @@ function handleNativeToUniversal() as void
       site_id: GetApiConfigs().zype_api_key,
       subscription_plan_id: recent_purchase.code,
       roku_api_key: GetApiConfigs().roku_api_key,
-      transaction_id: recent_purchase.purchaseId,
+      transaction_id: UCase(recent_purchase.purchaseId),
       device_type: "roku"
     }
 
-    ' Check is subscription went through with BiFrost
+    ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
     native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
 
     if native_sub_status.is_valid
-      ' Create Subscription on platform
-      create_subscription_response = m.zype_subscription_service.createUniversalFromNative(user_info, recent_purchase)
-
-      if create_subscription_response <> invalid
         user_info = m.current_user.getInfo()
         m.auth_state_service.updateAuthWithUserInfo(user_info)
 
         sleep(500)
         CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
-      end if ' create_subscription_response <> invalid
     end if ' native_sub_status.valid
 
   ' User cancelled purchase or error from Roku store
@@ -1269,20 +1260,21 @@ function SetFeatures() as void
   m.global.addFields({
     swaf: configs.subscribe_to_watch_ad_free,
     enable_lock_icons: configs.enable_lock_icons
+    test_info_screen: configs.test_info_screen
   })
 end function
 
 function SetGlobalAuthObject() as void
   current_user_info = m.current_user.getInfo()
   if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
-  if current_user_info._id <> invalid then is_logged_in = true else is_logged_in = false
+  if current_user_info._id <> invalid and current_user_info._id <> "" then is_logged_in = true else is_logged_in = false
   if current_user_info.email <> invalid then user_email = current_user_info.email else user_email = ""
 
   native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
-  valid_native_subs = m.bifrost_service.validSubscriptions(current_user_info, native_sub_purchases)
+  ' valid_native_subs = m.bifrost_service.validSubscriptions(user_info, native_sub_purchases)
 
   m.global.addFields({ auth: {
-    nativeSubCount: valid_native_subs.count(),
+    nativeSubCount: native_sub_purchases.count(),
     universalSubCount: universal_sub_count,
     isLoggedIn: is_logged_in,
     isLinked: current_user_info.linked,

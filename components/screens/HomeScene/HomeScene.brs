@@ -55,6 +55,8 @@ Function Init()
     ' loading indicator starts at initializatio of channel
     m.loadingIndicator = m.top.findNode("loadingIndicator")
 
+    m.TestInfoScreen = m.top.findNode("TestInfoScreen")
+
     ' Set theme
     m.loadingIndicator.backgroundColor = m.global.theme.background_color
     m.loadingIndicator.imageUri = m.global.theme.loader_uri
@@ -193,6 +195,8 @@ Function OnMenuButtonSelected()
       m.top.transitionTo = "Favorites"
     else if button_role = "transition" and button_target = "AccountScreen"
       m.top.transitionTo = "AccountScreen"
+    else if button_role = "transition" and button_target = "TestInfoScreen"
+      m.top.transitionTo = "TestInfoScreen"
     end if
 End Function
 
@@ -343,6 +347,14 @@ Function OnKeyEvent(key, press) as Boolean
             else if m.AccountScreen.visible = true then
                 account = m.screenStack.pop()
                 account.visible = false
+
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+                result = true
+
+            else if m.TestInfoScreen.visible = true then
+                test_info_screen = m.screenStack.pop()
+                test_info_screen.visible = false
 
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)

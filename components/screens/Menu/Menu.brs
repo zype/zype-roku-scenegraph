@@ -32,6 +32,10 @@ Function InitSidebarButtons()
         menuButtons.push( { title: "Favorites", role: "transition", target: "Favorites" } )
     end if
 
+    if m.global.test_info_screen
+      menuButtons.push( {title: "Test Info", role: "transition", target: "TestInfoScreen" } )
+    end if
+
     m.buttons.content = m.content_helpers.oneDimList2ContentNode(menuButtons, "ButtonNode")
 End Function
 

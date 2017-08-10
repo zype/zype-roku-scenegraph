@@ -212,7 +212,9 @@ Sub OnContentChange()
         is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
         svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
 
-        if m.top.content.subscriptionRequired = false or (svod_enabled and is_subscribed)
+        no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
+
+        if no_sub_needed or (svod_enabled and is_subscribed)
           m.canWatchVideo = true
           AddButtons()
           m.top.SubscriptionButtonsShown = false

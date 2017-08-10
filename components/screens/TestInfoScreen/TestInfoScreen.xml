@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="TestInfoScreen" extends="Group" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+
+    <interface>
+      <field id="info" type="string" alwaysNotify="true" onChange="onInfoChange" />
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/TestInfoScreen/TestInfoScreen.brs" />
+
+    <children>
+      <Rectangle
+        id="Background"
+        color="#FFFFFF"
+        width="1280"
+        height="720"
+        translation="[0,0]" />
+
+      <Label
+        id="Header"
+        width="1280"
+        horizAlign="center"
+        text="Testing Info"
+        translation="[0,100]">
+        <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="40"/>
+      </Label>
+
+      <Label
+        id="InfoDisplay"
+        width="1280"
+        horizAlign="center"
+        text=""
+        wrap="true"
+        translation="[0,200]">
+        <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20"/>
+      </Label>
+
+    </children>
+</component>

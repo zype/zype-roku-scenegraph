@@ -124,6 +124,10 @@
           id="AccountScreen"
           visible="false" />
 
+        <TestInfoScreen
+          id="TestInfoScreen"
+          visible="false" />
+
         <!-- Font for loading indicator -->
         <Label>
             <Font id="loadingIndicatorFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="16"/>
