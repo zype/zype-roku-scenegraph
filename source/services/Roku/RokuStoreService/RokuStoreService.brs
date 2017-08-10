@@ -58,7 +58,7 @@ function RokuStoreService(store, message_port) as object
 
     order_response = m.helpers.getStoreResponse(m.port)
 
-    if order_response <> invalid then return {receipt: invalid, success: false}
+    if order_response = invalid then return {receipt: invalid, success: false}
 
     ' If order failed, roku store returns 0, else roku store returns roArray of receipt
     success = (type(order_response) <> "Integer" and type(order_response) <> "roInt")
