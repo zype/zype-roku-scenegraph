@@ -15,7 +15,7 @@ function BiFrostService() as object
         site_id: GetApiConfigs().zype_api_key,
         subscription_plan_id: n_sub.code,
         roku_api_key: GetApiConfigs().roku_api_key,
-        transaction_id: n_sub.purchaseId,
+        transaction_id: UCase(n_sub.purchaseId),
         device_type: "roku"
       }
 

@@ -141,6 +141,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       test_info_string = test_info_string + FormatJSON(native_sub) + chr(10)
     end for
 
+    test_info_string = test_info_string + "m.global.auth.nativeSubCount: " + StrI(m.global.auth.nativeSubCount)
+
     m.TestInfoScreen.info = test_info_string
 
 
@@ -1266,15 +1268,23 @@ end function
 
 function SetGlobalAuthObject() as void
   current_user_info = m.current_user.getInfo()
-  if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
   if current_user_info._id <> invalid and current_user_info._id <> "" then is_logged_in = true else is_logged_in = false
   if current_user_info.email <> invalid then user_email = current_user_info.email else user_email = ""
 
   native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
-  ' valid_native_subs = m.bifrost_service.validSubscriptions(user_info, native_sub_purchases)
+
+  valid_native_subs = []
+
+  ' If native sub purchases, check for valid native subscriptions
+  if native_sub_purchases.count() > 0 and current_user_info.subscription_count = 0
+    valid_native_subs = m.bifrost_service.validSubscriptions(current_user_info, native_sub_purchases)
+    current_user_info = m.current_user.getInfo()
+  end if
+
+  if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
 
   m.global.addFields({ auth: {
-    nativeSubCount: native_sub_purchases.count(),
+    nativeSubCount: valid_native_subs.count(),
     universalSubCount: universal_sub_count,
     isLoggedIn: is_logged_in,
     isLinked: current_user_info.linked,
