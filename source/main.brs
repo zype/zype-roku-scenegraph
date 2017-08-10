@@ -57,6 +57,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.gridScreen = m.scene.findNode("GridScreen")
 
+    if contentID = invalid
+      ' Keep loader spinning. App not done loading yet
+      m.gridScreen.setFocus(false)
+      m.loadingIndicator.control = "start"
+    end if
+
     rowlist = m.gridScreen.findNode("RowList")
     rowlist.rowItemSize = m.playlistsRowItemSizes
     rowlist.rowSpacings = m.playlistRowsSpacings
@@ -207,6 +213,14 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
         end if
       end if
     end if
+
+    if contentID = invalid
+      ' Stop loader and refocus
+      m.gridScreen.setFocus(true)
+      m.loadingIndicator.control = "stop"
+    end if
+
+    print "App done loading"
 
     while(true)
         msg = wait(0, m.port)
@@ -648,7 +662,10 @@ sub playVideoWithAds(screen as Object, auth as Object)
                 if timeDiff <= 0.500
                   m.videoPlayer.control = "stop"
 
-                  m.raf_service.playAds(playerInfo.video, midroll_ads[0].url)
+                  finished_ad = m.raf_service.playAds(playerInfo.video, midroll_ads[0].url)
+
+                  if finished_ad = false then CloseVideoPlayer() : exit while
+
 
                   ' Remove midroll ad from array
                   midroll_ads.shift()

@@ -85,6 +85,10 @@ End Sub
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.top.videoPlayer.hasFocus() then
+      ' Just in case overlay looses visibility when returning from video player. Cause of bug unknown
+      m.overlay.uri = m.global.theme.overlay_uri
+      m.overlay.visible = true
+
       if m.canWatchVideo <> invalid and m.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)
