@@ -408,6 +408,9 @@ function goIntoDeviceLinkingFlow() as void
 
               m.scene.goBackToNonAuth = true
 
+              ' Reset details screen buttons
+              m.detailsScreen.content = m.detailsScreen.content
+
               sleep(500)
               CreateDialog(m.scene, "Success", "Your device is linked", ["Continue"])
               exit while
@@ -1106,6 +1109,9 @@ function handleButtonEvents(index, screen)
 
       m.AccountScreen.resetText = true
       m.scene.goBackToNonAuth = true
+      
+      ' Reset details screen buttons
+      m.detailsScreen.content = m.detailsScreen.content
 
       sleep(500)
       CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
@@ -1133,6 +1139,9 @@ function handleButtonEvents(index, screen)
         ' m.scene.transitionTo = "AccountScreen"
         m.scene.goBackToNonAuth = true
 
+        ' Reset details screen
+        m.detailsScreen.content = m.detailsScreen.content
+
         sleep(500)
         CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
       else
@@ -1141,7 +1150,7 @@ function handleButtonEvents(index, screen)
       end if
 
     else if button_role = "submitCredentials" and screen.id = "SignUpScreen"
-      create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password })
+      create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
 
       if create_consumer_response <> invalid
         login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
