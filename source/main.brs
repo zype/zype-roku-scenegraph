@@ -265,7 +265,19 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 handleButtonEvents(index, lclscreen)
 
             else if msg.getNode() = "AuthSelection" and msg.getField() = "planSelected" then
+              app_info = CreateObject("roAppInfo")
+
+              plan = m.AuthSelection.currentPlanSelected
+              already_purchased = m.roku_store_service.alreadyPurchased(plan.code)
+
+              already_purchased_message = "It appears you have already purchased this plan before. If you cancelled your subscription, please renew your subscription on the Roku website. " + chr(10) + chr(10) + "Then you can sign in with your " + app_info.getTitle() + " account to sync your subscription."
+
+              if already_purchased
+                CreateDialog(m.scene, "Already purchased", already_purchased_message, ["Close"])
+              else
                 if m.global.auth.isLoggedIn then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
+              end if
+
             else if msg.getField() = "position"
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
@@ -369,6 +381,19 @@ function goIntoDeviceLinkingFlow() as void
               GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
 
               ' get updated user info and update global auth state
+              user_info = m.current_user.getInfo()
+
+              ' if no universal subs, check if native sub purchase exists.
+              ' if native sub purchased, call bifrost to check
+              if user_info.subscription_count = 0
+                native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
+                if native_sub_purchases.count() > 0
+                  valid_native_subs = m.bifrost_service.validSubscriptions(user_info, native_sub_purchases)
+
+                  if valid_native_subs.count() > 0 then m.auth_state_service.incrementNativeSubCount()
+                end if
+              end if
+
               user_info = m.current_user.getInfo()
               m.auth_state_service.updateAuthWithUserInfo(user_info)
 
@@ -1089,6 +1114,19 @@ function handleButtonEvents(index, screen)
 
       if login_response <> invalid
         ' get recent user info and update global auth state
+        user_info = m.current_user.getInfo()
+
+        ' if no universal subs, check if native sub purchase exists.
+        ' if native sub purchased, call bifrost to check
+        if user_info.subscription_count = 0
+          native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
+          if native_sub_purchases.count() > 0
+            valid_native_subs = m.bifrost_service.validSubscriptions(user_info, native_sub_purchases)
+
+            if valid_native_subs.count() > 0 then m.auth_state_service.incrementNativeSubCount()
+          end if
+        end if
+
         user_info = m.current_user.getInfo()
         m.auth_state_service.updateAuthWithUserInfo(user_info)
 

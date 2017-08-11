@@ -66,6 +66,16 @@ function RokuStoreService(store, message_port) as object
     if success then return { receipt: order_response[0], success: true} else return {receipt: invalid, success: false}
   end function
 
+  this.alreadyPurchased = function(code as string) as boolean
+    purchases = m.getPurchases()
+
+    for each purchase in purchases
+      if purchase.code = code then return true
+    end for
+
+    return false
+  end function
+
   this.getRecentPurchase = function() as object
     purchases = m.getPurchases()
 
