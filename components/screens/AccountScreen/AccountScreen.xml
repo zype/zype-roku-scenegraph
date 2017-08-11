@@ -5,9 +5,11 @@
 -->
 <component name="AccountScreen" extends="Group" initialFocus="Button">
     <interface>
-      <field id="itemSelected" type="integer" alwaysnotify="true" alias="Button.itemSelected" onChange="onItemSelected" />
+      <field id="itemSelected" type="integer" alwaysNotify="true" alias="Button.itemSelected" onChange="onItemSelected" />
       <field id="itemSelectedRole" type="string" />
       <field id="itemSelectedTarget" type="string" />
+
+      <field id="resetText" type="boolean" alwaysNotify="true" onChange="resetTextCallback" />
     </interface>
 
     <!-- main handler -->

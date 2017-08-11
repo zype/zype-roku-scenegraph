@@ -16,19 +16,23 @@ end function
 
 function onVisibleChange() as void
   if m.top.visible
-    if m.global.auth.isLoggedIn
-      m.header.text = "Signed in as: " + m.global.auth.email
+    resetTextCallback()
+  end if
+end function
 
-      btn = [ { title: "Sign out", role: "signout", target: "" } ]
-      m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
-      m.button.setFocus(true)
-    else
-      m.header.text = "Sign In To Your Account"
+function resetTextCallback() as void
+  if m.global.auth.isLoggedIn
+    m.header.text = "Signed in as: " + m.global.auth.email
 
-      btn = [ { title: "Sign in", role: "transition", target: "UniversalAuthSelection" } ]
-      m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
-      m.button.setFocus(true)
-    end if
+    btn = [ { title: "Sign out", role: "signout", target: "" } ]
+    m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
+    m.button.setFocus(true)
+  else
+    m.header.text = "Sign In To Your Account"
+
+    btn = [ { title: "Sign in", role: "transition", target: "UniversalAuthSelection" } ]
+    m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
+    m.button.setFocus(true)
   end if
 end function
 

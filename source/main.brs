@@ -1065,13 +1065,11 @@ function handleButtonEvents(index, screen)
       if user_info.linked then UnlinkDevice(user_info._id, pin, {})
 
       LogOut()
-      CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
-
       user_info = m.current_user.getInfo()
       m.auth_state_service.updateAuthWithUserInfo(user_info)
+      CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
 
-      m.AccountScreen.visible = false
-      m.AccountScreen.visible = true
+      m.AccountScreen.resetText = true
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
       login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
 
