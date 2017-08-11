@@ -169,6 +169,38 @@ function transitionToScreen() as void
   screen.setFocus(true)
 end function
 
+function goBackToNonAuthCallback() as void
+
+  ' keep removing and hiding auth related screens until reach last non auth screen
+  while isAuthScreen(m.screenStack.peek().id)
+    auth_screen = m.screenStack.pop()
+    auth_screen.visible = false
+    auth_screen.setFocus(false)
+  end while
+
+  ' show and refocus last non auth screen
+  m.screenStack.peek().visible = true
+  m.screenStack.peek().setFocus(true)
+end function
+
+function isAuthScreen(screen_id as string) as boolean
+  auth_screen_ids = [
+    "AccountScreen",
+    "AuthSelection",
+    "CredentialsInput",
+    "DeviceLinking",
+    "UniversalAuthSelection",
+    "SignInScreen",
+    "SignUpScreen"
+  ]
+
+  for each auth_id in auth_screen_ids
+    if screen_id = auth_id then return true
+  end for
+
+  return false
+end function
+
 function focusedChild() as string
   return m.top.focusedChild.id
 end function

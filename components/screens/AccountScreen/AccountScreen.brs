@@ -17,6 +17,7 @@ end function
 function onVisibleChange() as void
   if m.top.visible
     resetTextCallback()
+    m.button.setFocus(true)
   end if
 end function
 
@@ -26,13 +27,11 @@ function resetTextCallback() as void
 
     btn = [ { title: "Sign out", role: "signout", target: "" } ]
     m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
-    m.button.setFocus(true)
   else
     m.header.text = "Sign In To Your Account"
 
     btn = [ { title: "Sign in", role: "transition", target: "UniversalAuthSelection" } ]
     m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
-    m.button.setFocus(true)
   end if
 end function
 

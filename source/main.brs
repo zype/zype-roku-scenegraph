@@ -372,8 +372,19 @@ function goIntoDeviceLinkingFlow() as void
               user_info = m.current_user.getInfo()
               m.auth_state_service.updateAuthWithUserInfo(user_info)
 
+              test_info_string = m.TestInfoScreen.info
+
+              test_info_string = test_info_string + "RegReadAccessToken(): " + FormatJSON(m.current_user.getOAuth()) + chr(10)
+
+              m.TestInfoScreen.info = test_info_string
+
               m.deviceLinking.isDeviceLinked = true
               m.deviceLinking.setUnlinkFocus = true
+
+              m.scene.goBackToNonAuth = true
+
+              sleep(500)
+              CreateDialog(m.scene, "Success", "Your device is linked", ["Continue"])
               exit while
           end if
       end if
@@ -1067,9 +1078,12 @@ function handleButtonEvents(index, screen)
       LogOut()
       user_info = m.current_user.getInfo()
       m.auth_state_service.updateAuthWithUserInfo(user_info)
-      CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
 
       m.AccountScreen.resetText = true
+      m.scene.goBackToNonAuth = true
+
+      sleep(500)
+      CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
       login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
 
@@ -1078,7 +1092,8 @@ function handleButtonEvents(index, screen)
         user_info = m.current_user.getInfo()
         m.auth_state_service.updateAuthWithUserInfo(user_info)
 
-        m.scene.transitionTo = "AccountScreen"
+        ' m.scene.transitionTo = "AccountScreen"
+        m.scene.goBackToNonAuth = true
 
         sleep(500)
         CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
@@ -1146,6 +1161,8 @@ function handleNativeToUniversal() as void
     if native_sub_status.is_valid
         user_info = m.current_user.getInfo()
         m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+        m.scene.goBackToNonAuth = true
 
         sleep(500)
         CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
