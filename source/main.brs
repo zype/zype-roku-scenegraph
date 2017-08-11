@@ -40,7 +40,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -319,8 +319,17 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                                     if consumer.subscription_count > 0 then m.global.is_subscribed = true
 
                                     m.detailsScreen.isDeviceLinked = true
-                                    m.global.usvod.UniversalSubscriptionsCount = consumer.subscription_count
-                                    m.global.auth.isLoggedIn = true
+                                    ' m.global.usvod.UniversalSubscriptionsCount = consumer.subscription_count
+                                    
+                                    global_usvod = m.global.usvod
+                                    global_usvod.UniversalSubscriptionsCount = consumer.subscription_count
+                                    m.global.setField("usvod", global_usvod)
+
+                                    global_auth = m.global.auth
+                                    global_auth.isLoggedIn = true
+                                    global_auth.isLoggedInWithSubscription = true
+                                    m.global.setField("auth", global_auth)
+
                                     m.detailsScreen.isLoggedIn = true
                                     m.favorites.isLoggedIn = true
                                     m.deviceLinking.isDeviceLinked = true
@@ -360,14 +369,26 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                             print "refreshing PIN"
 
                             consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-                            if consumer.linked then
+                            if consumer.linked = true
                                 pin.text = "The device is linked"
 
                                 if consumer.subscription_count > 0 then m.global.is_subscribed = true
 
                                 m.detailsScreen.isDeviceLinked = true
-                                m.global.usvod.UniversalSubscriptionsCount = consumer.subscription_count
-                                m.global.auth.isLoggedIn = true
+
+                                global_usvod = m.global.usvod
+                                global_usvod.UniversalSubscriptionsCount = consumer.subscription_count
+                                m.global.setField("usvod", global_usvod)
+
+                                global_auth = m.global.auth
+                                global_auth.isLoggedIn = true
+                                global_auth.isLoggedInWithSubscription = true
+                                m.global.setField("auth", global_auth)
+
+                                print "m.global.auth.isLoggedInWithSubscription:: "; m.global.auth.isLoggedInWithSubscription
+                                m.scene.gridContent = m.gridContent
+                                print "m.global.auth.isLoggedInWithSubscription::: "; m.global.auth.isLoggedInWithSubscription
+
                                 m.detailsScreen.isLoggedIn = true
                                 m.favorites.isLoggedIn = true
                                 m.deviceLinking.isDeviceLinked = true
@@ -402,7 +423,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     m.scene.TriggerDeviceUnlink = false
                     m.deviceLinking.isDeviceLinked = false
                     m.detailsScreen.isDeviceLinked = false
-                    m.global.auth.isLoggedIn = isLoggedIn()
+                    ' m.global.auth.isLoggedIn = isLoggedIn()
+                    
+                    global_auth = m.global.auth
+                    global_auth.isLoggedIn = isLoggedIn()
+                    global_auth.isLoggedInWithSubscription = false
+                    m.global.setField("auth", global_auth)
+
                     m.detailsScreen.isLoggedIn = isLoggedIn()
                     m.favorites.isLoggedIn = isLoggedIn()
 
@@ -1067,8 +1094,15 @@ function handleButtonEvents(index, screen)
         print "role subscribe if"
         m.detailsScreen.DontShowSubscriptionPackages = true
         m.detailsScreen.isDeviceLinked = true
-        m.global.usvod.UniversalSubscriptionsCount = consumer.subscription_count
-        m.global.auth.isLoggedIn = true
+        
+        global_usvod = m.global.usvod
+        global_usvod.UniversalSubscriptionsCount = consumer.subscription_count
+        m.global.setField("usvod", global_usvod)
+
+        global_auth = m.global.auth
+        global_auth.isLoggedIn = true
+        m.global.setField("auth", global_auth)
+
         ' m.detailsScreen.isLoggedIn = true
         m.favorites.isLoggedIn = true
       else
@@ -1085,16 +1119,29 @@ function handleButtonEvents(index, screen)
       EndLoader()
 
        if(result = true)
-          m.global.is_subscribed = true
+            print "m.global: "; m.global
+            print "m.global.auth1: "; m.global.auth
+            m.global.is_subscribed = true
+            '   m.global.auth.isLoggedIn = true
+            global_auth = m.global.auth
+            global_auth.isLoggedIn = true
+            m.global.setField("auth", global_auth)
 
-          m.detailsScreen.JustBoughtNativeSubscription = true
-          m.detailsScreen.isLoggedIn = true
-          m.favorites.isLoggedIn = true
-          m.global.isLoggedIn = true
-          m.global.HasNativeSubscription = true
-          m.scene.gridContent = m.gridContent
-          m.detailsScreen.setFocus(true)
-          m.detailsScreen.ReFocusButtons = true
+            global_nsvod = m.global.nsvod
+            global_nsvod.HasNativeSubscription = true
+            m.global.setField("nsvod", global_nsvod)
+            ' m.global.nsvod.HasNativeSubscription = true
+            print "m.global: "; m.global
+            print "m.global.auth2: "; m.global.auth
+
+
+            m.detailsScreen.JustBoughtNativeSubscription = true
+            m.detailsScreen.isLoggedIn = true
+            m.favorites.isLoggedIn = true
+            m.scene.gridContent = m.gridContent
+            m.detailsScreen.setFocus(true)
+            m.detailsScreen.ReFocusButtons = true
+            print "m.global.auth3: "; m.global.auth
        end if
     else if button_role = "device_linking"
       m.deviceLinking.show = true
@@ -1153,13 +1200,32 @@ Function isLoggedIn()
 
     if(isAuthViaNativeSVOD())
         m.global.nsvod.isLoggedInViaNativeSVOD = true
-        m.global.usvod.isLoggedInViaUniversalSVOD = false
-        m.global.nsvod.HasNativeSubscription = true
+        ' m.global.usvod.isLoggedInViaUniversalSVOD = false
+        
+        global_nsvod = m.global.nsvod
+        global_nsvod.isLoggedInViaNativeSVOD = true
+        global_nsvod.HasNativeSubscription = true
+        m.global.setField("nsvod", global_nsvod)
+
+        global_usvod = m.global.usvod
+        global_usvod.isLoggedInViaUniversalSVOD = false
+        m.global.setField("usvod", global_usvod)
+
+        ' m.global.nsvod.HasNativeSubscription = true
         ' print "isAuthViaNativeSVOD"
         return true
     else if (isAuthViaUniversalSVOD())
-        m.global.nsvod.isLoggedInViaNativeSVOD = false
-        m.global.usvod.isLoggedInViaUniversalSVOD = true
+        ' m.global.nsvod.isLoggedInViaNativeSVOD = false
+        ' m.global.usvod.isLoggedInViaUniversalSVOD = true
+
+        global_nsvod = m.global.nsvod
+        global_nsvod.isLoggedInViaNativeSVOD = false
+        m.global.setField("nsvod", global_nsvod)
+        
+        global_usvod = m.global.usvod
+        global_usvod.isLoggedInViaUniversalSVOD = true
+        m.global.setField("usvod", global_usvod)
+
         ' print "isAuthViaUniversalSVOD"
         return true
     end if
@@ -1234,7 +1300,12 @@ Function isAuthViaUniversalSVOD()
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
     ' m.detailsScreen.UniversalSubscriptionsCount = deviceLinking.subscription_count
     print "m.global: "; m.global
-    m.global.usvod.UniversalSubscriptionsCount = deviceLinking.subscription_count
+    ' m.global.usvod.UniversalSubscriptionsCount = deviceLinking.subscription_count
+    
+    global_usvod = m.global.usvod
+    global_usvod.UniversalSubscriptionsCount = deviceLinking.subscription_count
+    m.global.setField("usvod", global_usvod)
+
     if(deviceLinking.linked = false)
         return false
     end if
@@ -1283,29 +1354,4 @@ Function SetTheme()
       m.global.addFields({ theme: DarkTheme() })
     end if
   end if
-End Function
-
-Function InitGlobalVars()
-    ' m.global = global
-    m.global.addFields({ HasNativeSubscription: false, isLoggedIn: false, UniversalSubscriptionsCount: 0, auth: {}, usvod: {}, nsvod: {} })
-    m.global.usvod = {
-        UniversalSubscriptionsCount: 0,
-        isLoggedInViaUniversalSVOD: false
-    }
-
-    m.global.nsvod = {
-        isLoggedInViaNativeSVOD: false
-    }
-    _isLoggedIn = isLoggedIn()
-    ' m.global.isLoggedIn = _isLoggedIn
-    ' m.global.isLoggedInWithSubscription = _isLoggedIn AND (m.global.usvod.UniversalSubscriptionsCount > 0 OR m.global.nsvod.isLoggedInViaNativeSVOD = true)
-    ' m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
-
-    m.global.auth = {
-        isLoggedIn: _isLoggedIn,
-        isLoggedInWithSubscription: _isLoggedIn AND (m.global.usvod.UniversalSubscriptionsCount > 0 OR m.global.nsvod.isLoggedInViaNativeSVOD = true) 
-    }
-
-    print "m.global test: "; m.global
-    print "m.global.auth: "; m.global.auth
 End Function

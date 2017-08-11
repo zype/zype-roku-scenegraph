@@ -15,8 +15,8 @@ Function StateService(global) as object
     this = {}
     this.global = global
     this.InitGlobalVars = function()
-        m.global.addFields({test: true})
-        m.global.swaf = false
+        ' m.global.addFields({test: true})
+        ' m.global.swaf = false
         ' m.global = global
         ' print "m.global:: "; m.global
         ' print "this:: "; this
