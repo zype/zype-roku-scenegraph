@@ -1202,6 +1202,9 @@ function handleNativeToUniversal() as void
 
         m.scene.goBackToNonAuth = true
 
+        ' details screen should update self
+        m.detailsScreen.content = m.detailsScreen.content
+
         sleep(500)
         CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
     end if ' native_sub_status.valid
