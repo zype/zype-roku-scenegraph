@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
   Test Info Screen
   - Visible with feature flag "test_info_screen" in config file
@@ -8,7 +9,6 @@
   - Useful for trying to debug live beta apps bc of lack of console
     Can display info that cannot be simulated in a sideloaded app (i.e. live store transactions)
 -->
-<?xml version="1.0" encoding="utf-8" ?>
 <component name="TestInfoScreen" extends="Group" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
 
     <interface>
