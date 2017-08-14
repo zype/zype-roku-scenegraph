@@ -134,18 +134,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.TestInfoScreen = m.scene.findNode("TestInfoScreen")
 
-    ' Set Test Info for displaying on live apps since no debugging or crash logs
-    native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
-    test_info_string = ""
-    for each native_sub in native_sub_purchases
-      test_info_string = test_info_string + FormatJSON(native_sub) + chr(10)
-    end for
-
-    test_info_string = test_info_string + "m.global.auth.nativeSubCount: " + StrI(m.global.auth.nativeSubCount)
-
+    test_info_string = "m.global.auth at app load: " + FormatJSON(m.global.auth) + chr(10) + chr(10)
     m.TestInfoScreen.info = test_info_string
-
-
 
     LoadLimitStream() ' Load LimitStream Object
 
@@ -383,6 +373,9 @@ function goIntoDeviceLinkingFlow() as void
               ' get updated user info and update global auth state
               user_info = m.current_user.getInfo()
 
+              test_info_string = "m.current_user.getInfo() after link: " + FormatJSON(user_info) + chr(10) + chr(10)
+              m.TestInfoScreen.info = m.TestInfoScreen.info + test_info_string
+
               ' if no universal subs, check if native sub purchase exists.
               ' if native sub purchased, call bifrost to check
               if user_info.subscription_count = 0
@@ -397,11 +390,10 @@ function goIntoDeviceLinkingFlow() as void
               user_info = m.current_user.getInfo()
               m.auth_state_service.updateAuthWithUserInfo(user_info)
 
-              test_info_string = m.TestInfoScreen.info
+              test_info_string = "m.current_user.getInfo() after usvod check: " + FormatJSON(user_info) + chr(10)
+              test_info_string = "m.global.auth after usvod check: " + FormatJSON(m.global.auth) + chr(10) + chr(10)
+              m.TestInfoScreen.info = m.TestInfoScreen.info + test_info_string
 
-              test_info_string = test_info_string + "RegReadAccessToken(): " + FormatJSON(m.current_user.getOAuth()) + chr(10)
-
-              m.TestInfoScreen.info = test_info_string
 
               m.deviceLinking.isDeviceLinked = true
               m.deviceLinking.setUnlinkFocus = true
@@ -1109,7 +1101,7 @@ function handleButtonEvents(index, screen)
 
       m.AccountScreen.resetText = true
       m.scene.goBackToNonAuth = true
-      
+
       ' Reset details screen buttons
       m.detailsScreen.content = m.detailsScreen.content
 
@@ -1121,6 +1113,9 @@ function handleButtonEvents(index, screen)
       if login_response <> invalid
         ' get recent user info and update global auth state
         user_info = m.current_user.getInfo()
+
+        test_info_string = "m.current_user.getInfo() after link: " + FormatJSON(user_info) + chr(10) + chr(10)
+        m.TestInfoScreen.info = m.TestInfoScreen.info + test_info_string
 
         ' if no universal subs, check if native sub purchase exists.
         ' if native sub purchased, call bifrost to check
@@ -1135,6 +1130,10 @@ function handleButtonEvents(index, screen)
 
         user_info = m.current_user.getInfo()
         m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+        test_info_string = "m.current_user.getInfo() after usvod check: " + FormatJSON(user_info) + chr(10)
+        test_info_string = "m.global.auth after usvod check: " + FormatJSON(m.global.auth) + chr(10) + chr(10)
+        m.TestInfoScreen.info = m.TestInfoScreen.info + test_info_string
 
         ' m.scene.transitionTo = "AccountScreen"
         m.scene.goBackToNonAuth = true
@@ -1340,13 +1339,13 @@ function SetGlobalAuthObject() as void
 
   valid_native_subs = []
 
+  if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
+
   ' If native sub purchases, check for valid native subscriptions
-  if native_sub_purchases.count() > 0 and current_user_info.subscription_count = 0
+  if native_sub_purchases.count() > 0 and is_logged_in and universal_sub_count = 0
     valid_native_subs = m.bifrost_service.validSubscriptions(current_user_info, native_sub_purchases)
     current_user_info = m.current_user.getInfo()
   end if
-
-  if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
 
   m.global.addFields({ auth: {
     nativeSubCount: valid_native_subs.count(),

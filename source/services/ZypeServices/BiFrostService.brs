@@ -12,7 +12,7 @@ function BiFrostService() as object
     for each n_sub in native_subs
       bifrost_params = {
         consumer_id: user_info._id,
-        site_id: GetApiConfigs().zype_api_key,
+        site_id: "test",
         subscription_plan_id: n_sub.code,
         roku_api_key: GetApiConfigs().roku_api_key,
         transaction_id: UCase(n_sub.purchaseId),

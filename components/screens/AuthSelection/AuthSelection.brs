@@ -21,7 +21,7 @@ function OnKeyEvent(key as string, press as boolean) as boolean
 
     if press
       if key = "down"
-        if m.helpers.focusedChild(m) = "Plans" then m.oauth_button.setFocus(true)
+        if m.helpers.focusedChild(m) = "Plans" and m.global.auth.isLoggedIn = false then m.oauth_button.setFocus(true)
       else if key = "up"
         if m.helpers.focusedChild(m) = "OAuthTransition" then m.plan_buttons.setFocus(true)
       end if
@@ -45,12 +45,16 @@ function onVisibleChange() as void
 
       if m.global.auth.isLoggedIn = false then
         m.oauth_button.content = m.content_helpers.oneDimList2ContentNode([{title: "Sign In"}], "ButtonNode")
+
+        m.oauth_label.translation = [0,0]
         m.oauth_label.text = "Already have an account?"
         m.oauth_label.visible = true
       else
         m.oauth_button.content = invalid
-        m.oauth_label.text = ""
-        m.oauth_label.visible = false
+
+        m.oauth_label.translation = [200,0]
+        m.oauth_label.text = "Signed in as: " + m.global.auth.email
+        m.oauth_label.visible = true
       end if
 
       m.plan_buttons.setFocus(true)
