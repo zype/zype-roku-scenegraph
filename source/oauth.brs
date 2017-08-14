@@ -33,7 +33,8 @@ function RegReadAccessToken()
     oauth.AddReplace("refresh_token", RegRead("RefreshToken", "OAuth"))
     oauth.AddReplace("scope", RegRead("Scope", "OAuth"))
     oauth.AddReplace("created_at", RegRead("CreatedAt","OAuth"))
-
+    oauth.AddReplace("email", RegRead("Email","OAuth"))
+    oauth.AddReplace("password", RegRead("Password","OAuth"))
     return oauth
   end if
 
@@ -69,6 +70,9 @@ function RegWriteAccessToken(data as object)
   scope = ToString(data.scope)
   created_at = AnyToString(data.created_at)
 
+  email = ToString(data.email)
+  password = ToString(data.password)
+
 '   print expires_in
 '   print created_at
 
@@ -78,6 +82,9 @@ function RegWriteAccessToken(data as object)
   RegWrite("RefreshToken", refresh_token, "OAuth")
   RegWrite("Scope", scope, "OAuth")
   RegWrite("CreatedAt", created_at, "OAuth")
+
+  RegWrite("Email", email, "OAuth")
+  RegWrite("Password", password, "OAuth")
 end function
 
 function RequestToken(client_id as String, client_secret as String, udid as String, pin as String)
@@ -113,6 +120,8 @@ function ResetAccessToken()
   RegDelete("RefreshToken", "OAuth")
   RegDelete("Scope", "OAuth")
   RegDelete("CreatedAt", "OAuth")
+  RegDelete("Email", "OAuth")
+  RegDelete("Password", "OAuth")
 end function
 
 function AddOAuth(data as object)
@@ -206,6 +215,8 @@ Function RequestTokenByEmail(client_id as String, client_secret as String, email
 
   res = RetrieveToken(data)
   if res <> invalid
+    res.email = email
+    res.password = password
     RegWriteAccessToken(res)
   end if
 End Function
@@ -225,6 +236,9 @@ Function Login(client_id as String, client_secret as String, email as String, pa
     }
     res = RefreshToken(data)
     if res <> invalid
+      res.email = email
+      res.password = password
+
       RegWriteAccessToken(res)
     end if
   end if
@@ -239,3 +253,17 @@ Function Logout()
     ResetAccessToken()
   end if
 End Function
+
+function GetAndSaveNewToken(method as string) as void
+  oauth = RegReadAccessToken()
+
+  configs = GetApiConfigs()
+
+  if method = "login"
+    Logout()
+    Login(configs.client_id, configs.client_secret, oauth.email, oauth.password)
+  else if method = "device_linking"
+    Logout()
+    GetAccessTokenWithPin( configs.client_id, configs.client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()) )
+  end if
+end function

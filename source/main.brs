@@ -137,6 +137,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     test_info_string = "m.global.auth at app load: " + FormatJSON(m.global.auth) + chr(10) + chr(10)
     m.TestInfoScreen.info = test_info_string
 
+    if m.global.auth.isLoggedIn
+      if m.global.auth.isLinked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+    end if
+
     LoadLimitStream() ' Load LimitStream Object
 
     startDate = CreateObject("roDateTime")
@@ -1206,6 +1210,7 @@ function handleNativeToUniversal() as void
 
     if native_sub_status.is_valid
         user_info = m.current_user.getInfo()
+        if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
         m.auth_state_service.updateAuthWithUserInfo(user_info)
 
         m.scene.goBackToNonAuth = true
