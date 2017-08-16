@@ -46,10 +46,6 @@ Function OnRowItemSelected()
     m.top.isChildrensVisible = true
 End Function
 
-sub OnContentChange()
-    m.keyboard.setFocus(true)
-end sub
-
 ' handler of focused item in RowList
 Sub OnItemFocused()
     itemFocused = m.top.itemFocused
