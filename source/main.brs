@@ -474,12 +474,13 @@ end sub
 '     3- Both NSVOD and USVOD. User either purchased a native subscription or is linked
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
+    di = CreateObject("roDeviceInfo")
     consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
         if consumer.subscription_count <> invalid and consumer.subscription_count > 0
           oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-          auth = {"access_token": oauth.access_token}
+          auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
         else
-          auth = {"app_key": GetApiConfigs().app_key}
+          auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
         end if
 
 
