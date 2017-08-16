@@ -97,7 +97,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     'm.detailsScreen.SubscriptionPlans = m.productsCatalog
     m.detailsScreen.productsCatalog = m.productsCatalog
     m.detailsScreen.JustBoughtNativeSubscription = false
-    m.detailsScreen.isLoggedIn = m.global.auth.isLoggedIn
+    ' m.detailsScreen.isLoggedIn = m.global.auth.isLoggedIn
     m.detailsScreen.observeField("triggerPlay", m.port)
     m.detailsScreen.dataArray = m.playlistRows
 
@@ -122,7 +122,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.global.addFields({ svod_enabled: svod_enabled })
     m.global.addFields({ is_subscribed: is_subscribed })
 
-    m.favorites.isLoggedIn = m.global.auth.isLoggedIn
+    ' m.favorites.isLoggedIn = m.global.auth.isLoggedIn
 
     deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
     m.detailsScreen.isDeviceLinked = deviceLinked
@@ -330,8 +330,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                                     global_auth.isLoggedInWithSubscription = true
                                     m.global.setField("auth", global_auth)
 
-                                    m.detailsScreen.isLoggedIn = true
-                                    m.favorites.isLoggedIn = true
+                                    m.detailsScreen.redrawContent = true
+                                    ' m.favorites.isLoggedIn = true
                                     m.deviceLinking.isDeviceLinked = true
                                     m.deviceLinking.setUnlinkFocus = true
 
@@ -389,8 +389,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                                 m.scene.gridContent = m.gridContent
                                 print "m.global.auth.isLoggedInWithSubscription::: "; m.global.auth.isLoggedInWithSubscription
 
-                                m.detailsScreen.isLoggedIn = true
-                                m.favorites.isLoggedIn = true
+                                m.detailsScreen.redrawContent = true
+                                ' m.favorites.isLoggedIn = true
                                 m.deviceLinking.isDeviceLinked = true
                                 m.deviceLinking.setUnlinkFocus = true
                                 exit while
@@ -430,8 +430,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     global_auth.isLoggedInWithSubscription = false
                     m.global.setField("auth", global_auth)
 
-                    m.detailsScreen.isLoggedIn = isLoggedIn()
-                    m.favorites.isLoggedIn = isLoggedIn()
+                    m.detailsScreen.redrawContent = true
+                    ' m.favorites.isLoggedIn = isLoggedIn()
 
                     ' m.global.isLoggedIn = false
                     ' m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
@@ -1104,7 +1104,7 @@ function handleButtonEvents(index, screen)
         m.global.setField("auth", global_auth)
 
         ' m.detailsScreen.isLoggedIn = true
-        m.favorites.isLoggedIn = true
+        ' m.favorites.isLoggedIn = true
       else
         print "role subscribe else"
         m.detailsScreen.ShowSubscriptionPackagesCallback = true
@@ -1136,8 +1136,8 @@ function handleButtonEvents(index, screen)
 
 
             m.detailsScreen.JustBoughtNativeSubscription = true
-            m.detailsScreen.isLoggedIn = true
-            m.favorites.isLoggedIn = true
+            m.detailsScreen.redrawContent = true
+            ' m.favorites.isLoggedIn = true
             m.scene.gridContent = m.gridContent
             m.detailsScreen.setFocus(true)
             m.detailsScreen.ReFocusButtons = true
