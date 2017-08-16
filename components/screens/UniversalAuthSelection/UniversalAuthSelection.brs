@@ -47,7 +47,12 @@ function initializers() as object
     self.background = self.top.findNode("Background")
     self.background.color = self.global.theme.background_color
 
+    self.header = self.top.findNode("Header")
+    self.header.color = self.global.theme.primary_text_color
+
     self.u_auth_buttons = self.top.findNode("UAuthMethods")
+    self.u_auth_buttons.color = self.global.theme.primary_text_color
+    self.u_auth_buttons.focusedColor = self.global.theme.primary_text_color
     self.u_auth_buttons.focusBitmapUri = self.global.theme.focus_grid_uri
     btns = [
       { title: "Link Device", role: "transition", target: "DeviceLinking" },

@@ -150,6 +150,9 @@ function initializers() as object
   this.initChildren = function(self) as void
     self.top.observeField("visible", "onVisibleChange")
 
+    self.background = self.top.findNode("Background")
+    self.background.color = self.global.theme.background_color
+
     self.header_label = self.top.findNode("HeaderLabel")
     self.header_label.color = self.global.theme.primary_text_color
 
@@ -165,6 +168,7 @@ function initializers() as object
     self.submit_button = self.top.findNode("SubmitButton")
     self.submit_button.focusBitmapUri = self.global.theme.button_focus_uri
     self.submit_button.color = self.global.theme.primary_text_color
+    self.submit_button.focusedColor = self.global.theme.primary_text_color
     self.submit_button.content = self.content_helpers.oneDimList2ContentNode([{title: "Continue"}], "ButtonNode")
 
     self.input_keyboard = self.top.findNode("InputKeyboard")

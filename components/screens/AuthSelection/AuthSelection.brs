@@ -41,7 +41,7 @@ end function
 function onVisibleChange() as void
     if m.top.visible = true
       ' if only one plan center plan
-      if m.top.plans.count() = 1 then m.plan_buttons.translation = [400,400] else m.plan_buttons.translation = [200,400]
+      if m.top.plans.count() = 1 then m.plan_buttons.translation = [450,400] else m.plan_buttons.translation = [200,400]
 
       if m.global.auth.isLoggedIn = false then
         m.oauth_button.content = m.content_helpers.oneDimList2ContentNode([{title: "Sign In"}], "ButtonNode")
@@ -107,8 +107,10 @@ function initializers() as object
   '   - Does not work without passing m
   this.initChildren = function(self) as void
     app_info = CreateObject("roAppInfo")
-
     self.top.observeField("visible", "onVisibleChange")
+
+    self.background = self.top.findNode("Background")
+    self.background.color = self.global.theme.background_color
 
     self.header = self.top.findNode("Header")
     self.header.color = self.global.theme.primary_text_color
@@ -118,6 +120,7 @@ function initializers() as object
     self.description.color = self.global.theme.primary_text_color
 
     self.plan_buttons = self.top.findNode("Plans")
+    self.plan_buttons.focusBitmapUri = self.global.theme.focus_grid_uri
 
     self.oauth_button = self.top.findNode("OAuthButton")
     self.oauth_button.color = self.global.theme.primary_text_color

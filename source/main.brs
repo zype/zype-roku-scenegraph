@@ -134,9 +134,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.TestInfoScreen = m.scene.findNode("TestInfoScreen")
 
-    test_info_string = "m.global.auth at app load: " + FormatJSON(m.global.auth) + chr(10) + chr(10)
-    m.TestInfoScreen.info = test_info_string
-
     if m.global.auth.isLoggedIn
       if m.global.auth.isLinked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
     end if
@@ -377,9 +374,6 @@ function goIntoDeviceLinkingFlow() as void
               ' get updated user info and update global auth state
               user_info = m.current_user.getInfo()
 
-              test_info_string = "m.current_user.getInfo() after link: " + FormatJSON(user_info) + chr(10) + chr(10)
-              m.TestInfoScreen.info = m.TestInfoScreen.info + test_info_string
-
               ' if no universal subs, check if native sub purchase exists.
               ' if native sub purchased, call bifrost to check
               if user_info.subscription_count = 0
@@ -393,11 +387,6 @@ function goIntoDeviceLinkingFlow() as void
 
               user_info = m.current_user.getInfo()
               m.auth_state_service.updateAuthWithUserInfo(user_info)
-
-              test_info_string = "m.current_user.getInfo() after usvod check: " + FormatJSON(user_info) + chr(10)
-              test_info_string = "m.global.auth after usvod check: " + FormatJSON(m.global.auth) + chr(10) + chr(10)
-              m.TestInfoScreen.info = m.TestInfoScreen.info + test_info_string
-
 
               m.deviceLinking.isDeviceLinked = true
               m.deviceLinking.setUnlinkFocus = true
@@ -1118,9 +1107,6 @@ function handleButtonEvents(index, screen)
         ' get recent user info and update global auth state
         user_info = m.current_user.getInfo()
 
-        test_info_string = "m.current_user.getInfo() after link: " + FormatJSON(user_info) + chr(10) + chr(10)
-        m.TestInfoScreen.info = m.TestInfoScreen.info + test_info_string
-
         ' if no universal subs, check if native sub purchase exists.
         ' if native sub purchased, call bifrost to check
         if user_info.subscription_count = 0
@@ -1134,10 +1120,6 @@ function handleButtonEvents(index, screen)
 
         user_info = m.current_user.getInfo()
         m.auth_state_service.updateAuthWithUserInfo(user_info)
-
-        test_info_string = "m.current_user.getInfo() after usvod check: " + FormatJSON(user_info) + chr(10)
-        test_info_string = "m.global.auth after usvod check: " + FormatJSON(m.global.auth) + chr(10) + chr(10)
-        m.TestInfoScreen.info = m.TestInfoScreen.info + test_info_string
 
         ' m.scene.transitionTo = "AccountScreen"
         m.scene.goBackToNonAuth = true

@@ -60,6 +60,7 @@ function initializers() as object
     self.keyboard = self.top.findNode("Keyboard")
     self.keyboard.keyColor = self.global.theme.primary_text_color
     self.keyboard.focusedKeyColor = self.global.brand_color
+    self.keyboard.textEditBox.textColor = self.global.theme.primary_text_color
 
     self.confirm_button = self.top.findNode("ConfirmButton")
     self.confirm_button.color = self.global.theme.primary_text_color
