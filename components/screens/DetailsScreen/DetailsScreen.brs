@@ -197,9 +197,9 @@ Sub onItemSelected()
     m.top.itemSelectedRole = currentButtonRole(index)
     m.top.itemSelectedTarget = currentButtonTarget(index)
 
-    if m.top.itemSelectedRole = "subscribe"
-      AddPackagesButtons()
-    end if
+    ' if m.top.itemSelectedRole = "subscribe"
+    '   AddPackagesButtons()
+    ' end if
 End Sub
 
 ' Content change handler

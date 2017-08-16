@@ -16,6 +16,8 @@ function onContentUpdate() as void
   m.input_box.hintText = input_data.title
   m.top.name = input_data.name
   m.top.value = input_data.value
+
+  if m.top.value = "" then m.input_text.visible = false
 end function
 
 function onInputFocus() as void

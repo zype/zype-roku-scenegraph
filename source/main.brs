@@ -32,7 +32,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen.Show()
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -1048,38 +1048,8 @@ function handleButtonEvents(index, screen)
       playVideoButton(screen)
     else if button_role = "favorite"
       markFavoriteButton(screen)
-    ' else if button_role = "subscribe"
-    '   consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    '   if m.app.device_linking and consumer.linked and consumer.subscription_count > 0
-    '       m.detailsScreen.DontShowSubscriptionPackages = true
-    '       m.detailsScreen.isDeviceLinked = true
-    '       m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
-    '       m.detailsScreen.isLoggedIn = true
-    '       m.favorites.isLoggedIn = true
-    '   else
-    '       m.detailsScreen.ShowSubscriptionPackagesCallback = true
-    '   end if
-
     else if button_role = "swaf"
-      ' Add "Subscribe" and "Link Device"
-      ' m.detailsScreen.ShowSubscribeButtons = true
-    ' else if button_role = "native_sub"
-    '   StartLoader()
-    '   result = startSubscriptionWizard(m.plans, index, m.store, m.port, m.productsCatalog)
-    '   EndLoader()
-    '
-    '    if(result = true)
-    '       m.global.is_subscribed = true
-    '
-    '       m.detailsScreen.JustBoughtNativeSubscription = true
-    '       m.detailsScreen.isLoggedIn = true
-    '       m.favorites.isLoggedIn = true
-    '       m.global.isLoggedIn = true
-    '       m.global.HasNativeSubscription = true
-    '       m.scene.gridContent = m.gridContent
-    '       m.detailsScreen.setFocus(true)
-    '       m.detailsScreen.ReFocusButtons = true
-    '    end if
+      m.scene.transitionTo = "AuthSelection"
     else if button_role = "device_linking"
       m.DeviceLinking.show = true
 
@@ -1104,6 +1074,8 @@ function handleButtonEvents(index, screen)
       login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
 
       if login_response <> invalid
+        m.SignInScreen.reset = true
+
         ' get recent user info and update global auth state
         user_info = m.current_user.getInfo()
 
@@ -1139,6 +1111,8 @@ function handleButtonEvents(index, screen)
 
       if create_consumer_response <> invalid
         login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+        m.SignUpScreen.reset = true
+        m.scene.goBackToNonAuth = true
 
         handleNativeToUniversal()
       else

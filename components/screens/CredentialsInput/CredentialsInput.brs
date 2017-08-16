@@ -35,6 +35,20 @@ function onKeyEvent(key as string, press as boolean) as boolean
   return result
 end function
 
+' reset field set. Reset everything
+function resetCallback() as void
+  if m.top.reset = true
+    m.top.email = ""
+    m.top.password = ""
+    m.input_keyboard.value = ""
+
+    m.helpers.reassignInputs(m, {
+      email: m.top.email,
+      password: m.top.password
+    })
+  end if
+end function
+
 ' User clicked "OK" on email/password input field
 function onInputSelect() as void
   m.input_keyboard.type = m.helpers.currentFocusedInput(m)
