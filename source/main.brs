@@ -935,7 +935,7 @@ function GetContentPlaylists(parent_id as String)
     return list
 end function
 
-function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = false)
+function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     m.videosList = []
 
     parent_id = parent_id.tokenize(":")[0]
