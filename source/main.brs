@@ -1150,6 +1150,7 @@ function handleNativeToUniversal() as void
     recent_purchase = purchase_subscription.receipt
 
     bifrost_params = {
+      app_key: GetApiConfigs().app_key,
       consumer_id: user_info._id,
       site_id: GetApiConfigs().zype_api_key,
       subscription_plan_id: recent_purchase.code,
@@ -1161,7 +1162,7 @@ function handleNativeToUniversal() as void
     ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
     native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
 
-    if native_sub_status.is_valid
+    if native_sub_status <> invalid and native_sub_status.is_valid
         user_info = m.current_user.getInfo()
         if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
         m.auth_state_service.updateAuthWithUserInfo(user_info)
@@ -1246,13 +1247,13 @@ Function SetTheme()
   if m.app.theme <> invalid
     theme = m.app.theme
   else
-    theme = m.app.theme
+    theme = GetApiConfigs().theme
   end if
 
   if m.app.brand_color <> invalid
     brand_color = m.app.brand_color
   else
-    brand_color = m.app.brand_color
+    brand_color = GetApiConfigs().brand_color
   end if
 
   if m.global <> invalid

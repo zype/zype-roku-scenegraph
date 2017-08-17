@@ -11,6 +11,7 @@ function BiFrostService() as object
 
     for each n_sub in native_subs
       bifrost_params = {
+        app_key: GetApiConfigs().app_key,
         consumer_id: user_info._id,
         site_id: "test",
         subscription_plan_id: n_sub.code,
