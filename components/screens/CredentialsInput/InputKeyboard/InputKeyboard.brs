@@ -24,7 +24,8 @@ function onKeyEvent(key as string, press as boolean) as boolean
 end function
 
 function onVisibleChange() as void
-  if m.top.visible then m.keyboard.setFocus(true) : m.keyboard.textEditBox.cursorPosition = len(m.top.value)
+  print "InputKeyboard, onVisibleChange(): "; m.top.value
+  if m.top.visible then m.keyboard.textEditBox.cursorPosition = len(m.top.value) : m.keyboard.setFocus(true)
 end function
 
 function onInputTypeChange() as void
