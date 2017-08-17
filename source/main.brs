@@ -32,7 +32,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen.Show()
 
     m.store = CreateObject("roChannelStore")
-    m.store.FakeServer(true)
+    ' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -443,26 +443,23 @@ sub playLiveVideo(screen as Object)
     end if
 end sub
 
-' Play button should only appear in the following scenarios:
-'     1- No subscription required for video
-'     2- NSVOD only and user has already purchased a native subscription
-'     3- Both NSVOD and USVOD. User either purchased a native subscription or is linked
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
-    consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-        if consumer.subscription_count <> invalid and consumer.subscription_count > 0
-          oauth = GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-          auth = {"access_token": oauth.access_token}
-        else
-          auth = {"app_key": GetApiConfigs().app_key}
-        end if
+    di = CreateObject("roDeviceInfo")
+    user_info = m.current_user.getInfo()
 
+    if user_info.subscription_count <> invalid and user_info.subscription_count > 0
+      oauth = m.current_user.getOAuth()
+      auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
+    else
+      auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
+    end if
 
-        if m.app.avod = true
-          playVideoWithAds(screen, auth)
-        else
-          playVideo(screen, auth)
-        end if
+    if m.app.avod = true
+      playVideoWithAds(screen, auth)
+    else
+      playVideo(screen, auth)
+    end if
 end sub
 
 sub playVideo(screen as Object, auth As Object)
