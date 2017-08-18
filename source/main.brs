@@ -1029,6 +1029,13 @@ function handleButtonEvents(index, screen)
     button_role = screen.itemSelectedRole
     button_target = screen.itemSelectedTarget
 
+    ? chr(10)
+    ? tab(4) "main >>> handleButtonEvents()"
+    ? tab(4) "screen: "; screen.id
+    ? tab(4) "button role: "; button_role
+    ? tab(4) "button target: "; button_target
+    ? chr(10)
+
     if button_role = "play"
       RemakeVideoPlayer()
       m.VideoPlayer = m.detailsScreen.VideoPlayer
@@ -1068,7 +1075,7 @@ function handleButtonEvents(index, screen)
       sleep(500)
       CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
-      login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+      if screen.email <> "" and screen.password <> "" then login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password) else login_response = invalid
 
       if login_response <> invalid
         m.SignInScreen.reset = true
@@ -1104,18 +1111,22 @@ function handleButtonEvents(index, screen)
       end if
 
     else if button_role = "submitCredentials" and screen.id = "SignUpScreen"
-      create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
-
-      if create_consumer_response <> invalid
-        login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
-        m.SignUpScreen.reset = true
-        m.scene.goBackToNonAuth = true
-
-        handleNativeToUniversal()
+      if screen.email = "" or screen.password = ""
+        CreateDialog(m.scene, "Error", "Email or Password is empty. Cannot create account", ["Close"])
       else
-        CreateDialog(m.scene, "Error", "It appears that email was taken.", ["Close"])
-      end if
+        create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
 
+        if create_consumer_response <> invalid
+          login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+          m.SignUpScreen.reset = true
+          m.scene.goBackToNonAuth = true
+
+          handleNativeToUniversal()
+        else
+          CreateDialog(m.scene, "Error", "It appears that email was taken.", ["Close"])
+        end if
+
+      end if
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
