@@ -38,7 +38,7 @@ function initializers() as object
 
   this.initChildren = function(self) as void
     self.plan_display = self.top.findNode("PlanDisplay")
-    self.plan_display.color = self.global.theme.secondary_text_color
+    self.plan_display.color = self.global.theme.plan_button_color
 
     self.plan_name = self.top.findNode("PlanName")
     self.plan_name.color = self.global.theme.primary_text_color

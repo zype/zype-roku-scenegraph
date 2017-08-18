@@ -18,7 +18,6 @@
     <children>
       <Rectangle
         id="PlanDisplay"
-        color="#a8a8a8"
         width="400"
         height="150">
 

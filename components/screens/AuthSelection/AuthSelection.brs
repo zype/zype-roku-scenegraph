@@ -41,7 +41,7 @@ end function
 function onVisibleChange() as void
     if m.top.visible = true
       ' if only one plan center plan
-      if m.top.plans.count() = 1 then m.plan_buttons.translation = [450,400] else m.plan_buttons.translation = [200,400]
+      if m.top.plans.count() = 1 then m.plan_buttons.translation = [450,400] else m.plan_buttons.translation = [220,400]
 
       if m.global.auth.isLoggedIn = false then
         m.oauth_button.content = m.content_helpers.oneDimList2ContentNode([{title: "Sign In"}], "ButtonNode")
@@ -57,6 +57,7 @@ function onVisibleChange() as void
         m.oauth_label.visible = true
       end if
 
+      m.plan_buttons.jumpToRowItem = [0,0]
       m.plan_buttons.setFocus(true)
     end if
 end function
