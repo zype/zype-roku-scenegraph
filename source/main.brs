@@ -51,6 +51,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.loadingIndicator = m.scene.findNode("loadingIndicator")
     m.loadingIndicator1 = m.scene.findNode("loadingIndicator1")
 
+
+    m.playlistsRowItemSizes = []
+    m.playlistRowsSpacings = []
+
     ' Start loader if deep linked
     if contentID <> invalid
       m.loadingIndicator.control = "stop"
@@ -66,6 +70,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     'm.scene.gridContent = ParseContent(GetContent()) ' Uses featured categories (depreciated)
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
+
+    m.gridScreen = m.scene.findNode("GridScreen")
+    rowlist = m.gridScreen.findNode("RowList")
+    rowlist.rowItemSize = m.playlistsRowItemSizes
+    rowlist.rowSpacings = m.playlistRowsSpacings
+
     m.scene.gridContent = m.gridContent
 
     m.plans = GetPlans({}, m.app.in_app_purchase, m.productsCatalog)
@@ -118,8 +128,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.AccountScreen.observeField("itemSelected", m.port)
 
     m.scene.observeField("SearchString", m.port)
-
-    m.gridScreen = m.scene.findNode("GridScreen")
 
     m.scene.observeField("playlistItemSelected", m.port)
     m.scene.observeField("TriggerDeviceUnlink", m.port)
@@ -210,10 +218,18 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.gridScreen.playlistItemSelected = false
                 content = m.gridScreen.focusedContent
 
-                m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id))
+                ' Get Playlist object from the platform
+                playlistObject = GetPlaylists({ id: content.id.tokenize(":")[0] })
+                playlistThumbnailLayout = playlistObject[0].thumbnail_layout
+
+                m.gridContent = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
 
                 rowList = m.gridScreen.findNode("RowList")
+                rowlist.rowItemSize = m.playlistsRowItemSizes
+                rowlist.rowSpacings = m.playlistRowsSpacings
                 rowlist.jumpToRowItem = [0,0]
+
+                m.scene.gridContent = m.gridContent
 
                 current_video_list_stack = m.scene.videoliststack
                 current_video_list_stack.push(m.videosList)
@@ -853,6 +869,13 @@ function GetPlaylistContent(playlist_id as String)
             video.playlist_id = 0
             video.playlist_name = invalid
             video.video_index = video_index
+
+            if pl.thumbnail_layout = "poster"
+              video.usePoster = true
+            else
+              video.usePoster = false
+            end if
+
             videos.push(CreateVideoObject(video))
             video_index = video_index + 1
         end for
@@ -889,7 +912,7 @@ function GetContentPlaylists(parent_id as String)
     return list
 end function
 
-function GetPlaylistsAsRows(parent_id as String)
+function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     m.videosList = []
 
     parent_id = parent_id.tokenize(":")[0]
@@ -899,11 +922,21 @@ function GetPlaylistsAsRows(parent_id as String)
       per_page = 500
     end if
 
+    m.playlistsRowItemSizes = []
+    m.playlistRowsSpacings = []
+
     rawPlaylists = GetPlaylists({"parent_id": parent_id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
 
     favs = GetFavoritesIDs()
 
     if rawPlaylists.count() = 0
+      if thumbnail_layout = "poster"
+        m.playlistsRowItemSizes.push( [ 147, 262 ] )
+        m.playlistrowsSpacings.push( 60 )
+      else
+        m.playlistsRowItemSizes.push( [ 262, 147 ] )
+        m.playlistrowsSpacings.push( 0 )
+      end if
       return GetPlaylistContent(parent_id)
     end if
 
@@ -915,8 +948,23 @@ function GetPlaylistsAsRows(parent_id as String)
         if item.playlist_item_count > 0
             row.ContentList = []
             videos = []
+
+            if item.thumbnail_layout = "poster"
+              m.playlistsRowItemSizes.push( [ 147, 262 ] )
+              m.playlistrowsSpacings.push( 60 )
+            else
+              m.playlistsRowItemSizes.push( [ 262, 147 ] )
+              m.playlistrowsSpacings.push( 0 )
+            end if
+
             video_index = 0
             for each video in GetPlaylistVideos(item._id, {"per_page": m.app.per_page})
+                if item.thumbnail_layout = "poster"
+                  video.usePoster = true
+                else
+                  video.usePoster = false
+                end if
+
                 video.inFavorites = favs.DoesExist(video._id)
                 video.playlist_id = item._id
                 video.playlist_name = item.title
@@ -927,6 +975,9 @@ function GetPlaylistsAsRows(parent_id as String)
             row.ContentList = videos
             m.videosList.push(videos)
         else
+            m.playlistsRowItemSizes.push( [ 262, 147 ] )
+            m.playlistrowsSpacings.push( 0 )
+
             pls = GetPlaylists({"parent_id": item._id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
             for each pl in pls
                 row.ContentList.push(CreatePlaylistObject(pl))

@@ -8,6 +8,8 @@
 		<field id="subscriptionRequired" type="boolean" />
 		<field id="contentId" type="string" />
 		<field id="mediaType" type="string" />
+		<field id="posterThumbnail" type="string" />
+		<field id="usePoster" type="boolean" />
 	</interface>
 
 </component>
