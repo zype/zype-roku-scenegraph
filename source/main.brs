@@ -391,6 +391,8 @@ function goIntoDeviceLinkingFlow() as void
               m.deviceLinking.isDeviceLinked = true
               m.deviceLinking.setUnlinkFocus = true
 
+              m.scene.gridContent = m.gridContent
+
               m.scene.goBackToNonAuth = true
 
               ' Reset details screen buttons
@@ -1097,6 +1099,8 @@ function handleButtonEvents(index, screen)
         user_info = m.current_user.getInfo()
         m.auth_state_service.updateAuthWithUserInfo(user_info)
 
+        m.scene.gridContent = m.gridContent
+
         ' m.scene.transitionTo = "AccountScreen"
         m.scene.goBackToNonAuth = true
 
@@ -1177,6 +1181,8 @@ function handleNativeToUniversal() as void
         user_info = m.current_user.getInfo()
         if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
         m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+        m.scene.gridContent = m.gridContent
 
         m.scene.goBackToNonAuth = true
 
