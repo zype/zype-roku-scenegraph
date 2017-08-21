@@ -4,5 +4,6 @@ When submitting your app remember to include parameters for deep linking. If you
 
 ![Deep linking](images/deep-linking1.png)
 
-__mediaType__ can be any of the following: movie, series, season, or episode
+__mediaType__ can be any of the following: movie, series, season, or episode.
+
 __contentID__ is the video id for an active video. Roku expects the video to be playable when it deep links so you should use a free video's id.
