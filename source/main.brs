@@ -1125,6 +1125,7 @@ function handleButtonEvents(index, screen)
             '   m.global.auth.isLoggedIn = true
             global_auth = m.global.auth
             global_auth.isLoggedIn = true
+            global_auth.isLoggedInWithSubscription = true
             m.global.setField("auth", global_auth)
 
             global_nsvod = m.global.nsvod

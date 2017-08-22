@@ -223,6 +223,7 @@ Sub OnContentChange()
         print "m.top.BothActive: "; m.top.BothActive
         print "m.top.JustBoughtNativeSubscription: "; m.top.JustBoughtNativeSubscription
         print "m.global.nsvod.isLoggedInViaNativeSVOD: "; m.global.nsvod.isLoggedInViaNativeSVOD
+        print "m.global.nsvod.HasNativeSubscription: "; m.global.nsvod.HasNativeSubscription
 
         print "m.global.auth :; "; m.global.auth
         print "m.canWatchVideo";m.canWatchVideo

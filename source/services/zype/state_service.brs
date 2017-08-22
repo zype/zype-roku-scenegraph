@@ -15,8 +15,6 @@ Function StateService(global) as object
     this = {}
     this.global = global
     this.InitGlobalVars = function()
-        ' m.global.addFields({test: true})
-        ' m.global.swaf = false
         ' m.global = global
         ' print "m.global:: "; m.global
         ' print "this:: "; this
@@ -39,8 +37,6 @@ Function StateService(global) as object
             isLoggedInWithSubscription: _isLoggedIn AND (m.global.usvod.UniversalSubscriptionsCount > 0 OR m.global.nsvod.isLoggedInViaNativeSVOD = true) 
         }
 
-        ' print "m.global test: "; m.global
-        ' print "m.global.auth: "; m.global.auth
         return this
     End Function
     return this
