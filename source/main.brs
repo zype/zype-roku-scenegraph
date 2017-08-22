@@ -211,8 +211,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
         if msgType = "roSGNodeEvent"
             if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
-                m.detailsScreen.RemakeVideoPlayer = true
-                playRegularVideo(m.detailsScreen)
+              RemakeVideoPlayer()
+              m.VideoPlayer = m.detailsScreen.VideoPlayer
+
+              m.VideoPlayer.seek = 0.00
+              RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
+              playVideoButton(m.detailsScreen)
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
@@ -673,6 +677,7 @@ end sub
 sub CloseVideoPlayer()
   m.detailsScreen.videoPlayer.visible = false
   m.detailsScreen.videoPlayer.setFocus(false)
+  m.detailsScreen.videoPlayerVisible = false
 
   if m.LoadingScreen.visible = true
     EndLoader()
