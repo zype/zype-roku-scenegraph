@@ -38,12 +38,12 @@ End Function
 '     button focus    = the button shown for the currently selected item
 Function CustomTheme() as Object
     theme = {
-        background_color:           "#f7f7f7",
-        primary_text_color:         "#1f1f1f",
-        secondary_text_color:       "#595959",
+        background_color:           "#008080",
+        primary_text_color:         "#121212",
+        secondary_text_color:       "#ffa500",
         loader_uri:                 "pkg:/components/screens/LoadingIndicator/customLoader.png",
         focus_grid_uri:             "pkg:/images/focus_grid_custom.9.png",
-        overlay_uri:                "pkg:/images/customOverlay.png",
+        overlay_uri:                "pkg:/images/whiteOverlay.png",
         button_focus_uri:           "pkg:/images/button-focus-custom.png"
     }
     return theme

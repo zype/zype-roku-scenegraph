@@ -216,7 +216,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
               m.VideoPlayer.seek = 0.00
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
-              playVideoButton(m.detailsScreen)
+              playRegularVideo(m.detailsScreen)
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
@@ -295,38 +295,38 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
                 end if
-                if(m.on_air)
-                  if GetLimitStreamObject() <> invalid
-                    GetLimitStreamObject().played = GetLimitStreamObject().played + 1
-                    if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
-                        if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-                            m.videoPlayer.visible = false
-                            m.videoPlayer.control = "stop"
-                            dialog = createObject("roSGNode", "Dialog")
-                            dialog.title = "Limit Reached"
-                            dialog.optionsDialog = true
-                            dialog.message = GetLimitStreamObject().message
-                            m.scene.dialog = dialog
-                        else
-                            oauth = GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-                            if oauth <> invalid
-                                id = m.videoPlayer.content.id.tokenize(":")[0]
-                                if IsEntitled(id, {"access_token": oauth.access_token}) = false
-                                    m.videoPlayer.visible = false
-                                    m.videoPlayer.control = "stop"
-                                    dialog = createObject("roSGNode", "Dialog")
-                                    dialog.title = "Limit Reached"
-                                    dialog.optionsDialog = true
-                                    dialog.message = GetLimitStreamObject().message
-                                    m.scene.dialog = dialog
-                                end if
-                            else
-                                print "No OAuth available"
-                            end if
-                        end if
-                    end if
-                  end if
-                end if
+                ' if(m.on_air)
+                '   if GetLimitStreamObject() <> invalid
+                '     GetLimitStreamObject().played = GetLimitStreamObject().played + 1
+                '     if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
+                '         if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
+                '             m.videoPlayer.visible = false
+                '             m.videoPlayer.control = "stop"
+                '             dialog = createObject("roSGNode", "Dialog")
+                '             dialog.title = "Limit Reached"
+                '             dialog.optionsDialog = true
+                '             dialog.message = GetLimitStreamObject().message
+                '             m.scene.dialog = dialog
+                '         else
+                '             oauth = GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+                '             if oauth <> invalid
+                '                 id = m.videoPlayer.content.id.tokenize(":")[0]
+                '                 if IsEntitled(id, {"access_token": oauth.access_token}) = false
+                '                     m.videoPlayer.visible = false
+                '                     m.videoPlayer.control = "stop"
+                '                     dialog = createObject("roSGNode", "Dialog")
+                '                     dialog.title = "Limit Reached"
+                '                     dialog.optionsDialog = true
+                '                     dialog.message = GetLimitStreamObject().message
+                '                     m.scene.dialog = dialog
+                '                 end if
+                '             else
+                '                 print "No OAuth available"
+                '             end if
+                '         end if
+                '     end if
+                '   end if
+                ' end if
             else if msg.getNode() = "DeviceLinking" and msg.getField() = "show" and msg.GetData() = true then
                 m.scene.transitionTo = "DeviceLinking"
                 goIntoDeviceLinkingFlow()
@@ -447,23 +447,23 @@ function transitionToNestedPlaylist(id) as void
   m.detailsScreen.videosTree = m.scene.videoliststack.peek()
 end function
 
-sub playLiveVideo(screen as Object)
-    if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-        playVideo(screen, {"app_key": GetApiConfigs().app_key})
-    else
-        oauth = GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-        if oauth <> invalid
-
-            if IsEntitled(screen.content.id, {"access_token": oauth.access_token}) = true
-                playVideo(screen, {"access_token": oauth.access_token})
-            else
-                playVideo(screen, {"app_key": GetApiConfigs().app_key})
-            end if
-        else
-            print "No OAuth available"
-        end if
-    end if
-end sub
+' sub playLiveVideo(screen as Object)
+'     if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
+'         playVideo(screen, {"app_key": GetApiConfigs().app_key})
+'     else
+'         oauth = GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+'         if oauth <> invalid
+'
+'             if IsEntitled(screen.content.id, {"access_token": oauth.access_token}) = true
+'                 playVideo(screen, {"access_token": oauth.access_token})
+'             else
+'                 playVideo(screen, {"app_key": GetApiConfigs().app_key})
+'             end if
+'         else
+'             print "No OAuth available"
+'         end if
+'     end if
+' end sub
 
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
@@ -1100,14 +1100,14 @@ function handleButtonEvents(index, screen)
 
       m.VideoPlayer.seek = 0.00
       RemoveVideoIdForResumeFromReg(screen.content.id)
-      playVideoButton(screen)
+      playRegularVideo(screen)
     else if button_role = "resume"
       resume_time = GetVideoIdForResumeFromReg(screen.content.id)
       RemakeVideoPlayer()
 
       m.VideoPlayer = m.detailsScreen.VideoPlayer
       m.VideoPlayer.seek = resume_time
-      playVideoButton(screen)
+      playRegularVideo(screen)
     else if button_role = "favorite"
       markFavoriteButton(screen)
     else if button_role = "swaf"
@@ -1235,9 +1235,12 @@ function handleNativeToUniversal() as void
 
     if native_sub_status <> invalid and native_sub_status.is_valid
         user_info = m.current_user.getInfo()
+
+        ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
         if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
         m.auth_state_service.updateAuthWithUserInfo(user_info)
 
+        ' Refresh lock icons with grid screen content callback
         m.scene.gridContent = m.gridContent
 
         m.scene.goBackToNonAuth = true
@@ -1275,14 +1278,6 @@ Function EndLoader()
     m.detailsScreen.setFocus(true)
 End Function
 
-Function playVideoButton(lclScreen)
-    if lclScreen.content.onAir = false
-        playRegularVideo(lclScreen)
-    else
-        playLiveVideo(lclScreen)
-    end if
-End Function
-
 Function markFavoriteButton(lclScreen)
     idParts = lclScreen.content.id.tokenize(":")
     id = idParts[0]
@@ -1306,19 +1301,19 @@ Function markFavoriteButton(lclScreen)
 End Function
 
 ' ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-'   Accepts theme and brand_color values from source/config and stores values in global variable (accessible to all components under HomeScene)
-'   Values are used to set component colors on initialization
-'   Theme functions come from source/themes.brs
+'   Called at startup. Sets up m.global.theme and m.global.brand_color
+'   Accepts theme and brand color from app settings, otherwise accepts from config file.
 '
-'   Themes accepts 3 values: "dark", "light" and "custom"
-'     - If theme is none of those colors, components have the dark theme colors by default
-'     - If set to "custom", the color values should be inside CustomTheme() in source/themes.brs
-'
-'   Brand color is string with a hex color, like so: "#FFFFFF"
+'   If you want to customize your theme, you can:
+'     1- set the "theme" inside the config file to "custom"
+'     2- edit CustomTheme() inside source/themes.brs
+'     3- add/update the images inside the images folder
 Function SetTheme()
 
   if m.app.theme <> invalid
     theme = m.app.theme
+
+    if GetApiConfigs().theme = "custom" then theme = "custom"
   else
     theme = GetApiConfigs().theme
   end if
@@ -1337,7 +1332,7 @@ Function SetTheme()
     else if theme = "light"
       m.global.addFields({ theme: LightTheme() })
     else if theme = "custom"
-      m.global.addFields({ theme: DarkTheme() })
+      m.global.addFields({ theme: CustomTheme() })
     end if
   end if
 End Function
@@ -1352,6 +1347,7 @@ function SetMonetizationSettings() as void
   end if
 end function
 
+' Called at startup. Sets feature flags from config file
 function SetFeatures() as void
   configs = GetApiConfigs()
 
@@ -1362,6 +1358,7 @@ function SetFeatures() as void
   })
 end function
 
+' Called at startup. Sets up m.global.auth
 function SetGlobalAuthObject() as void
   current_user_info = m.current_user.getInfo()
   if current_user_info._id <> invalid and current_user_info._id <> "" then is_logged_in = true else is_logged_in = false
