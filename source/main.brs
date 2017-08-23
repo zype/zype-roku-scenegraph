@@ -212,9 +212,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
         if msgType = "roSGNodeEvent"
             if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
               RemakeVideoPlayer()
-              m.VideoPlayer = m.detailsScreen.VideoPlayer
-
-              m.VideoPlayer.seek = 0.00
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
               playRegularVideo(m.detailsScreen)
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
@@ -1096,9 +1093,6 @@ function handleButtonEvents(index, screen)
 
     if button_role = "play"
       RemakeVideoPlayer()
-      m.VideoPlayer = m.detailsScreen.VideoPlayer
-
-      m.VideoPlayer.seek = 0.00
       RemoveVideoIdForResumeFromReg(screen.content.id)
       playRegularVideo(screen)
     else if button_role = "resume"
@@ -1263,6 +1257,7 @@ end function
 '     Roku Video component performance degrades significantly after multiple uses, so we make a new one
 function RemakeVideoPlayer() as void
     m.detailsScreen.RemakeVideoPlayer = true
+    m.detailsScreen.VideoPlayer.seek = 0.0
 end function
 
 Function StartLoader()
