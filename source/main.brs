@@ -31,6 +31,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen.SetMessagePort(m.port)
     screen.Show()
 
+    m.TestInfoScreen = m.scene.findNode("TestInfoScreen")
+
     m.store = CreateObject("roChannelStore")
     ' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
@@ -139,8 +141,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.deviceLinking.isDeviceLinked = user_info.linked
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
-
-    m.TestInfoScreen = m.scene.findNode("TestInfoScreen")
 
     if m.global.auth.isLoggedIn
       if m.global.auth.isLinked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
@@ -1121,6 +1121,8 @@ function handleButtonEvents(index, screen)
       m.AccountScreen.resetText = true
       m.scene.goBackToNonAuth = true
 
+      m.scene.gridContent = m.gridContent
+
       ' Reset details screen buttons
       m.detailsScreen.content = m.detailsScreen.content
 
@@ -1217,7 +1219,7 @@ function handleNativeToUniversal() as void
     bifrost_params = {
       app_key: GetApiConfigs().app_key,
       consumer_id: user_info._id,
-      site_id: GetApiConfigs().zype_api_key,
+      site_id: "test",
       subscription_plan_id: recent_purchase.code,
       roku_api_key: GetApiConfigs().roku_api_key,
       transaction_id: UCase(recent_purchase.purchaseId),
