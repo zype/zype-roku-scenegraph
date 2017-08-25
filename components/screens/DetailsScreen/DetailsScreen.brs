@@ -211,16 +211,26 @@ Sub OnContentChange()
     if m.top.content<>invalid then
         idParts = m.top.content.id.tokenize(":")
 
-        if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
+        if(m.top.content.subscriptionRequired = false OR m.global.auth.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
             m.canWatchVideo = true
         else
             m.canWatchVideo = false
         end if
 
+        print "m.canWatchVideo";m.canWatchVideo
         ' If all else is good and device is linked but there's no subscription found on the server then show native subscription buttons.
-        if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.top.isLoggedInViaNativeSVOD = false)
+        if(m.top.isDeviceLinked = true AND m.global.usvod.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.global.nsvod.isLoggedInViaNativeSVOD = false)
             m.canWatchVideo = false
         end if
+        print "m.top.isDeviceLinked: "; m.top.isDeviceLinked
+        print "m.global.usvod.UniversalSubscriptionsCount: "; m.global.usvod.UniversalSubscriptionsCount
+        print "m.top.content.subscriptionRequired: "; m.top.content.subscriptionRequired
+        print "m.top.BothActive: "; m.top.BothActive
+        print "m.top.JustBoughtNativeSubscription: "; m.top.JustBoughtNativeSubscription
+        print "m.global.nsvod.isLoggedInViaNativeSVOD: "; m.global.nsvod.isLoggedInViaNativeSVOD
+        print "m.global.nsvod.HasNativeSubscription: "; m.global.nsvod.HasNativeSubscription
+
+        print "m.global.auth :; "; m.global.auth
         print "m.canWatchVideo";m.canWatchVideo
         if(m.canWatchVideo)
             AddButtons()
