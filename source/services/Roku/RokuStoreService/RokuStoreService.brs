@@ -19,17 +19,17 @@ function RokuStoreService(store, message_port) as object
 
   this.getNativeSubscriptionPlans = function() as object
     catalog = m.getCatalog()
-    return m.helpers.filterItems(catalog, ["MonthlySub", "YearlySub"])
+    return m.helpers.filterItemsByType(catalog, ["MonthlySub", "YearlySub"])
   end function
 
   this.getConsumables = function() as object
     catalog = m.getCatalog()
-    return m.helpers.filterItems(catalog, ["Consumable"])
+    return m.helpers.filterItemsByType(catalog, ["Consumable"])
   end function
 
   this.getNonconsumables = function() as object
     catalog = m.getCatalog()
-    return m.helpers.filterItems(catalog, ["NonConsumable"])
+    return m.helpers.filterItemsByType(catalog, ["NonConsumable"])
   end function
 
   ' Get all IAPs user has purchased
@@ -39,7 +39,7 @@ function RokuStoreService(store, message_port) as object
   end function
 
   this.getUserNativeSubscriptionPurchases = function() as object
-    native_subscriptions = m.helpers.filterItems(m.getPurchases(), ["MonthlySub", "YearlySub"])
+    native_subscriptions = m.helpers.filterItemsByType(m.getPurchases(), ["MonthlySub", "YearlySub"])
     valid_native_subscriptions = []
 
     for each subscription in native_subscriptions
@@ -95,6 +95,14 @@ function RokuStoreService(store, message_port) as object
     end for
 
     return recent_purchase
+  end function
+
+  this.getLastItemTransaction = function(code) as object
+    purchases = m.GetPurchases()
+    item_transactions = m.helpers.filterItemsByCode(purchases, code)
+    latest_item_transaction = m.helpers.lastestPurchase(item_transactions)
+
+    return latest_item_transaction
   end function
 
   return this

@@ -32,13 +32,24 @@ function RokuStoreServiceHelpers() as object
   end function
 
   ' Accepts array of roku store items and array of product types to filter by
-  this.filterItems = function(items as object, product_types as object) as object
+  this.filterItemsByType = function(items as object, product_types as object) as object
     filtered_items = []
 
     for each item in items
       for each product_type in product_types
         if item.productType = product_type then filtered_items.push(item)
       end for
+    end for
+
+    return filtered_items
+  end function
+
+  ' Accepts array of roku store items and array of product types to filter by
+  this.filterItemsByCode = function(items as object, code as string) as object
+    filtered_items = []
+
+    for each item in items
+      if item.code = code then filtered_items.push(item)
     end for
 
     return filtered_items
@@ -54,6 +65,26 @@ function RokuStoreServiceHelpers() as object
     date_as_seconds = date.asSeconds()
 
     return current_date_as_seconds > date_as_seconds
+  end function
+
+  this.lastestPurchase = function(purchases as object) as object
+    if purchases.count() = 0 then return {}
+
+    latest_purchase = purchases[0]
+
+    for each item in purchases
+      datetime1 = CreateObject("roDateTime")
+      datetime1.FromISO8601String(latest_purchase.purchaseDate)
+      latest_item_date_as_secs = datetime1.asSeconds()
+
+      datetime2 = CreateObject("roDateTime")
+      datetime1.FromISO8601String(item.purchaseDate)
+      current_item_date_as_secs = datetime2.asSeconds()
+
+      if current_item_date_as_secs > latest_item_date_as_secs then latest_purchase = item
+    end for
+
+    return latest_purchase
   end function
 
   return this

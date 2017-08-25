@@ -5,10 +5,8 @@ function BiFrostService() as object
   this.app = m.app
   this.global = m.global
 
-  ' get array of native subscription purchases and validate using Zype BiFrost API
-  this.validSubscriptions = function(user_info as object, native_subs as object) as object
-    valid_subs = []
-
+  ' validate native subscription purchases using Zype BiFrost API
+  this.hasValidSubscription = function(user_info as object, native_subs as object) as boolean
     for each n_sub in native_subs
       bifrost_params = {
         app_key: GetApiConfigs().app_key,
@@ -23,10 +21,10 @@ function BiFrostService() as object
       n_sub_status = GetNativeSubscriptionStatus(bifrost_params)
 
       ' Stop looking. BiFrost creates as well as validates subscriptions
-      if n_sub_status <> invalid and n_sub_status.is_valid then valid_subs.push(n_sub) : exit for
+      if n_sub_status <> invalid and n_sub_status.is_valid then return true
     end for
 
-    return valid_subs
+    return false
   end function
 
   return this
