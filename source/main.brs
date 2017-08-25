@@ -40,7 +40,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     end if
 
     m.store = CreateObject("roChannelStore")
-    m.store.FakeServer(true)
+    ' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -53,19 +53,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     'm.scene.gridContent = ParseContent(GetContent())
     m.contentID = contentID
 
-    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
+    ' m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
 
-    m.gridScreen = m.scene.findNode("GridScreen")
-
-    if contentID = invalid
-      ' Keep loader spinning. App not done loading yet
-      m.gridScreen.setFocus(false)
-      m.loadingIndicator.control = "start"
-    end if
-
-    rowlist = m.gridScreen.findNode("RowList")
-    rowlist.rowItemSize = m.playlistsRowItemSizes
-    rowlist.rowSpacings = m.playlistRowsSpacings
+    ' m.gridScreen = m.scene.findNode("GridScreen")
 
     ' print "gridContent: "; m.scene.gridContent
     ' print "m.playlistRows: "; m.playlistRows[0]
@@ -151,6 +141,18 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
 
     m.scene.observeField("SearchString", m.port)
+
+    m.gridScreen = m.scene.findNode("GridScreen")
+
+    if contentID = invalid
+      ' Keep loader spinning. App not done loading yet
+      m.gridScreen.setFocus(false)
+      m.loadingIndicator.control = "start"
+    end if
+
+    rowlist = m.gridScreen.findNode("RowList")
+    rowlist.rowItemSize = m.playlistsRowItemSizes
+    rowlist.rowSpacings = m.playlistRowsSpacings
 
     m.scene.observeField("playlistItemSelected", m.port)
     m.scene.observeField("TriggerDeviceUnlink", m.port)
