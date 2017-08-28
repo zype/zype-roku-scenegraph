@@ -67,18 +67,18 @@ function RokuStoreServiceHelpers() as object
     return current_date_as_seconds > date_as_seconds
   end function
 
-  this.lastestPurchase = function(purchases as object) as object
+  this.latestExpirationPurchase = function(purchases as object) as object
     if purchases.count() = 0 then return {}
 
     latest_purchase = purchases[0]
 
     for each item in purchases
       datetime1 = CreateObject("roDateTime")
-      datetime1.FromISO8601String(latest_purchase.purchaseDate)
+      datetime1.FromISO8601String(latest_purchase.expirationDate)
       latest_item_date_as_secs = datetime1.asSeconds()
 
       datetime2 = CreateObject("roDateTime")
-      datetime1.FromISO8601String(item.purchaseDate)
+      datetime2.FromISO8601String(item.expirationDate)
       current_item_date_as_secs = datetime2.asSeconds()
 
       if current_item_date_as_secs > latest_item_date_as_secs then latest_purchase = item
