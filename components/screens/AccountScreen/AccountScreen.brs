@@ -26,13 +26,15 @@ function resetTextCallback() as void
     m.header.text = "Signed in as: " + m.global.auth.email
 
     btn = [ { title: "Sign out", role: "signout", target: "" } ]
-    m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
+
+    if m.global.auth.universalSubCount = 0 and m.global.nsvod.currentPlan.count() > 0 then btn.push({ title: "Sync native subscription", role: "syncNative", target: "" })
   else
     m.header.text = "Sign In To Your Account"
 
     btn = [ { title: "Sign in", role: "transition", target: "UniversalAuthSelection" } ]
-    m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
   end if
+
+  m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
 end function
 
 function helpers() as object
@@ -64,8 +66,8 @@ function initializers() as object
 
     self.button = self.top.findNode("Button")
     self.button.color = self.global.theme.primary_text_color
-    self.button.focusedColor = self.global.theme.background_color
-    self.button.focusBitmapUri = self.global.theme.button_filledin_uri
+    self.button.focusedColor = self.global.theme.primary_text_color
+    self.button.focusBitmapUri = self.global.theme.focus_grid_uri
     self.button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
 
     self.header = self.top.findNode("Header")

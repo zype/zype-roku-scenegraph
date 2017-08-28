@@ -105,10 +105,13 @@ function RokuStoreService(store, message_port) as object
     return latest_item_transaction
   end function
 
-  this.hasActiveSubscription = function() as boolean
+  this.latestNativeSubscriptionPurchase = function() as object
     native_subs = m.getUserNativeSubscriptionPurchases()
-    latest_native_sub = m.helpers.latestExpirationPurchase(native_subs)
+    return m.helpers.latestExpirationPurchase(native_subs)
+  end function
 
+  this.hasActiveSubscription = function() as boolean
+    latest_native_sub = m.latestNativeSubscriptionPurchase()
     if latest_native_sub.count() = 0 or m.helpers.isExpired(latest_native_sub.expirationDate) then return false else return true
   end function
 

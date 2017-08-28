@@ -27,5 +27,11 @@ function AuthStateService() as object
     m.global.setField("auth", global_auth)
   end function
 
+  this.setCurrentNativePlan = function(plan as object) as void
+    m.global.setField("nsvod", {
+      currentPlan: plan
+    })
+  end function
+
   return this
 end function

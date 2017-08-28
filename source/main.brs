@@ -1183,6 +1183,52 @@ function handleButtonEvents(index, screen)
         end if
 
       end if
+
+    else if button_role = "syncNative"
+      user_info = m.current_user.getInfo()
+      latest_native_sub = m.roku_store_service.latestNativeSubscriptionPurchase()
+
+      third_party_id = GetPlan(latest_native_sub.code, {}).third_party_id
+
+      bifrost_params = {
+        app_key: GetApiConfigs().app_key,
+        consumer_id: user_info._id,
+        site_id: "test",
+        subscription_plan_id: latest_native_sub.code,
+        third_party_id: third_party_id,
+        roku_api_key: GetApiConfigs().roku_api_key,
+        transaction_id: UCase(latest_native_sub.purchaseId),
+        device_type: "roku"
+      }
+
+      native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
+
+      if native_sub_status <> invalid and native_sub_status.is_valid
+
+        updated_user_info = m.current_user.getInfo()
+
+        if updated_user_info.subscription_count > 0
+          ' Re-login. Get new access token
+          if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+          m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+          m.AccountScreen.resetText = true
+
+          sleep(500)
+          CreateDialog(m.scene, "Success", "Was able to validate subscription.", ["Close"])
+
+        ' subscription count = 0
+        else
+          sleep(500)
+          CreateDialog(m.scene, "Error", "Please make sure you are signed into the correct account", ["Close"])
+        end if
+
+      else
+        sleep(500)
+        CreateDialog(m.scene, "Error", "There was an error validating your subscription.", ["Close"])
+      end if
+
+
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
@@ -1238,6 +1284,9 @@ function handleNativeToUniversal() as void
         ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
         if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
         m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+        current_native_plan = m.roku_store_service.latestNativeSubscriptionPurchase()
+        m.auth_state_service.setCurrentNativePlan(current_native_plan)
 
         ' Refresh lock icons with grid screen content callback
         m.scene.gridContent = m.gridContent
@@ -1382,5 +1431,13 @@ function SetGlobalAuthObject() as void
     isLoggedIn: is_logged_in,
     isLinked: current_user_info.linked,
     email: user_email
+  } })
+
+
+  ' If active natve plan, set plan
+  latest_native_sub = m.roku_store_service.latestNativeSubscriptionPurchase()
+
+  m.global.addFields({ nsvod: {
+    currentPlan: latest_native_sub
   } })
 end function
