@@ -8,11 +8,14 @@ function BiFrostService() as object
   ' validate native subscription purchases using Zype BiFrost API
   this.hasValidSubscription = function(user_info as object, native_subs as object) as boolean
     for each n_sub in native_subs
+      third_party_id = GetPlan(n_sub.code, {}).third_party_id
+
       bifrost_params = {
         app_key: GetApiConfigs().app_key,
         consumer_id: user_info._id,
         site_id: "test",
         subscription_plan_id: n_sub.code,
+        third_party_id: third_party_id,
         roku_api_key: GetApiConfigs().roku_api_key,
         transaction_id: UCase(n_sub.purchaseId),
         device_type: "roku"

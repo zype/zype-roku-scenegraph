@@ -1216,11 +1216,14 @@ function handleNativeToUniversal() as void
     ' Get recent purchase
     recent_purchase = purchase_subscription.receipt
 
+    third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
+
     bifrost_params = {
       app_key: GetApiConfigs().app_key,
       consumer_id: user_info._id,
       site_id: "test",
       subscription_plan_id: recent_purchase.code,
+      third_party_id: third_party_id,
       roku_api_key: GetApiConfigs().roku_api_key,
       transaction_id: UCase(recent_purchase.purchaseId),
       device_type: "roku"
