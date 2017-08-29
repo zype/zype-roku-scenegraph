@@ -27,7 +27,7 @@ function resetTextCallback() as void
 
     btn = [ { title: "Sign out", role: "signout", target: "" } ]
 
-    if m.global.auth.universalSubCount = 0 and m.global.nsvod.currentPlan.count() > 0 then btn.push({ title: "Sync native subscription", role: "syncNative", target: "" })
+    ' if m.global.auth.universalSubCount = 0 and m.global.nsvod.currentPlan.count() > 0 then btn.push({ title: "Sync native subscription", role: "syncNative", target: "" })
   else
     m.header.text = "Sign In To Your Account"
 
