@@ -13,8 +13,6 @@ function BiFrostService() as object
       bifrost_params = {
         app_key: GetApiConfigs().app_key,
         consumer_id: user_info._id,
-        site_id: "test",
-        subscription_plan_id: n_sub.code,
         third_party_id: third_party_id,
         roku_api_key: GetApiConfigs().roku_api_key,
         transaction_id: UCase(n_sub.purchaseId),

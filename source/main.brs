@@ -1193,8 +1193,6 @@ function handleButtonEvents(index, screen)
       bifrost_params = {
         app_key: GetApiConfigs().app_key,
         consumer_id: user_info._id,
-        site_id: "test",
-        subscription_plan_id: latest_native_sub.code,
         third_party_id: third_party_id,
         roku_api_key: GetApiConfigs().roku_api_key,
         transaction_id: UCase(latest_native_sub.purchaseId),
@@ -1267,8 +1265,6 @@ function handleNativeToUniversal() as void
     bifrost_params = {
       app_key: GetApiConfigs().app_key,
       consumer_id: user_info._id,
-      site_id: "test",
-      subscription_plan_id: recent_purchase.code,
       third_party_id: third_party_id,
       roku_api_key: GetApiConfigs().roku_api_key,
       transaction_id: UCase(recent_purchase.purchaseId),
