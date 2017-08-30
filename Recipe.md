@@ -68,7 +68,7 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
       - Private apps are created by selecting the "Non-certified" option when first creating the app.
       - Private/non-certified apps are hidden from the app store and can only by added with the _access code_ which you set when creating your app.
       - Private apps do not go through Roku's review process and can be published immediately.
-      - __NOTE:__ You can first submit your app as private, then have it converted to a public app later. This is a great way to test the full functionality first before having it undergoes Roku review. To convert a private app to a public one, you will need to contact Roku at [partnersuccess@roku.com](partnersuccess@roku.com)
+      - __NOTE:__ You can first submit your app as private, then have it converted to a public app later. This is a great way to test the full functionality first before having it undergo Roku review. To convert a private app to a public one, you will need to contact Roku at `partnersuccess@roku.com`
     - PUBLIC
       - To create a public app, just select the "public" option when creating your app
       - To submit a public app you will need to complete the following steps to get approved
@@ -77,7 +77,7 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
       - [Use redemption codes to unlock content for test account. Redemption codes can be used for subscriptions and video/playlist purchases](https://support.zype.com/hc/en-us/articles/218358428-Creating-Redemption-Codes)
   - __STEP 3__ - Include deep linking parameters
     - __[ALL PUBLIC APPS must include deep linking parameters when submitting](docs/submission/DeepLinkingSubmission.md)__
-  - __STEP 4__ - Create native subscriptions if needed. __This needs to be done BEFORE CLICKING SUBMIT.__
+  - __STEP 4__ - __Create native subscriptions if needed. This needs to be done BEFORE CLICKING SUBMIT.__
     - [How to create native subscriptions in Roku](https://support.zype.com/hc/en-us/articles/115009092407-Creating-Native-Subscription-in-Roku)
 
   ![Creating a new app](docs/submission/images/publishing1.jpg)
