@@ -1207,8 +1207,8 @@ function handleButtonEvents(index, screen)
 
         if updated_user_info.subscription_count > 0
           ' Re-login. Get new access token
-          if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
-          m.auth_state_service.updateAuthWithUserInfo(user_info)
+          if updated_user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+          m.auth_state_service.updateAuthWithUserInfo(updated_user_info)
 
           m.AccountScreen.resetText = true
 
