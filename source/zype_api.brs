@@ -371,8 +371,8 @@ End Function
 '******************************************************
 Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   print "Video ID: " + videoid
-  id = videoid.tokenize(":")
-  videoid = id[0]
+  ' id = videoid.tokenize(":")
+  ' videoid = id[0]
   info = {}
   info.stream = {url: ""}
   info.streamFormat = ""

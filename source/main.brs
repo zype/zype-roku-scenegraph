@@ -244,7 +244,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 content = m.gridScreen.focusedContent
 
                 ' Get Playlist object from the platform
-                playlistObject = GetPlaylists({ id: content.id.tokenize(":")[0] })
+                playlistObject = GetPlaylists({ id: content.id })
                 ' print "playlistObject: "; playlistObject[0]
                 playlistThumbnailLayout = playlistObject[0].thumbnail_layout
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
@@ -308,7 +308,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                         else
                             oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
                             if oauth <> invalid
-                                id = m.videoPlayer.content.id.tokenize(":")[0]
+                                id = m.videoPlayer.content.id
                                 if IsEntitled(id, {"access_token": oauth.access_token}) = false
                                     m.videoPlayer.visible = false
                                     m.videoPlayer.control = "stop"
@@ -773,13 +773,13 @@ Function ParseContent(list As Object)
             end for
 
             ' Get the ID element from itemAA and check if the product against that id was subscribed
-            if(isSubscribed(itemAA["subscriptionrequired"]))
-                isSub = "True"
-            else
-                isSub = "False"
-            end if
+            ' if(isSubscribed(itemAA["subscriptionrequired"]))
+            '     isSub = "True"
+            ' else
+            '     isSub = "False"
+            ' end if
 
-            item["id"] = item["id"] + ":" + isSub
+            ' item["id"] = item["id"] + ":" + isSub
 
             row.appendChild(item)
         end for
@@ -823,7 +823,7 @@ Function GetContent()
 End Function
 
 function GetPlaylistContent(playlist_id as String)
-    playlist_id = playlist_id.tokenize(":")[0]
+    ' playlist_id = playlist_id.tokenize(":")[0]
     pl = GetPlaylists({"id": playlist_id})[0]
 
     favs = GetFavoritesIDs()
@@ -860,7 +860,7 @@ function GetPlaylistContent(playlist_id as String)
 end function
 
 function GetContentPlaylists(parent_id as String)
-    parent_id = parent_id.tokenize(":")[0]
+    ' parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
     else
@@ -885,7 +885,7 @@ end function
 function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     m.videosList = []
 
-    parent_id = parent_id.tokenize(":")[0]
+    ' parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
     else
@@ -1225,8 +1225,9 @@ Function playVideoButton(lclScreen)
 End Function
 
 Function markFavoriteButton(lclScreen)
-    idParts = lclScreen.content.id.tokenize(":")
-    id = idParts[0]
+    ' idParts = lclScreen.content.id.tokenize(":")
+    ' id = idParts[0]
+    id = lclScreen.content.id
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
     'deviceLinking.linked = false
     if HasUDID() = true and deviceLinking.linked = true
