@@ -199,11 +199,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
             ' Start playing video if logged in or no monetization
             if m.global.auth.isLoggedIn = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
-              if m.app.avod = true
-                playVideoWithAds(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
-              else
-                playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
-              end if
+              playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key}, m.app.avod)
             end if
           end if
 
@@ -505,15 +501,15 @@ end function
 
 sub playLiveVideo(screen as Object)
     if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-        playVideo(screen, {"app_key": GetApiConfigs().app_key})
+        playVideo(screen, {"app_key": GetApiConfigs().app_key}, false)
     else
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         if oauth <> invalid
 
             if IsEntitled(screen.content.id, {"access_token": oauth.access_token}) = true
-                playVideo(screen, {"access_token": oauth.access_token})
+                playVideo(screen, {"access_token": oauth.access_token}, false)
             else
-                playVideo(screen, {"app_key": GetApiConfigs().app_key})
+                playVideo(screen, {"app_key": GetApiConfigs().app_key}, false)
             end if
         else
             print "No OAuth available"
@@ -536,203 +532,115 @@ sub playRegularVideo(screen as Object)
           auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
         end if
 
-
-        if m.app.avod = true
-          playVideoWithAds(screen, auth)
-        else
-          playVideo(screen, auth)
-        end if
+        playVideo(screen, auth, m.app.avod)
 end sub
 
-sub playVideo(screen as Object, auth As Object)
-    playerInfo = GetPlayerInfo(screen.content.id, auth)
+sub playVideo(screen as Object, auth As Object, adsEnabled = false)
+	playerInfo = GetPlayerInfo(screen.content.id, auth)
 
     screen.content.stream = playerInfo.stream
     screen.content.streamFormat = playerInfo.streamFormat
     screen.content.url = playerInfo.url
+	
+    video_service = VideoService()
 
-    ' If video source is not available
+	' If video source is not available
     if(screen.content.streamFormat = "(null)")
       CloseVideoPlayer()
       CreateVideoUnavailableDialog()
     else
-        ' show loading indicator before requesting ad and playing video
-        m.loadingIndicator.control = "start"
-        m.on_air = screen.content.onAir
+		PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo)
+		playContent = true
+		
+		if(adsEnabled)
+			no_ads = (m.global.swaf and m.global.is_subscribed)
+			ads = video_service.PrepareAds(playerInfo, no_ads)
+			m.loadingIndicator.control = "stop"
+			
+			' preroll ad
+			if ads.preroll <> invalid
+			  playContent = m.raf_service.playAds(playerInfo.video, ads.preroll.url)
+			end if
+		end if
+		
+		' Start playing video
+		if playContent then
+			m.loadingIndicator.control = "stop"
+			print "[Main] Playing video"
+			m.videoPlayer.visible = true
+			screen.videoPlayerVisible = true
 
-        m.VideoPlayer = screen.VideoPlayer
-        m.VideoPlayer.observeField("position", m.port)
-        m.videoPlayer.content = screen.content
+			if m.LoadingScreen.visible = true
+			  EndLoader()
+			end if
 
-        if playerInfo.subtitles.count() > 0
-          subtitleTracks = []
+			m.videoPlayer.setFocus(true)
+			m.videoPlayer.control = "play"
 
-          for each subtitle in playerInfo.subtitles
-            subtitleTracks.push({
-              TrackName: subtitle.url,
-              Language: subtitle.language
-            })
-          end for
-
-          m.videoPlayer.content.subtitleTracks = subtitleTracks
-        else
-          m.videoPlayer.content.subtitleTracks = []
-        end if
-
-        m.VideoPlayer.seek = m.VideoPlayer.seek
-
-        if screen.content.onAir = true
-            m.VideoPlayer.content.live = true
-            m.VideoPlayer.content.playStart = 1000000000
-        end if
-
-        m.loadingIndicator.control = "stop"
-        print "[Main] Playing video"
-
-        m.videoPlayer.visible = true
-        screen.videoPlayerVisible = true
-
-        if m.LoadingScreen.visible = true
-          EndLoader()
-        end if
-
-        m.videoPlayer.setFocus(true)
-        m.videoPlayer.control = "play"
-    end if
+			sleep(500)
+			' If midroll ads exist, watch for midroll ads
+			if adsEnabled AND ads.midroll.count() > 0
+				AttachMidrollAds(ads.midroll, playerInfo)
+			end if ' end of midroll ad if statement
+		else
+		  CloseVideoPlayer()
+		end if ' end of if playContent
+    end if	
 end sub
 
-sub playVideoWithAds(screen as Object, auth as Object)
-    playerInfo = GetPlayerInfo(screen.content.id, auth)
+sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo)
+	' show loading indicator before requesting ad and playing video
+	m.loadingIndicator.control = "start"
+	m.on_air = screen.content.onAir
 
-    print "screen.content.streamFormat: "; type(screen.content.streamFormat)
-    screen.content.stream = playerInfo.stream
-    screen.content.streamFormat = playerInfo.streamFormat
-    screen.content.url = playerInfo.url
+	m.VideoPlayer = screen.VideoPlayer
+	m.VideoPlayer.observeField("position", m.port)
+	m.videoPlayer.content = screen.content
 
-    ' If video source is not available
-    if(screen.content.streamFormat = "(null)")
-      CloseVideoPlayer()
-      CreateVideoUnavailableDialog()
-    else
-        ' show loading indicator before requesting ad and playing video
-        m.loadingIndicator.control = "start"
-        m.on_air = playerInfo.on_air
+    video_service = VideoService()
 
-        if m.VideoPlayer = invalid
-          m.VideoPlayer = screen.findNode("VideoPlayer")
-        end if
+	if subtitleEnabled
+	  m.videoPlayer.content.subtitleTracks = video_service.GetSubtitles(playerInfo)
+	else
+	  m.videoPlayer.content.subtitleTracks = []
+	end if
 
-        m.VideoPlayer = screen.VideoPlayer
-        m.VideoPlayer.observeField("position", m.port)
-        m.videoPlayer.content = screen.content
+	m.VideoPlayer.seek = m.VideoPlayer.seek
+end sub
 
-        if playerInfo.subtitles.count() > 0
-          subtitleTracks = []
+sub AttachMidrollAds(midroll_ads, playerInfo)
+	while midroll_ads.count() > 0
+		currPos = m.videoPlayer.position
 
-          for each subtitle in playerInfo.subtitles
-            subtitleTracks.push({
-              TrackName: subtitle.url,
-              Language: subtitle.language
-            })
-          end for
+		timeDiff = Abs(midroll_ads[0].offset - currPos)
+		print "Next midroll ad: "; midroll_ads[0].offset
+		print "Time until next midroll ad: "; timeDiff
 
-          m.videoPlayer.content.subtitleTracks = subtitleTracks
-        else
-          m.videoPlayer.content.subtitleTracks = []
-        end if
+		' Within half second of next midroll ad timing
+		if timeDiff <= 0.500
+		  m.videoPlayer.control = "stop"
 
-        m.VideoPlayer.seek = m.VideoPlayer.seek
+		  m.raf_service.playAds(playerInfo.video, midroll_ads[0].url)
 
-        no_ads = (m.global.swaf and m.global.is_subscribed)
+		  ' Remove midroll ad from array
+		  midroll_ads.shift()
 
-        ' Getting ad timings from video's scheduled ads
-        preroll_ad = invalid
-        midroll_ads = []
-        if playerInfo.scheduledAds.count() > 0 and no_ads = false
-          for each ad in playerInfo.scheduledAds
-            if ad.offset = 0
-              preroll_ad = {
-                url: ad.url,
-                offset: ad.offset
-              }
-            else
-              midrollAd = {
-                url: ad.url,
-                offset: ad.offset,
-              }
-              midroll_ads.push(midrollAd)
-            end if
-          end for
-        end if
+		  ' Start playing video at back from currPos just before midroll ad started
+		  m.videoPlayer.seek = currPos
+		  m.videoPlayer.control = "play"
 
-        m.loadingIndicator.control = "stop"
+		' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
+		' Keep removing the first midroll ad in array until no midroll ads before current position
+		else if midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
+		  while midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
+			midroll_ads.shift()
+		  end while
+		else if m.videoPlayer.visible = false
+		  m.videoPlayer.control = "none"
+		  exit while
+		end if
 
-        playContent = true
-
-        ' preroll ad
-        if preroll_ad <> invalid
-          playContent = m.raf_service.playAds(playerInfo.video, preroll_ad.url)
-        end if
-
-        ' Start playing video
-        if playContent then
-            m.loadingIndicator.control = "stop"
-            print "[Main] Playing video"
-            m.videoPlayer.visible = true
-            screen.videoPlayerVisible = true
-
-            if m.LoadingScreen.visible = true
-              EndLoader()
-            end if
-
-            m.videoPlayer.setFocus(true)
-            m.videoPlayer.control = "play"
-
-            sleep(500)
-            ' If midroll ads exist, watch for midroll ads
-            if midroll_ads.count() > 0
-              while midroll_ads.count() > 0
-                currPos = m.videoPlayer.position
-
-                timeDiff = Abs(midroll_ads[0].offset - currPos)
-                print "Next midroll ad: "; midroll_ads[0].offset
-                print "Time until next midroll ad: "; timeDiff
-
-                ' Within half second of next midroll ad timing
-                if timeDiff <= 0.500
-                  m.videoPlayer.control = "stop"
-
-                  finished_ad = m.raf_service.playAds(playerInfo.video, midroll_ads[0].url)
-
-                  if finished_ad = false then CloseVideoPlayer() : exit while
-
-
-                  ' Remove midroll ad from array
-                  midroll_ads.shift()
-
-                  ' Start playing video at back from currPos just before midroll ad started
-                  m.videoPlayer.seek = currPos
-                  m.videoPlayer.control = "play"
-
-                ' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
-                ' Keep removing the first midroll ad in array until no midroll ads before current position
-                else if midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
-                  while midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
-                    midroll_ads.shift()
-                  end while
-                else if m.videoPlayer.visible = false
-                  m.videoPlayer.control = "none"
-                  exit while
-                end if
-
-              end while ' end of midroll ad loop
-
-            end if ' end of midroll ad if statement
-
-        else
-          CloseVideoPlayer()
-        end if ' end of if playContent
-    end if
+	end while ' end of midroll ad loop
 end sub
 
 sub CloseVideoPlayer()
