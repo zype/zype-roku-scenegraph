@@ -1210,7 +1210,13 @@ function handleButtonEvents(index, screen)
           if updated_user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
           m.auth_state_service.updateAuthWithUserInfo(updated_user_info)
 
+          ' Refresh lock icons with grid screen content callback
+          m.scene.gridContent = m.gridContent
+
           m.AccountScreen.resetText = true
+
+          ' details screen should update self
+          m.detailsScreen.content = m.detailsScreen.content
 
           sleep(500)
           CreateDialog(m.scene, "Success", "Was able to validate subscription.", ["Close"])
