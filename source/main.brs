@@ -1129,46 +1129,59 @@ function handleButtonEvents(index, screen)
       sleep(500)
       CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
-      if screen.email <> "" and screen.password <> "" then login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password) else login_response = invalid
 
-      if login_response <> invalid
-        m.SignInScreen.reset = true
-
-        ' ' get recent user info and update global auth state
-        ' user_info = m.current_user.getInfo()
-        '
-        ' ' if no universal subs, check if native sub purchase exists.
-        ' ' if native sub purchased, call bifrost to check
-        ' if user_info.subscription_count = 0
-        '   native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
-        '   if native_sub_purchases.count() > 0
-        '     valid_native_subs = m.bifrost_service.validSubscriptions(user_info, native_sub_purchases)
-        '
-        '     if valid_native_subs.count() > 0 then m.auth_state_service.incrementNativeSubCount()
-        '   end if
-        ' end if
-
-        user_info = m.current_user.getInfo()
-        m.auth_state_service.updateAuthWithUserInfo(user_info)
-
-        m.scene.gridContent = m.gridContent
-
-        ' m.scene.transitionTo = "AccountScreen"
-        m.scene.goBackToNonAuth = true
-
-        ' Reset details screen
-        m.detailsScreen.content = m.detailsScreen.content
-
+      if screen.email = ""
         sleep(500)
-        CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+        CreateDialog(m.scene, "Error", "Email is empty", ["Close"])
+      else if screen.password = ""
+        sleep(500)
+        CreateDialog(m.scene, "Error", "Password is empty", ["Close"])
       else
-        sleep(500)
-        CreateDialog(m.scene, "Error", "Could not find user with that email and password.", ["Close"])
-      end if
+
+        if screen.email <> "" and screen.password <> "" then login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password) else login_response = invalid
+
+        if login_response <> invalid
+          m.SignInScreen.reset = true
+
+          ' ' get recent user info and update global auth state
+          ' user_info = m.current_user.getInfo()
+          '
+          ' ' if no universal subs, check if native sub purchase exists.
+          ' ' if native sub purchased, call bifrost to check
+          ' if user_info.subscription_count = 0
+          '   native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
+          '   if native_sub_purchases.count() > 0
+          '     valid_native_subs = m.bifrost_service.validSubscriptions(user_info, native_sub_purchases)
+          '
+          '     if valid_native_subs.count() > 0 then m.auth_state_service.incrementNativeSubCount()
+          '   end if
+          ' end if
+
+          user_info = m.current_user.getInfo()
+          m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+          m.scene.gridContent = m.gridContent
+
+          ' m.scene.transitionTo = "AccountScreen"
+          m.scene.goBackToNonAuth = true
+
+          ' Reset details screen
+          m.detailsScreen.content = m.detailsScreen.content
+
+          sleep(500)
+          CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+        else
+          sleep(500)
+          CreateDialog(m.scene, "Error", "Could not find user with that email and password.", ["Close"])
+        end if
+
+      end if ' end of email/password validation
 
     else if button_role = "submitCredentials" and screen.id = "SignUpScreen"
-      if screen.email = "" or screen.password = ""
-        CreateDialog(m.scene, "Error", "Email or Password is empty. Cannot create account", ["Close"])
+      if screen.email = ""
+        CreateDialog(m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
+      else if screen.password = ""
+        CreateDialog(m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
       else
         create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
 
