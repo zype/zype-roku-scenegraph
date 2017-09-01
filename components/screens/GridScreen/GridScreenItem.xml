@@ -34,7 +34,6 @@
     m.statusImage.translation = [offset, 5]
     m.statusImage.visible = false
 
-    print "m.global.auth.isLoggedInWithSubscription: "; m.global.auth.isLoggedInWithSubscription 
     if(itemData.ContentType = 4 AND itemData.SubscriptionRequired = true AND m.global.enable_lock_icons = true)
       m.statusImage.visible = true
 
