@@ -306,7 +306,7 @@ Sub AddActionButtons()
         ' create buttons
         btns = [ { title: "Subscribe", role: "transition", target: "AuthSelection" } ]
 
-        if m.global.auth.isLoggedIn = false then btns.push({ title: "Sign In", role: "transition", target: "UniversalAuthSelection" })
+        ' if m.global.auth.isLoggedIn = false then btns.push({ title: "Sign In", role: "transition", target: "UniversalAuthSelection" })
 
         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if

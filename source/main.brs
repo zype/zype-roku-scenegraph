@@ -1119,9 +1119,10 @@ function handleButtonEvents(index, screen)
       m.auth_state_service.updateAuthWithUserInfo(user_info)
 
       m.AccountScreen.resetText = true
-      m.scene.goBackToNonAuth = true
 
       m.scene.gridContent = m.gridContent
+
+      m.scene.goBackToNonAuth = true
 
       ' Reset details screen buttons
       m.detailsScreen.content = m.detailsScreen.content
@@ -1183,15 +1184,24 @@ function handleButtonEvents(index, screen)
       else if screen.password = ""
         CreateDialog(m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
       else
+        StartLoader()
         create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
 
         if create_consumer_response <> invalid
           login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+
+          user_info = m.current_user.getInfo()
+          m.auth_state_service.updateAuthWithUserInfo(user_info)
+
           m.SignUpScreen.reset = true
           m.scene.goBackToNonAuth = true
 
           handleNativeToUniversal()
         else
+          EndLoader()
+          m.SignUpScreen.setFocus(true)
+          m.SignUpScreen.findNode("SubmitButton").setFocus(true)
+
           CreateDialog(m.scene, "Error", "It appears that email was taken.", ["Close"])
         end if
 
@@ -1214,7 +1224,7 @@ function handleButtonEvents(index, screen)
 
       native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
 
-      if native_sub_status <> invalid and native_sub_status.is_valid
+      if native_sub_status <> invalid and native_sub_status.is_valid <> invalid and native_sub_status.is_valid
 
         updated_user_info = m.current_user.getInfo()
 
@@ -1259,6 +1269,8 @@ function handleButtonEvents(index, screen)
 end function
 
 function handleNativeToUniversal() as void
+  EndLoader()
+
   ' Get updated user info
   user_info = m.current_user.getInfo()
   m.auth_state_service.updateAuthWithUserInfo(user_info)
@@ -1274,6 +1286,8 @@ function handleNativeToUniversal() as void
   purchase_subscription = m.roku_store_service.makePurchase(order)
 
   if purchase_subscription.success
+    StartLoader()
+
     m.auth_state_service.incrementNativeSubCount()
 
     ' Get recent purchase
@@ -1293,7 +1307,7 @@ function handleNativeToUniversal() as void
     ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
     native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
 
-    if native_sub_status <> invalid and native_sub_status.is_valid
+    if native_sub_status <> invalid and native_sub_status.is_valid <> invalid and native_sub_status.is_valid
         user_info = m.current_user.getInfo()
 
         ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
@@ -1311,8 +1325,15 @@ function handleNativeToUniversal() as void
         ' details screen should update self
         m.detailsScreen.content = m.detailsScreen.content
 
+        EndLoader()
+
         sleep(500)
         CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
+
+    else
+        EndLoader()
+        sleep(500)
+        CreateDialog(m.scene, "Error", "Could not verify your purchase with Roku. You can cancel your subscription on the Roku website.", ["Close"])
     end if ' native_sub_status.valid
 
   ' User cancelled purchase or error from Roku store
