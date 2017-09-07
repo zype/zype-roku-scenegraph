@@ -52,7 +52,7 @@ function onVisibleChange() as void
       else
         m.oauth_button.content = invalid
 
-        m.oauth_label.translation = [200,0]
+        m.oauth_label.translation = [135,0]
         m.oauth_label.text = "Signed in as: " + m.global.auth.email
         m.oauth_label.visible = true
       end if

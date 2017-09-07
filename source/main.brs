@@ -34,7 +34,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.TestInfoScreen = m.scene.findNode("TestInfoScreen")
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -45,6 +45,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.auth_state_service = AuthStateService()
     m.bifrost_service = BiFrostService()
     m.raf_service = RafService()
+
+    m.native_email_storage =  NativeEmailStorageService()
 
     SetGlobalAuthObject()
 
@@ -1228,6 +1230,7 @@ function handleButtonEvents(index, screen)
 
         updated_user_info = m.current_user.getInfo()
 
+        ' native subscription sync success
         if updated_user_info.subscription_count > 0
           ' Re-login. Get new access token
           if updated_user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
@@ -1241,13 +1244,19 @@ function handleButtonEvents(index, screen)
           ' details screen should update self
           m.detailsScreen.content = m.detailsScreen.content
 
+          m.native_email_storage.WriteEmail(updated_user_info.email)
+
           sleep(500)
           CreateDialog(m.scene, "Success", "Was able to validate subscription.", ["Close"])
 
         ' subscription count = 0
         else
+
+          stored_email = m.native_email_storage.ReadEmail()
+          if stored_email = "" or stored_email = invalid then message = "Please sign in with the correct email to sync your subscription." else message = "Please sign in as " + stored_email + " to sync your subscription."
+
           sleep(500)
-          CreateDialog(m.scene, "Error", "Please make sure you are signed into the correct account", ["Close"])
+          CreateDialog(m.scene, "Error", message, ["Close"])
         end if
 
       else
@@ -1286,6 +1295,11 @@ function handleNativeToUniversal() as void
   purchase_subscription = m.roku_store_service.makePurchase(order)
 
   if purchase_subscription.success
+
+    ' Store email used for purchase. For sync subscription later
+    m.native_email_storage.DeleteEmail()
+    m.native_email_storage.WriteEmail(user_info.email)
+
     StartLoader()
 
     m.auth_state_service.incrementNativeSubCount()
