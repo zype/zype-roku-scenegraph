@@ -9,8 +9,8 @@ function itemContentChanged() as void
 
   ' Poster thumbnails
   if itemData.usePoster
-    m.itemImage.loadWidth = 147
-    m.itemImage.loadHeight = 262
+    m.itemImage.loadWidth = 129
+    m.itemImage.loadHeight = 230
     if itemData.posterThumbnail <> invalid AND itemData.posterThumbnail <> ""
       m.itemImage.uri = itemData.posterThumbnail
     else

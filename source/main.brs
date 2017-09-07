@@ -933,7 +933,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
 
     if rawPlaylists.count() = 0
       if thumbnail_layout = "poster"
-        m.playlistsRowItemSizes.push( [ 147, 262 ] )
+        m.playlistsRowItemSizes.push( [ 129, 230 ] )
         m.playlistrowsSpacings.push( 60 )
       else
         m.playlistsRowItemSizes.push( [ 262, 147 ] )
@@ -952,7 +952,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
             videos = []
 
             if item.thumbnail_layout = "poster"
-              m.playlistsRowItemSizes.push( [ 147, 262 ] )
+              m.playlistsRowItemSizes.push( [ 129, 230 ] )
               m.playlistrowsSpacings.push( 60 )
             else
               m.playlistsRowItemSizes.push( [ 262, 147 ] )
