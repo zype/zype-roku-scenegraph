@@ -518,7 +518,7 @@ sub playRegularVideo(screen as Object)
 end sub
 
 sub playVideo(screen as Object, auth As Object, adsEnabled = false)
-	playerInfo = GetPlayerInfo(screen.content.id, auth)
+    playerInfo = GetPlayerInfo(screen.content.id, auth)
 
     screen.content.stream = playerInfo.stream
     screen.content.streamFormat = playerInfo.streamFormat
@@ -526,7 +526,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
 
     video_service = VideoService()
 
-	' If video source is not available
+    ' If video source is not available
     if(screen.content.streamFormat = "(null)")
       CloseVideoPlayer()
       CreateVideoUnavailableDialog()
@@ -538,7 +538,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
 			no_ads = (m.global.swaf and m.global.is_subscribed)
 			ads = video_service.PrepareAds(playerInfo, no_ads)
 
-      if screen.content.onAir = true then ads.midroll = []
+                        if screen.content.onAir = true then ads.midroll = []
 
 			m.loadingIndicator.control = "stop"
 
@@ -553,12 +553,12 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
 			m.loadingIndicator.control = "stop"
 			print "[Main] Playing video"
 
-      ' if live stream, set position at end of stream
-      ' roku video player does not automatically detect if live stream
-      if screen.content.onAir = true
-        m.videoPlayer.content.live = true
-        m.videoPlayer.content.playStart = 100000000000
-      end if
+                        ' if live stream, set position at end of stream
+                        ' roku video player does not automatically detect if live stream
+                        if screen.content.onAir = true
+                          m.videoPlayer.content.live = true
+                          m.videoPlayer.content.playStart = 100000000000
+                        end if
 
 			m.videoPlayer.visible = true
 			screen.videoPlayerVisible = true
