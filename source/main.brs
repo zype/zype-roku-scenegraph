@@ -50,31 +50,15 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.playlistsRowItemSizes = []
     m.playlistRowsSpacings = []
 
-    'm.scene.gridContent = ParseContent(GetContent())
     m.contentID = contentID
-
-    ' m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
-
-    ' m.gridScreen = m.scene.findNode("GridScreen")
-
-    ' print "gridContent: "; m.scene.gridContent
-    ' print "m.playlistRows: "; m.playlistRows[0]
 
     getUserPurchases()
     getProductsCatalog()
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
-    ' m.global.addFields({ HasNativeSubscription: false, isLoggedIn: false, UniversalSubscriptionsCount: 0 })
-    ' _isLoggedIn = isLoggedIn()
-    ' m.global.isLoggedIn = _isLoggedIn AND (m.detailsScreen.UniversalSubscriptionsCount > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true)
-    ' m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
-    ' InitGlobalVars()
-    print "m.global Before = "; m.global
+
     state_service = StateService(m.global)
     vars = state_service.InitGlobalVars()
-    print "m.global After = "; m.global
-    ' stop
-    ' m.global = vars.global
 
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.scene.gridContent = m.gridContent
@@ -100,13 +84,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
-    ' m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.detailsScreen.observeField("itemSelected", m.port)
-    'm.detailsScreen.SubscriptionPlans = m.plans
-    'm.detailsScreen.SubscriptionPlans = m.productsCatalog
     m.detailsScreen.productsCatalog = m.productsCatalog
     m.detailsScreen.JustBoughtNativeSubscription = false
-    ' m.detailsScreen.isLoggedIn = m.global.auth.isLoggedIn
     m.detailsScreen.observeField("triggerPlay", m.port)
     m.detailsScreen.dataArray = m.playlistRows
 
@@ -131,12 +111,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.global.addFields({ svod_enabled: svod_enabled })
     m.global.addFields({ is_subscribed: is_subscribed })
 
-    ' m.favorites.isLoggedIn = m.global.auth.isLoggedIn
-
     deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
     m.detailsScreen.isDeviceLinked = deviceLinked
 
-    ' print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
     InitAuthenticationParams()
 
 
@@ -168,7 +145,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()
 
-    'isAuthViaUniversalSVOD()
 
     startDate = CreateObject("roDateTime")
 
@@ -289,42 +265,42 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 ' print GetLimitStreamObject().limit
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
-                    AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
-                    AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
+                    AddVideoIdForResumeToReg(m.detailsScreen.content.id,m.videoPlayer.position.ToStr())
+                    AddVideoIdTimeSaveForResumeToReg(m.detailsScreen.content.id,startDate.asSeconds().ToStr())
                 end if
-                if(m.on_air)
-                  if GetLimitStreamObject() <> invalid
-                    GetLimitStreamObject().played = GetLimitStreamObject().played + 1
-                    'print  GetLimitStreamObject().played
-                    if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
-                        if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-                            m.videoPlayer.visible = false
-                            m.videoPlayer.control = "stop"
-                            dialog = createObject("roSGNode", "Dialog")
-                            dialog.title = "Limit Reached"
-                            dialog.optionsDialog = true
-                            dialog.message = GetLimitStreamObject().message
-                            m.scene.dialog = dialog
-                        else
-                            oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-                            if oauth <> invalid
-                                id = m.videoPlayer.content.id
-                                if IsEntitled(id, {"access_token": oauth.access_token}) = false
-                                    m.videoPlayer.visible = false
-                                    m.videoPlayer.control = "stop"
-                                    dialog = createObject("roSGNode", "Dialog")
-                                    dialog.title = "Limit Reached"
-                                    dialog.optionsDialog = true
-                                    dialog.message = GetLimitStreamObject().message
-                                    m.scene.dialog = dialog
-                                end if
-                            else
-                                print "No OAuth available"
-                            end if
-                        end if
-                    end if
-                  end if
-                end if
+                ' if(m.on_air)
+                '   if GetLimitStreamObject() <> invalid
+                '     GetLimitStreamObject().played = GetLimitStreamObject().played + 1
+                '     'print  GetLimitStreamObject().played
+                '     if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
+                '         if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
+                '             m.videoPlayer.visible = false
+                '             m.videoPlayer.control = "stop"
+                '             dialog = createObject("roSGNode", "Dialog")
+                '             dialog.title = "Limit Reached"
+                '             dialog.optionsDialog = true
+                '             dialog.message = GetLimitStreamObject().message
+                '             m.scene.dialog = dialog
+                '         else
+                '             oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+                '             if oauth <> invalid
+                '                 id = m.videoPlayer.content.id.tokenize(":")[0]
+                '                 if IsEntitled(id, {"access_token": oauth.access_token}) = false
+                '                     m.videoPlayer.visible = false
+                '                     m.videoPlayer.control = "stop"
+                '                     dialog = createObject("roSGNode", "Dialog")
+                '                     dialog.title = "Limit Reached"
+                '                     dialog.optionsDialog = true
+                '                     dialog.message = GetLimitStreamObject().message
+                '                     m.scene.dialog = dialog
+                '                 end if
+                '             else
+                '                 print "No OAuth available"
+                '             end if
+                '         end if
+                '     end if
+                '   end if
+                ' end if
             else if msg.getNode() = "DeviceLinking" and msg.getField() = "show" and msg.GetData() = true then
                 pin = m.deviceLinking.findNode("Pin")
 
@@ -413,9 +389,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                                 global_auth.isLoggedInWithSubscription = true
                                 m.global.setField("auth", global_auth)
 
-                                print "m.global.auth.isLoggedInWithSubscription:: "; m.global.auth.isLoggedInWithSubscription
                                 m.scene.gridContent = m.gridContent
-                                print "m.global.auth.isLoggedInWithSubscription::: "; m.global.auth.isLoggedInWithSubscription
 
                                 m.detailsScreen.redrawContent = true
                                 ' m.favorites.isLoggedIn = true
@@ -1078,8 +1052,6 @@ function handleButtonEvents(index, screen)
         global_auth.isLoggedIn = true
         m.global.setField("auth", global_auth)
 
-        ' m.detailsScreen.isLoggedIn = true
-        ' m.favorites.isLoggedIn = true
       else
         print "role subscribe else"
         m.detailsScreen.ShowSubscriptionPackagesCallback = true

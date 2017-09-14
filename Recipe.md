@@ -63,12 +63,25 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
 
 7. After you have packaged your app you can start publishing your app by creating a new channel under your Roku developer account.
 
+  - __STEP 1__ - Determine if you are submitting a PUBLIC or PRIVATE app.
+    - PRIVATE
+      - Private apps are created by selecting the "Non-certified" option when first creating the app.
+      - Private/non-certified apps are hidden from the app store and can only by added with the _access code_ which you set when creating your app.
+      - Private apps do not go through Roku's review process and can be published immediately.
+      - __NOTE:__ You can first submit your app as private, then have it converted to a public app later. This is a great way to test the full functionality first before having it undergo Roku review. To convert a private app to a public one, you will need to contact Roku at `partnersuccess@roku.com`
+    - PUBLIC
+      - To create a public app, just select the "public" option when creating your app
+      - To submit a public app you will need to complete the following steps to get approved
+  - __STEP 2__ - Include a test account with access to all content if you are using universal subscriptions
+      - [Creating a test acccount](https://support.zype.com/hc/en-us/articles/115010965107-Creating-a-Consumer)
+      - [Use redemption codes to unlock content for test account. Redemption codes can be used for subscriptions and video/playlist purchases](https://support.zype.com/hc/en-us/articles/218358428-Creating-Redemption-Codes)
+  - __STEP 3__ - Include deep linking parameters
+    - __[ALL PUBLIC APPS must include deep linking parameters when submitting](docs/submission/DeepLinkingSubmission.md)__
+  - __STEP 4__ - __Create native subscriptions if needed. This needs to be done BEFORE CLICKING SUBMIT.__
+    - [How to create native subscriptions in Roku](https://support.zype.com/hc/en-us/articles/115009092407-Creating-Native-Subscription-in-Roku)
+
   ![Creating a new app](docs/submission/images/publishing1.jpg)
 
-  - If you are just trying to submit a __private or beta app__, you can select __Non-certified__ when creating your app. Non-certified apps are hidden from the app store and can only be added via the _access code_ which you can set when going through the submission process.
-  - If you are doing native subscriptions, [remember to create them](https://support.zype.com/hc/en-us/articles/115009092407-Creating-Native-Subscription-in-Roku).
-  - Remember to include all relevant testing information when submitting.
-    - [Remember to submit deep linking paramters](docs/submission/DeepLinkingSubmission.md)
-    - If you are using USVOD, remember to include credentials for a test account with a subscription
+  ![Submitting test information](docs/submission/images/publishing2.jpg)
 
 8. Once submitted Roku will review your app (if it is public) against their submission guidelines. If your app is approved, they will update your app status and you should receive an email notification from Roku informing you that your app is live. You can then search for it on Roku's marketplace under the __Search__ tab.
