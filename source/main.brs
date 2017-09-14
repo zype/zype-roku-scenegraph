@@ -348,7 +348,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
                                     m.detailsScreen.isDeviceLinked = true
                                     ' m.global.usvod.UniversalSubscriptionsCount = consumer.subscription_count
-                                    
+
                                     global_usvod = m.global.usvod
                                     global_usvod.UniversalSubscriptionsCount = consumer.subscription_count
                                     m.global.setField("usvod", global_usvod)
@@ -452,7 +452,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     m.deviceLinking.isDeviceLinked = false
                     m.detailsScreen.isDeviceLinked = false
                     ' m.global.auth.isLoggedIn = isLoggedIn()
-                    
+
                     global_auth = m.global.auth
                     global_auth.isLoggedIn = isLoggedIn()
                     global_auth.isLoggedInWithSubscription = false
@@ -499,24 +499,6 @@ function transitionToNestedPlaylist(id) as void
   m.detailsScreen.videosTree = m.scene.videoliststack.peek()
 end function
 
-sub playLiveVideo(screen as Object)
-    if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-        playVideo(screen, {"app_key": GetApiConfigs().app_key}, false)
-    else
-        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-        if oauth <> invalid
-
-            if IsEntitled(screen.content.id, {"access_token": oauth.access_token}) = true
-                playVideo(screen, {"access_token": oauth.access_token}, false)
-            else
-                playVideo(screen, {"app_key": GetApiConfigs().app_key}, false)
-            end if
-        else
-            print "No OAuth available"
-        end if
-    end if
-end sub
-
 ' Play button should only appear in the following scenarios:
 '     1- No subscription required for video
 '     2- NSVOD only and user has already purchased a native subscription
@@ -541,7 +523,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
     screen.content.stream = playerInfo.stream
     screen.content.streamFormat = playerInfo.streamFormat
     screen.content.url = playerInfo.url
-	
+
     video_service = VideoService()
 
 	' If video source is not available
@@ -551,22 +533,33 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
     else
 		PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo)
 		playContent = true
-		
+
 		if(adsEnabled)
 			no_ads = (m.global.swaf and m.global.is_subscribed)
 			ads = video_service.PrepareAds(playerInfo, no_ads)
+
+      if screen.content.onAir = true then ads.midroll = []
+
 			m.loadingIndicator.control = "stop"
-			
+
 			' preroll ad
 			if ads.preroll <> invalid
 			  playContent = m.raf_service.playAds(playerInfo.video, ads.preroll.url)
 			end if
 		end if
-		
+
 		' Start playing video
 		if playContent then
 			m.loadingIndicator.control = "stop"
 			print "[Main] Playing video"
+
+      ' if live stream, set position at end of stream
+      ' roku video player does not automatically detect if live stream
+      if screen.content.onAir = true
+        m.videoPlayer.content.live = true
+        m.videoPlayer.content.playStart = 100000000000
+      end if
+
 			m.videoPlayer.visible = true
 			screen.videoPlayerVisible = true
 
@@ -585,7 +578,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
 		else
 		  CloseVideoPlayer()
 		end if ' end of if playContent
-    end if	
+    end if
 end sub
 
 sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo)
@@ -597,7 +590,7 @@ sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo)
 	m.VideoPlayer.observeField("position", m.port)
 	m.videoPlayer.content = screen.content
 
-    video_service = VideoService()
+  video_service = VideoService()
 
 	if subtitleEnabled
 	  m.videoPlayer.content.subtitleTracks = video_service.GetSubtitles(playerInfo)
@@ -1060,14 +1053,14 @@ function handleButtonEvents(index, screen)
 
       m.VideoPlayer.seek = 0.00
       RemoveVideoIdForResumeFromReg(screen.content.id)
-      playVideoButton(screen)
+      playRegularVideo(screen)
     else if button_role = "resume"
       resume_time = GetVideoIdForResumeFromReg(screen.content.id)
       RemakeVideoPlayer()
 
       m.VideoPlayer = m.detailsScreen.VideoPlayer
       m.VideoPlayer.seek = resume_time
-      playVideoButton(screen)
+      playRegularVideo(screen)
     else if button_role = "favorite"
       markFavoriteButton(screen)
     else if button_role = "subscribe"
@@ -1076,7 +1069,7 @@ function handleButtonEvents(index, screen)
         print "role subscribe if"
         m.detailsScreen.DontShowSubscriptionPackages = true
         m.detailsScreen.isDeviceLinked = true
-        
+
         global_usvod = m.global.usvod
         global_usvod.UniversalSubscriptionsCount = consumer.subscription_count
         m.global.setField("usvod", global_usvod)
@@ -1184,7 +1177,7 @@ Function isLoggedIn()
     if(isAuthViaNativeSVOD())
         m.global.nsvod.isLoggedInViaNativeSVOD = true
         ' m.global.usvod.isLoggedInViaUniversalSVOD = false
-        
+
         global_nsvod = m.global.nsvod
         global_nsvod.isLoggedInViaNativeSVOD = true
         global_nsvod.HasNativeSubscription = true
@@ -1204,7 +1197,7 @@ Function isLoggedIn()
         global_nsvod = m.global.nsvod
         global_nsvod.isLoggedInViaNativeSVOD = false
         m.global.setField("nsvod", global_nsvod)
-        
+
         global_usvod = m.global.usvod
         global_usvod.isLoggedInViaUniversalSVOD = true
         m.global.setField("usvod", global_usvod)
@@ -1214,14 +1207,6 @@ Function isLoggedIn()
     end if
     ' print "leaving isLoggedIn"
     return false
-End Function
-
-Function playVideoButton(lclScreen)
-    if lclScreen.content.onAir = false
-        playRegularVideo(lclScreen)
-    else
-        playLiveVideo(lclScreen)
-    end if
 End Function
 
 Function markFavoriteButton(lclScreen)
@@ -1285,7 +1270,7 @@ Function isAuthViaUniversalSVOD()
     ' m.detailsScreen.UniversalSubscriptionsCount = deviceLinking.subscription_count
     print "m.global: "; m.global
     ' m.global.usvod.UniversalSubscriptionsCount = deviceLinking.subscription_count
-    
+
     global_usvod = m.global.usvod
     global_usvod.UniversalSubscriptionsCount = deviceLinking.subscription_count
     m.global.setField("usvod", global_usvod)
