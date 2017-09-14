@@ -29,7 +29,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen.Show()
 
     m.AKaMAAnalyticsPlugin = AkaMA_plugin()
-    akamai_service = AkamaiService()
+    m.akamai_service = AkamaiService()
 
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
@@ -269,7 +269,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 handleButtonEvents(index, lclscreen)
             else if msg.getField() = "state"
                 state = msg.getData()
-                akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
+                m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
                 
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
@@ -529,10 +529,12 @@ end sub
 sub playVideo(screen as Object, auth As Object)
     playerInfo = GetPlayerInfo(screen.content.id, auth)
 
-    print "PlayerInfo.analytics: "; playerInfo.analytics
-    cd = { title: screen.content.title, device: playerInfo.analytics.device, playerId: playerInfo.analytics.playerId, contentLength: screen.content.length }
-    print "Custom Dimensions: "; cd
-    m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
+    if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
+        print "PlayerInfo.analytics: "; playerInfo.analytics
+        cd = { title: screen.content.title, device: playerInfo.analytics.device, playerId: playerInfo.analytics.playerId, contentLength: screen.content.length }
+        print "Custom Dimensions: "; cd
+        m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
+    end if
 
     screen.content.stream = playerInfo.stream
     screen.content.streamFormat = playerInfo.streamFormat
@@ -549,7 +551,11 @@ sub playVideo(screen as Object, auth As Object)
 
         m.VideoPlayer = screen.VideoPlayer
         m.VideoPlayer.observeField("position", m.port)
-        m.VideoPlayer.observeField("state", m.port)
+
+        if(screen.content.onAir <> true)
+            m.VideoPlayer.observeField("state", m.port)
+        end if
+
         m.videoPlayer.content = screen.content
 
         if playerInfo.subtitles.count() > 0
@@ -592,6 +598,13 @@ end sub
 sub playVideoWithAds(screen as Object, auth as Object)
     playerInfo = GetPlayerInfo(screen.content.id, auth)
 
+    if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
+        print "PlayerInfo.analytics: "; playerInfo.analytics
+        cd = { title: screen.content.title, device: playerInfo.analytics.device, playerId: playerInfo.analytics.playerId, contentLength: screen.content.length }
+        print "Custom Dimensions: "; cd
+        m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
+    end if
+
     print "screen.content.streamFormat: "; type(screen.content.streamFormat)
     screen.content.stream = playerInfo.stream
     screen.content.streamFormat = playerInfo.streamFormat
@@ -612,6 +625,11 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
         m.VideoPlayer = screen.VideoPlayer
         m.VideoPlayer.observeField("position", m.port)
+
+        if(screen.content.onAir <> true)
+            m.VideoPlayer.observeField("state", m.port)
+        end if
+
         m.videoPlayer.content = screen.content
 
         if playerInfo.subtitles.count() > 0
@@ -701,7 +719,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
                   ' Start playing video at back from currPos just before midroll ad started
                   m.videoPlayer.seek = currPos
                 '   m.playStartedOnce = true
-                  akamai_service.setPlayStartedOnce(true)
+                  m.akamai_service.setPlayStartedOnce(true)
                   m.videoPlayer.control = "play"
 
                 ' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
@@ -1150,7 +1168,7 @@ function handleButtonEvents(index, screen)
       m.VideoPlayer = m.detailsScreen.VideoPlayer
       m.VideoPlayer.seek = resume_time
     '   m.playStartedOnce = true
-      akamai_service.setPlayStartedOnce(true)
+      m.akamai_service.setPlayStartedOnce(true)
       playVideoButton(screen)
     else if button_role = "favorite"
       markFavoriteButton(screen)

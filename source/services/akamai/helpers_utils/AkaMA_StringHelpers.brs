@@ -69,7 +69,7 @@ End Function
 Function AkaMA_strReplace(basestr, oldsub As String, newsub As String) As String
     newstr = ""
     ' basestr1 = Str(basestr)
-    print "Type of basestr: ";type(basestr)
+    ' print "Type of basestr: ";type(basestr)
 
     if(type(basestr) = "roFloat")
         basestr = Str(basestr)
