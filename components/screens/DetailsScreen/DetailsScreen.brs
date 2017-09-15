@@ -133,7 +133,7 @@ Sub OnVideoPlayerStateChange()
         m.top.ResumeVideo = m.top.createChild("ResumeVideo")
         m.top.ResumeVideo.id = "ResumeVideo"
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
-        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id.tokenize(":")[0]  ' Delete video id and time from reg.
+        ' m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id.tokenize(":")[0]  ' Delete video id and time from reg.
 
         if m.top.autoplay = true AND isLastVideoInPlaylist() = false
             m.top.videoPlayer.visible = true
@@ -209,7 +209,7 @@ Sub OnContentChange()
     m.top.SubscriptionPackagesShown = false
 
     if m.top.content<>invalid then
-        idParts = m.top.content.id.tokenize(":")
+        ' idParts = m.top.content.id.tokenize(":")
 
         if(m.top.content.subscriptionRequired = false OR m.global.auth.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
             m.canWatchVideo = true
