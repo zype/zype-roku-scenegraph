@@ -270,16 +270,22 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             else if msg.getField() = "state"
                 state = msg.getData()
                 m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
-                
+
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
-                m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position 
+                m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
                     AddVideoIdForResumeToReg(m.detailsScreen.content.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.detailsScreen.content.id,startDate.asSeconds().ToStr())
                 end if
+
+	            ' If midroll ads exist, watch for midroll ads
+	            if m.midroll_ads <> invalid and m.midroll_ads.count() > 0
+					midrollAdsLogic()
+	            end if ' end of midroll ad if statement
+
                 ' if(m.on_air)
                 '   if GetLimitStreamObject() <> invalid
                 '     GetLimitStreamObject().played = GetLimitStreamObject().played + 1
@@ -653,7 +659,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
         ' Getting ad timings from video's scheduled ads
         preroll_ad = invalid
-        midroll_ads = []
+        m.midroll_ads = []
         if playerInfo.scheduledAds.count() > 0 and no_ads = false
           for each ad in playerInfo.scheduledAds
             if ad.offset = 0
@@ -666,7 +672,7 @@ sub playVideoWithAds(screen as Object, auth as Object)
                 url: ad.url,
                 offset: ad.offset,
               }
-              midroll_ads.push(midrollAd)
+              m.midroll_ads.push(midrollAd)
             end if
           end for
         end if
@@ -679,6 +685,9 @@ sub playVideoWithAds(screen as Object, auth as Object)
         if preroll_ad <> invalid
           playContent = m.raf_service.playAds(playerInfo.video, preroll_ad.url)
         end if
+
+		' Used for midroll ad playing
+		m.currentVideoInfo = playerInfo.video
 
         ' Start playing video
         if playContent then
@@ -694,51 +703,11 @@ sub playVideoWithAds(screen as Object, auth as Object)
             m.videoPlayer.setFocus(true)
             m.videoPlayer.control = "play"
 
-            sleep(500)
-            ' If midroll ads exist, watch for midroll ads
-            if midroll_ads.count() > 0
-              while midroll_ads.count() > 0
-                currPos = m.videoPlayer.position
-
-                timeDiff = Abs(midroll_ads[0].offset - currPos)
-                print "Next midroll ad: "; midroll_ads[0].offset
-                print "Time until next midroll ad: "; timeDiff
-
-                ' Within half second of next midroll ad timing
-                if timeDiff <= 0.500
-                  m.videoPlayer.control = "stop"
-
-                  finished_ad = m.raf_service.playAds(playerInfo.video, midroll_ads[0].url)
-
-                  if finished_ad = false then CloseVideoPlayer() : exit while
-
-
-                  ' Remove midroll ad from array
-                  midroll_ads.shift()
-
-                  ' Start playing video at back from currPos just before midroll ad started
-                  m.videoPlayer.seek = currPos
-                '   m.playStartedOnce = true
-                  m.akamai_service.setPlayStartedOnce(true)
-                  m.videoPlayer.control = "play"
-
-                ' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
-                ' Keep removing the first midroll ad in array until no midroll ads before current position
-                else if midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
-                  while midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
-                    midroll_ads.shift()
-                  end while
-                else if m.videoPlayer.visible = false
-                  m.videoPlayer.control = "none"
-                  exit while
-                end if
-
-              end while ' end of midroll ad loop
-
-            end if ' end of midroll ad if statement
+			' Moved midroll logic inside "position" event handler
 
         else
           CloseVideoPlayer()
+		  m.currentVideo = invalid
         end if ' end of if playContent
     end if
 end sub
@@ -754,6 +723,43 @@ sub CloseVideoPlayer()
   m.detailsScreen.visible = true
   m.detailsScreen.setFocus(true)
 end sub
+
+function midrollAdsLogic() as void
+	currPos = m.videoPlayer.position
+
+	timeDiff = Abs(m.midroll_ads[0].offset - currPos)
+	print "Next midroll ad: "; m.midroll_ads[0].offset
+	print "Time until next midroll ad: "; timeDiff
+
+	' Within half second of next midroll ad timing
+	if timeDiff <= 0.500
+	  m.videoPlayer.control = "stop"
+
+	  finished_ad = m.raf_service.playAds(m.currentVideoInfo, m.midroll_ads[0].url)
+
+	  if finished_ad = false then CloseVideoPlayer()
+
+	  ' Remove midroll ad from array
+	  m.midroll_ads.shift()
+
+	  ' Start playing video at back from currPos just before midroll ad started
+	  m.videoPlayer.seek = currPos
+	'   m.playStartedOnce = true
+	  m.akamai_service.setPlayStartedOnce(true)
+	  m.videoPlayer.control = "play"
+
+	' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
+	' Keep removing the first midroll ad in array until no midroll ads before current position
+	else if m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
+	  while m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
+		m.midroll_ads.shift()
+	  end while
+	else if m.videoPlayer.visible = false
+	  m.videoPlayer.control = "none"
+	  m.midroll_ads = invalid
+	  m.currentVideo = invalid
+	end if
+end function
 
 sub CreateVideoUnavailableDialog()
   dialog = createObject("roSGNode", "Dialog")
