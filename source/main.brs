@@ -543,7 +543,19 @@ sub playVideo(screen as Object, auth As Object)
 
     if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
         print "PlayerInfo.analytics: "; playerInfo.analytics
-        cd = { title: screen.content.title, device: playerInfo.analytics.device, playerId: playerInfo.analytics.playerId, contentLength: screen.content.length }
+
+        if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
+        if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
+
+        cd = {
+            siteId: playerInfo.analytics.siteid,
+            videoId: playerInfo.analytics.videoid,
+            title: screen.content.title,
+            deviceType: playerInfo.analytics.device,
+            playerId: playerInfo.analytics.playerId,
+            contentLength: screen.content.length,
+            consumerId: consumer_id
+        }
         print "Custom Dimensions: "; cd
         m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
     end if
@@ -612,7 +624,19 @@ sub playVideoWithAds(screen as Object, auth as Object)
 
     if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
         print "PlayerInfo.analytics: "; playerInfo.analytics
-        cd = { title: screen.content.title, device: playerInfo.analytics.device, playerId: playerInfo.analytics.playerId, contentLength: screen.content.length }
+
+        if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
+        if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
+
+        cd = {
+            siteId: playerInfo.analytics.siteid,
+            videoId: playerInfo.analytics.videoid,
+            title: screen.content.title,
+            deviceType: playerInfo.analytics.device,
+            playerId: playerInfo.analytics.playerId,
+            contentLength: screen.content.length,
+            consumerId: consumer_id
+        }
         print "Custom Dimensions: "; cd
         m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
     end if
