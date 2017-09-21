@@ -82,6 +82,7 @@
 
         <!-- Gets populated by app configuration returned from zype API -->
         <field id="autoplay" type="bool" />
+		<field id="canWatchVideo" type="bool" />
 
         <!-- Video Player referencible by HomeScene -->
         <field id="VideoPlayer" type="node" />

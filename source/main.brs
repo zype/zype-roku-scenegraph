@@ -178,11 +178,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
             ' Start playing video if logged in or no monetization
             if m.global.auth.isLoggedIn = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
-              if m.app.avod = true
-                playVideoWithAds(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
-              else
-                playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
-              end if
+              playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key}, m.app.avod)
             end if
           end if
 
@@ -227,7 +223,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 content = m.gridScreen.focusedContent
 
                 ' Get Playlist object from the platform
-                playlistObject = GetPlaylists({ id: content.id.tokenize(":")[0] })
+                playlistObject = GetPlaylists({ id: content.id })
                 ' print "playlistObject: "; playlistObject[0]
                 playlistThumbnailLayout = playlistObject[0].thumbnail_layout
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
@@ -271,6 +267,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 state = msg.getData()
                 m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
 
+				' autoplay
+                next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
+                if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
+                    m.detailsScreen.triggerPlay = true
+                end if
+
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
@@ -283,7 +285,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
 	            ' If midroll ads exist, watch for midroll ads
 	            if m.midroll_ads <> invalid and m.midroll_ads.count() > 0
-					midrollAdsLogic()
+					handleMidrollAd()
 	            end if ' end of midroll ad if statement
 
                 ' if(m.on_air)
@@ -491,24 +493,6 @@ function transitionToNestedPlaylist(id) as void
   m.detailsScreen.videosTree = m.scene.videoliststack.peek()
 end function
 
-sub playLiveVideo(screen as Object)
-    if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-        playVideo(screen, {"app_key": GetApiConfigs().app_key})
-    else
-        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-        if oauth <> invalid
-
-            if IsEntitled(screen.content.id, {"access_token": oauth.access_token}) = true
-                playVideo(screen, {"access_token": oauth.access_token})
-            else
-                playVideo(screen, {"app_key": GetApiConfigs().app_key})
-            end if
-        else
-            print "No OAuth available"
-        end if
-    end if
-end sub
-
 ' Play button should only appear in the following scenarios:
 '     1- No subscription required for video
 '     2- NSVOD only and user has already purchased a native subscription
@@ -524,20 +508,27 @@ sub playRegularVideo(screen as Object)
           auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
         end if
 
-
-        if m.app.avod = true
-          playVideoWithAds(screen, auth)
-        else
-          playVideo(screen, auth)
-        end if
+        playVideo(screen, auth, m.app.avod)
 end sub
 
-sub playVideo(screen as Object, auth As Object)
+sub playVideo(screen as Object, auth As Object, adsEnabled = false)
     playerInfo = GetPlayerInfo(screen.content.id, auth)
 
     if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
         print "PlayerInfo.analytics: "; playerInfo.analytics
-        cd = { title: screen.content.title, device: playerInfo.analytics.device, playerId: playerInfo.analytics.playerId, contentLength: screen.content.length }
+
+		if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
+        if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
+
+        cd = {
+			siteId: playerInfo.analytics.siteid,
+			videoId: playerInfo.analytics.videoid,
+			title: screen.content.title,
+			deviceType: playerInfo.analytics.device,
+			playerId: playerInfo.analytics.playerId,
+			contentLength: screen.content.length,
+			consumerId: consumer_id
+		}
         print "Custom Dimensions: "; cd
         m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
     end if
@@ -546,14 +537,15 @@ sub playVideo(screen as Object, auth As Object)
     screen.content.streamFormat = playerInfo.streamFormat
     screen.content.url = playerInfo.url
 
+    video_service = VideoService()
+
     ' If video source is not available
     if(screen.content.streamFormat = "(null)")
       CloseVideoPlayer()
       CreateVideoUnavailableDialog()
     else
-        ' show loading indicator before requesting ad and playing video
-        m.loadingIndicator.control = "start"
-        m.on_air = screen.content.onAir
+		PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo)
+		playContent = true
 
         m.VideoPlayer = screen.VideoPlayer
         m.VideoPlayer.observeField("position", m.port)
@@ -564,167 +556,71 @@ sub playVideo(screen as Object, auth As Object)
 
         m.videoPlayer.content = screen.content
 
-        if playerInfo.subtitles.count() > 0
-          subtitleTracks = []
+		if(adsEnabled)
+			no_ads = (m.global.swaf and m.global.is_subscribed)
+			ads = video_service.PrepareAds(playerInfo, no_ads)
 
-          for each subtitle in playerInfo.subtitles
-            subtitleTracks.push({
-              TrackName: subtitle.url,
-              Language: subtitle.language
-            })
-          end for
+			if screen.content.onAir = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
 
-          m.videoPlayer.content.subtitleTracks = subtitleTracks
-        else
-          m.videoPlayer.content.subtitleTracks = []
-        end if
+			m.loadingIndicator.control = "stop"
 
-        m.VideoPlayer.seek = m.VideoPlayer.seek
+			' preroll ad
+			if ads.preroll <> invalid
+			  playContent = m.raf_service.playAds(playerInfo.video, ads.preroll.url)
+			end if
+		end if
 
-        if screen.content.onAir = true
-            m.VideoPlayer.content.live = true
-            m.VideoPlayer.content.playStart = 1000000000
-        end if
+		' Start playing video
+		if playContent then
+			m.loadingIndicator.control = "stop"
+			print "[Main] Playing video"
 
-        m.loadingIndicator.control = "stop"
-        print "[Main] Playing video"
+                        ' if live stream, set position at end of stream
+                        ' roku video player does not automatically detect if live stream
+                        if screen.content.onAir = true
+                          m.videoPlayer.content.live = true
+                          m.videoPlayer.content.playStart = 100000000000
+                        end if
 
-        m.videoPlayer.visible = true
-        screen.videoPlayerVisible = true
+			m.videoPlayer.visible = true
+			screen.videoPlayerVisible = true
 
-        if m.LoadingScreen.visible = true
-          EndLoader()
-        end if
+			if m.LoadingScreen.visible = true
+			  EndLoader()
+			end if
 
-        m.videoPlayer.setFocus(true)
-        m.videoPlayer.control = "play"
+			m.currentVideoInfo = playerInfo.video
+
+			m.videoPlayer.setFocus(true)
+			m.videoPlayer.control = "play"
+		else
+		  CloseVideoPlayer()
+		  m.currentVideoInfo = invalid
+		end if ' end of if playContent
     end if
 end sub
 
-sub playVideoWithAds(screen as Object, auth as Object)
-    playerInfo = GetPlayerInfo(screen.content.id, auth)
+sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo)
+	' show loading indicator before requesting ad and playing video
+	m.loadingIndicator.control = "start"
+	m.on_air = screen.content.onAir
 
-    if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
-        print "PlayerInfo.analytics: "; playerInfo.analytics
-        cd = { title: screen.content.title, device: playerInfo.analytics.device, playerId: playerInfo.analytics.playerId, contentLength: screen.content.length }
-        print "Custom Dimensions: "; cd
-        m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
-    end if
+	m.VideoPlayer = screen.VideoPlayer
+	m.VideoPlayer.observeField("position", m.port)
+	m.videoPlayer.content = screen.content
 
-    print "screen.content.streamFormat: "; type(screen.content.streamFormat)
-    screen.content.stream = playerInfo.stream
-    screen.content.streamFormat = playerInfo.streamFormat
-    screen.content.url = playerInfo.url
+  video_service = VideoService()
 
-    ' If video source is not available
-    if(screen.content.streamFormat = "(null)")
-      CloseVideoPlayer()
-      CreateVideoUnavailableDialog()
-    else
-        ' show loading indicator before requesting ad and playing video
-        m.loadingIndicator.control = "start"
-        m.on_air = playerInfo.on_air
+	if subtitleEnabled
+	  m.videoPlayer.content.subtitleTracks = video_service.GetSubtitles(playerInfo)
+	else
+	  m.videoPlayer.content.subtitleTracks = []
+	end if
 
-        if m.VideoPlayer = invalid
-          m.VideoPlayer = screen.findNode("VideoPlayer")
-        end if
-
-        m.VideoPlayer = screen.VideoPlayer
-        m.VideoPlayer.observeField("position", m.port)
-
-        if(screen.content.onAir <> true)
-            m.VideoPlayer.observeField("state", m.port)
-        end if
-
-        m.videoPlayer.content = screen.content
-
-        if playerInfo.subtitles.count() > 0
-          subtitleTracks = []
-
-          for each subtitle in playerInfo.subtitles
-            subtitleTracks.push({
-              TrackName: subtitle.url,
-              Language: subtitle.language
-            })
-          end for
-
-          m.videoPlayer.content.subtitleTracks = subtitleTracks
-        else
-          m.videoPlayer.content.subtitleTracks = []
-        end if
-
-        m.VideoPlayer.seek = m.VideoPlayer.seek
-
-        no_ads = (m.global.swaf and m.global.is_subscribed)
-
-        ' Getting ad timings from video's scheduled ads
-        preroll_ad = invalid
-        m.midroll_ads = []
-        if playerInfo.scheduledAds.count() > 0 and no_ads = false
-          for each ad in playerInfo.scheduledAds
-            if ad.offset = 0
-              preroll_ad = {
-                url: ad.url,
-                offset: ad.offset
-              }
-            else
-              midrollAd = {
-                url: ad.url,
-                offset: ad.offset,
-              }
-              m.midroll_ads.push(midrollAd)
-            end if
-          end for
-        end if
-
-        m.loadingIndicator.control = "stop"
-
-        playContent = true
-
-        ' preroll ad
-        if preroll_ad <> invalid
-          playContent = m.raf_service.playAds(playerInfo.video, preroll_ad.url)
-        end if
-
-		' Used for midroll ad playing
-		m.currentVideoInfo = playerInfo.video
-
-        ' Start playing video
-        if playContent then
-            m.loadingIndicator.control = "stop"
-            print "[Main] Playing video"
-            m.videoPlayer.visible = true
-            screen.videoPlayerVisible = true
-
-            if m.LoadingScreen.visible = true
-              EndLoader()
-            end if
-
-            m.videoPlayer.setFocus(true)
-            m.videoPlayer.control = "play"
-
-			' Moved midroll logic inside "position" event handler
-
-        else
-          CloseVideoPlayer()
-		  m.currentVideo = invalid
-        end if ' end of if playContent
-    end if
+	m.VideoPlayer.seek = m.VideoPlayer.seek
 end sub
 
-sub CloseVideoPlayer()
-  m.detailsScreen.videoPlayer.visible = false
-  m.detailsScreen.videoPlayer.setFocus(false)
-
-  if m.LoadingScreen.visible = true
-    EndLoader()
-  end if
-
-  m.detailsScreen.visible = true
-  m.detailsScreen.setFocus(true)
-end sub
-
-function midrollAdsLogic() as void
+sub handleMidrollAd()
 	currPos = m.videoPlayer.position
 
 	timeDiff = Abs(m.midroll_ads[0].offset - currPos)
@@ -744,7 +640,6 @@ function midrollAdsLogic() as void
 
 	  ' Start playing video at back from currPos just before midroll ad started
 	  m.videoPlayer.seek = currPos
-	'   m.playStartedOnce = true
 	  m.akamai_service.setPlayStartedOnce(true)
 	  m.videoPlayer.control = "play"
 
@@ -757,9 +652,21 @@ function midrollAdsLogic() as void
 	else if m.videoPlayer.visible = false
 	  m.videoPlayer.control = "none"
 	  m.midroll_ads = invalid
-	  m.currentVideo = invalid
+	  m.currentVideoInfo = invalid
 	end if
-end function
+end sub
+
+sub CloseVideoPlayer()
+  m.detailsScreen.videoPlayer.visible = false
+  m.detailsScreen.videoPlayer.setFocus(false)
+
+  if m.LoadingScreen.visible = true
+    EndLoader()
+  end if
+
+  m.detailsScreen.visible = true
+  m.detailsScreen.setFocus(true)
+end sub
 
 sub CreateVideoUnavailableDialog()
   dialog = createObject("roSGNode", "Dialog")
@@ -879,13 +786,13 @@ Function ParseContent(list As Object)
             end for
 
             ' Get the ID element from itemAA and check if the product against that id was subscribed
-            if(isSubscribed(itemAA["subscriptionrequired"]))
-                isSub = "True"
-            else
-                isSub = "False"
-            end if
+            ' if(isSubscribed(itemAA["subscriptionrequired"]))
+            '     isSub = "True"
+            ' else
+            '     isSub = "False"
+            ' end if
 
-            item["id"] = item["id"] + ":" + isSub
+            ' item["id"] = item["id"] + ":" + isSub
 
             row.appendChild(item)
         end for
@@ -929,7 +836,7 @@ Function GetContent()
 End Function
 
 function GetPlaylistContent(playlist_id as String)
-    playlist_id = playlist_id.tokenize(":")[0]
+    ' playlist_id = playlist_id.tokenize(":")[0]
     pl = GetPlaylists({"id": playlist_id})[0]
 
     favs = GetFavoritesIDs()
@@ -966,7 +873,7 @@ function GetPlaylistContent(playlist_id as String)
 end function
 
 function GetContentPlaylists(parent_id as String)
-    parent_id = parent_id.tokenize(":")[0]
+    ' parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
     else
@@ -991,7 +898,7 @@ end function
 function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     m.videosList = []
 
-    parent_id = parent_id.tokenize(":")[0]
+    ' parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
     else
@@ -1166,16 +1073,16 @@ function handleButtonEvents(index, screen)
 
       m.VideoPlayer.seek = 0.00
       RemoveVideoIdForResumeFromReg(screen.content.id)
-      playVideoButton(screen)
+      playRegularVideo(screen)
     else if button_role = "resume"
       resume_time = GetVideoIdForResumeFromReg(screen.content.id)
       RemakeVideoPlayer()
 
       m.VideoPlayer = m.detailsScreen.VideoPlayer
       m.VideoPlayer.seek = resume_time
-    '   m.playStartedOnce = true
+
       m.akamai_service.setPlayStartedOnce(true)
-      playVideoButton(screen)
+      playRegularVideo(screen)
     else if button_role = "favorite"
       markFavoriteButton(screen)
     else if button_role = "subscribe"
@@ -1322,17 +1229,10 @@ Function isLoggedIn()
     return false
 End Function
 
-Function playVideoButton(lclScreen)
-    if lclScreen.content.onAir = false
-        playRegularVideo(lclScreen)
-    else
-        playLiveVideo(lclScreen)
-    end if
-End Function
-
 Function markFavoriteButton(lclScreen)
-    idParts = lclScreen.content.id.tokenize(":")
-    id = idParts[0]
+    ' idParts = lclScreen.content.id.tokenize(":")
+    ' id = idParts[0]
+    id = lclScreen.content.id
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
     'deviceLinking.linked = false
     if HasUDID() = true and deviceLinking.linked = true
