@@ -382,6 +382,7 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   info.scheduledAds = []
   info.subtitles = []
   info.video = {}
+  info.analytics = {}
 
   url = GetApiConfigs().player_endpoint + "embed/" + videoid + "/"
   ' params = AppendAppKeyToParams(urlParams)
@@ -391,10 +392,17 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
 
   if response <> invalid
     response = response.response
+    print "Beacon: "; response.body.analytics.beacon
+    print "Dimensions: "; response.body.analytics.dimensions
     if response.DoesExist("body")
 
       if response.body.DoesExist("on_air")
           info.on_air = response.body.on_air
+      end if
+
+      if(response.body.DoesExist("analytics"))
+          analytics = response.body.analytics
+          info.analytics = { beacon: analytics.beacon, device: analytics.dimensions.device, playerId: analytics.dimensions.player_id, siteId: analytics.dimensions.site_id, videoId: analytics.dimensions.video_id }
       end if
 
       if(response.body.DoesExist("advertising"))

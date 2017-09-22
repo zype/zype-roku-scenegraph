@@ -22,7 +22,7 @@ Function Init()
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
 
-    m.canWatchVideo = false
+    m.top.canWatchVideo = false
     m.buttons.setFocus(true)
 
     ' Set theme
@@ -89,7 +89,7 @@ Sub OnFocusedChildChange()
       m.overlay.uri = m.global.theme.overlay_uri
       m.overlay.visible = true
 
-      if m.canWatchVideo <> invalid and m.canWatchVideo = true
+      if m.top.canWatchVideo <> invalid and m.top.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)
       else
@@ -102,7 +102,7 @@ End Sub
 ' set proper focus on buttons and stops video if return from Playback to details
 Sub onVideoVisibleChange()
     if m.top.videoPlayer.visible = false and m.top.visible = true
-      if m.canWatchVideo <> invalid AND m.canWatchVideo = true
+      if m.top.canWatchVideo <> invalid AND m.top.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)
         m.top.videoPlayer.control = "stop"
@@ -175,9 +175,8 @@ Function PrepareVideoPlayer()
         print "nextVideoObject: "; nextVideoObject
         print "New: "; m.top.content
 
-        if(m.canWatchVideo)
+        if(m.top.canWatchVideo)
             m.top.videoPlayer.visible = true
-            m.top.triggerPlay = true
         else
             m.top.videoPlayer.visible = false
             m.top.videoPlayer.setFocus(false)
@@ -212,17 +211,17 @@ Sub OnContentChange()
         ' idParts = m.top.content.id.tokenize(":")
 
         if(m.top.content.subscriptionRequired = false OR m.global.auth.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
-            m.canWatchVideo = true
+            m.top.canWatchVideo = true
         else
-            m.canWatchVideo = false
+            m.top.canWatchVideo = false
         end if
 
         ' If all else is good and device is linked but there's no subscription found on the server then show native subscription buttons.
         if(m.top.isDeviceLinked = true AND m.global.usvod.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.global.nsvod.isLoggedInViaNativeSVOD = false)
-            m.canWatchVideo = false
+            m.top.canWatchVideo = false
         end if
 
-        if(m.canWatchVideo)
+        if(m.top.canWatchVideo)
             AddButtons()
             m.top.SubscriptionButtonsShown = false
         else

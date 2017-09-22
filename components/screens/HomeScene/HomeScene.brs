@@ -397,7 +397,7 @@ Function OnKeyEvent(key, press) as Boolean
 End Function
 
 Function isSpecialScreen()
-    if (m.detailsScreen.visible = true) OR (m.contentStack.count() > 0 and m.gridScreen.visible = true) OR (m.deviceLinking.visible = true)  
+    if (m.detailsScreen.visible = true) OR (m.contentStack.count() > 0 and m.gridScreen.visible = true) OR (m.deviceLinking.visible = true)
         return true
     else
         return false

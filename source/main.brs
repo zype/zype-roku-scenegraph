@@ -28,6 +28,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen.SetMessagePort(m.port)
     screen.Show()
 
+    m.AKaMAAnalyticsPlugin = AkaMA_plugin()
+    m.akamai_service = AkamaiService()
+
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
     m.loadingIndicator = m.scene.findNode("loadingIndicator")
@@ -260,14 +263,31 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 index = msg.getData()
 
                 handleButtonEvents(index, lclscreen)
+            else if msg.getField() = "state"
+                state = msg.getData()
+                m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
+
+                ' autoplay
+                next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
+                if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
+                    m.detailsScreen.triggerPlay = true
+                end if
+
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
+                m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
                     AddVideoIdForResumeToReg(m.detailsScreen.content.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.detailsScreen.content.id,startDate.asSeconds().ToStr())
                 end if
+
+	            ' If midroll ads exist, watch for midroll ads
+	            if m.midroll_ads <> invalid and m.midroll_ads.count() > 0
+					handleMidrollAd()
+	            end if ' end of midroll ad if statement
+
                 ' if(m.on_air)
                 '   if GetLimitStreamObject() <> invalid
                 '     GetLimitStreamObject().played = GetLimitStreamObject().played + 1
@@ -494,6 +514,25 @@ end sub
 sub playVideo(screen as Object, auth As Object, adsEnabled = false)
     playerInfo = GetPlayerInfo(screen.content.id, auth)
 
+    if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
+        print "PlayerInfo.analytics: "; playerInfo.analytics
+
+		if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
+        if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
+
+        cd = {
+			siteId: playerInfo.analytics.siteid,
+			videoId: playerInfo.analytics.videoid,
+			title: screen.content.title,
+			deviceType: playerInfo.analytics.device,
+			playerId: playerInfo.analytics.playerId,
+			contentLength: screen.content.length,
+			consumerId: consumer_id
+		}
+        print "Custom Dimensions: "; cd
+        m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
+    end if
+
     screen.content.stream = playerInfo.stream
     screen.content.streamFormat = playerInfo.streamFormat
     screen.content.url = playerInfo.url
@@ -508,11 +547,20 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
 		PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo)
 		playContent = true
 
+        m.VideoPlayer = screen.VideoPlayer
+        m.VideoPlayer.observeField("position", m.port)
+
+        if(screen.content.onAir <> true)
+            m.VideoPlayer.observeField("state", m.port)
+        end if
+
+        m.videoPlayer.content = screen.content
+
 		if(adsEnabled)
 			no_ads = (m.global.swaf and m.global.is_subscribed)
 			ads = video_service.PrepareAds(playerInfo, no_ads)
 
-                        if screen.content.onAir = true then ads.midroll = []
+			if screen.content.onAir = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
 
 			m.loadingIndicator.control = "stop"
 
@@ -541,16 +589,13 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
 			  EndLoader()
 			end if
 
+			m.currentVideoInfo = playerInfo.video
+
 			m.videoPlayer.setFocus(true)
 			m.videoPlayer.control = "play"
-
-			sleep(500)
-			' If midroll ads exist, watch for midroll ads
-			if adsEnabled AND ads.midroll.count() > 0
-				AttachMidrollAds(ads.midroll, playerInfo)
-			end if ' end of midroll ad if statement
 		else
 		  CloseVideoPlayer()
+		  m.currentVideoInfo = invalid
 		end if ' end of if playContent
     end if
 end sub
@@ -575,39 +620,40 @@ sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo)
 	m.VideoPlayer.seek = m.VideoPlayer.seek
 end sub
 
-sub AttachMidrollAds(midroll_ads, playerInfo)
-	while midroll_ads.count() > 0
-		currPos = m.videoPlayer.position
+sub handleMidrollAd()
+	currPos = m.videoPlayer.position
 
-		timeDiff = Abs(midroll_ads[0].offset - currPos)
-		print "Next midroll ad: "; midroll_ads[0].offset
-		print "Time until next midroll ad: "; timeDiff
+	timeDiff = Abs(m.midroll_ads[0].offset - currPos)
+	print "Next midroll ad: "; m.midroll_ads[0].offset
+	print "Time until next midroll ad: "; timeDiff
 
-		' Within half second of next midroll ad timing
-		if timeDiff <= 0.500
-		  m.videoPlayer.control = "stop"
+	' Within half second of next midroll ad timing
+	if timeDiff <= 0.500
+	  m.videoPlayer.control = "stop"
 
-		  m.raf_service.playAds(playerInfo.video, midroll_ads[0].url)
+	  finished_ad = m.raf_service.playAds(m.currentVideoInfo, m.midroll_ads[0].url)
 
-		  ' Remove midroll ad from array
-		  midroll_ads.shift()
+	  if finished_ad = false then CloseVideoPlayer()
 
-		  ' Start playing video at back from currPos just before midroll ad started
-		  m.videoPlayer.seek = currPos
-		  m.videoPlayer.control = "play"
+	  ' Remove midroll ad from array
+	  m.midroll_ads.shift()
 
-		' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
-		' Keep removing the first midroll ad in array until no midroll ads before current position
-		else if midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
-		  while midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
-			midroll_ads.shift()
-		  end while
-		else if m.videoPlayer.visible = false
-		  m.videoPlayer.control = "none"
-		  exit while
-		end if
+	  ' Start playing video at back from currPos just before midroll ad started
+	  m.videoPlayer.seek = currPos
+	  m.akamai_service.setPlayStartedOnce(true)
+	  m.videoPlayer.control = "play"
 
-	end while ' end of midroll ad loop
+	' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
+	' Keep removing the first midroll ad in array until no midroll ads before current position
+	else if m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
+	  while m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
+		m.midroll_ads.shift()
+	  end while
+	else if m.videoPlayer.visible = false
+	  m.videoPlayer.control = "none"
+	  m.midroll_ads = invalid
+	  m.currentVideoInfo = invalid
+	end if
 end sub
 
 sub CloseVideoPlayer()
@@ -1034,6 +1080,8 @@ function handleButtonEvents(index, screen)
 
       m.VideoPlayer = m.detailsScreen.VideoPlayer
       m.VideoPlayer.seek = resume_time
+
+      m.akamai_service.setPlayStartedOnce(true)
       playRegularVideo(screen)
     else if button_role = "favorite"
       markFavoriteButton(screen)
