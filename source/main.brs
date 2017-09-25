@@ -508,16 +508,7 @@ sub playRegularVideo(screen as Object)
           auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
         end if
 
-<<<<<<< HEAD
-        print "m.app.avod: "; m.app.avod
-        if m.app.avod = true
-          playVideoWithAds(screen, auth)
-        else
-          playVideo(screen, auth)
-        end if
-=======
         playVideo(screen, auth, m.app.avod)
->>>>>>> origin/master
 end sub
 
 sub playVideo(screen as Object, auth As Object, adsEnabled = false)
