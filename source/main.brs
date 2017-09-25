@@ -21,7 +21,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.global = screen.getGlobalNode()
 
     SetTheme()
-
+    SetVersion()
 
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
@@ -1344,3 +1344,7 @@ Function SetTheme()
     end if
   end if
 End Function
+
+function SetVersion() as void
+    if m.global <> invalid then m.global.addFields({ version: GetApiConfigs().version })
+end function
