@@ -1,3 +1,8 @@
+### 1.5.1 (25/09/2017)
+
+- Integrate Akamai analytics
+- Refactored code
+
 ### 1.5.0 (26/07/2017)
 
 - Lock icons for subscription videos (manual setting in _source/config.json_ file)
