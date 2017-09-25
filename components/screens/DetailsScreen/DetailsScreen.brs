@@ -22,7 +22,7 @@ Function Init()
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
 
-    m.canWatchVideo = false
+    m.top.canWatchVideo = false
     m.buttons.setFocus(true)
 
     ' Set theme
@@ -85,7 +85,11 @@ End Sub
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.top.videoPlayer.hasFocus() then
-      if m.canWatchVideo <> invalid and m.canWatchVideo = true
+      ' Just in case overlay looses visibility when returning from video player. Cause of bug unknown
+      m.overlay.uri = m.global.theme.overlay_uri
+      m.overlay.visible = true
+
+      if m.top.canWatchVideo <> invalid and m.top.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)
       else
@@ -98,7 +102,7 @@ End Sub
 ' set proper focus on buttons and stops video if return from Playback to details
 Sub onVideoVisibleChange()
     if m.top.videoPlayer.visible = false and m.top.visible = true
-      if m.canWatchVideo <> invalid AND m.canWatchVideo = true
+      if m.top.canWatchVideo <> invalid AND m.top.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)
         m.top.videoPlayer.control = "stop"
@@ -129,7 +133,7 @@ Sub OnVideoPlayerStateChange()
         m.top.ResumeVideo = m.top.createChild("ResumeVideo")
         m.top.ResumeVideo.id = "ResumeVideo"
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
-        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id.tokenize(":")[0]  ' Delete video id and time from reg.
+        ' m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id.tokenize(":")[0]  ' Delete video id and time from reg.
 
         if m.top.autoplay = true AND isLastVideoInPlaylist() = false
             m.top.videoPlayer.visible = true
@@ -171,9 +175,8 @@ Function PrepareVideoPlayer()
         print "nextVideoObject: "; nextVideoObject
         print "New: "; m.top.content
 
-        if(m.canWatchVideo)
+        if(m.top.canWatchVideo)
             m.top.videoPlayer.visible = true
-            m.top.triggerPlay = true
         else
             m.top.videoPlayer.visible = false
             m.top.videoPlayer.setFocus(false)
@@ -205,20 +208,20 @@ Sub OnContentChange()
     m.top.SubscriptionPackagesShown = false
 
     if m.top.content<>invalid then
-        idParts = m.top.content.id.tokenize(":")
+        ' idParts = m.top.content.id.tokenize(":")
 
-        if(m.top.content.subscriptionRequired = false OR m.top.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
-            m.canWatchVideo = true
+        if(m.top.content.subscriptionRequired = false OR m.global.auth.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
+            m.top.canWatchVideo = true
         else
-            m.canWatchVideo = false
+            m.top.canWatchVideo = false
         end if
 
         ' If all else is good and device is linked but there's no subscription found on the server then show native subscription buttons.
-        if(m.top.isDeviceLinked = true AND m.top.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.top.isLoggedInViaNativeSVOD = false)
-            m.canWatchVideo = false
+        if(m.top.isDeviceLinked = true AND m.global.usvod.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.global.nsvod.isLoggedInViaNativeSVOD = false)
+            m.top.canWatchVideo = false
         end if
-        print "m.canWatchVideo";m.canWatchVideo
-        if(m.canWatchVideo)
+
+        if(m.top.canWatchVideo)
             AddButtons()
             m.top.SubscriptionButtonsShown = false
         else

@@ -21,7 +21,7 @@
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
 
         <!-- If User is Logged In -->
-        <field id="isLoggedIn" type="bool"  alwaysnotify="true" onChange="OnContentChange"/>
+        <field id="redrawContent" type="bool"  alwaysnotify="true" onChange="OnContentChange"/>
 
         <!-- If User is Logged In via Native SVOD -->
         <field id="isLoggedInViaNativeSVOD" type="bool"/>
@@ -79,6 +79,7 @@
 
         <!-- True value will immediately play the video loaded into the screen -->
         <field id="triggerPlay" type="bool" />
+        <field id="canWatchVideo" type="bool" />
 
         <!-- Gets populated by app configuration returned from zype API -->
         <field id="autoplay" type="bool" />

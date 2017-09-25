@@ -38,7 +38,7 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
 
 #### Installing and testing your new app
 
-3. Once you have received your new app, you will need to sideload the application in order to test it. First you need to enable [Developer Mode on your Roku device](https://github.com/rokudev/docs/blob/master/develop/getting-started/setup-guide.md). There are 2 ways to sideload your app:
+3. Once you have received your new app, you will need to sideload the application in order to test it. First you need to enable [Developer Mode on your Roku device](https://sdkdocs.roku.com/display/sdkdoc/Loading+and+Running+Your+Application#LoadingandRunningYourApplication-EnablingDevelopmentModeonyourbox). There are 2 ways to sideload your app:
   - You can use the Application Installer Page [as explained here ](https://sdkdocs.roku.com/display/sdkdoc/Loading+and+Running+Your+Application#LoadingandRunningYourApplication-ApplicationInstallerPage).
   - You can sideload it from your Terminal by updating the __app.mk__ file. Inside _app.mk_ you should update the __ROKU_DEV_TARGET__ to be your Roku device's IP address and the __DEVPASSWORD__ to be the password you set up when enabling Developer Mode. Once you have saved _app.mk_, you can navigate to your app's folder in the Terminal by entering `cd /path/to/my/app/folder`, then `make install` to sideload your app.
 
@@ -52,17 +52,36 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
 
 #### Submitting to the Roku App Store
 
-5. Once you have thoroughly tested and approve your app, you can start packaging your app. It should be noted that if you are submitting an update to an existing Roku app, you need to update the version numbers in the __manifest__ and the __Makefile__, then re-sideload your app. For more information on how to package your app, [see the documentation here](https://github.com/rokudev/docs/blob/062c73061e7ab6eb3e752a24c8dcae537dc59e53/develop/developer-tools/developer-settings.md#application-packager).
-  - Screenshots are not required for Roku apps, but you can also take screenshots of your app by [following the documentation here](https://github.com/rokudev/docs/blob/062c73061e7ab6eb3e752a24c8dcae537dc59e53/develop/developer-tools/developer-settings.md#screenshot-utility).
+5. Once you have thoroughly tested and approve your app, you can start packaging your app. It should be noted that if you are submitting an update to an existing Roku app, you need to update the version numbers in the __manifest__ and the __Makefile__, then re-sideload your app. For more information on how to package your app, [see the documentation here](https://sdkdocs.roku.com/display/sdkdoc/Packaging+Roku+Channels#PackagingRokuChannels-PackagingusingthePackageUtilities).
+  - Screenshots are not required for Roku apps, but you can also take screenshots of your app by [following the documentation here](https://sdkdocs.roku.com/display/sdkdoc/Developer+Settings#DeveloperSettings-ScreenshotUtility).
 
 ###### Creating Native Subscriptions
 
 6. __(Optional)__ If you are using native subscriptions in your app, please [follow the documentation here](docs/submission/CreatingNativeSubscriptions.md).
 
-7. After you have packaged your app you can start publishing your app by [following this documentation](https://github.com/rokudev/docs/blob/c74f97eee1101584b3113d71723a38e0a04cc35b/publish/channel-store/publishing.md). __There are a few things to note that are not explicitly stated in the documentation linked.__
-  - If you are doing native subscriptions, [remember to create them](https://docs.google.com/document/d/1wJJHF0jZosKGtuSLSo5zk2T9-bPCbvn7HKFXWywya4M/edit?usp=sharing).
-  - Remember to include all relevant testing information when submitting.
-    - [Remember to submit deep linking paramters](docs/submission/DeepLinkingSubmission.md)
-    - If you are using USVOD, remember to include credentials for a test account with a subscription
+###### Publishing your app
+
+7. After you have packaged your app you can start publishing your app by creating a new channel under your Roku developer account.
+
+  - __STEP 1__ - Determine if you are submitting a PUBLIC or PRIVATE app.
+    - PRIVATE
+      - Private apps are created by selecting the "Non-certified" option when first creating the app.
+      - Private/non-certified apps are hidden from the app store and can only by added with the _access code_ which you set when creating your app.
+      - Private apps do not go through Roku's review process and can be published immediately.
+      - __NOTE:__ You can first submit your app as private, then have it converted to a public app later. This is a great way to test the full functionality first before having it undergo Roku review. To convert a private app to a public one, you will need to contact Roku at `partnersuccess@roku.com`
+    - PUBLIC
+      - To create a public app, just select the "public" option when creating your app
+      - To submit a public app you will need to complete the following steps to get approved
+  - __STEP 2__ - Include a test account with access to all content if you are using universal subscriptions
+      - [Creating a test acccount](https://support.zype.com/hc/en-us/articles/115010965107-Creating-a-Consumer)
+      - [Use redemption codes to unlock content for test account. Redemption codes can be used for subscriptions and video/playlist purchases](https://support.zype.com/hc/en-us/articles/218358428-Creating-Redemption-Codes)
+  - __STEP 3__ - Include deep linking parameters
+    - __[ALL PUBLIC APPS must include deep linking parameters when submitting](docs/submission/DeepLinkingSubmission.md)__
+  - __STEP 4__ - __Create native subscriptions if needed. This needs to be done BEFORE CLICKING SUBMIT.__
+    - [How to create native subscriptions in Roku](https://support.zype.com/hc/en-us/articles/115009092407-Creating-Native-Subscription-in-Roku)
+
+  ![Creating a new app](docs/submission/images/publishing1.jpg)
+
+  ![Submitting test information](docs/submission/images/publishing2.jpg)
 
 8. Once submitted Roku will review your app (if it is public) against their submission guidelines. If your app is approved, they will update your app status and you should receive an email notification from Roku informing you that your app is live. You can then search for it on Roku's marketplace under the __Search__ tab.

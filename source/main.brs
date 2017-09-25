@@ -21,12 +21,15 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.global = screen.getGlobalNode()
 
     SetTheme()
-
+    SetVersion()
 
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
     screen.Show()
+
+    m.AKaMAAnalyticsPlugin = AkaMA_plugin()
+    m.akamai_service = AkamaiService()
 
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
@@ -50,28 +53,15 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.playlistsRowItemSizes = []
     m.playlistRowsSpacings = []
 
-    'm.scene.gridContent = ParseContent(GetContent())
     m.contentID = contentID
-
-    m.scene.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
-
-    m.gridScreen = m.scene.findNode("GridScreen")
-
-    rowlist = m.gridScreen.findNode("RowList")
-    rowlist.rowItemSize = m.playlistsRowItemSizes
-    rowlist.rowSpacings = m.playlistRowsSpacings
-
-    ' print "gridContent: "; m.scene.gridContent
-    ' print "m.playlistRows: "; m.playlistRows[0]
 
     getUserPurchases()
     getProductsCatalog()
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
-    m.global.addFields({ HasNativeSubscription: false, isLoggedIn: false, UniversalSubscriptionsCount: 0 })
-    _isLoggedIn = isLoggedIn()
-    m.global.isLoggedIn = _isLoggedIn AND (m.detailsScreen.UniversalSubscriptionsCount > 0 OR m.detailsScreen.isLoggedInViaNativeSVOD = true)
-    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+
+    state_service = StateService(m.global)
+    vars = state_service.InitGlobalVars()
 
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
     m.scene.gridContent = m.gridContent
@@ -97,13 +87,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.favoritesDetailsScreen = m.favorites.findNode("FavoritesDetailsScreen")
     m.favoritesDetailsScreen.observeField("itemSelected", m.port)
 
-    ' m.detailsScreen = m.scene.findNode("DetailsScreen")
     m.detailsScreen.observeField("itemSelected", m.port)
-    'm.detailsScreen.SubscriptionPlans = m.plans
-    'm.detailsScreen.SubscriptionPlans = m.productsCatalog
     m.detailsScreen.productsCatalog = m.productsCatalog
     m.detailsScreen.JustBoughtNativeSubscription = false
-    m.detailsScreen.isLoggedIn = isLoggedIn()
     m.detailsScreen.observeField("triggerPlay", m.port)
     m.detailsScreen.dataArray = m.playlistRows
 
@@ -128,16 +114,25 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.global.addFields({ svod_enabled: svod_enabled })
     m.global.addFields({ is_subscribed: is_subscribed })
 
-    m.favorites.isLoggedIn = isLoggedIn()
-
     deviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked
     m.detailsScreen.isDeviceLinked = deviceLinked
 
-    print "m.detailsScreen.isLoggedIn: "; m.detailsScreen.isLoggedIn
     InitAuthenticationParams()
 
 
     m.scene.observeField("SearchString", m.port)
+
+    m.gridScreen = m.scene.findNode("GridScreen")
+
+    if contentID = invalid
+      ' Keep loader spinning. App not done loading yet
+      m.gridScreen.setFocus(false)
+      m.loadingIndicator.control = "start"
+    end if
+
+    rowlist = m.gridScreen.findNode("RowList")
+    rowlist.rowItemSize = m.playlistsRowItemSizes
+    rowlist.rowSpacings = m.playlistRowsSpacings
 
     m.scene.observeField("playlistItemSelected", m.port)
     m.scene.observeField("TriggerDeviceUnlink", m.port)
@@ -153,7 +148,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()
 
-    'isAuthViaUniversalSVOD()
 
     startDate = CreateObject("roDateTime")
 
@@ -183,12 +177,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             m.scene.DeepLinkedID = contentID
 
             ' Start playing video if logged in or no monetization
-            if isLoggedIn() = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
-              if m.app.avod = true
-                playVideoWithAds(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
-              else
-                playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key})
-              end if
+            if m.global.auth.isLoggedIn = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
+              playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key}, m.app.avod)
             end if
           end if
 
@@ -208,6 +198,14 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       end if
     end if
 
+    if contentID = invalid
+      ' Stop loader and refocus
+      m.gridScreen.setFocus(true)
+      m.loadingIndicator.control = "stop"
+    end if
+
+    print "App done loading"
+
     while(true)
         msg = wait(0, m.port)
         msgType = type(msg)
@@ -225,7 +223,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 content = m.gridScreen.focusedContent
 
                 ' Get Playlist object from the platform
-                playlistObject = GetPlaylists({ id: content.id.tokenize(":")[0] })
+                playlistObject = GetPlaylists({ id: content.id })
                 ' print "playlistObject: "; playlistObject[0]
                 playlistThumbnailLayout = playlistObject[0].thumbnail_layout
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
@@ -265,47 +263,64 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 index = msg.getData()
 
                 handleButtonEvents(index, lclscreen)
+            else if msg.getField() = "state"
+                state = msg.getData()
+                m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
+
+                ' autoplay
+                next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
+                if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
+                    m.detailsScreen.triggerPlay = true
+                end if
+
             else if msg.getField() = "position"
                 ' print m.videoPlayer.position
                 ' print GetLimitStreamObject().limit
+                m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
-                    AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
-                    AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
+                    AddVideoIdForResumeToReg(m.detailsScreen.content.id,m.videoPlayer.position.ToStr())
+                    AddVideoIdTimeSaveForResumeToReg(m.detailsScreen.content.id,startDate.asSeconds().ToStr())
                 end if
-                if(m.on_air)
-                  if GetLimitStreamObject() <> invalid
-                    GetLimitStreamObject().played = GetLimitStreamObject().played + 1
-                    'print  GetLimitStreamObject().played
-                    if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
-                        if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-                            m.videoPlayer.visible = false
-                            m.videoPlayer.control = "stop"
-                            dialog = createObject("roSGNode", "Dialog")
-                            dialog.title = "Limit Reached"
-                            dialog.optionsDialog = true
-                            dialog.message = GetLimitStreamObject().message
-                            m.scene.dialog = dialog
-                        else
-                            oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-                            if oauth <> invalid
-                                id = m.videoPlayer.content.id.tokenize(":")[0]
-                                if IsEntitled(id, {"access_token": oauth.access_token}) = false
-                                    m.videoPlayer.visible = false
-                                    m.videoPlayer.control = "stop"
-                                    dialog = createObject("roSGNode", "Dialog")
-                                    dialog.title = "Limit Reached"
-                                    dialog.optionsDialog = true
-                                    dialog.message = GetLimitStreamObject().message
-                                    m.scene.dialog = dialog
-                                end if
-                            else
-                                print "No OAuth available"
-                            end if
-                        end if
-                    end if
-                  end if
-                end if
+
+	            ' If midroll ads exist, watch for midroll ads
+	            if m.midroll_ads <> invalid and m.midroll_ads.count() > 0
+					handleMidrollAd()
+	            end if ' end of midroll ad if statement
+
+                ' if(m.on_air)
+                '   if GetLimitStreamObject() <> invalid
+                '     GetLimitStreamObject().played = GetLimitStreamObject().played + 1
+                '     'print  GetLimitStreamObject().played
+                '     if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
+                '         if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
+                '             m.videoPlayer.visible = false
+                '             m.videoPlayer.control = "stop"
+                '             dialog = createObject("roSGNode", "Dialog")
+                '             dialog.title = "Limit Reached"
+                '             dialog.optionsDialog = true
+                '             dialog.message = GetLimitStreamObject().message
+                '             m.scene.dialog = dialog
+                '         else
+                '             oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+                '             if oauth <> invalid
+                '                 id = m.videoPlayer.content.id.tokenize(":")[0]
+                '                 if IsEntitled(id, {"access_token": oauth.access_token}) = false
+                '                     m.videoPlayer.visible = false
+                '                     m.videoPlayer.control = "stop"
+                '                     dialog = createObject("roSGNode", "Dialog")
+                '                     dialog.title = "Limit Reached"
+                '                     dialog.optionsDialog = true
+                '                     dialog.message = GetLimitStreamObject().message
+                '                     m.scene.dialog = dialog
+                '                 end if
+                '             else
+                '                 print "No OAuth available"
+                '             end if
+                '         end if
+                '     end if
+                '   end if
+                ' end if
             else if msg.getNode() = "DeviceLinking" and msg.getField() = "show" and msg.GetData() = true then
                 pin = m.deviceLinking.findNode("Pin")
 
@@ -328,14 +343,24 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                                     if consumer.subscription_count > 0 then m.global.is_subscribed = true
 
                                     m.detailsScreen.isDeviceLinked = true
-                                    m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
-                                    m.detailsScreen.isLoggedIn = true
-                                    m.favorites.isLoggedIn = true
+                                    ' m.global.usvod.UniversalSubscriptionsCount = consumer.subscription_count
+
+                                    global_usvod = m.global.usvod
+                                    global_usvod.UniversalSubscriptionsCount = consumer.subscription_count
+                                    m.global.setField("usvod", global_usvod)
+
+                                    global_auth = m.global.auth
+                                    global_auth.isLoggedIn = true
+                                    global_auth.isLoggedInWithSubscription = true
+                                    m.global.setField("auth", global_auth)
+
+                                    m.detailsScreen.redrawContent = true
+                                    ' m.favorites.isLoggedIn = true
                                     m.deviceLinking.isDeviceLinked = true
                                     m.deviceLinking.setUnlinkFocus = true
 
-                                    m.global.isLoggedIn = true
-                                    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+                                    ' m.global.isLoggedIn = true
+                                    ' m.global.usvod.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
                                     m.scene.gridContent = m.gridContent
                                     ' m.deviceLinking.show = true
                                     m.deviceLinking.setFocus(true)
@@ -368,15 +393,26 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                             print "refreshing PIN"
 
                             consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-                            if consumer.linked then
+                            if consumer.linked = true
                                 pin.text = "The device is linked"
 
                                 if consumer.subscription_count > 0 then m.global.is_subscribed = true
 
                                 m.detailsScreen.isDeviceLinked = true
-                                m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
-                                m.detailsScreen.isLoggedIn = true
-                                m.favorites.isLoggedIn = true
+
+                                global_usvod = m.global.usvod
+                                global_usvod.UniversalSubscriptionsCount = consumer.subscription_count
+                                m.global.setField("usvod", global_usvod)
+
+                                global_auth = m.global.auth
+                                global_auth.isLoggedIn = true
+                                global_auth.isLoggedInWithSubscription = true
+                                m.global.setField("auth", global_auth)
+
+                                m.scene.gridContent = m.gridContent
+
+                                m.detailsScreen.redrawContent = true
+                                ' m.favorites.isLoggedIn = true
                                 m.deviceLinking.isDeviceLinked = true
                                 m.deviceLinking.setUnlinkFocus = true
                                 exit while
@@ -409,11 +445,18 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     m.scene.TriggerDeviceUnlink = false
                     m.deviceLinking.isDeviceLinked = false
                     m.detailsScreen.isDeviceLinked = false
-                    m.detailsScreen.isLoggedIn = isLoggedIn()
-                    m.favorites.isLoggedIn = isLoggedIn()
+                    ' m.global.auth.isLoggedIn = isLoggedIn()
 
-                    m.global.isLoggedIn = false
-                    m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
+                    global_auth = m.global.auth
+                    global_auth.isLoggedIn = isLoggedIn()
+                    global_auth.isLoggedInWithSubscription = false
+                    m.global.setField("auth", global_auth)
+
+                    m.detailsScreen.redrawContent = true
+                    ' m.favorites.isLoggedIn = isLoggedIn()
+
+                    ' m.global.isLoggedIn = false
+                    ' m.global.UniversalSubscriptionsCount = m.detailsScreen.UniversalSubscriptionsCount
                     m.scene.gridContent = m.gridContent
                     ' m.deviceLinking.show = true
                     m.deviceLinking.setFocus(true)
@@ -450,232 +493,176 @@ function transitionToNestedPlaylist(id) as void
   m.detailsScreen.videosTree = m.scene.videoliststack.peek()
 end function
 
-sub playLiveVideo(screen as Object)
-    if HasUDID() = false or IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-        playVideo(screen, {"app_key": GetApiConfigs().app_key})
-    else
-        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-        if oauth <> invalid
-
-            if IsEntitled(screen.content.id, {"access_token": oauth.access_token}) = true
-                playVideo(screen, {"access_token": oauth.access_token})
-            else
-                playVideo(screen, {"app_key": GetApiConfigs().app_key})
-            end if
-        else
-            print "No OAuth available"
-        end if
-    end if
-end sub
-
 ' Play button should only appear in the following scenarios:
 '     1- No subscription required for video
 '     2- NSVOD only and user has already purchased a native subscription
 '     3- Both NSVOD and USVOD. User either purchased a native subscription or is linked
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
+    di = CreateObject("roDeviceInfo")
     consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
         if consumer.subscription_count <> invalid and consumer.subscription_count > 0
           oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-          auth = {"access_token": oauth.access_token}
+          auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
         else
-          auth = {"app_key": GetApiConfigs().app_key}
+          auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
         end if
 
+<<<<<<< HEAD
         print "m.app.avod: "; m.app.avod
         if m.app.avod = true
           playVideoWithAds(screen, auth)
         else
           playVideo(screen, auth)
         end if
+=======
+        playVideo(screen, auth, m.app.avod)
+>>>>>>> origin/master
 end sub
 
-sub playVideo(screen as Object, auth As Object)
+sub playVideo(screen as Object, auth As Object, adsEnabled = false)
     playerInfo = GetPlayerInfo(screen.content.id, auth)
+
+    if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
+        print "PlayerInfo.analytics: "; playerInfo.analytics
+
+		if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
+        if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
+
+        cd = {
+			siteId: playerInfo.analytics.siteid,
+			videoId: playerInfo.analytics.videoid,
+			title: screen.content.title,
+			deviceType: playerInfo.analytics.device,
+			playerId: playerInfo.analytics.playerId,
+			contentLength: screen.content.length,
+			consumerId: consumer_id
+		}
+        print "Custom Dimensions: "; cd
+        m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
+    end if
 
     screen.content.stream = playerInfo.stream
     screen.content.streamFormat = playerInfo.streamFormat
     screen.content.url = playerInfo.url
+
+    video_service = VideoService()
 
     ' If video source is not available
     if(screen.content.streamFormat = "(null)")
       CloseVideoPlayer()
       CreateVideoUnavailableDialog()
     else
-        ' show loading indicator before requesting ad and playing video
-        m.loadingIndicator.control = "start"
-        m.on_air = screen.content.onAir
+		PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo)
+		playContent = true
 
         m.VideoPlayer = screen.VideoPlayer
         m.VideoPlayer.observeField("position", m.port)
+
+        if(screen.content.onAir <> true)
+            m.VideoPlayer.observeField("state", m.port)
+        end if
+
         m.videoPlayer.content = screen.content
 
-        if playerInfo.subtitles.count() > 0
-          subtitleTracks = []
+		if(adsEnabled)
+			no_ads = (m.global.swaf and m.global.is_subscribed)
+			ads = video_service.PrepareAds(playerInfo, no_ads)
 
-          for each subtitle in playerInfo.subtitles
-            subtitleTracks.push({
-              TrackName: subtitle.url,
-              Language: subtitle.language
-            })
-          end for
+			if screen.content.onAir = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
 
-          m.videoPlayer.content.subtitleTracks = subtitleTracks
-        else
-          m.videoPlayer.content.subtitleTracks = []
-        end if
+			m.loadingIndicator.control = "stop"
 
-        m.VideoPlayer.seek = m.VideoPlayer.seek
+			' preroll ad
+			if ads.preroll <> invalid
+			  playContent = m.raf_service.playAds(playerInfo.video, ads.preroll.url)
+			end if
+		end if
 
-        if screen.content.onAir = true
-            m.VideoPlayer.content.live = true
-            m.VideoPlayer.content.playStart = 1000000000
-        end if
+		' Start playing video
+		if playContent then
+			m.loadingIndicator.control = "stop"
+			print "[Main] Playing video"
 
-        m.loadingIndicator.control = "stop"
-        print "[Main] Playing video"
+                        ' if live stream, set position at end of stream
+                        ' roku video player does not automatically detect if live stream
+                        if screen.content.onAir = true
+                          m.videoPlayer.content.live = true
+                          m.videoPlayer.content.playStart = 100000000000
+                        end if
 
-        m.videoPlayer.visible = true
-        screen.videoPlayerVisible = true
+			m.videoPlayer.visible = true
+			screen.videoPlayerVisible = true
 
-        if m.LoadingScreen.visible = true
-          EndLoader()
-        end if
+			if m.LoadingScreen.visible = true
+			  EndLoader()
+			end if
 
-        m.videoPlayer.setFocus(true)
-        m.videoPlayer.control = "play"
+			m.currentVideoInfo = playerInfo.video
+
+			m.videoPlayer.setFocus(true)
+			m.videoPlayer.control = "play"
+		else
+		  CloseVideoPlayer()
+		  m.currentVideoInfo = invalid
+		end if ' end of if playContent
     end if
 end sub
 
-sub playVideoWithAds(screen as Object, auth as Object)
-    playerInfo = GetPlayerInfo(screen.content.id, auth)
+sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo)
+	' show loading indicator before requesting ad and playing video
+	m.loadingIndicator.control = "start"
+	m.on_air = screen.content.onAir
 
-    print "screen.content.streamFormat: "; type(screen.content.streamFormat)
-    screen.content.stream = playerInfo.stream
-    screen.content.streamFormat = playerInfo.streamFormat
-    screen.content.url = playerInfo.url
+	m.VideoPlayer = screen.VideoPlayer
+	m.VideoPlayer.observeField("position", m.port)
+	m.videoPlayer.content = screen.content
 
-    ' If video source is not available
-    if(screen.content.streamFormat = "(null)")
-      CloseVideoPlayer()
-      CreateVideoUnavailableDialog()
-    else
-        ' show loading indicator before requesting ad and playing video
-        m.loadingIndicator.control = "start"
-        m.on_air = playerInfo.on_air
+  video_service = VideoService()
 
-        if m.VideoPlayer = invalid
-          m.VideoPlayer = screen.findNode("VideoPlayer")
-        end if
+	if subtitleEnabled
+	  m.videoPlayer.content.subtitleTracks = video_service.GetSubtitles(playerInfo)
+	else
+	  m.videoPlayer.content.subtitleTracks = []
+	end if
 
-        m.VideoPlayer = screen.VideoPlayer
-        m.VideoPlayer.observeField("position", m.port)
-        m.videoPlayer.content = screen.content
+	m.VideoPlayer.seek = m.VideoPlayer.seek
+end sub
 
-        if playerInfo.subtitles.count() > 0
-          subtitleTracks = []
+sub handleMidrollAd()
+	currPos = m.videoPlayer.position
 
-          for each subtitle in playerInfo.subtitles
-            subtitleTracks.push({
-              TrackName: subtitle.url,
-              Language: subtitle.language
-            })
-          end for
+	timeDiff = Abs(m.midroll_ads[0].offset - currPos)
+	print "Next midroll ad: "; m.midroll_ads[0].offset
+	print "Time until next midroll ad: "; timeDiff
 
-          m.videoPlayer.content.subtitleTracks = subtitleTracks
-        else
-          m.videoPlayer.content.subtitleTracks = []
-        end if
+	' Within half second of next midroll ad timing
+	if timeDiff <= 0.500
+	  m.videoPlayer.control = "stop"
 
-        m.VideoPlayer.seek = m.VideoPlayer.seek
+	  finished_ad = m.raf_service.playAds(m.currentVideoInfo, m.midroll_ads[0].url)
 
-        no_ads = (m.global.swaf and m.global.is_subscribed)
+	  if finished_ad = false then CloseVideoPlayer()
 
-        ' Getting ad timings from video's scheduled ads
-        preroll_ad = invalid
-        midroll_ads = []
-        if playerInfo.scheduledAds.count() > 0 and no_ads = false
-          for each ad in playerInfo.scheduledAds
-            if ad.offset = 0
-              preroll_ad = {
-                url: ad.url,
-                offset: ad.offset
-              }
-            else
-              midrollAd = {
-                url: ad.url,
-                offset: ad.offset,
-              }
-              midroll_ads.push(midrollAd)
-            end if
-          end for
-        end if
+	  ' Remove midroll ad from array
+	  m.midroll_ads.shift()
 
-        m.loadingIndicator.control = "stop"
+	  ' Start playing video at back from currPos just before midroll ad started
+	  m.videoPlayer.seek = currPos
+	  m.akamai_service.setPlayStartedOnce(true)
+	  m.videoPlayer.control = "play"
 
-        playContent = true
-
-        ' preroll ad
-        if preroll_ad <> invalid
-          playContent = m.raf_service.playAds(playerInfo.video, preroll_ad.url)
-        end if
-
-        ' Start playing video
-        if playContent then
-            m.loadingIndicator.control = "stop"
-            print "[Main] Playing video"
-            m.videoPlayer.visible = true
-            screen.videoPlayerVisible = true
-
-            if m.LoadingScreen.visible = true
-              EndLoader()
-            end if
-
-            m.videoPlayer.setFocus(true)
-            m.videoPlayer.control = "play"
-
-            sleep(500)
-            ' If midroll ads exist, watch for midroll ads
-            if midroll_ads.count() > 0
-              while midroll_ads.count() > 0
-                currPos = m.videoPlayer.position
-
-                timeDiff = Abs(midroll_ads[0].offset - currPos)
-                print "Next midroll ad: "; midroll_ads[0].offset
-                print "Time until next midroll ad: "; timeDiff
-
-                ' Within half second of next midroll ad timing
-                if timeDiff <= 0.500
-                  m.videoPlayer.control = "stop"
-
-                  m.raf_service.playAds(playerInfo.video, midroll_ads[0].url)
-
-                  ' Remove midroll ad from array
-                  midroll_ads.shift()
-
-                  ' Start playing video at back from currPos just before midroll ad started
-                  m.videoPlayer.seek = currPos
-                  m.videoPlayer.control = "play"
-
-                ' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
-                ' Keep removing the first midroll ad in array until no midroll ads before current position
-                else if midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
-                  while midroll_ads.count() > 0 and currPos > midroll_ads[0].offset
-                    midroll_ads.shift()
-                  end while
-                else if m.videoPlayer.visible = false
-                  m.videoPlayer.control = "none"
-                  exit while
-                end if
-
-              end while ' end of midroll ad loop
-
-            end if ' end of midroll ad if statement
-
-        else
-          CloseVideoPlayer()
-        end if ' end of if playContent
-    end if
+	' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
+	' Keep removing the first midroll ad in array until no midroll ads before current position
+	else if m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
+	  while m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
+		m.midroll_ads.shift()
+	  end while
+	else if m.videoPlayer.visible = false
+	  m.videoPlayer.control = "none"
+	  m.midroll_ads = invalid
+	  m.currentVideoInfo = invalid
+	end if
 end sub
 
 sub CloseVideoPlayer()
@@ -808,13 +795,13 @@ Function ParseContent(list As Object)
             end for
 
             ' Get the ID element from itemAA and check if the product against that id was subscribed
-            if(isSubscribed(itemAA["subscriptionrequired"]))
-                isSub = "True"
-            else
-                isSub = "False"
-            end if
+            ' if(isSubscribed(itemAA["subscriptionrequired"]))
+            '     isSub = "True"
+            ' else
+            '     isSub = "False"
+            ' end if
 
-            item["id"] = item["id"] + ":" + isSub
+            ' item["id"] = item["id"] + ":" + isSub
 
             row.appendChild(item)
         end for
@@ -858,7 +845,7 @@ Function GetContent()
 End Function
 
 function GetPlaylistContent(playlist_id as String)
-    playlist_id = playlist_id.tokenize(":")[0]
+    ' playlist_id = playlist_id.tokenize(":")[0]
     pl = GetPlaylists({"id": playlist_id})[0]
 
     favs = GetFavoritesIDs()
@@ -895,7 +882,7 @@ function GetPlaylistContent(playlist_id as String)
 end function
 
 function GetContentPlaylists(parent_id as String)
-    parent_id = parent_id.tokenize(":")[0]
+    ' parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
     else
@@ -917,10 +904,10 @@ function GetContentPlaylists(parent_id as String)
     return list
 end function
 
-function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = false)
+function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     m.videosList = []
 
-    parent_id = parent_id.tokenize(":")[0]
+    ' parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
     else
@@ -1095,26 +1082,36 @@ function handleButtonEvents(index, screen)
 
       m.VideoPlayer.seek = 0.00
       RemoveVideoIdForResumeFromReg(screen.content.id)
-      playVideoButton(screen)
+      playRegularVideo(screen)
     else if button_role = "resume"
       resume_time = GetVideoIdForResumeFromReg(screen.content.id)
       RemakeVideoPlayer()
 
       m.VideoPlayer = m.detailsScreen.VideoPlayer
       m.VideoPlayer.seek = resume_time
-      playVideoButton(screen)
+
+      m.akamai_service.setPlayStartedOnce(true)
+      playRegularVideo(screen)
     else if button_role = "favorite"
       markFavoriteButton(screen)
     else if button_role = "subscribe"
       consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
       if m.app.device_linking and consumer.linked and consumer.subscription_count > 0
-          m.detailsScreen.DontShowSubscriptionPackages = true
-          m.detailsScreen.isDeviceLinked = true
-          m.detailsScreen.UniversalSubscriptionsCount = consumer.subscription_count
-          m.detailsScreen.isLoggedIn = true
-          m.favorites.isLoggedIn = true
+        print "role subscribe if"
+        m.detailsScreen.DontShowSubscriptionPackages = true
+        m.detailsScreen.isDeviceLinked = true
+
+        global_usvod = m.global.usvod
+        global_usvod.UniversalSubscriptionsCount = consumer.subscription_count
+        m.global.setField("usvod", global_usvod)
+
+        global_auth = m.global.auth
+        global_auth.isLoggedIn = true
+        m.global.setField("auth", global_auth)
+
       else
-          m.detailsScreen.ShowSubscriptionPackagesCallback = true
+        print "role subscribe else"
+        m.detailsScreen.ShowSubscriptionPackagesCallback = true
       end if
 
     else if button_role = "swaf"
@@ -1126,16 +1123,30 @@ function handleButtonEvents(index, screen)
       EndLoader()
 
        if(result = true)
-          m.global.is_subscribed = true
+            print "m.global: "; m.global
+            print "m.global.auth1: "; m.global.auth
+            m.global.is_subscribed = true
+            '   m.global.auth.isLoggedIn = true
+            global_auth = m.global.auth
+            global_auth.isLoggedIn = true
+            global_auth.isLoggedInWithSubscription = true
+            m.global.setField("auth", global_auth)
 
-          m.detailsScreen.JustBoughtNativeSubscription = true
-          m.detailsScreen.isLoggedIn = true
-          m.favorites.isLoggedIn = true
-          m.global.isLoggedIn = true
-          m.global.HasNativeSubscription = true
-          m.scene.gridContent = m.gridContent
-          m.detailsScreen.setFocus(true)
-          m.detailsScreen.ReFocusButtons = true
+            global_nsvod = m.global.nsvod
+            global_nsvod.HasNativeSubscription = true
+            m.global.setField("nsvod", global_nsvod)
+            ' m.global.nsvod.HasNativeSubscription = true
+            print "m.global: "; m.global
+            print "m.global.auth2: "; m.global.auth
+
+
+            m.detailsScreen.JustBoughtNativeSubscription = true
+            m.detailsScreen.redrawContent = true
+            ' m.favorites.isLoggedIn = true
+            m.scene.gridContent = m.gridContent
+            m.detailsScreen.setFocus(true)
+            m.detailsScreen.ReFocusButtons = true
+            print "m.global.auth3: "; m.global.auth
        end if
     else if button_role = "device_linking"
       m.deviceLinking.show = true
@@ -1193,14 +1204,33 @@ Function isLoggedIn()
     end if
 
     if(isAuthViaNativeSVOD())
-        m.detailsScreen.isLoggedInViaNativeSVOD = true
-        m.detailsScreen.isLoggedInViaUniversalSVOD = false
-        m.global.HasNativeSubscription = true
+        m.global.nsvod.isLoggedInViaNativeSVOD = true
+        ' m.global.usvod.isLoggedInViaUniversalSVOD = false
+
+        global_nsvod = m.global.nsvod
+        global_nsvod.isLoggedInViaNativeSVOD = true
+        global_nsvod.HasNativeSubscription = true
+        m.global.setField("nsvod", global_nsvod)
+
+        global_usvod = m.global.usvod
+        global_usvod.isLoggedInViaUniversalSVOD = false
+        m.global.setField("usvod", global_usvod)
+
+        ' m.global.nsvod.HasNativeSubscription = true
         ' print "isAuthViaNativeSVOD"
         return true
     else if (isAuthViaUniversalSVOD())
-        m.detailsScreen.isLoggedInViaNativeSVOD = false
-        m.detailsScreen.isLoggedInViaUniversalSVOD = true
+        ' m.global.nsvod.isLoggedInViaNativeSVOD = false
+        ' m.global.usvod.isLoggedInViaUniversalSVOD = true
+
+        global_nsvod = m.global.nsvod
+        global_nsvod.isLoggedInViaNativeSVOD = false
+        m.global.setField("nsvod", global_nsvod)
+
+        global_usvod = m.global.usvod
+        global_usvod.isLoggedInViaUniversalSVOD = true
+        m.global.setField("usvod", global_usvod)
+
         ' print "isAuthViaUniversalSVOD"
         return true
     end if
@@ -1208,17 +1238,10 @@ Function isLoggedIn()
     return false
 End Function
 
-Function playVideoButton(lclScreen)
-    if lclScreen.content.onAir = false
-        playRegularVideo(lclScreen)
-    else
-        playLiveVideo(lclScreen)
-    end if
-End Function
-
 Function markFavoriteButton(lclScreen)
-    idParts = lclScreen.content.id.tokenize(":")
-    id = idParts[0]
+    ' idParts = lclScreen.content.id.tokenize(":")
+    ' id = idParts[0]
+    id = lclScreen.content.id
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
     'deviceLinking.linked = false
     if HasUDID() = true and deviceLinking.linked = true
@@ -1273,7 +1296,14 @@ Function isAuthViaUniversalSVOD()
     end if
 
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    m.detailsScreen.UniversalSubscriptionsCount = deviceLinking.subscription_count
+    ' m.detailsScreen.UniversalSubscriptionsCount = deviceLinking.subscription_count
+    print "m.global: "; m.global
+    ' m.global.usvod.UniversalSubscriptionsCount = deviceLinking.subscription_count
+
+    global_usvod = m.global.usvod
+    global_usvod.UniversalSubscriptionsCount = deviceLinking.subscription_count
+    m.global.setField("usvod", global_usvod)
+
     if(deviceLinking.linked = false)
         return false
     end if
@@ -1323,3 +1353,7 @@ Function SetTheme()
     end if
   end if
 End Function
+
+function SetVersion() as void
+    if m.global <> invalid then m.global.addFields({ version: GetApiConfigs().version })
+end function
