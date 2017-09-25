@@ -63,13 +63,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.playlistsRowItemSizes = []
     m.playlistRowsSpacings = []
 
+
+    m.contentID = contentID
     ' Start loader if deep linked
-    if contentID <> invalid
+    if m.contentID <> invalid
       m.loadingIndicator.control = "stop"
       StartLoader()
     end if
-
-    m.contentID = contentID
 
     getUserPurchases()
     getProductsCatalog()
@@ -86,7 +86,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.scene.gridContent = m.gridContent
 
-    if contentID = invalid
+    if m.contentID = invalid
       ' Keep loader spinning. App not done loading yet
       m.gridScreen.setFocus(false)
       m.loadingIndicator.control = "start"
@@ -163,12 +163,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     startDate = CreateObject("roDateTime")
 
     ' Deep Linking
-    if (contentID <> invalid)
+    if (m.contentID <> invalid)
         if mediaType <> "season" and mediaType <> "series"
           ' Get video object and create VideoNode
-          linkedVideo = GetVideo(contentID)
+          linkedVideo = GetVideo(m.contentID)
 
-          ' If contentID is for active video
+          ' If m.contentID is for active video
           if linkedVideo.DoesExist("_id") and linkedVideo.active = true
             linkedVideoObject =  CreateVideoObject(linkedVideo)
             linkedVideoNode = createObject("roSGNode", "VideoNode")
@@ -185,16 +185,17 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             m.detailsScreen.visible = "true"
 
             ' Trigger listener to push detailsScreen into HomeScene screenStack
-            m.scene.DeepLinkedID = contentID
+            m.scene.DeepLinkedID = m.contentID
 
             ' Start playing video if logged in or no monetization
             if m.global.auth.isLoggedIn = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
-              playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key}, m.app.avod)
+                m.akamai_service.setPlayStartedOnce(true)
+                playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key}, m.app.avod)
             end if
           end if
 
         else if mediaType = "season" or mediaType = "series"
-          transitionToNestedPlaylist(contentID)
+          transitionToNestedPlaylist(m.contentID)
         end if
 
 
@@ -209,7 +210,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       end if
     end if
 
-    if contentID = invalid
+    if m.contentID = invalid
       ' Stop loader and refocus
       m.gridScreen.setFocus(true)
       m.loadingIndicator.control = "stop"
@@ -229,6 +230,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
               RemakeVideoPlayer()
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
+              m.akamai_service.setPlayStartedOnce(true)
               playRegularVideo(m.detailsScreen)
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
@@ -302,45 +304,26 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               else
                 if m.global.auth.isLoggedIn then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
               end if
+            else if msg.getField() = "state"
+                state = msg.getData()
+                m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
 
+                ' autoplay
+                next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
+                if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
+                  m.detailsScreen.triggerPlay = true
+                end if
             else if msg.getField() = "position"
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
                     AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
                 end if
-                ' if(m.on_air)
-                '   if GetLimitStreamObject() <> invalid
-                '     GetLimitStreamObject().played = GetLimitStreamObject().played + 1
-                '     if IsPassedLimit(GetLimitStreamObject().played, GetLimitStreamObject().limit)
-                '         if IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"}).linked = false
-                '             m.videoPlayer.visible = false
-                '             m.videoPlayer.control = "stop"
-                '             dialog = createObject("roSGNode", "Dialog")
-                '             dialog.title = "Limit Reached"
-                '             dialog.optionsDialog = true
-                '             dialog.message = GetLimitStreamObject().message
-                '             m.scene.dialog = dialog
-                '         else
-                '             oauth = GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-                '             if oauth <> invalid
-                '                 id = m.videoPlayer.content.id.tokenize(":")[0]
-                '                 if IsEntitled(id, {"access_token": oauth.access_token}) = false
-                '                     m.videoPlayer.visible = false
-                '                     m.videoPlayer.control = "stop"
-                '                     dialog = createObject("roSGNode", "Dialog")
-                '                     dialog.title = "Limit Reached"
-                '                     dialog.optionsDialog = true
-                '                     dialog.message = GetLimitStreamObject().message
-                '                     m.scene.dialog = dialog
-                '                 end if
-                '             else
-                '                 print "No OAuth available"
-                '             end if
-                '         end if
-                '     end if
-                '   end if
-                ' end if
+
+	            ' If midroll ads exist, watch for midroll ads
+	            if m.midroll_ads <> invalid and m.midroll_ads.count() > 0
+                    handleMidrollAd()
+	            end if ' end of midroll ad if statement
             else if msg.getNode() = "DeviceLinking" and msg.getField() = "show" and msg.GetData() = true then
                 m.scene.transitionTo = "DeviceLinking"
                 goIntoDeviceLinkingFlow()
@@ -419,7 +402,7 @@ function goIntoDeviceLinkingFlow() as void
               m.detailsScreen.content = m.detailsScreen.content
 
               ' Deep linked
-              if contentID <> invalid
+              if m.contentID <> invalid
                   di = CreateObject("roDeviceInfo")
                   ip_address = di.GetConnectionInfo().ip
                   url = "http://" + ip_address + ":8060/keydown/back"
@@ -462,15 +445,16 @@ end function
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
     di = CreateObject("roDeviceInfo")
-    consumer = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-        if consumer.subscription_count <> invalid and consumer.subscription_count > 0
-          oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-          auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
-        else
-          auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
-        end if
+    consumer = m.current_user.getInfo()
 
-        playVideo(screen, auth, m.app.avod)
+    if consumer._id <> invalid and consumer._id <> "" and consumer.subscription_count > 0
+        oauth = m.current_user.getOAuth()
+        auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
+    else
+        auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
+    end if
+
+    playVideo(screen, auth, m.app.avod)
 end sub
 
 sub playVideo(screen as Object, auth As Object, adsEnabled = false)
