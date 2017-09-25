@@ -31,3 +31,18 @@ end function
 function IsPassedLimit(position as Integer, limit as Integer) as Boolean
     return position >= limit
 end function
+
+function readManifest()
+  result = {}
+  
+  raw = ReadASCIIFile("pkg:/manifest")
+  lines = raw.Tokenize(Chr(10))
+  for each line in lines
+    bits = line.Tokenize("=")
+    if bits.Count() > 1
+      result.AddReplace(bits[0], bits[1])
+    end if
+  next
+  
+  return result
+end function
