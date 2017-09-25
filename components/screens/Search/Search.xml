@@ -9,7 +9,7 @@
     <interface>
 
         <!-- Grid searched Content Node -->
-        <field id="content" type="node" alias="Grid.content" onChange="OnContentChange"/>
+        <field id="content" type="node" alias="Grid.content" />
 
         <!-- Row item selection handler -->
         <field id="rowItemSelected" type="intarray" alwaysnotify="true" alias="Grid.rowItemSelected"/>

@@ -51,6 +51,7 @@
 
         <!-- True value will immediately play the video loaded into the screen -->
         <field id="triggerPlay" type="bool" />
+        <field id="canWatchVideo" type="bool" />
 
         <!-- Gets populated by app configuration returned from zype API -->
         <field id="autoplay" type="bool" />
@@ -174,6 +175,6 @@
                uri="pkg:/images/options.png"/>
            </Group>
         </Group>
-        
+
     </children>
 </component>

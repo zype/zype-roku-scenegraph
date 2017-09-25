@@ -11,6 +11,10 @@ Function Init()
 
     m.info = m.top.findNode("Info")
     m.info.color = m.global.theme.primary_text_color
+
+    m.version = m.top.findNode("Version")
+    m.version.color = m.global.theme.primary_text_color
+    m.version.text = "v" + m.global.version
 End Function
 
 ' Content change handler

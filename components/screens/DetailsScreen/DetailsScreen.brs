@@ -24,7 +24,7 @@ Function Init()
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
 
-    m.canWatchVideo = false
+    m.top.canWatchVideo = false
     m.buttons.setFocus(true)
 
     ' Set theme
@@ -87,7 +87,11 @@ End Sub
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.top.videoPlayer.hasFocus() then
-      if m.canWatchVideo <> invalid and m.canWatchVideo = true
+      ' Just in case overlay loses visibility when returning from video player. Cause of bug unknown
+      m.overlay.uri = m.global.theme.overlay_uri
+      m.overlay.visible = true
+
+      if m.top.canWatchVideo <> invalid and m.top.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)
       else
@@ -100,7 +104,7 @@ End Sub
 ' set proper focus on buttons and stops video if return from Playback to details
 Sub onVideoVisibleChange()
     if m.top.videoPlayer.visible = false and m.top.visible = true
-      if m.canWatchVideo <> invalid AND m.canWatchVideo = true
+      if m.top.canWatchVideo <> invalid AND m.top.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)
         m.top.videoPlayer.control = "stop"
@@ -131,7 +135,6 @@ Sub OnVideoPlayerStateChange()
         m.top.ResumeVideo = m.top.createChild("ResumeVideo")
         m.top.ResumeVideo.id = "ResumeVideo"
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
-        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id.tokenize(":")[0]  ' Delete video id and time from reg.
 
         if m.top.autoplay = true AND isLastVideoInPlaylist() = false
             m.top.videoPlayer.visible = true
@@ -173,9 +176,8 @@ Function PrepareVideoPlayer()
         print "nextVideoObject: "; nextVideoObject
         print "New: "; m.top.content
 
-        if(m.canWatchVideo)
+        if(m.top.canWatchVideo)
             m.top.videoPlayer.visible = true
-            m.top.triggerPlay = true
         else
             m.top.videoPlayer.visible = false
             m.top.videoPlayer.setFocus(false)
@@ -208,7 +210,7 @@ Sub OnContentChange()
     m.top.SubscriptionPackagesShown = false
 
     if m.top.content<>invalid then
-        idParts = m.top.content.id.tokenize(":")
+        ' idParts = m.top.content.id.tokenize(":")
 
         is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
         svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
@@ -216,11 +218,11 @@ Sub OnContentChange()
         no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
 
         if no_sub_needed or (svod_enabled and is_subscribed)
-          m.canWatchVideo = true
+          m.top.canWatchVideo = true
           AddButtons()
           m.top.SubscriptionButtonsShown = false
         else
-          m.canWatchVideo = false
+          m.top.canWatchVideo = false
           AddActionButtons()
           m.top.SubscriptionButtonsShown = true
         end if
@@ -311,23 +313,6 @@ Sub AddActionButtons()
         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
-
-'   Shouldn't be needed as details screen no longer handles showing the plans (AuthSelection)
-' Sub AddPackagesButtons()
-'     if m.top.content <> invalid then
-'         ' create buttons
-'         btns = []
-'         'for each plan in m.top.SubscriptionPlans
-'         for each plan in m.top.ProductsCatalog
-'            btns.push({
-'             title: plan["title"] + " at " + plan["cost"],
-'             role: "native_sub"
-'           })
-'         end for
-'
-'         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
-'     end if
-' End Sub
 
 Function getStatusOfVideo() as boolean
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")

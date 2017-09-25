@@ -7,7 +7,7 @@
   "player_endpoint": "https://player.zype.com/",
   "oauth_endpoint": "https://login.zype.com/",
   "bifrost_endpoint": "<BIFROST_ENDPOINT>",
-  "version": "1",
+  "version": "1.5.1",
   "theme": "dark",
   "brand_color": "#ffffff",
   "git_description" : "<GIT_DESCRIPTION>",
