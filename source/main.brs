@@ -302,7 +302,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               if already_purchased
                 CreateDialog(m.scene, "Already purchased", already_purchased_message, ["Close"])
               else
-                if m.global.auth.isLoggedIn then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
+                if m.global.auth.isLoggedIn or m.global.native_to_universal = false then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
               end if
             else if msg.getField() = "state"
                 state = msg.getData()
@@ -503,7 +503,8 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
         m.videoPlayer.content = screen.content
 
 		if(adsEnabled)
-			no_ads = (m.global.swaf and m.global.is_subscribed)
+      is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
+			no_ads = (m.global.swaf and is_subscribed)
 			ads = video_service.PrepareAds(playerInfo, no_ads)
 
 			if screen.content.onAir = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
@@ -1227,39 +1228,64 @@ function handleNativeToUniversal() as void
   purchase_subscription = m.roku_store_service.makePurchase(order)
 
   if purchase_subscription.success
+      m.auth_state_service.incrementNativeSubCount()
+      StartLoader()
 
-    ' Store email used for purchase. For sync subscription later
-    m.native_email_storage.DeleteEmail()
-    m.native_email_storage.WriteEmail(user_info.email)
+      if m.global.native_to_universal = true
+        ' Store email used for purchase. For sync subscription later
+        m.native_email_storage.DeleteEmail()
+        m.native_email_storage.WriteEmail(user_info.email)
 
-    StartLoader()
+        ' Get recent purchase
+        recent_purchase = purchase_subscription.receipt
 
-    m.auth_state_service.incrementNativeSubCount()
+        third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
 
-    ' Get recent purchase
-    recent_purchase = purchase_subscription.receipt
+        bifrost_params = {
+          app_key: GetApiConfigs().app_key,
+          consumer_id: user_info._id,
+          third_party_id: third_party_id,
+          roku_api_key: GetApiConfigs().roku_api_key,
+          transaction_id: UCase(recent_purchase.purchaseId),
+          device_type: "roku"
+        }
 
-    third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
+        ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
+        native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
 
-    bifrost_params = {
-      app_key: GetApiConfigs().app_key,
-      consumer_id: user_info._id,
-      third_party_id: third_party_id,
-      roku_api_key: GetApiConfigs().roku_api_key,
-      transaction_id: UCase(recent_purchase.purchaseId),
-      device_type: "roku"
-    }
+        if native_sub_status <> invalid and native_sub_status.is_valid <> invalid and native_sub_status.is_valid
+            user_info = m.current_user.getInfo()
 
-    ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
-    native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
+            ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
+            if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+            m.auth_state_service.updateAuthWithUserInfo(user_info)
 
-    if native_sub_status <> invalid and native_sub_status.is_valid <> invalid and native_sub_status.is_valid
-        user_info = m.current_user.getInfo()
+            current_native_plan = m.roku_store_service.latestNativeSubscriptionPurchase()
+            m.auth_state_service.setCurrentNativePlan(current_native_plan)
 
-        ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
-        if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
-        m.auth_state_service.updateAuthWithUserInfo(user_info)
+            ' Refresh lock icons with grid screen content callback
+            m.scene.gridContent = m.gridContent
 
+            m.scene.goBackToNonAuth = true
+
+            ' details screen should update self
+            m.detailsScreen.content = m.detailsScreen.content
+
+            EndLoader()
+
+            sleep(500)
+            CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
+
+        ' Bifrost verification failed
+        else
+            EndLoader()
+            sleep(500)
+            CreateDialog(m.scene, "Error", "Could not verify your purchase with Roku. You can cancel your subscription on the Roku website.", ["Close"])
+        end if ' native_sub_status.valid
+
+      ' regular nsvod
+      else
+        EndLoader()
         current_native_plan = m.roku_store_service.latestNativeSubscriptionPurchase()
         m.auth_state_service.setCurrentNativePlan(current_native_plan)
 
@@ -1271,19 +1297,13 @@ function handleNativeToUniversal() as void
         ' details screen should update self
         m.detailsScreen.content = m.detailsScreen.content
 
-        EndLoader()
-
         sleep(500)
-        CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
-
-    else
-        EndLoader()
-        sleep(500)
-        CreateDialog(m.scene, "Error", "Could not verify your purchase with Roku. You can cancel your subscription on the Roku website.", ["Close"])
-    end if ' native_sub_status.valid
+        CreateDialog(m.scene, "Success", "Thank you for purchasing the subscription.", ["Dismiss"])
+      end if ' end if global.native_to_universal
 
   ' User cancelled purchase or error from Roku store
   else
+    m.AuthSelection.findNode("Plans").setFocus(true)
     CreateDialog(m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
   end if
 end function
@@ -1384,8 +1404,9 @@ function SetFeatures() as void
 
   m.global.addFields({
     swaf: configs.subscribe_to_watch_ad_free,
-    enable_lock_icons: configs.enable_lock_icons
-    test_info_screen: configs.test_info_screen
+    enable_lock_icons: configs.enable_lock_icons,
+    test_info_screen: configs.test_info_screen,
+    native_to_universal: configs.native_to_universal
   })
 end function
 
@@ -1401,11 +1422,9 @@ function SetGlobalAuthObject() as void
 
   if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
 
-  ' ' If native sub purchases, check for valid native subscriptions
-  ' if native_sub_purchases.count() > 0 and is_logged_in and universal_sub_count = 0
-  '   valid_native_subs = m.bifrost_service.validSubscriptions(current_user_info, native_sub_purchases)
-  '   current_user_info = m.current_user.getInfo()
-  ' end if
+  if m.global.native_to_universal = false
+    valid_native_subs = m.roku_store_service.getUserNativeSubscriptionPurchases()
+  end if
 
   m.global.addFields({ auth: {
     nativeSubCount: valid_native_subs.count(),

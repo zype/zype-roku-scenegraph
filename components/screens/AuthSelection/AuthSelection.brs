@@ -21,7 +21,7 @@ function OnKeyEvent(key as string, press as boolean) as boolean
 
     if press
       if key = "down"
-        if m.helpers.focusedChild(m) = "Plans" and m.global.auth.isLoggedIn = false then m.oauth_button.setFocus(true)
+        if m.helpers.focusedChild(m) = "Plans" and m.global.auth.isLoggedIn = false and m.global.device_linking = true then m.oauth_button.setFocus(true)
       else if key = "up"
         if m.helpers.focusedChild(m) = "OAuthTransition" then m.plan_buttons.setFocus(true)
       end if
@@ -43,18 +43,20 @@ function onVisibleChange() as void
       ' if only one plan center plan
       if m.top.plans.count() = 1 then m.plan_buttons.translation = [450,350] else m.plan_buttons.translation = [220,350]
 
-      if m.global.auth.isLoggedIn = false then
-        m.oauth_button.content = m.content_helpers.oneDimList2ContentNode([{title: "Sign In"}], "ButtonNode")
+      if m.global.device_linking = true
+          if m.global.auth.isLoggedIn = false then
+            m.oauth_button.content = m.content_helpers.oneDimList2ContentNode([{title: "Sign In"}], "ButtonNode")
 
-        m.oauth_label.translation = [135,0]
-        m.oauth_label.text = "Already have an account?"
-        m.oauth_label.visible = true
-      else
-        m.oauth_button.content = invalid
+            m.oauth_label.translation = [135,0]
+            m.oauth_label.text = "Already have an account?"
+            m.oauth_label.visible = true
+          else
+            m.oauth_button.content = invalid
 
-        m.oauth_label.translation = [135,0]
-        m.oauth_label.text = "Signed in as: " + m.global.auth.email
-        m.oauth_label.visible = true
+            m.oauth_label.translation = [135,0]
+            m.oauth_label.text = "Signed in as: " + m.global.auth.email
+            m.oauth_label.visible = true
+          end if
       end if
 
       m.plan_buttons.jumpToRowItem = [0,0]
