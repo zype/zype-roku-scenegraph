@@ -118,7 +118,7 @@ End Sub
 
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
-    live = (m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
+    live = (m.top.videoPlayer.content <> invalid and m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
 
     ' Only close video player if error and VOD (not live stream)
     if m.top.videoPlayer.state = "error" and live = false
