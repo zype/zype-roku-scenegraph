@@ -118,7 +118,10 @@ End Sub
 
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
-    if m.top.videoPlayer.state = "error"
+    live = (m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
+
+    ' Only close video player if error and VOD (not live stream)
+    if m.top.videoPlayer.state = "error" and live = false
         ' error handling
         m.top.videoPlayer.visible = false
     else if m.top.videoPlayer.state = "playing"
@@ -126,7 +129,7 @@ Sub OnVideoPlayerStateChange()
         if(m.top.autoplay = true)
             m.top.triggerPlay = false
         end if
-    else if m.top.videoPlayer.state = "finished"
+    else if m.top.videoPlayer.state = "finished" and live = false
         print "Video finished playing"
         print "Current: "; m.top.content
         print "Current Type: "; type(m.top.content)
@@ -151,6 +154,11 @@ Sub OnVideoPlayerStateChange()
             m.top.videoPlayer.setFocus(false)
             m.top.setFocus(true)
         end if
+
+    ' Try playing live stream again instead of closing by default.
+    ' Video player tries to close at first sign of missing manifest chunks
+    else if m.top.videoPlayer.state = "finished" and live = true
+        m.top.videoPlayer.control = "play"
     end if
 End Sub
 
