@@ -666,7 +666,6 @@ Function GetPlans(urlParams = {} as Object)
       data = invalid
     end if
     return data
-  end if
 End Function
 
 '****************************

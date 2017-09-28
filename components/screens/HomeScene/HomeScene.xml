@@ -34,10 +34,6 @@
 
         <field id="FavoritesVideoTitle" type="string" alwaysnotify="true" alias="Favorites.VideoTitleText"/>
 
-        <!-- Subscription Plans -->
-        <field id="SubscriptionPlans" type="roArray" />
-
-
         <field id="deepLinkedID" type="string" onChange="OnDeepLink"/>
 
         <field id="TriggerDeviceUnlink" type="bool" />

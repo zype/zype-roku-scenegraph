@@ -64,14 +64,6 @@ Function ReinitializeVideoPlayer()
   end if
 End Function
 
-Function onShowSubscriptionPackagesCallback()
-    print "onShowSubscriptionPackagesCallback"
-    if(m.top.ShowSubscriptionPackagesCallback = true)
-        print "onShowSubscriptionPackagesCallback: true"
-        AddPackagesButtons()
-    end if
-End Function
-
 ' set proper focus to buttons if Details opened and stops Video if Details closed
 Sub onVisibleChange()
     ? "[DetailsScreen] onVisibleChange"
@@ -207,19 +199,11 @@ Sub onItemSelected()
     index = m.top.itemSelected
     m.top.itemSelectedRole = currentButtonRole(index)
     m.top.itemSelectedTarget = currentButtonTarget(index)
-
-    ' if m.top.itemSelectedRole = "subscribe"
-    '   AddPackagesButtons()
-    ' end if
 End Sub
 
 ' Content change handler
 Sub OnContentChange()
-    m.top.SubscriptionPackagesShown = false
-
     if m.top.content<>invalid then
-        ' idParts = m.top.content.id.tokenize(":")
-
         is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
         svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
 
@@ -228,11 +212,9 @@ Sub OnContentChange()
         if no_sub_needed or (svod_enabled and is_subscribed)
           m.top.canWatchVideo = true
           AddButtons()
-          m.top.SubscriptionButtonsShown = false
         else
           m.top.canWatchVideo = false
           AddActionButtons()
-          m.top.SubscriptionButtonsShown = true
         end if
 
         m.description.content   = m.top.content
@@ -304,19 +286,10 @@ Sub AddButtons()
     end if
 End Sub
 
-function ShowSubscribeButtons() as void
-  if m.top.ShowSubscribeButtons = true
-    AddActionButtons()
-    m.buttons.setFocus(true)
-  end if
-end function
-
 Sub AddActionButtons()
     if m.top.content <> invalid then
         ' create buttons
         btns = [ { title: "Subscribe", role: "transition", target: "AuthSelection" } ]
-
-        ' if m.global.auth.isLoggedIn = false then btns.push({ title: "Sign In", role: "transition", target: "UniversalAuthSelection" })
 
         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if

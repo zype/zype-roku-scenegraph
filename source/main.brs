@@ -73,9 +73,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       StartLoader()
     end if
 
-    getUserPurchases()
-    getProductsCatalog()
-
     m.detailsScreen = m.scene.findNode("DetailsScreen")
 
     'm.scene.gridContent = ParseContent(GetContent()) ' Uses featured categories (depreciated)

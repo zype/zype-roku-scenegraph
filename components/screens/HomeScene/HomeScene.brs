@@ -174,7 +174,6 @@ Function OnRowItemSelected()
         m.screenStack.push(m.detailsScreen)
         print "m.gridScreen.focusedContent: "; type(m.gridScreen.focusedContent)
     end if
-    print "Subscription Plans: "; m.top.SubscriptionPlans
 End Function
 
 Function OnDeepLink()

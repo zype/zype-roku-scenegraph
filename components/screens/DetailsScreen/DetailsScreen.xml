@@ -20,27 +20,7 @@
         <!-- Content fields -->
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
 
-        <!-- Subscription Buttons Shown -->
-        <field id="SubscriptionButtonsShown" type="bool" />
-
-        <!-- Subscription Packages Shown -->
-        <field id="SubscriptionPackagesShown" type="bool" />
-
-        <!-- Subscription Plans -->
-        <field id="SubscriptionPlans" type="roArray" />
-
-        <!-- Products Catalog -->
-        <!-- <field id="ProductsCatalog" type="roArray" /> -->
-
         <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
-
-        <!-- DontShowSubscriptionPackages -->
-        <!-- This is when we click the subscription button and there might be a new subscription on the server
-             We need to load the Play/Favorite buttons if there was a new subscription found.
-             In this time period, do not show the packages when Subscription button is clicked
-        -->
-        <field id="DontShowSubscriptionPackages" type="bool" />
-        <field id="ShowSubscriptionPackagesCallback" type="bool" alwaysNotify="true" onChange="onShowSubscriptionPackagesCallback"/>
 
     		<!-- Resume video task node -->
     		<field id="ResumeVideo" type="node" />
@@ -60,13 +40,9 @@
         <field id="VideoPlayer" type="node" />
         <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
 
-        <field id="ShowSubscribeButtons" type="bool" alwaysNotify="true" onChange="ShowSubscribeButtons" />
-
         <field id="PlaylistRowIndex" type="integer" />
         <field id="CurrentVideoIndex" type="integer" />
         <field id="totalVideosCount" type="integer" />
-
-        <field id="ReFocusButtons" type="bool" alwaysNotify="true" onChange="OnFocusedChildChange" />
 
         <function name="currentButtonSelected" />
     </interface>
@@ -75,9 +51,6 @@
     <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/DetailsScreen/DetailsScreen.brs" />
-
-    <!-- store functions -->
-    <script type="text/brightscript" uri="pkg:/source/purchase/store.brs" />
 
     <children>
         <!-- Main Background -->
