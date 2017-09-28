@@ -1,5 +1,17 @@
+' **************************************************
+' Bifrost Service
+'   - Service for connecting with Zype Bifrost for validating native subscriptions
+'
 ' Dependencies
-'     - source/zype_api.brs
+'     source/zype_api.brs
+'
+' Functions in service
+'     hasValidSubscription
+'
+' Usage
+'     bifrost_service = BiFrostService()
+'     bifrost_service.hasValidSubscription(my_users_info, native_sub_purchases)
+' **************************************************
 function BiFrostService() as object
   this = {}
   this.app = m.app

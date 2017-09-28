@@ -1,3 +1,4 @@
+' Takes screen and creates dialog for it
 function CreateDialog(screen, title, message, buttons)
   screen.dialog = invalid
 
