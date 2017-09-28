@@ -42,6 +42,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.playlistRows = []
     m.videosList = []
 
+    ' Set up services
     m.roku_store_service = RokuStoreService(m.store, m.port)
     m.auth_state_service = AuthStateService()
     m.bifrost_service = BiFrostService()
@@ -53,6 +54,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.AKaMAAnalyticsPlugin = AkaMA_plugin()
     m.akamai_service = AkamaiService()
+
 
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
@@ -91,8 +93,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       m.gridScreen.setFocus(false)
       m.loadingIndicator.control = "start"
     end if
-
-    m.plans = GetPlans({}, m.app.in_app_purchase, m.productsCatalog)
 
     m.Menu = m.scene.findNode("Menu")
     m.Menu.isDeviceLinkingEnabled = m.app.device_linking
@@ -736,15 +736,6 @@ Function ParseContent(list As Object)
                 item[key] = itemAA[key]
             end for
 
-            ' Get the ID element from itemAA and check if the product against that id was subscribed
-            ' if(isSubscribed(itemAA["subscriptionrequired"]))
-            '     isSub = "True"
-            ' else
-            '     isSub = "False"
-            ' end if
-
-            ' item["id"] = item["id"] + ":" + isSub
-
             row.appendChild(item)
         end for
 
@@ -926,91 +917,6 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     return list
 end function
 
-'/////////////////////////////////////////////////
-' Get a list of items in the product catalog
-Function getProductsCatalog()
-    m.store.GetCatalog()
-    while (true)
-        msg = wait(0, m.port)
-        if (type(msg) = "roChannelStoreEvent")
-            if (msg.isRequestSucceeded())
-                response = msg.GetResponse()
-                for each item in response
-                    m.productsCatalog.Push({
-                        Title: item.name
-                        code: item.code
-                        cost: item.cost
-                        description: item.description
-                        productType: item.productType
-                    })
-                end for
-                exit while
-            else if (msg.isRequestFailed())
-                print "***** Failure: " + msg.GetStatusMessage() + " Status Code: " + stri(msg.GetStatus()) + " *****"
-            end if
-        end if
-    end while
-End Function
-
-'/////////////////////////////////////////////////
-' Get a list of items that the user has purchased
-Function getUserPurchases() as void
-    m.store.GetPurchases()
-    m.purchasedItems = []
-    while (true)
-        msg = wait(0, m.port)
-        if (type(msg) = "roChannelStoreEvent")
-            if (msg.isRequestSucceeded())
-                response = msg.GetResponse()
-                for each item in response
-                    m.purchasedItems.Push({
-                        Title: item.name
-                        code: item.code
-                        cost: item.cost
-                    })
-                end for
-                exit while
-            else if (msg.isRequestFailed())
-                print "***** Failure: " + msg.GetStatusMessage() + " Status Code: " + stri(msg.GetStatus()) + " *****"
-            end if
-        end if
-    end while
-
-End Function
-
-' ///////////////////////////////////////////////////////////////////////////////////
-' Checks from the list of purchased items if the user was subscribed to a product
-Function isSubscribed(subscriptionRequired) as boolean
-    if(subscriptionRequired = false)
-        return true
-    end if
-
-    subscribed = false
-
-    for each pi in m.purchasedItems
-        if(isPlanPurchased(pi.code)) ' Means the user has subscribed to atleast one of these
-            subscribed = true
-            exit for
-        end if
-    end for
-    return subscribed
-End Function
-
-' ///////////////////////////////////////////////////////////////////////////////////
-' Check to see if the purchased product returned from roku store matches one of the
-' subscription plans we have. Plan ID is being used as the roku product code here.
-Function isPlanPurchased(code)
-    plans = m.productsCatalog   ' Using this one instead of the above one to get products from Roku Store instead of Zype API
-    isPurchased = false
-    for each p in plans
-        if(p.code = code)
-            isPurchased = true
-            exit for
-        end if
-    end for
-    return isPurchased
-End Function
-
 '///////////////////////////////////
 ' LabelList click handlers go here
 '///////////////////////////////////
@@ -1078,20 +984,6 @@ function handleButtonEvents(index, screen)
 
         if login_response <> invalid
           m.SignInScreen.reset = true
-
-          ' ' get recent user info and update global auth state
-          ' user_info = m.current_user.getInfo()
-          '
-          ' ' if no universal subs, check if native sub purchase exists.
-          ' ' if native sub purchased, call bifrost to check
-          ' if user_info.subscription_count = 0
-          '   native_sub_purchases = m.roku_store_service.getUserNativeSubscriptionPurchases()
-          '   if native_sub_purchases.count() > 0
-          '     valid_native_subs = m.bifrost_service.validSubscriptions(user_info, native_sub_purchases)
-          '
-          '     if valid_native_subs.count() > 0 then m.auth_state_service.incrementNativeSubCount()
-          '   end if
-          ' end if
 
           user_info = m.current_user.getInfo()
           m.auth_state_service.updateAuthWithUserInfo(user_info)
