@@ -211,15 +211,18 @@ Function OnMenuButtonSelected()
     menu.visible = false
 
     if button_role = "transition" and button_target = "Search"
-      m.top.SearchString = ""
-      m.top.ResultsText = ""
-      m.top.transitionTo = "Search"
+        m.top.SearchString = ""
+        m.top.ResultsText = ""
+        m.top.transitionTo = "Search"
     else if button_role = "transition" and button_target = "InfoScreen"
-      m.top.transitionTo = "InfoScreen"
+        m.top.transitionTo = "InfoScreen"
     else if button_role = "transition" and button_target = "Favorites"
-      m.top.transitionTo = "Favorites"
+        m.top.transitionTo = "Favorites"
     else if button_role = "transition" and button_target = "AccountScreen"
-      m.top.transitionTo = "AccountScreen"
+        m.top.transitionTo = "AccountScreen"
+    else if button_role = "transition" and button_target = "DeviceLinking"
+        m.deviceLinking.show = true
+        m.top.transitionTo = "DeviceLinking"
     end if
 End Function
 
