@@ -23,6 +23,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     SetTheme()
     SetVersion()
 
+    m.global.addFields({ local_favorites: GetApiConfigs().local_favorites })
+    m.favorites_storage_service = FavoritesStorageService()
+    m.favorites_management_service = FavoritesManagementService()
+
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
@@ -148,6 +152,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()
 
+    fav_ids = GetFavoritesIDs()
+    m.favorites_management_service.setFavoriteIds(fav_ids)
 
     startDate = CreateObject("roDateTime")
 
@@ -720,7 +726,13 @@ end function
 function GetFavoritesIDs()
     videoFavs = {}
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    if HasUDID() = true and deviceLinking.linked = true
+    if m.global.local_favorites <> invalid and m.global.local_favorites = true
+        favorite_ids = m.favorites_storage_service.GetFavoritesIDs()
+
+        for each id in favorite_ids
+            videoFavs.AddReplace(id, id)
+        end for
+    else if HasUDID() = true and deviceLinking.linked = true
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         videoFavorites = GetVideoFavorites(deviceLinking.consumer_id, {"access_token": oauth.access_token, "per_page": "100"})
 
@@ -743,7 +755,22 @@ function GetFavoritesContent()
     favs = GetFavoritesIDs()
 
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    if HasUDID() = true and deviceLinking.linked = true
+    if m.global.local_favorites <> invalid and m.global.local_favorites = true
+        if favs.count() > 0
+            row = {}
+            row.title = "Favorites"
+            row.ContentList = []
+            video_index = 0
+            for each id in favs
+                vid = GetVideo(id)
+                vid.inFavorites = favs.DoesExist(vid._id)
+                vid.video_index = video_index
+                row.ContentList.push(CreateVideoObject(vid))
+                video_index = video_index + 1
+            end for
+            list.push(row)
+        end if
+    else if HasUDID() = true and deviceLinking.linked = true
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         videoFavorites = GetVideoFavorites(deviceLinking.consumer_id, {"access_token": oauth.access_token, "per_page": "100"})
 
@@ -1230,22 +1257,34 @@ Function isLoggedIn()
 End Function
 
 Function markFavoriteButton(lclScreen)
-    ' idParts = lclScreen.content.id.tokenize(":")
-    ' id = idParts[0]
     id = lclScreen.content.id
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    'deviceLinking.linked = false
-    if HasUDID() = true and deviceLinking.linked = true
+
+    if m.global.local_favorites <> invalid and m.global.local_favorites
+        if lclScreen.content.inFavorites = false
+            print "CreateVideoFavorite"
+            m.favorites_storage_service.AddFavorite(id)
+            m.favorites_management_service.AddFavorite(id)
+            lclScreen.content.inFavorites = true
+        else
+            print "DeleteVideoFavorite"
+            m.favorites_storage_service.DeleteFavorite(id)
+            m.favorites_management_service.RemoveFavorite(id)
+            lclScreen.content.inFavorites = false
+        end if
+    else if HasUDID() = true and deviceLinking.linked = true
         favs = GetFavoritesIDs()
         print "Consumer ID: "; deviceLinking.consumer_id
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         if lclScreen.content.inFavorites = false
             print "CreateVideoFavorite"
             CreateVideoFavorite(deviceLinking.consumer_id, {"access_token": oauth.access_token, "video_id": id })
+            m.favorites_management_service.AddFavorite(id)
             lclScreen.content.inFavorites = true
         else
             print "DeleteVideoFavorite"
             DeleteVideoFavorite(deviceLinking.consumer_id, favs[id], {"access_token": oauth.access_token, "video_id": id, "_method": "delete"})
+            m.favorites_management_service.RemoveFavorite(id)
             lclScreen.content.inFavorites = false
         end if
     else

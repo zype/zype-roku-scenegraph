@@ -122,8 +122,19 @@ Function DeleteLastPosterPlaylists() as Void
     m.rowSpacings.Delete(index)
 End Function
 
+function transitionToScreen() as void
+  if focusedChild() = "GridScreen" then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
 
+  m.screenStack.peek().setFocus(false)
+  m.screenStack.peek().visible = false
 
+  screen = m.top.findNode(m.top.transitionTo)
+
+  PushScreenIntoScreenStack(screen)
+
+  screen.visible = true
+  screen.setFocus(true)
+end function
 
 ' if content set, focus on GridScreen and remove loading indicator
 Function OnChangeContent()
@@ -159,6 +170,9 @@ Function OnRowItemSelected()
         m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
 
         m.gridScreen.focusedContent = m.nextVideoNode
+
+        m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
+
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
@@ -180,64 +194,32 @@ function PushContentIntoContentStack(content) as void
   m.contentStack.push(content)
 end function
 
+function focusedChild() as string
+  return m.top.focusedChild.id
+end function
+
 ' On Menu Button Selected
 Function OnMenuButtonSelected()
     ? "[HomeScene] Menu Button Selected"
     ? m.Menu.itemSelected
 
+    button_role = m.Menu.itemSelectedRole
+    button_target = m.Menu.itemSelectedTarget
+
     ' Menu is visible - it must be last element
     menu = m.screenStack.pop()
     menu.visible = false
-    if m.Menu.itemSelected = -1 then ' Home
-        if m.detailsScreen.visible = true or m.gridScreen.visible = true then ' if Details or Grid (Home) opened
-            m.screenStack.peek().visible = true
-            m.screenStack.peek().setFocus(true)
-        else ' must be Search or About opened
-            screen = m.screenStack.pop()
-            screen.visible = false
 
-            m.screenStack.peek().visible = true
-            m.screenStack.peek().setFocus(true)
-        end if
-    else if m.Menu.itemSelected = 3 then ' Favorites
-        m.screenStack.peek().visible = false ' hide last opened screen
-
-        ' add Favorites screen to Screen stack
-        m.screenStack.push(m.Favorites)
-
-        ' show and focus Favorites
-        m.Favorites.visible = true
-        m.Favorites.setFocus(true)
-
-    else if m.Menu.itemSelected = 0 then ' Search
-        m.screenStack.peek().visible = false ' hide last opened screen
-
-        ' add Search screen to Screen stack
-        m.screenStack.push(m.Search)
-
-        ' show and focus Search
-        m.Search.visible = true
-        m.Search.setFocus(true)
-
-        m.top.SearchString = ""
-                m.top.ResultsText = ""
-    else if m.Menu.itemSelected = 2 then ' Device Linking
-        m.screenStack.peek().visible = false ' hide last opened screen
-
-        ' add Device Linking screen to screen stack
-        m.screenStack.push(m.deviceLinking)
-
-        ' show and focus Device Linking
-        m.deviceLinking.show = true
-        m.deviceLinking.setFocus(true)
-    else if m.Menu.itemSelected = 1 then ' About
-        m.screenStack.peek().visible = false ' hide last opened screen
-
-        ' add Search screen to Screen stack
-        m.screenStack.push(m.infoScreen)
-        ' show and focus Search
-        m.infoScreen.visible = true
-        m.infoScreen.setFocus(true)
+    if button_role = "transition" and button_target = "Search"
+      m.top.SearchString = ""
+      m.top.ResultsText = ""
+      m.top.transitionTo = "Search"
+    else if button_role = "transition" and button_target = "InfoScreen"
+      m.top.transitionTo = "InfoScreen"
+    else if button_role = "transition" and button_target = "Favorites"
+      m.top.transitionTo = "Favorites"
+    else if button_role = "transition" and button_target = "AccountScreen"
+      m.top.transitionTo = "AccountScreen"
     end if
 End Function
 

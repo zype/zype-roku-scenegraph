@@ -282,7 +282,7 @@ Sub AddButtons()
             ]
         end if
 
-        if(m.top.BothActive AND m.top.isDeviceLinked)
+        if(m.top.BothActive AND m.top.isDeviceLinked) or (m.global.local_favorites <> invalid and m.global.local_favorites = true)
             if m.top.content.inFavorites = true
                 btns.push({title: "Unfavorite", role: "favorite"})
             else
