@@ -592,6 +592,9 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
                         if screen.content.onAir = true
                           m.videoPlayer.content.live = true
                           m.videoPlayer.content.playStart = 100000000000
+                          m.videoPlayer.enableTrickPlay = false
+                        else
+                          m.videoPlayer.enableTrickPlay = true
                         end if
 
 			m.videoPlayer.visible = true
