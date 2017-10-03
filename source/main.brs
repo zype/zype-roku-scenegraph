@@ -23,7 +23,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     SetTheme()
     SetVersion()
 
-    m.global.addFields({ favorites_via_api: GetApiConfigs().favorites_via_api })
+    if m.app.favorites_via_api <> invalid then favorites_via_api = m.app.favorites_via_api else favorites_via_api = GetApiConfigs().favorites_via_api
+    m.global.addFields({ favorites_via_api: favorites_via_api })
+
     m.favorites_storage_service = FavoritesStorageService()
     m.favorites_management_service = FavoritesManagementService()
 
