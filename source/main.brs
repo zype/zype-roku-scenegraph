@@ -763,10 +763,12 @@ function GetFavoritesContent()
             video_index = 0
             for each id in favs
                 vid = GetVideo(id)
-                vid.inFavorites = favs.DoesExist(vid._id)
-                vid.video_index = video_index
-                row.ContentList.push(CreateVideoObject(vid))
-                video_index = video_index + 1
+                if vid._id <> invalid and favs.DoesExist(vid._id)
+                    vid.inFavorites = true
+                    vid.video_index = video_index
+                    row.ContentList.push(CreateVideoObject(vid))
+                    video_index = video_index + 1
+                end if
             end for
             list.push(row)
         end if
@@ -782,10 +784,12 @@ function GetFavoritesContent()
                 video_index = 0
                 for each fav in videoFavorites
                     vid = GetVideo(fav.video_id)
-                    vid.inFavorites = favs.DoesExist(vid._id)
-                    vid.video_index = video_index
-                    row.ContentList.push(CreateVideoObject(vid))
-                    video_index = video_index + 1
+                    if vid._id <> invalid and favs.DoesExist(vid._id)
+                        vid.inFavorites = favs.DoesExist(vid._id)
+                        vid.video_index = video_index
+                        row.ContentList.push(CreateVideoObject(vid))
+                        video_index = video_index + 1
+                    end if
                 end for
                 list.push(row)
             end if

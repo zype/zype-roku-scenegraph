@@ -75,6 +75,12 @@ Sub onVisibleChange()
     ? "[DetailsScreen] onVisibleChange"
     if m.top.visible = true then
         m.buttons.jumpToItem = 0
+
+        if m.top.content <> invalid
+          id = m.top.content.id
+          m.top.content.inFavorites = m.global.favorite_ids.DoesExist(id)
+        end if
+
         m.buttons.setFocus(true)
     else
         m.top.videoPlayer.visible = false
