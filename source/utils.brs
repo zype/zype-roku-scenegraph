@@ -26,6 +26,23 @@ Function RegDelete(key, section=invalid)
     sec.Flush()
 End Function
 
+Function RegReadSectionKeys(section=invalid)
+    if section = invalid then section = "Default"
+    sec = CreateObject("roRegistrySection", section)
+    return sec.GetKeyList()
+End Function
+
+Function RegReadSection(section=invalid)
+    if section = invalid then section = "Default"
+    secKeys = RegReadSectionKeys(section)
+
+    section_object = {}
+    for each key in secKeys
+      section_object[key] = RegRead(key, section)
+    end for
+
+    return section_object
+End Function
 
 '******************************************************
 'Insertion Sort

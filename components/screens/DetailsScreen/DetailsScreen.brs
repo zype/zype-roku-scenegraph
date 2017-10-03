@@ -75,6 +75,12 @@ Sub onVisibleChange()
     ? "[DetailsScreen] onVisibleChange"
     if m.top.visible = true then
         m.buttons.jumpToItem = 0
+
+        if m.top.content <> invalid
+          id = m.top.content.id
+          m.top.content.inFavorites = m.global.favorite_ids.DoesExist(id)
+        end if
+
         m.buttons.setFocus(true)
     else
         m.top.videoPlayer.visible = false
@@ -282,7 +288,7 @@ Sub AddButtons()
             ]
         end if
 
-        if(m.top.BothActive AND m.top.isDeviceLinked)
+        if m.global.favorites_via_api = false or (m.top.BothActive AND m.top.isDeviceLinked)
             if m.top.content.inFavorites = true
                 btns.push({title: "Unfavorite", role: "favorite"})
             else

@@ -1,6 +1,9 @@
 ' ********** Copyright 2016 Zype.  All Rights Reserved. **********
  'setting top interfaces
 Sub Init()
+    m.content_helpers = ContentHelpers()
+
+
     m.top.observeField("focusedChild", "OnFocusedChildChange")
 
     m.buttons = m.top.findNode("MenuButtons")
@@ -13,41 +16,27 @@ Sub Init()
     m.buttons.focusedColor = m.global.theme.secondary_text_color
     m.buttons.focusBitmapUri = m.global.theme.button_focus_uri
 
-    ' m.rowButtons = m.top.findNode("RowList")
-    ' m.rowButtons.content = GetRowListContent()
-
     InitSidebarButtons()
-    ' create buttons
-    ' result = []
-    ' print "[Menu] Init"
-    ' print "m.top.isDeviceLinkingEnabled: "; m.top.isDeviceLinkingEnabled
-    ' menuButtons = ["Search", "About"]
-    ' if(m.top.isDeviceLinkingEnabled = true)
-    '     menuButtons.push("Link Device")
-    '     menuButtons.push("Favorites")
-    ' end if
-
-    ' for each button in menuButtons
-    '     result.push({title : button})
-    ' end for
-    ' m.buttons.content = ContentList2SimpleNode(result)
 End Sub
 
 Function InitSidebarButtons()
     result = []
     print "[Menu] InitSidebarButtons"
     print "m.top.isDeviceLinkingEnabled: "; m.top.isDeviceLinkingEnabled
-    menuButtons = ["Search", "About"]
+    menuButtons = [
+        { title: "Search", role: "transition", target: "Search"},
+        { title: "About", role: "transition", target: "InfoScreen" }
+    ]
 
     if(m.top.isDeviceLinkingEnabled = true)
-        menuButtons.push("Link Device")
-        menuButtons.push("Favorites")
+        menuButtons.push({ title: "Link Device", role: "transition", target: "DeviceLinking" })
     end if
 
-    for each button in menuButtons
-        result.push({title : button})
-    end for
-    m.buttons.content = ContentList2SimpleNode(result)
+    if m.global.favorites_via_api = false or (m.top.isDeviceLinkingEnabled = true and m.global.favorites_via_api = true)
+        menuButtons.push({ title: "Favorites", role: "transition", target: "Favorites" })
+    end if
+
+    m.buttons.content = m.content_helpers.oneDimList2ContentNode(menuButtons, "ButtonNode")
 End Function
 
 Function GetRowListContent() as object
@@ -63,6 +52,9 @@ End Function
 ' on Menu Button press handler
 Sub onItemSelected()
     ? "[Menu] Button selected"
+    index = m.top.itemSelected
+    m.top.itemSelectedRole = currentButtonRole(index)
+    m.top.itemSelectedTarget = currentButtonTarget(index)
 End Sub
 
 ' on Row List content change
@@ -77,16 +69,10 @@ Sub OnFocusedChildChange()
     end if
 End Sub
 
-'///////////////////////////////////////////'
-' Helper function convert AA to Node
-Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" as String) as Object
-    result = createObject("roSGNode",nodeType)
-    if result <> invalid
-        for each itemAA in contentList
-            item = createObject("roSGNode", nodeType)
-            item.setFields(itemAA)
-            result.appendChild(item)
-        end for
-    end if
-    return result
-End Function
+function currentButtonRole(index as integer) as string
+    return m.buttons.content.getChild(index).role
+end function
+
+function currentButtonTarget(index as integer) as string
+    return m.buttons.content.getChild(index).target
+end function

@@ -23,6 +23,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     SetTheme()
     SetVersion()
 
+    if m.app.favorites_via_api <> invalid then favorites_via_api = m.app.favorites_via_api else favorites_via_api = GetApiConfigs().favorites_via_api
+    m.global.addFields({ favorites_via_api: favorites_via_api })
+
+    m.favorites_storage_service = FavoritesStorageService()
+    m.favorites_management_service = FavoritesManagementService()
+
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
@@ -148,6 +154,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     LoadLimitStream() ' Load LimitStream Object
     'print GetLimitStreamObject()
 
+    fav_ids = GetFavoritesIDs()
+    m.favorites_management_service.setFavoriteIds(fav_ids)
 
     startDate = CreateObject("roDateTime")
 
@@ -460,6 +468,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     m.scene.gridContent = m.gridContent
                     ' m.deviceLinking.show = true
                     m.deviceLinking.setFocus(true)
+
+                    ' Clear favorites
+                    m.favorites_storage_service.ClearFavorites()
+                    m.favorites_management_service.SetFavoriteIds({})
                 end if
             end if
 
@@ -720,7 +732,10 @@ end function
 function GetFavoritesIDs()
     videoFavs = {}
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    if HasUDID() = true and deviceLinking.linked = true
+
+    is_linked = (HasUDID() = true and deviceLinking.linked = true)
+
+    if m.global.favorites_via_api = true and is_linked
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         videoFavorites = GetVideoFavorites(deviceLinking.consumer_id, {"access_token": oauth.access_token, "per_page": "100"})
 
@@ -732,6 +747,13 @@ function GetFavoritesIDs()
                 end for
             end if
         end if
+
+    else
+        favorite_ids = m.favorites_storage_service.GetFavoritesIDs()
+
+        for each id in favorite_ids
+            videoFavs.AddReplace(id, id)
+        end for
     end if
 
     return videoFavs
@@ -743,7 +765,9 @@ function GetFavoritesContent()
     favs = GetFavoritesIDs()
 
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    if HasUDID() = true and deviceLinking.linked = true
+    is_linked = (HasUDID() = true and deviceLinking.linked = true)
+
+    if m.global.favorites_via_api = true and is_linked
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
         videoFavorites = GetVideoFavorites(deviceLinking.consumer_id, {"access_token": oauth.access_token, "per_page": "100"})
 
@@ -755,13 +779,32 @@ function GetFavoritesContent()
                 video_index = 0
                 for each fav in videoFavorites
                     vid = GetVideo(fav.video_id)
-                    vid.inFavorites = favs.DoesExist(vid._id)
-                    vid.video_index = video_index
-                    row.ContentList.push(CreateVideoObject(vid))
-                    video_index = video_index + 1
+                    if vid._id <> invalid and favs.DoesExist(vid._id)
+                        vid.inFavorites = favs.DoesExist(vid._id)
+                        vid.video_index = video_index
+                        row.ContentList.push(CreateVideoObject(vid))
+                        video_index = video_index + 1
+                    end if
                 end for
                 list.push(row)
             end if
+        end if
+    else
+        if favs.count() > 0
+            row = {}
+            row.title = "Favorites"
+            row.ContentList = []
+            video_index = 0
+            for each id in favs
+                vid = GetVideo(id)
+                if vid._id <> invalid and favs.DoesExist(vid._id)
+                    vid.inFavorites = true
+                    vid.video_index = video_index
+                    row.ContentList.push(CreateVideoObject(vid))
+                    video_index = video_index + 1
+                end if
+            end for
+            list.push(row)
         end if
     end if
 
@@ -772,7 +815,6 @@ Function ParseContent(list As Object)
 
     RowItems = createObject("RoSGNode","ContentNode")
 
-    ' videoObject = createObject("RoSGNode", "VideoNode")
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
         row.Title = rowAA.Title
@@ -784,15 +826,6 @@ Function ParseContent(list As Object)
             for each key in itemAA
                 item[key] = itemAA[key]
             end for
-
-            ' Get the ID element from itemAA and check if the product against that id was subscribed
-            ' if(isSubscribed(itemAA["subscriptionrequired"]))
-            '     isSub = "True"
-            ' else
-            '     isSub = "False"
-            ' end if
-
-            ' item["id"] = item["id"] + ":" + isSub
 
             row.appendChild(item)
         end for
@@ -836,7 +869,6 @@ Function GetContent()
 End Function
 
 function GetPlaylistContent(playlist_id as String)
-    ' playlist_id = playlist_id.tokenize(":")[0]
     pl = GetPlaylists({"id": playlist_id})[0]
 
     favs = GetFavoritesIDs()
@@ -914,7 +946,6 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
 
     ' the case where the playlist does not have any more children. that means it is a video playlist
     if rawPlaylists.count() = 0
-      'if parent_id = "59496bec60caab12fa007821" OR parent_id = "594bde3af273a31371000480"
       if thumbnail_layout = "poster"
         m.playlistsRowItemSizes.push( [ 147, 262 ] )
         m.playlistrowsSpacings.push( 50 )
@@ -1196,7 +1227,6 @@ Function isLoggedIn()
 
     if(isAuthViaNativeSVOD())
         m.global.nsvod.isLoggedInViaNativeSVOD = true
-        ' m.global.usvod.isLoggedInViaUniversalSVOD = false
 
         global_nsvod = m.global.nsvod
         global_nsvod.isLoggedInViaNativeSVOD = true
@@ -1206,14 +1236,8 @@ Function isLoggedIn()
         global_usvod = m.global.usvod
         global_usvod.isLoggedInViaUniversalSVOD = false
         m.global.setField("usvod", global_usvod)
-
-        ' m.global.nsvod.HasNativeSubscription = true
-        ' print "isAuthViaNativeSVOD"
         return true
     else if (isAuthViaUniversalSVOD())
-        ' m.global.nsvod.isLoggedInViaNativeSVOD = false
-        ' m.global.usvod.isLoggedInViaUniversalSVOD = true
-
         global_nsvod = m.global.nsvod
         global_nsvod.isLoggedInViaNativeSVOD = false
         m.global.setField("nsvod", global_nsvod)
@@ -1221,41 +1245,55 @@ Function isLoggedIn()
         global_usvod = m.global.usvod
         global_usvod.isLoggedInViaUniversalSVOD = true
         m.global.setField("usvod", global_usvod)
-
-        ' print "isAuthViaUniversalSVOD"
         return true
     end if
-    ' print "leaving isLoggedIn"
     return false
 End Function
 
 Function markFavoriteButton(lclScreen)
-    ' idParts = lclScreen.content.id.tokenize(":")
-    ' id = idParts[0]
     id = lclScreen.content.id
     deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    'deviceLinking.linked = false
-    if HasUDID() = true and deviceLinking.linked = true
-        favs = GetFavoritesIDs()
-        print "Consumer ID: "; deviceLinking.consumer_id
-        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-        if lclScreen.content.inFavorites = false
-            print "CreateVideoFavorite"
-            CreateVideoFavorite(deviceLinking.consumer_id, {"access_token": oauth.access_token, "video_id": id })
-            lclScreen.content.inFavorites = true
+    is_linked = (HasUDID() = true and deviceLinking.linked = true)
+
+    in_favorites = lclScreen.content.inFavorites
+
+    if m.global.favorites_via_api = true
+        if is_linked = true
+            favs = GetFavoritesIDs()
+            oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+
+            if in_favorites
+                DeleteVideoFavorite(deviceLinking.consumer_id, favs[id], {"access_token": oauth.access_token, "video_id": id, "_method": "delete"})
+                m.favorites_management_service.RemoveFavorite(id)
+                lclScreen.content.inFavorites = false
+
+            else
+                CreateVideoFavorite(deviceLinking.consumer_id, {"access_token": oauth.access_token, "video_id": id })
+                m.favorites_management_service.AddFavorite(id)
+                lclScreen.content.inFavorites = true
+            end if
+
+        ' Not authenicated. Trying to favorite when favorites_via_api is on
         else
-            print "DeleteVideoFavorite"
-            DeleteVideoFavorite(deviceLinking.consumer_id, favs[id], {"access_token": oauth.access_token, "video_id": id, "_method": "delete"})
-            lclScreen.content.inFavorites = false
+            dialog = createObject("roSGNode", "Dialog")
+            dialog.title = "Link Your Device"
+            dialog.optionsDialog = true
+            dialog.message = "Please link your device in order to add this video to favorites."
+            dialog.buttons = ["OK"]
+            m.scene.dialog = dialog
         end if
+
+    ' local favorites
     else
-        ' Means device is not linked. Show a message dialog
-        dialog = createObject("roSGNode", "Dialog")
-        dialog.title = "Link Your Device"
-        dialog.optionsDialog = true
-        dialog.message = "Please link your device in order to add this video to favorites."
-        dialog.buttons = ["OK"]
-        m.scene.dialog = dialog
+        if in_favorites
+            m.favorites_storage_service.DeleteFavorite(id)
+            m.favorites_management_service.RemoveFavorite(id)
+            lclScreen.content.inFavorites = false
+        else
+            m.favorites_storage_service.AddFavorite(id)
+            m.favorites_management_service.AddFavorite(id)
+            lclScreen.content.inFavorites = true
+        end if
     end if
 End Function
 
