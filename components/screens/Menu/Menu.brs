@@ -32,7 +32,7 @@ Function InitSidebarButtons()
         menuButtons.push({ title: "Link Device", role: "transition", target: "DeviceLinking" })
     end if
 
-    if m.top.isDeviceLinkingEnabled = true or (m.global.local_favorites <> invalid and m.global.local_favorites = true)
+    if m.global.favorites_via_api = false or (m.top.isDeviceLinkingEnabled = true and m.global.favorites_via_api = true)
         menuButtons.push({ title: "Favorites", role: "transition", target: "Favorites" })
     end if
 

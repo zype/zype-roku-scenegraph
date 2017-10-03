@@ -3,7 +3,7 @@ function FavoritesManagementService() as object
     this.global = m.global
 
     this.SetFavoriteIds = function(fav_ids as object) as void
-        m.global.AddFields({"favorite_ids": fav_ids})
+        if m.global.favorite_ids <> invalid then m.global.setField("favorite_ids", fav_ids) else m.global.AddFields({"favorite_ids": fav_ids})
     end function
 
     this.AddFavorite = function(id as string) as void
