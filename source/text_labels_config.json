@@ -1,0 +1,19 @@
+{
+  "menu_label": "Options",
+  "menu_search_button": "Search",
+  "menu_info_button": "About",
+  "menu_device_linking_button": "Link Device",
+  "menu_favorites_button": "Favorites",
+  "link_device_button": "Link Device",
+  "unlink_device_button": "Unlink Device",
+  "subscribe_button": "Subscribe",
+  "swaf_button": "Watch Ad Free",
+  "favorite_button": "Favorite",
+  "unfavorite_button": "Unfavorite",
+  "play_button": "Play",
+  "resume_button": "Resume playing",
+  "watch_from_beginning_button": "Play from beginning",
+  "device_linking_label_1": "From your computer or mobile device, visit:",
+  "device_linking_label_2": "Enter Pin:",
+  "favorite_screen_label": "Favorites"
+}

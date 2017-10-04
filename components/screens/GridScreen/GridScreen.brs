@@ -17,6 +17,7 @@ Function Init()
     m.rowList.rowLabelColor = m.global.theme.primary_text_color
 
     m.optionsLabel = m.top.findNode("OptionsLabel")
+    m.optionsLabel.text = m.global.labels.menu_label
     m.optionsLabel.color = m.global.theme.primary_text_color
 
     m.optionsIcon = m.top.findNode("OptionsIcon")

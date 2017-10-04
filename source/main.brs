@@ -22,6 +22,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     SetTheme()
     SetVersion()
+    SetTextLabels()
 
     if m.app.favorites_via_api <> invalid then favorites_via_api = m.app.favorites_via_api else favorites_via_api = GetApiConfigs().favorites_via_api
     m.global.addFields({ favorites_via_api: favorites_via_api })
@@ -777,7 +778,7 @@ function GetFavoritesContent()
         if videoFavorites <> invalid
             if videoFavorites.count() > 0
                 row = {}
-                row.title = "Favorites"
+                row.title = m.global.labels.favorite_screen_label
                 row.ContentList = []
                 video_index = 0
                 for each fav in videoFavorites
@@ -795,7 +796,7 @@ function GetFavoritesContent()
     else
         if favs.count() > 0
             row = {}
-            row.title = "Favorites"
+            row.title = m.global.labels.favorite_screen_label
             row.ContentList = []
             video_index = 0
             for each id in favs
@@ -1388,4 +1389,17 @@ End Function
 
 function SetVersion() as void
     if m.global <> invalid then m.global.addFields({ version: GetApiConfigs().version })
+end function
+
+function SetTextLabels() as void
+    if m.global <> invalid
+        text_configs = GetTextConfigs()
+
+        labels = {}
+        for each label in text_configs
+            labels[label] = text_configs[label]
+        end for
+
+        m.global.addFields({ labels: labels })
+    end if
 end function
