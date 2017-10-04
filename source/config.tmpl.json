@@ -7,12 +7,15 @@
   "player_endpoint": "https://player.zype.com/",
   "oauth_endpoint": "https://login.zype.com/",
   "bifrost_endpoint": "<BIFROST_ENDPOINT>",
-  "version": "1.5.1",
+  "version": "1.5.2",
+  "client_id": "<CLIENT_ID>",
+  "client_secret": "<CLIENT_SECRET>",
   "theme": "dark",
   "brand_color": "#ffffff",
   "git_description" : "<GIT_DESCRIPTION>",
   "enable_lock_icons": false,
   "subscribe_to_watch_ad_free": false,
   "test_info_screen": false,
-  "native_to_universal": false
+  "native_to_universal": false,
+  "favorites_via_api": false
 }

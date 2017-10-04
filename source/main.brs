@@ -27,6 +27,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     SetMonetizationSettings()
     SetVersion()
 
+    m.favorites_storage_service = FavoritesStorageService()
+    m.favorites_management_service = FavoritesManagementService()
+
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
     screen.SetMessagePort(m.port)
@@ -156,6 +159,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     end if
 
     LoadLimitStream() ' Load LimitStream Object
+
+    fav_ids = GetFavoritesIDs()
+    m.favorites_management_service.setFavoriteIds(fav_ids)
 
     startDate = CreateObject("roDateTime")
 
@@ -349,6 +355,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
                   m.deviceLinking.isDeviceLinked = true
                   m.deviceLinking.setFocus(true)
+
+                  ' Clear favorites
+                  m.favorites_storage_service.ClearFavorites()
+                  m.favorites_management_service.SetFavoriteIds({})
                 end if
             end if ' end of field checking
 
@@ -524,6 +534,9 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
                         if screen.content.onAir = true
                           m.videoPlayer.content.live = true
                           m.videoPlayer.content.playStart = 100000000000
+                          m.videoPlayer.enableTrickPlay = false
+                        else
+                          m.videoPlayer.enableTrickPlay = true
                         end if
 
 			m.videoPlayer.visible = true
@@ -665,7 +678,7 @@ end function
 function GetFavoritesIDs()
     videoFavs = {}
 
-    if m.global.auth.isLoggedIn
+    if m.global.favorites_via_api = true and m.global.auth.isLoggedIn
         user_info = m.current_user.getInfo()
         oauth_info = m.current_user.getOAuth()
 
@@ -679,6 +692,13 @@ function GetFavoritesIDs()
                 end for
             end if
         end if
+
+    else
+        favorite_ids = m.favorites_storage_service.GetFavoritesIDs()
+
+        for each id in favorite_ids
+            videoFavs.AddReplace(id, id)
+        end for
     end if
 
     return videoFavs
@@ -689,7 +709,7 @@ function GetFavoritesContent()
 
     favs = GetFavoritesIDs()
 
-    if m.global.auth.isLoggedIn
+    if m.global.favorites_via_api = true and m.global.auth.isLoggedIn
         user_info = m.current_user.getInfo()
         oauth_info = m.current_user.getOAuth()
 
@@ -703,13 +723,32 @@ function GetFavoritesContent()
                 video_index = 0
                 for each fav in videoFavorites
                     vid = GetVideo(fav.video_id)
-                    vid.inFavorites = favs.DoesExist(vid._id)
-                    vid.video_index = video_index
-                    row.ContentList.push(CreateVideoObject(vid))
-                    video_index = video_index + 1
+                    if vid._id <> invalid and favs.DoesExist(vid._id)
+                        vid.inFavorites = favs.DoesExist(vid._id)
+                        vid.video_index = video_index
+                        row.ContentList.push(CreateVideoObject(vid))
+                        video_index = video_index + 1
+                    end if
                 end for
                 list.push(row)
             end if
+        end if
+    else
+        if favs.count() > 0
+            row = {}
+            row.title = "Favorites"
+            row.ContentList = []
+            video_index = 0
+            for each id in favs
+                vid = GetVideo(id)
+                if vid._id <> invalid and favs.DoesExist(vid._id)
+                    vid.inFavorites = true
+                    vid.video_index = video_index
+                    row.ContentList.push(CreateVideoObject(vid))
+                    video_index = video_index + 1
+                end if
+            end for
+            list.push(row)
         end if
     end if
 
@@ -720,7 +759,6 @@ Function ParseContent(list As Object)
 
     RowItems = createObject("RoSGNode","ContentNode")
 
-    ' videoObject = createObject("RoSGNode", "VideoNode")
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
         row.Title = rowAA.Title
@@ -775,7 +813,6 @@ Function GetContent()
 End Function
 
 function GetPlaylistContent(playlist_id as String)
-    ' playlist_id = playlist_id.tokenize(":")[0]
     pl = GetPlaylists({"id": playlist_id})[0]
 
     favs = GetFavoritesIDs()
@@ -1219,23 +1256,46 @@ Function EndLoader()
 End Function
 
 Function markFavoriteButton(lclScreen)
-    idParts = lclScreen.content.id.tokenize(":")
-    id = idParts[0]
+    id = lclScreen.content.id
+    in_favorites = lclScreen.content.inFavorites
 
-    if m.global.auth.isLoggedIn
-        favs = GetFavoritesIDs()
+    if m.global.favorites_via_api = true
+        if m.global.auth.isLoggedIn
+            favs = GetFavoritesIDs()
+            user_info = m.current_user.getInfo()
+            oauth_info = m.current_user.getOAuth()
 
-        user_info = m.current_user.getInfo()
-        oauth_info = m.current_user.getOAuth()
+            if in_favorites
+                DeleteVideoFavorite(user_info._id, favs[id], {"access_token": oauth_info.access_token, "video_id": id, "_method": "delete"})
+                m.favorites_management_service.RemoveFavorite(id)
+                lclScreen.content.inFavorites = false
 
-        if lclScreen.content.inFavorites = false
-            print "CreateVideoFavorite"
-            CreateVideoFavorite(user_info._id, {"access_token": oauth_info.access_token, "video_id": id })
-            lclScreen.content.inFavorites = true
+            else
+                CreateVideoFavorite(user_info._id, {"access_token": oauth_info.access_token, "video_id": id })
+                m.favorites_management_service.AddFavorite(id)
+                lclScreen.content.inFavorites = true
+            end if
+
+        ' Not authenicated. Trying to favorite when favorites_via_api is on
         else
-            print "DeleteVideoFavorite"
-            DeleteVideoFavorite(user_info._id, favs[id], {"access_token": oauth_info.access_token, "video_id": id, "_method": "delete"})
+            dialog = createObject("roSGNode", "Dialog")
+            dialog.title = "Link Your Device"
+            dialog.optionsDialog = true
+            dialog.message = "Please link your device in order to add this video to favorites."
+            dialog.buttons = ["OK"]
+            m.scene.dialog = dialog
+        end if
+
+    ' local favorites
+    else
+        if in_favorites
+            m.favorites_storage_service.DeleteFavorite(id)
+            m.favorites_management_service.RemoveFavorite(id)
             lclScreen.content.inFavorites = false
+        else
+            m.favorites_storage_service.AddFavorite(id)
+            m.favorites_management_service.AddFavorite(id)
+            lclScreen.content.inFavorites = true
         end if
     end if
 End Function
@@ -1291,11 +1351,14 @@ end function
 function SetFeatures() as void
   configs = GetApiConfigs()
 
+  if m.app.favorites_via_api <> invalid then favorites_via_api = m.app.favorites_via_api else favorites_via_api = configs.favorites_via_api
+
   m.global.addFields({
     swaf: configs.subscribe_to_watch_ad_free,
     enable_lock_icons: configs.enable_lock_icons,
     test_info_screen: configs.test_info_screen,
-    native_to_universal: configs.native_to_universal
+    native_to_universal: configs.native_to_universal,
+    favorites_via_api: favorites_via_api
   })
 end function
 

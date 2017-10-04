@@ -168,6 +168,9 @@ Function OnRowItemSelected()
         m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
 
         m.gridScreen.focusedContent = m.nextVideoNode
+
+        m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
+
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
@@ -424,7 +427,9 @@ Function OnKeyEvent(key, press) as Boolean
 End Function
 
 Function isSpecialScreen()
-    if (m.detailsScreen.visible = true) OR (m.contentStack.count() > 0 and m.gridScreen.visible = true) OR (m.deviceLinking.visible = true)
+    if m.screenStack.peek().id = "Menu"
+        return false
+    else if (m.detailsScreen.visible = true) OR (m.contentStack.count() > 0 and m.gridScreen.visible = true) OR (m.deviceLinking.visible = true)
         return true
     else
         return false

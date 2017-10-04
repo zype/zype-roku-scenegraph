@@ -1,3 +1,7 @@
+### 1.5.2 (03/10/2017)
+
+- Added local favoriting. Favoriting via api is still configurable
+
 ### 1.5.1 (25/09/2017)
 
 - Integrate Akamai analytics

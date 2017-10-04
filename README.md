@@ -7,7 +7,7 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 - Populates your app with content from enhanced playlists
 - Video Search
 - Live Streaming videos
-- Video Favorites (available with device linking)
+- Video Favorites
 - Resume watch functionality
 - Deep linking to videos and playlists
 - Dynamic theme colors
