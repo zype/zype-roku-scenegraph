@@ -7,7 +7,6 @@ REM ******************************************************
 REM This file has no dependencies on other common and custom files.
 REM
 REM Functions in this file:
-REM     SetApiConfigs
 REM     GetApiConfigs
 REM     GetAppKey
 REM     GetApiEndpoint
@@ -30,6 +29,15 @@ REM     SaveSubscriptionData  (Work in progress)
 '******************************************************
 Function GetApiConfigs() As Object
   rawConfig = ReadAsciiFile("pkg:/source/config.json")
+  api = ParseJson(rawConfig)
+  return api
+End Function
+
+'******************************************************
+'Get text label configurations
+'******************************************************
+Function GetTextConfigs() As Object
+  rawConfig = ReadAsciiFile("pkg:/source/text_labels_config.json")
   api = ParseJson(rawConfig)
   return api
 End Function

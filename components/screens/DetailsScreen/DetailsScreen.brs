@@ -42,6 +42,7 @@ Function Init()
     m.subscribeButtons.focusBitmapUri = m.global.theme.button_focus_uri
 
     m.optionsText = m.top.findNode("OptionsText")
+    m.optionsText.text = m.global.labels.menu_label
     m.optionsText.color = m.global.theme.primary_text_color
 
     m.optionsIcon = m.top.findNode("OptionsIcon")
@@ -279,25 +280,25 @@ Sub AddButtons()
 
         if(statusOfVideo = false)
             btns = [
-              {title: "Play", role: "play"}
+              {title: m.global.labels.play_button, role: "play"}
             ]
         else
             btns = [
-              {title: "Play from beginning", role: "play"},
-              {title: "Resume playing", role: "resume"}
+              {title: m.global.labels.watch_from_beginning_button, role: "play"},
+              {title: m.global.labels.resume_button, role: "resume"}
             ]
         end if
 
         if m.global.favorites_via_api = false or (m.top.BothActive AND m.top.isDeviceLinked)
             if m.top.content.inFavorites = true
-                btns.push({title: "Unfavorite", role: "favorite"})
+                btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
             else
-                btns.push({title: "Favorite", role: "favorite"})
+                btns.push({title: m.global.labels.favorite_button, role: "favorite"})
             end if
         end if
 
         if m.global.swaf and m.global.svod_enabled and m.global.is_subscribed = false
-          btns.push({title: "Watch Ad Free", role: "swaf"})
+          btns.push({title: m.global.labels.swaf_button, role: "swaf"})
         end if
 
         m.btns = btns
@@ -318,10 +319,10 @@ Sub AddActionButtons()
         ' create buttons
         result = []
         btns = [
-          {title: "Subscribe", role: "subscribe"}
+          {title: m.global.labels.subscribe_button, role: "subscribe"}
         ]
         if(m.top.BothActive AND m.top.isDeviceLinked = false)
-            btns.push({ title: "Link Device", role: "device_linking" })
+            btns.push({ title: m.global.labels.link_device_button, role: "device_linking" })
         end if
 
         m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
