@@ -36,6 +36,10 @@ Function InitSidebarButtons()
         menuButtons.push({ title: m.global.labels.menu_favorites_button, role: "transition", target: "Favorites" })
     end if
 
+    if m.global.universal_tvod
+        menuButtons.push({ title: m.global.labels.menu_my_library_button, role: "transition", target: "MyLibrary" })
+    end if
+
     m.buttons.content = m.content_helpers.oneDimList2ContentNode(menuButtons, "ButtonNode")
 End Function
 

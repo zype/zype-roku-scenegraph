@@ -765,3 +765,13 @@ Function SaveSubscriptionData(_data, urlParams as Object)
 
   return data
 End Function
+
+
+function GetEntitledVideos(urlParams as object) as object
+    url = GetApiConfigs().endpoint + "consumer/videos"
+    response = MakeRequest(url, urlParams)
+
+    print url
+
+    if response <> invalid then return response.response else return invalid
+end function

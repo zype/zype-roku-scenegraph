@@ -27,6 +27,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     if m.app.favorites_via_api <> invalid then favorites_via_api = m.app.favorites_via_api else favorites_via_api = GetApiConfigs().favorites_via_api
     m.global.addFields({ favorites_via_api: favorites_via_api })
 
+    if m.app.universal_tvod <> invalid then universal_tvod = m.app.universal_tvod else universal_tvod = GetApiConfigs().universal_tvod
+    m.global.addFields({ universal_tvod: universal_tvod })
+
     m.favorites_storage_service = FavoritesStorageService()
     m.favorites_management_service = FavoritesManagementService()
 
@@ -103,6 +106,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.scene.videoliststack = [m.videosList]
     m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
+
+    m.MyLibrary = m.scene.findNode("MyLibrary")
+    m.MyLibrary.observeField("visible", m.port)
+
+    m.MyLibraryDetailsScreen = m.MyLibrary.findNode("MyLibraryDetailsScreen")
+    m.MyLibraryDetailsScreen.observeField("itemSelected", m.port)
 
     if m.app.in_app_purchase or m.app.device_linking
       svod_enabled = true
@@ -254,17 +263,24 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 m.scene.favoritesContent = ParseContent(GetFavoritesContent())
                 m.loadingIndicator.control = "stop"
+
+            else if msg.getNode() = "MyLibrary" and msg.getField() = "visible" and msg.getData() = true
+                m.loadingIndicator.control = "start"
+                m.scene.myLibraryContent = ParseContent(GetMyLibraryContent())
+                m.loadingIndicator.control = "stop"
             else if msg.getField() = "SearchString"
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
                     lclScreen = m.favoritesDetailsScreen
                 else if msg.getNode() = "SearchDetailsScreen"
                     lclScreen = m.searchDetailsScreen
+                else if msg.getNode() = "MyLibraryDetailsScreen"
+                    lclScreen = m.MyLibraryDetailsScreen
                 else if msg.getNode() = "DetailsScreen"
                     lclScreen = m.detailsScreen
                 end if
@@ -810,6 +826,52 @@ function GetFavoritesContent()
             end for
             list.push(row)
         end if
+    end if
+
+    return list
+end function
+
+function GetMyLibraryContent()
+    list = []
+
+    deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+    is_linked = (HasUDID() = true and deviceLinking.linked = true)
+
+    if is_linked
+        oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+
+        if m.app.per_page <> invalid then per_page = m.app.per_page else per_page = 500
+
+        video_entitlements = GetEntitledVideos({access_token: oauth.access_token, per_page: per_page})
+
+        row = { title: "", ContentList: [] }
+
+        if video_entitlements <> invalid
+            row.title = m.global.labels.my_library_catalog_message
+            if video_entitlements.count() > 0
+                favs = GetFavoritesIDs()
+                video_index = 0
+                for each entitled_vid in video_entitlements
+                    vid = GetVideo(entitled_vid.video_id)
+                    if vid._id <> invalid
+                        vid.inFavorites = favs.DoesExist(vid._id)
+                        vid.video_index = video_index
+                        row.ContentList.push(CreateVideoObject(vid))
+                        video_index = video_index + 1
+                    end if
+                end for
+
+                row.ContentList = ArrayHelpers().RemoveDuplicatesBy(row.ContentList, "id")
+            end if
+        end if
+
+        list.push(row)
+    else
+        row = {
+            title: m.global.labels.my_library_signin_message,
+            contentList: []
+        }
+        list.push(row)
     end if
 
     return list

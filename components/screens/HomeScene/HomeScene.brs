@@ -29,6 +29,9 @@ Function Init()
     ' Info Screen
     m.infoScreen = m.top.findNode("InfoScreen")
 
+    ' My Library
+    m.MyLibrary = m.top.findNode("MyLibrary")
+
     ' Observer to handle Item selection on RowList inside GridScreen (alias="GridScreen.rowItemSelected")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
@@ -223,6 +226,8 @@ Function OnMenuButtonSelected()
     else if button_role = "transition" and button_target = "DeviceLinking"
         m.deviceLinking.show = true
         m.top.transitionTo = "DeviceLinking"
+    else if button_role = "transition" and button_target = "MyLibrary"
+        m.top.transitionTo = "MyLibrary"
     end if
 End Function
 
