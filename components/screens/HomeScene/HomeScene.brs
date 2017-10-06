@@ -31,6 +31,7 @@ Function Init()
 
     ' My Library
     m.MyLibrary = m.top.findNode("MyLibrary")
+    m.MyLibrary.observeField("SignInButtonSelected", "MyLibraryTriggerSignIn")
 
     ' Observer to handle Item selection on RowList inside GridScreen (alias="GridScreen.rowItemSelected")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
@@ -231,6 +232,16 @@ Function OnMenuButtonSelected()
     end if
 End Function
 
+function MyLibraryTriggerSignIn() as void
+    button_role = m.MyLibrary.itemSelectedRole
+    button_target = m.MyLibrary.itemSelectedTarget
+
+    if button_role = "transition" and button_target = "DeviceLinking"
+        m.deviceLinking.show = true
+        m.top.transitionTo = button_target
+    end if
+end function
+
 ' Main Remote keypress event loop
 Function OnKeyEvent(key, press) as Boolean
     ? ">>> HomeScene >> OnkeyEvent"
@@ -255,6 +266,8 @@ Function OnKeyEvent(key, press) as Boolean
                 m.screenStack.peek().setFocus(true)
             end if
         else if key = "back"
+            ? "isSpecialScreen(): "; isSpecialScreen()
+
             if isSpecialScreen()
                 if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
                     ? "1"
@@ -319,10 +332,10 @@ Function OnKeyEvent(key, press) as Boolean
                     m.deviceLinking.show = false
                     m.deviceLinking.setFocus(false)
 
-                    ' after Device Linking screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
-                    ' open last screen before search and focus it
                     m.screenStack.peek().visible = true
                     m.screenStack.peek().setFocus(true)
+
+                    if m.screenStack.peek().id = "MyLibrary" then m.screenStack.peek().findNode("SignInButton").setFocus(true)
 
                     result = true
                 end if

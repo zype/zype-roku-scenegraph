@@ -1,5 +1,7 @@
 ' ********** Copyright 2016 Roku Corp.  All Rights Reserved. **********
 Function Init()
+    m.content_helpers = ContentHelpers()
+
     m.gridScreen = m.top.findNode("Grid")
     m.gridScreen.content = {}
     m.detailsScreen = m.top.findNode("MyLibraryDetailsScreen")
@@ -22,6 +24,12 @@ Function Init()
 
     m.resultsString = m.top.findNode("ResultsString")
     m.resultsString.color = m.global.theme.secondary_text_color
+
+    m.SignInButton = m.top.findNode("SignInButton")
+    m.SignInButton.color = m.global.theme.primary_text_color
+    m.SignInButton.focusBitmapUri = m.global.theme.button_focus_uri
+    m.SignInButton.content = m.content_helpers.oneDimList2ContentNode([{ title: m.global.labels.link_device_button, role: "transition", target: "DeviceLinking" }], "ButtonNode")
+    m.SignInButton.visible = false
 End Function
 
 Function OnRowItemSelected()
@@ -55,6 +63,19 @@ Sub OnItemFocused()
         end if
     end if
 End Sub
+
+sub OnSignInButtonSelected()
+    m.top.itemSelectedRole = "transition"
+    m.top.itemSelectedTarget = "DeviceLinking"
+end sub
+
+function currentButtonRole(index as integer) as string
+    return m.SignInButton.content.getChild(index).role
+end function
+
+function currentButtonTarget(index as integer) as string
+    return m.SignInButton.content.getChild(index).target
+end function
 
 function onKeyEvent(key as String, press as Boolean) as Boolean
     ? ">>> MyLibrary >> onKeyEvent"

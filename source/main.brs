@@ -265,9 +265,33 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "stop"
 
             else if msg.getNode() = "MyLibrary" and msg.getField() = "visible" and msg.getData() = true
-                m.loadingIndicator.control = "start"
-                m.scene.myLibraryContent = ParseContent(GetMyLibraryContent())
+                sign_in_button = m.MyLibrary.findNode("SignInButton")
+                my_library_gridscreen = m.MyLibrary.findNode("Grid")
+                my_library_gridscreen.setFocus(false)
+
+                deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+                is_linked = (HasUDID() = true and deviceLinking.linked = true)
+
+                if is_linked
+                    sign_in_button.visible = false
+                    m.loadingIndicator.control = "start"
+                else
+                    sign_in_button.visible = true
+                    sign_in_button.setFocus(true)
+                end if
+
+                m.scene.myLibraryContent = ParseContent(GetMyLibraryContent(is_linked))
                 m.loadingIndicator.control = "stop"
+                m.MyLibrary.setFocus(true)
+
+                if is_linked
+                    sign_in_button.setFocus(false)
+                    my_library_gridscreen.setFocus(true)
+                else
+                    my_library_gridscreen.setFocus(false)
+                    sign_in_button.setFocus(true)
+                end if
+
             else if msg.getField() = "SearchString"
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
@@ -831,11 +855,8 @@ function GetFavoritesContent()
     return list
 end function
 
-function GetMyLibraryContent()
+function GetMyLibraryContent(is_linked as boolean)
     list = []
-
-    deviceLinking = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-    is_linked = (HasUDID() = true and deviceLinking.linked = true)
 
     if is_linked
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
