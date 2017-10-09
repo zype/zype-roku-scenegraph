@@ -121,8 +121,8 @@ function initializers() as object
     self.description = self.top.findNode("Description")
 
     ' You can add your own custom
-    if Len(m.global.labels.custom_plan_purchase_message) <> 0
-        self.description.text = m.global.labels.custom_plan_purchase_message
+    if Len(self.global.labels.custom_plan_purchase_message) <> 0
+        self.description.text = self.global.labels.custom_plan_purchase_message
     else
         self.description.text = "You need to be a " + app_info.GetTitle() + " subscriber to watch this content. Get unlimited access on all your devices by subscribing now."
     end if

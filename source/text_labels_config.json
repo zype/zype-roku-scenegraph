@@ -10,6 +10,8 @@
   "sign_in_button": "Sign In",
   "sign_out_button": "Sign Out",
   "auth_transition_button": "Sign In",
+  "link_device_transition_button": "Link Device",
+  "sign_in_transition_button": "Sign in with email",
   "sync_native_button": "Sync native subscription",
   "sign_in_header_label": "Sign In To Your Account",
   "logged_in_header_label": "Signed in as: ",
