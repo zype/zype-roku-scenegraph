@@ -55,8 +55,8 @@ function initializers() as object
     self.u_auth_buttons.focusedColor = self.global.theme.primary_text_color
     self.u_auth_buttons.focusBitmapUri = self.global.theme.focus_grid_uri
     btns = [
-      { title: "Link Device", role: "transition", target: "DeviceLinking" },
-      { title: "Sign in with email", role: "transition", target: "SignInScreen" }
+      { title: m.global.labels.link_device_transition_button, role: "transition", target: "DeviceLinking" },
+      { title: m.global.labels.sign_in_transition_button, role: "transition", target: "SignInScreen" }
     ]
     self.u_auth_buttons.content = self.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
 

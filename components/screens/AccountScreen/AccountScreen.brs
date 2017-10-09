@@ -23,15 +23,15 @@ end function
 
 function resetTextCallback() as void
   if m.global.auth.isLoggedIn
-    m.header.text = "Signed in as: " + m.global.auth.email
+    m.header.text = m.global.labels.logged_in_header_label + m.global.auth.email
 
-    btn = [ { title: "Sign out", role: "signout", target: "" } ]
+    btn = [ { title: m.global.labels.sign_out_button, role: "signout", target: "" } ]
 
-    if m.global.auth.universalSubCount = 0 and m.global.nsvod.currentPlan.count() > 0 then btn.push({ title: "Sync native subscription", role: "syncNative", target: "" })
+    if m.global.auth.universalSubCount = 0 and m.global.nsvod.currentPlan.count() > 0 then btn.push({ title: m.global.labels.sync_native_button, role: "syncNative", target: "" })
   else
-    m.header.text = "Sign In To Your Account"
+    m.header.text = m.global.labels.sign_in_header_label
 
-    btn = [ { title: "Sign in", role: "transition", target: "UniversalAuthSelection" } ]
+    btn = [ { title: m.global.labels.sign_in_button, role: "transition", target: "UniversalAuthSelection" } ]
   end if
 
   m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")

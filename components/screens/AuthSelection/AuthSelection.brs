@@ -45,16 +45,16 @@ function onVisibleChange() as void
 
       if m.global.device_linking = true
           if m.global.auth.isLoggedIn = false then
-            m.oauth_button.content = m.content_helpers.oneDimList2ContentNode([{title: "Sign In"}], "ButtonNode")
+            m.oauth_button.content = m.content_helpers.oneDimList2ContentNode([{title: m.global.labels.sign_in_button}], "ButtonNode")
 
             m.oauth_label.translation = [135,0]
-            m.oauth_label.text = "Already have an account?"
+            m.oauth_label.text = m.global.labels.already_have_account_label
             m.oauth_label.visible = true
           else
             m.oauth_button.content = invalid
 
             m.oauth_label.translation = [135,0]
-            m.oauth_label.text = "Signed in as: " + m.global.auth.email
+            m.oauth_label.text = m.global.labels.logged_in_header_label + m.global.auth.email
             m.oauth_label.visible = true
           end if
       end if
@@ -119,7 +119,14 @@ function initializers() as object
     self.header.color = self.global.theme.primary_text_color
 
     self.description = self.top.findNode("Description")
-    self.description.text = "You need to be a " + app_info.GetTitle() + " subscriber to watch this content. Get unlimited access on all your devices by subscribing now."
+
+    ' You can add your own custom
+    if Len(m.global.labels.custom_plan_purchase_message) <> 0
+        self.description.text = m.global.labels.custom_plan_purchase_message
+    else
+        self.description.text = "You need to be a " + app_info.GetTitle() + " subscriber to watch this content. Get unlimited access on all your devices by subscribing now."
+    end if
+
     self.description.color = self.global.theme.primary_text_color
 
     self.plan_buttons = self.top.findNode("Plans")

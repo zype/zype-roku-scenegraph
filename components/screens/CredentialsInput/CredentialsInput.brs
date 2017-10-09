@@ -183,7 +183,7 @@ function initializers() as object
     self.submit_button.focusBitmapUri = self.global.theme.button_focus_uri
     self.submit_button.color = self.global.theme.primary_text_color
     self.submit_button.focusedColor = self.global.theme.primary_text_color
-    self.submit_button.content = self.content_helpers.oneDimList2ContentNode([{title: "Continue"}], "ButtonNode")
+    self.submit_button.content = self.content_helpers.oneDimList2ContentNode([{title: m.global.labels.user_credential_submit_button}], "ButtonNode")
 
     self.input_keyboard = self.top.findNode("InputKeyboard")
   end function

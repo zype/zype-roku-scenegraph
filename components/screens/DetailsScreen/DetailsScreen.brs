@@ -44,6 +44,7 @@ Function Init()
     m.subscribeButtons.focusBitmapUri = m.global.theme.button_focus_uri
 
     m.optionsText = m.top.findNode("OptionsText")
+    m.optionsText.text = m.global.labels.menu_label
     m.optionsText.color = m.global.theme.primary_text_color
 
     m.optionsIcon = m.top.findNode("OptionsIcon")
@@ -262,20 +263,20 @@ Sub AddButtons()
 
         if(statusOfVideo = false)
             btns = [
-              {title: "Play", role: "play"}
+              {title: m.global.labels.play_button, role: "play"}
             ]
         else
             btns = [
-              {title: "Play from beginning", role: "play"},
-              {title: "Resume playing", role: "resume"}
+              {title: m.global.labels.watch_from_beginning_button, role: "play"},
+              {title: m.global.labels.resume_button, role: "resume"}
             ]
         end if
 
         if m.global.favorites_via_api = false or (m.global.device_linking and m.global.auth.isLoggedIn)
             if m.top.content.inFavorites = true
-                btns.push({title: "Unfavorite", role: "favorite"})
+                btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
             else
-                btns.push({title: "Favorite", role: "favorite"})
+                btns.push({title: m.global.labels.favorite_button, role: "favorite"})
             end if
         end if
 
@@ -283,7 +284,7 @@ Sub AddButtons()
         if m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0 then is_subscribed = true else is_subscribed = false
 
         if m.global.swaf and svod_enabled and is_subscribed = false
-          btns.push({title: "Watch Ad Free", role: "swaf"})
+          btns.push({title: m.global.labels.swaf_button, role: "swaf"})
         end if
 
         m.btns = btns
@@ -294,9 +295,7 @@ End Sub
 
 Sub AddActionButtons()
     if m.top.content <> invalid then
-        ' create buttons
-        btns = [ { title: "Subscribe", role: "transition", target: "AuthSelection" } ]
-
+        btns = [ { title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" } ]
         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
