@@ -46,7 +46,6 @@ End Function
 
 sub OnContentChange()
     ? "[MyLibrary] On Content Change"
-    m.gridScreen.setFocus(true)
 end sub
 
 ' handler of focused item in RowList
@@ -106,7 +105,7 @@ end function
 
 Sub OnTopVisibilityChange()
     if m.top.visible = true
-        m.gridScreen.visible = true
+        m.gridScreen.setFocus(false)
     else
         m.videoTitle.text = ""
     end if
