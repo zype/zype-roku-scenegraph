@@ -59,9 +59,14 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
 
 6. __(Optional)__ If you are using native subscriptions in your app, please [follow the documentation here](docs/submission/CreatingNativeSubscriptions.md).
 
+###### Creating Device Linking Page
+
+7. __(Optional)__ If you are using device linking in your app, you __MUST__ create a device linking page on your website. If you do not have a page for your users to link their device, your app will not pass Roku certification.
+  - You can either develop it using [Zype's Device Linking Api](http://dev.zype.com/api_docs/device_linking/) in your site or using [Zype's device linking widgets](https://support.zype.com/hc/en-us/articles/223489448-Subscription-Widgets)
+
 ###### Publishing your app
 
-7. After you have packaged your app you can start publishing your app by creating a new channel under your Roku developer account.
+8. After you have packaged your app you can start publishing your app by creating a new channel under your Roku developer account.
 
   - __STEP 1__ - Determine if you are submitting a PUBLIC or PRIVATE app.
     - PRIVATE
@@ -84,4 +89,4 @@ The Roku Developer Program can be enrolled in via [Roku's developer website](htt
 
   ![Submitting test information](docs/submission/images/publishing2.jpg)
 
-8. Once submitted Roku will review your app (if it is public) against their submission guidelines. If your app is approved, they will update your app status and you should receive an email notification from Roku informing you that your app is live. You can then search for it on Roku's marketplace under the __Search__ tab.
+9. Once submitted Roku will review your app (if it is public) against their submission guidelines. If your app is approved, they will update your app status and you should receive an email notification from Roku informing you that your app is live. You can then search for it on Roku's marketplace under the __Search__ tab.
