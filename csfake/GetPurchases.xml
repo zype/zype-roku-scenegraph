@@ -5,13 +5,14 @@
         <status xmlns="">Success</status>
         <products>
                 <!--Earth 1-->
+                <!-- Remember to update purchaseDate, expirationDate, and renewalDate when testing -->
                  <!-- <product xmlns="">
                         <HDPosterUrl i:nil="true"/>
                         <SDPosterUrl i:nil="true"/>
                         <code>59848598dead5214130052f2</code>
                         <cost>$1.99</cost>
                         <description/>
-                        <expirationDate>2017-09-29T22:17:48</expirationDate>
+                        <expirationDate>2017-10-29T22:17:48</expirationDate>
                         <freeTrialQuantity>0</freeTrialQuantity>
                         <freeTrialType>None</freeTrialType>
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
@@ -19,10 +20,10 @@
                         <maxQty i:nil="true"/>
                         <name>Monthly Subscription</name>
                         <productType>MonthlySub</productType>
-                        <purchaseDate>2017-08-29T22:17:48</purchaseDate>
+                        <purchaseDate>2017-09-29T22:17:48</purchaseDate>
                         <purchaseId>871e9522ace140a99821a1ab010bb0d7</purchaseId>
                         <qty>1</qty>
-                        <renewalDate>2017-09-29T22:17:48</renewalDate>
+                        <renewalDate>2017-10-29T22:17:48</renewalDate>
                         <upsellProduct i:nil="true"/>
                 </product> -->
 

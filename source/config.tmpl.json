@@ -6,7 +6,7 @@
   "endpoint": "https://api.zype.com/",
   "player_endpoint": "https://player.zype.com/",
   "oauth_endpoint": "https://login.zype.com/",
-  "bifrost_endpoint": "<BIFROST_ENDPOINT>",
+  "bifrost_endpoint": "https://bifrost.zype.com/",
   "version": "1.5.2",
   "client_id": "<CLIENT_ID>",
   "client_secret": "<CLIENT_SECRET>",

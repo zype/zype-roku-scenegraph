@@ -39,7 +39,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.TestInfoScreen = m.scene.findNode("TestInfoScreen")
 
     m.store = CreateObject("roChannelStore")
-    m.store.FakeServer(true)
+    ' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
