@@ -26,6 +26,23 @@ Function RegDelete(key, section=invalid)
     sec.Flush()
 End Function
 
+Function RegReadSectionKeys(section=invalid)
+    if section = invalid then section = "Default"
+    sec = CreateObject("roRegistrySection", section)
+    return sec.GetKeyList()
+End Function
+
+Function RegReadSection(section=invalid)
+    if section = invalid then section = "Default"
+    secKeys = RegReadSectionKeys(section)
+
+    section_object = {}
+    for each key in secKeys
+      section_object[key] = RegRead(key, section)
+    end for
+
+    return section_object
+End Function
 
 '******************************************************
 'Insertion Sort
@@ -781,4 +798,17 @@ Function FormateDate(date As String) As String
     formated_date = left(date, 23)
     dt.FromISO8601String(formated_date)
     return dt.AsDateString("short-date")
+End Function
+
+'******************************************************
+' Generates either a true of false. 50% chance of both
+'******************************************************
+Function GetRandomBool()
+    ' generates a number greater than 0 and less than 100
+    n = RND(100)
+    if(n <= 50)
+        return true
+    else
+        return false
+    end if
 End Function

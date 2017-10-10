@@ -23,13 +23,16 @@ Function InitSidebarButtons()
     print "[Menu] InitSidebarButtons"
     print "m.top.isDeviceLinkingEnabled: "; m.top.isDeviceLinkingEnabled
     menuButtons = [
-      { title: "Search", role: "transition", target: "Search"},
-      { title: "About", role: "transition", target: "InfoScreen"}
+        { title: m.global.labels.menu_search_button, role: "transition", target: "Search"},
+        { title: m.global.labels.menu_info_button, role: "transition", target: "InfoScreen" }
     ]
 
     if(m.global.device_linking = true)
-        menuButtons.push( { title: "Account", role: "transition", target: "AccountScreen" } )
-        menuButtons.push( { title: "Favorites", role: "transition", target: "Favorites" } )
+        menuButtons.push( { title: m.global.labels.menu_account_button, role: "transition", target: "AccountScreen" } )
+    end if
+
+    if m.global.favorites_via_api = false or (m.global.device_linking = true and m.global.favorites_via_api = true)
+        menuButtons.push({ title: m.global.labels.menu_favorites_button, role: "transition", target: "Favorites" })
     end if
 
     if m.global.test_info_screen

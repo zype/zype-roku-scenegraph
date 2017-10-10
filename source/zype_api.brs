@@ -7,7 +7,6 @@ REM ******************************************************
 REM This file has no dependencies on other common and custom files.
 REM
 REM Functions in this file:
-REM     SetApiConfigs
 REM     GetApiConfigs
 REM     GetAppKey
 REM     GetApiEndpoint
@@ -35,6 +34,15 @@ Function GetApiConfigs() As Object
 End Function
 
 '******************************************************
+'Get text label configurations
+'******************************************************
+Function GetTextConfigs() As Object
+  rawConfig = ReadAsciiFile("pkg:/source/text_labels_config.json")
+  api = ParseJson(rawConfig)
+  return api
+End Function
+
+'******************************************************
 'Make a request to an url with parameters
 '
 'Function returns:
@@ -55,8 +63,6 @@ Function MakeRequest(src As String, params As Object) As Object
 
   ' print url ' uncomment to debug
   request.SetUrl(url)
-
-  print url
 
   if request.AsyncGetToString()
     while true
@@ -288,7 +294,6 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
     data = response.response
   end if
 
-  ' print "GetAppConfigs: "; data
   return data
 End Function
 
@@ -371,8 +376,6 @@ End Function
 '******************************************************
 Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   print "Video ID: " + videoid
-  id = videoid.tokenize(":")
-  videoid = id[0]
   info = {}
   info.stream = {url: ""}
   info.streamFormat = ""
@@ -382,19 +385,25 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   info.scheduledAds = []
   info.subtitles = []
   info.video = {}
+  info.analytics = {}
 
   url = GetApiConfigs().player_endpoint + "embed/" + videoid + "/"
-  ' params = AppendAppKeyToParams(urlParams)
   params = urlParams
-  ' print params
   response = MakeRequest(url, params)
 
   if response <> invalid
     response = response.response
+    print "Beacon: "; response.body.analytics.beacon
+    print "Dimensions: "; response.body.analytics.dimensions
     if response.DoesExist("body")
 
       if response.body.DoesExist("on_air")
           info.on_air = response.body.on_air
+      end if
+
+      if(response.body.DoesExist("analytics"))
+          analytics = response.body.analytics
+          info.analytics = { beacon: analytics.beacon, device: analytics.dimensions.device, playerId: analytics.dimensions.player_id, siteId: analytics.dimensions.site_id, videoId: analytics.dimensions.video_id }
       end if
 
       if(response.body.DoesExist("advertising"))
@@ -654,41 +663,17 @@ end function
 
 '*************************
 ' Get Subscription Plans
-' ----------------------
-' If in_app_purchase is true then get the prices and plans from Roku Store.
-' If in_app_purchase is false then get the prices and plans from zype API.
-'
-' The way it is setup right now, it always loads the prices and plans from Roku Store
 '*************************
-Function GetPlans(urlParams = {} as Object, in_app_purchase = true, productsCatalog = [])
-
-  'print "m.productsCatalog: "; productsCatalog[0]
-  if(in_app_purchase = true)
-    plans = []
-    for each plan in productsCatalog
-      plans.push({
-        _id: plan.code
-        name: plan.title
-        amount: plan.cost
-        description: plan.description
-      })
-    end for
-    'print "m.productsCatalog: "; plans
-    return plans
-  else
+Function GetPlans(urlParams = {} as Object)
     url = GetApiConfigs().endpoint + "plans"
     params = AppendAppKeyToParams(urlParams)
     response = MakeRequest(url, params)
-    'print url
-    'print "Plans Response: "; response
     if response <> invalid
       data = response.response
     else if response = invalid
       data = invalid
     end if
-    'print "GetPlans: "; data[0]
     return data
-  end if
 End Function
 
 '****************************
@@ -714,11 +699,9 @@ End Function
 Function UnlinkDevice(consumer_id, pin, urlParams as Object)
     print "consumer_id: "; consumer_id; " pin: "; pin
     url = GetApiConfigs().endpoint + "pin/unlink"
-    'print "url: ";url
     params = AppendAppKeyToParams(urlParams)
     params.consumer_id = consumer_id
     params.pin = pin
-    '{"consumer_id": consumer_id, "pin": pin}
     response = MakePutRequest(url, params)
     if response <> invalid
       data = response.response

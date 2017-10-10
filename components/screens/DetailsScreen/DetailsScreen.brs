@@ -24,7 +24,7 @@ Function Init()
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
 
-    m.canWatchVideo = false
+    m.top.canWatchVideo = false
     m.buttons.setFocus(true)
 
     ' Set theme
@@ -44,6 +44,7 @@ Function Init()
     m.subscribeButtons.focusBitmapUri = m.global.theme.button_focus_uri
 
     m.optionsText = m.top.findNode("OptionsText")
+    m.optionsText.text = m.global.labels.menu_label
     m.optionsText.color = m.global.theme.primary_text_color
 
     m.optionsIcon = m.top.findNode("OptionsIcon")
@@ -64,19 +65,17 @@ Function ReinitializeVideoPlayer()
   end if
 End Function
 
-Function onShowSubscriptionPackagesCallback()
-    print "onShowSubscriptionPackagesCallback"
-    if(m.top.ShowSubscriptionPackagesCallback = true)
-        print "onShowSubscriptionPackagesCallback: true"
-        AddPackagesButtons()
-    end if
-End Function
-
 ' set proper focus to buttons if Details opened and stops Video if Details closed
 Sub onVisibleChange()
     ? "[DetailsScreen] onVisibleChange"
     if m.top.visible = true then
         m.buttons.jumpToItem = 0
+
+        if m.top.content <> invalid
+          id = m.top.content.id
+          m.top.content.inFavorites = m.global.favorite_ids.DoesExist(id)
+        end if
+
         m.buttons.setFocus(true)
     else
         m.top.videoPlayer.visible = false
@@ -87,7 +86,11 @@ End Sub
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.top.videoPlayer.hasFocus() then
-      if m.canWatchVideo <> invalid and m.canWatchVideo = true
+      ' Just in case overlay loses visibility when returning from video player. Cause of bug unknown
+      m.overlay.uri = m.global.theme.overlay_uri
+      m.overlay.visible = true
+
+      if m.top.canWatchVideo <> invalid and m.top.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)
       else
@@ -100,7 +103,7 @@ End Sub
 ' set proper focus on buttons and stops video if return from Playback to details
 Sub onVideoVisibleChange()
     if m.top.videoPlayer.visible = false and m.top.visible = true
-      if m.canWatchVideo <> invalid AND m.canWatchVideo = true
+      if m.top.canWatchVideo <> invalid AND m.top.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)
         m.top.videoPlayer.control = "stop"
@@ -114,7 +117,10 @@ End Sub
 
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
-    if m.top.videoPlayer.state = "error"
+    live = (m.top.videoPlayer.content <> invalid and m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
+
+    ' Only close video player if error and VOD (not live stream)
+    if m.top.videoPlayer.state = "error" and live = false
         ' error handling
         m.top.videoPlayer.visible = false
     else if m.top.videoPlayer.state = "playing"
@@ -122,7 +128,7 @@ Sub OnVideoPlayerStateChange()
         if(m.top.autoplay = true)
             m.top.triggerPlay = false
         end if
-    else if m.top.videoPlayer.state = "finished"
+    else if m.top.videoPlayer.state = "finished" and live = false
         print "Video finished playing"
         print "Current: "; m.top.content
         print "Current Type: "; type(m.top.content)
@@ -131,7 +137,6 @@ Sub OnVideoPlayerStateChange()
         m.top.ResumeVideo = m.top.createChild("ResumeVideo")
         m.top.ResumeVideo.id = "ResumeVideo"
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
-        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id.tokenize(":")[0]  ' Delete video id and time from reg.
 
         if m.top.autoplay = true AND isLastVideoInPlaylist() = false
             m.top.videoPlayer.visible = true
@@ -148,6 +153,11 @@ Sub OnVideoPlayerStateChange()
             m.top.videoPlayer.setFocus(false)
             m.top.setFocus(true)
         end if
+
+    ' Try playing live stream again instead of closing by default.
+    ' Video player tries to close at first sign of missing manifest chunks
+    else if m.top.videoPlayer.state = "finished" and live = true
+        m.top.videoPlayer.control = "play"
     end if
 End Sub
 
@@ -173,9 +183,8 @@ Function PrepareVideoPlayer()
         print "nextVideoObject: "; nextVideoObject
         print "New: "; m.top.content
 
-        if(m.canWatchVideo)
+        if(m.top.canWatchVideo)
             m.top.videoPlayer.visible = true
-            m.top.triggerPlay = true
         else
             m.top.videoPlayer.visible = false
             m.top.videoPlayer.setFocus(false)
@@ -197,32 +206,22 @@ Sub onItemSelected()
     index = m.top.itemSelected
     m.top.itemSelectedRole = currentButtonRole(index)
     m.top.itemSelectedTarget = currentButtonTarget(index)
-
-    ' if m.top.itemSelectedRole = "subscribe"
-    '   AddPackagesButtons()
-    ' end if
 End Sub
 
 ' Content change handler
 Sub OnContentChange()
-    m.top.SubscriptionPackagesShown = false
-
     if m.top.content<>invalid then
-        idParts = m.top.content.id.tokenize(":")
-
         is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
         svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
 
         no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
 
         if no_sub_needed or (svod_enabled and is_subscribed)
-          m.canWatchVideo = true
+          m.top.canWatchVideo = true
           AddButtons()
-          m.top.SubscriptionButtonsShown = false
         else
-          m.canWatchVideo = false
+          m.top.canWatchVideo = false
           AddActionButtons()
-          m.top.SubscriptionButtonsShown = true
         end if
 
         m.description.content   = m.top.content
@@ -264,20 +263,20 @@ Sub AddButtons()
 
         if(statusOfVideo = false)
             btns = [
-              {title: "Play", role: "play"}
+              {title: m.global.labels.play_button, role: "play"}
             ]
         else
             btns = [
-              {title: "Play from beginning", role: "play"},
-              {title: "Resume playing", role: "resume"}
+              {title: m.global.labels.watch_from_beginning_button, role: "play"},
+              {title: m.global.labels.resume_button, role: "resume"}
             ]
         end if
 
-        if m.global.device_linking and m.global.auth.isLoggedIn
+        if m.global.favorites_via_api = false or (m.global.device_linking and m.global.auth.isLoggedIn)
             if m.top.content.inFavorites = true
-                btns.push({title: "Unfavorite", role: "favorite"})
+                btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
             else
-                btns.push({title: "Favorite", role: "favorite"})
+                btns.push({title: m.global.labels.favorite_button, role: "favorite"})
             end if
         end if
 
@@ -285,7 +284,7 @@ Sub AddButtons()
         if m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0 then is_subscribed = true else is_subscribed = false
 
         if m.global.swaf and svod_enabled and is_subscribed = false
-          btns.push({title: "Watch Ad Free", role: "swaf"})
+          btns.push({title: m.global.labels.swaf_button, role: "swaf"})
         end if
 
         m.btns = btns
@@ -294,40 +293,12 @@ Sub AddButtons()
     end if
 End Sub
 
-function ShowSubscribeButtons() as void
-  if m.top.ShowSubscribeButtons = true
-    AddActionButtons()
-    m.buttons.setFocus(true)
-  end if
-end function
-
 Sub AddActionButtons()
     if m.top.content <> invalid then
-        ' create buttons
-        btns = [ { title: "Subscribe", role: "transition", target: "AuthSelection" } ]
-
-        if m.global.auth.isLoggedIn = false then btns.push({ title: "Sign In", role: "transition", target: "UniversalAuthSelection" })
-
+        btns = [ { title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" } ]
         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
-
-'   Shouldn't be needed as details screen no longer handles showing the plans (AuthSelection)
-' Sub AddPackagesButtons()
-'     if m.top.content <> invalid then
-'         ' create buttons
-'         btns = []
-'         'for each plan in m.top.SubscriptionPlans
-'         for each plan in m.top.ProductsCatalog
-'            btns.push({
-'             title: plan["title"] + " at " + plan["cost"],
-'             role: "native_sub"
-'           })
-'         end for
-'
-'         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
-'     end if
-' End Sub
 
 Function getStatusOfVideo() as boolean
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")

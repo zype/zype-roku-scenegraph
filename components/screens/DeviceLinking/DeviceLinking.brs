@@ -17,13 +17,13 @@ Function Init()
 
     m.background.color = m.global.theme.background_color
 
-    m.linkText.text = "From your computer or mobile device, visit:"
+    m.linkText.text = m.global.labels.device_linking_label_1
     m.linkText.color = m.global.theme.secondary_text_color
 
     m.linkText2.text = m.top.DeviceLinkingURL
     m.linkText2.color = m.global.theme.primary_text_color
 
-    m.linkText3.text = "Enter Pin:"
+    m.linkText3.text = m.global.labels.device_linking_label_2
     m.linkText3.color = m.global.theme.secondary_text_color
 
     m.pin.color = m.global.theme.primary_text_color
@@ -69,7 +69,7 @@ End Function
 
 Function CreateUnlinkButton()
     result = []
-    result.push({title : "Unlink Device"})
+    result.push({title : m.global.labels.unlink_device_button})
     m.unlinkButton.content = ContentList2SimpleNode(result)
 End Function
 

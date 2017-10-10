@@ -8,6 +8,8 @@
 function RokuStoreServiceHelpers() as object
   this = {}
 
+  ' Accepts a port and listens for store events to be broadcasted
+  '   Returns store response or invalid
   this.getStoreResponse = function(port) as object
     while true
       msg = wait(0, port)

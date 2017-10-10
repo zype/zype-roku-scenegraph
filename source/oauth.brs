@@ -73,9 +73,6 @@ function RegWriteAccessToken(data as object)
   email = ToString(data.email)
   password = ToString(data.password)
 
-'   print expires_in
-'   print created_at
-
   RegWrite("AccessToken", access_token, "OAuth")
   RegWrite("TokenType", token_type, "OAuth")
   RegWrite("ExpiresIn", expires_in, "OAuth")
@@ -95,8 +92,6 @@ function RequestToken(client_id as String, client_secret as String, udid as Stri
   data.AddReplace("pin", pin)
   data.AddReplace("grant_type", "password")
 
-'   print "creating OAuth"
-
   res = RetrieveToken(data)
   if res <> invalid
     RegWriteAccessToken(res)
@@ -107,8 +102,6 @@ function IsExpired(created_at as integer, expires_in as integer)
   dt = createObject("roDateTime")
   dt.mark()
   delta = dt.asSeconds() - created_at
-  ' print str(delta)
-  ' print str(expires_in)
   print "Checking is_expired"
   return delta > expires_in
 end function
@@ -131,7 +124,6 @@ function AddOAuth(data as object)
   m.oauth.refresh_token = data.refresh_token
   m.oauth.scope = data.scope
   m.oauth.created_at = data.created_at
-  '   print m.oauth
 end function
 
 function ClearOAuth()

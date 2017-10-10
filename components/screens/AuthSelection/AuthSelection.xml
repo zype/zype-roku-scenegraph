@@ -36,17 +36,17 @@
           id="Logo"
           uri="pkg:/images/overhangLogo.png"
           loadDisplayMode="scaleToFit"
-          width="200"
-          height="150"
-          translation="[350,50]" />
+          width="150"
+          height="112.5"
+          translation="[350,30]" />
 
         <Label
           id="Header"
           width="880"
           horizAlign="center"
           text="Select your plan"
-          translation="[0,200]" >
-          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="40"/>
+          translation="[0,150]" >
+          <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="40"/>
         </Label>
 
         <Label
@@ -55,15 +55,15 @@
           horizAlign="center"
           wrap="true"
           text=""
-          translation="[0,270]">
-          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="25"/>
+          translation="[0,220]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20"/>
         </Label>
       </Group>
 
       <RowList
         id="Plans"
         itemComponentName="PlanButton"
-        translation="[200, 400]"
+        translation="[200, 350]"
         numRows="1"
         focusBitmapUri="pkg:/images/focus_grid_light.9.png"
         itemSize="[880,200]"
@@ -71,20 +71,20 @@
         rowItemSize="[[400,150]]"
         rowItemSpacing="[[40,0]]" />
 
-      <Group id="OAuthTransition" translation="[200,600]">
+      <Group id="OAuthTransition" translation="[0,570]">
         <Label
           id="OAuthLabel"
-          width="440"
+          width="1000"
           horizAlign="center"
           text=""
           visible="false"
-          translation="[135,0]">
+          translation="[30,0]">
           <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="20"/>
         </Label>
 
         <LabelList
             id="OAuthButton"
-            translation="[500,0]"
+            translation="[590,50]"
             color="0xf5f5f5"
             focusedColor="0xf5f5f5"
             itemSize="[100, 50]"

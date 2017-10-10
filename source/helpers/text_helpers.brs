@@ -1,3 +1,14 @@
+' **************************************************
+' Text Helpers
+'   - Contains generic function for text
+'
+' Functions in service
+'     securedPassword
+'
+' Usage
+'     text_helpers = TextHelpers()
+'     text_helpers.securedPassword("myPassword") => *********d
+' **************************************************
 function TextHelpers() as object
   this = {}
 

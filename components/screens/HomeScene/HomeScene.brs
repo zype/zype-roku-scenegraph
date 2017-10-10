@@ -61,6 +61,7 @@ Function Init()
     m.loadingIndicator.backgroundColor = m.global.theme.background_color
     m.loadingIndicator.imageUri = m.global.theme.loader_uri
 
+    ' For tracking position bwtn playlist levels
     m.IndexTracker = {}
 
     ' For tracking thumbnail sizes and row spacing bwtn levels
@@ -167,13 +168,15 @@ Function OnRowItemSelected()
         m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
 
         m.gridScreen.focusedContent = m.nextVideoNode
+
+        m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
+
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
         m.screenStack.push(m.detailsScreen)
         print "m.gridScreen.focusedContent: "; type(m.gridScreen.focusedContent)
     end if
-    print "Subscription Plans: "; m.top.SubscriptionPlans
 End Function
 
 Function OnDeepLink()
@@ -292,185 +295,89 @@ Function OnKeyEvent(key, press) as Boolean
                 m.screenStack.peek().setFocus(true)
             end if
         else if key = "back"
-            ' if Details opened
-            if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
-                ? "1"
-                ' if detailsScreen is open and video is stopped, details is lastScreen
-                details = m.screenStack.pop()
-                details.visible = false
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-
-                if m.screenStack.peek().id = "Search"
-                  SearchGrid = m.screenStack.peek().findNode("Grid")
-                  SearchGrid.visible = false
-
-                  SearchDetailsScreen = m.screenStack.peek().findNode("SearchDetailsScreen")
-                  SearchDetailsScreen.videoPlayerVisible = false
-                end if
-
-                result = true
-
-            ' if video player opened
-            else if m.detailsScreen.videoPlayerVisible = true then
-                ? "2"
-                m.detailsScreen.videoPlayerVisible = false
-                m.detailsScreen.videoPlayer.control = "stop"
-                m.detailsScreen.videoPlayer.visible = false
-                m.detailsScreen.videoPlayer.setFocus(false)
-
-                m.detailsScreen.visible = true
-                m.detailsScreen.setFocus(true)
-                result = true
-
-            ' if search opened
-            else if m.Search.visible = true and m.Search.isChildrensVisible = false then
-                ? "3"
-                ' if Search is visible - it must be last element
-                search = m.screenStack.pop()
-                search.visible = false
-
-                ' after search pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
-                ' open last screen before search and focus it
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            ' if favorites opened
-            else if m.Favorites.visible = true and m.Favorites.isChildrensVisible = false then
-
-                ? "6"
-                ' if Search is visible - it must be last element
-                favorites = m.screenStack.pop()
-                favorites.visible = false
-
-                ' after favorites pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
-                ' open last screen before favorites and focus it
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            else if m.infoScreen.visible = true
-                ? "4"
-                ' if Info is visible - it must be last element
-                info = m.screenStack.pop()
-                info.visible = false
-
-                ' after info pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
-                ' open last screen before info and focus it
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            ' if menu opened
-            else if m.Menu.visible = true then
-                ? "5"
-                ' if Menu is visible - it must be last element
-                menu = m.screenStack.pop()
-                menu.visible = false
-
-                ' after menu pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
-                ' open last screen before search and focus it
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            ' if auth select opened
-            else if m.AuthSelection.visible = true then
-                auth_select = m.screenStack.pop()
-                auth_select.visible = false
-
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            ' if oauth select opened
-            else if m.UniversalAuthSelection.visible = true then
-                oauth_select = m.screenStack.pop()
-                oauth_select.visible = false
-
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            ' if sign in opened
-            else if m.SignInScreen.visible = true then
-                sign_in = m.screenStack.pop()
-                sign_in.visible = false
-
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            ' if sign up opened
-            else if m.SignUpScreen.visible = true then
-                sign_up = m.screenStack.pop()
-                sign_up.visible = false
-
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            ' if account screen opened
-            else if m.AccountScreen.visible = true then
-                account = m.screenStack.pop()
-                account.visible = false
-
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            else if m.TestInfoScreen.visible = true then
-                test_info_screen = m.screenStack.pop()
-                test_info_screen.visible = false
-
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-                result = true
-
-            ' Coming back from child playlist
-            else if m.contentStack.count() > 0 and m.gridScreen.visible = true then
-                previousContent = m.contentStack.pop()
-
-                lastPosition = GetLastPositionFromTracker()
-                lastRowItemSizes = GetLastRowItemSizes()
-                lastRowSpacings = GetLastRowSpacings()
-
-                m.gridScreen.content = previousContent
-
-                video_list_stack =  m.top.videoliststack
-                video_list_stack.pop()
-                m.top.videoliststack = video_list_stack
-
-                m.detailsScreen.videosTree = m.top.videoliststack.peek()
-
-                DeleteLastPositionFromTracker()
-                DeleteLastPosterPlaylists()
-
-                result = true
-
-                rowList = m.gridScreen.findNode("RowList")
-                rowList.rowItemSize = lastRowItemSizes
-                rowList.rowSpacings = lastRowSpacings
-                rowList.jumpToRowItem = [lastPosition.row, lastPosition.col]
-            else if m.deviceLinking.visible = true
-                ' If link device was launched from detail screen, do not run the following two lines.
-                if (m.detailsScreen.visible = false)
+            if isSpecialScreen()
+                if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
+                    ? "1"
+                    ' if detailsScreen is open and video is stopped, details is lastScreen
                     details = m.screenStack.pop()
-                    details.show = false
+                    details.visible = false
+                    m.screenStack.peek().visible = true
+                    m.screenStack.peek().setFocus(true)
+
+                    if m.screenStack.peek().id = "Search"
+                    SearchGrid = m.screenStack.peek().findNode("Grid")
+                    SearchGrid.visible = false
+
+                    SearchDetailsScreen = m.screenStack.peek().findNode("SearchDetailsScreen")
+                    SearchDetailsScreen.videoPlayerVisible = false
+                    end if
+
+                    result = true
+
+                ' if video player opened
+                else if m.detailsScreen.videoPlayerVisible = true then
+                    ? "2"
+                    m.detailsScreen.videoPlayerVisible = false
+                    m.detailsScreen.videoPlayer.control = "stop"
+                    m.detailsScreen.videoPlayer.visible = false
+                    m.detailsScreen.videoPlayer.setFocus(false)
+
+                    m.detailsScreen.visible = true
+                    m.detailsScreen.setFocus(true)
+                    result = true
+                else if m.contentStack.count() > 0 and m.gridScreen.visible = true then
+                    previousContent = m.contentStack.pop()
+
+                    lastPosition = GetLastPositionFromTracker()
+                    lastRowItemSizes = GetLastRowItemSizes()
+                    lastRowSpacings = GetLastRowSpacings()
+
+                    m.gridScreen.content = previousContent
+
+                    video_list_stack =  m.top.videoliststack
+                    video_list_stack.pop()
+                    m.top.videoliststack = video_list_stack
+
+                    m.detailsScreen.videosTree = m.top.videoliststack.peek()
+
+                    DeleteLastPositionFromTracker()
+                    DeleteLastPosterPlaylists()
+
+                    result = true
+
+                    rowList = m.gridScreen.findNode("RowList")
+                    rowList.rowItemSize = lastRowItemSizes
+                    rowList.rowSpacings = lastRowSpacings
+                    rowList.jumpToRowItem = [lastPosition.row, lastPosition.col]
+                else if m.deviceLinking.visible = true
+                    ' If link device was launched from detail screen, do not run the following two lines.
+                    if (m.detailsScreen.visible = false)
+                        screen = m.screenStack.pop()
+                        screen.show = false
+                    end if
+
+                    m.deviceLinking.show = false
+                    m.deviceLinking.setFocus(false)
+
+                    ' after Device Linking screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
+                    ' open last screen before search and focus it
+                    m.screenStack.peek().visible = true
+                    m.screenStack.peek().setFocus(true)
+
+                    result = true
                 end if
+            else    ' For all other screens
+                if(m.gridScreen.visible <> true)    ' All cases except when closing the app from the Grid Screen
+                    ' if the screen is visible - it must be the last element
+                    screen = m.screenStack.pop()
+                    screen.visible = false
 
-                m.deviceLinking.show = false
-                m.deviceLinking.setFocus(false)
-
-                if m.screenStack.peek().id = "DeviceLinking" then m.screenStack.pop()
-
-                ' after Device Linking screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
-                ' open last screen before search and focus it
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
-
-                result = true
+                    ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
+                    ' open last screen before it and focus it
+                    m.screenStack.peek().visible = true
+                    m.screenStack.peek().setFocus(true)
+                    result = true
+                end if
             end if
         end if
     end if
@@ -517,4 +424,14 @@ Function OnKeyEvent(key, press) as Boolean
     end if
 
     return result
+End Function
+
+Function isSpecialScreen()
+    if m.screenStack.peek().id = "Menu"
+        return false
+    else if (m.detailsScreen.visible = true) OR (m.contentStack.count() > 0 and m.gridScreen.visible = true) OR (m.deviceLinking.visible = true)
+        return true
+    else
+        return false
+    end if
 End Function

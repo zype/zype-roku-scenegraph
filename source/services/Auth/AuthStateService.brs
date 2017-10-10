@@ -1,3 +1,16 @@
+' **************************************************
+' Auth State Service
+'   - Service for managing authentication state in app
+'   - No dependencies
+'
+' Functions in service
+'     incrementNativeSubCount
+'     updateAuthWithUserInfo
+'     setCurrentNativePlan
+'
+' Usage
+'     akamai_service = AkamaiService()
+' **************************************************
 function AuthStateService() as object
   this = {}
   this.global = m.global

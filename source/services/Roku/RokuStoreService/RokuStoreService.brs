@@ -2,6 +2,20 @@
 ' RokuStoreService
 '   - Initialize with store object and associated message port
 '
+' Functions
+'   getCatalog
+'   getNativeSubscriptionPlans
+'   getConsumables
+'   getNonconsumables
+'   getPurchases
+'   getUserNativeSubscriptionPurchases
+'   makePurchase
+'   alreadyPurchased
+'   getRecentPurchase
+'   getLastItemTransaction
+'   latestNativeSubscriptionPurchase
+'   hasActiveSubscription
+'
 ' Dependencies
 '     source/services/Roku/RokuStoreService/RokuStoreServiceHelpers.brs
 '****************************************************
@@ -38,6 +52,7 @@ function RokuStoreService(store, message_port) as object
     return m.helpers.getStoreResponse(m.port)
   end function
 
+  ' Get all native subscriptions user has purchased
   this.getUserNativeSubscriptionPurchases = function() as object
     native_subscriptions = m.helpers.filterItemsByType(m.getPurchases(), ["MonthlySub", "YearlySub"])
     valid_native_subscriptions = []
@@ -66,6 +81,7 @@ function RokuStoreService(store, message_port) as object
     if success then return { receipt: order_response[0], success: true} else return {receipt: invalid, success: false}
   end function
 
+  ' Check if already purchased
   this.alreadyPurchased = function(code as string) as boolean
     purchases = m.getPurchases()
 
@@ -76,6 +92,7 @@ function RokuStoreService(store, message_port) as object
     return false
   end function
 
+  ' Return last item user purchased
   this.getRecentPurchase = function() as object
     purchases = m.getPurchases()
 
@@ -97,6 +114,7 @@ function RokuStoreService(store, message_port) as object
     return recent_purchase
   end function
 
+  ' Takes code and gets last receipt for this item
   this.getLastItemTransaction = function(code) as object
     purchases = m.GetPurchases()
     item_transactions = m.helpers.filterItemsByCode(purchases, code)
@@ -105,11 +123,13 @@ function RokuStoreService(store, message_port) as object
     return latest_item_transaction
   end function
 
+  ' Gets receipt for last native subscription purchased
   this.latestNativeSubscriptionPurchase = function() as object
     native_subs = m.getUserNativeSubscriptionPurchases()
     return m.helpers.latestExpirationPurchase(native_subs)
   end function
 
+  ' Returns true/false if user has active native subscription purchase
   this.hasActiveSubscription = function() as boolean
     latest_native_sub = m.latestNativeSubscriptionPurchase()
     if latest_native_sub.count() = 0 or m.helpers.isExpired(latest_native_sub.expirationDate) then return false else return true
