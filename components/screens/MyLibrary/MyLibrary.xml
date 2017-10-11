@@ -60,7 +60,7 @@
             numRows="2"
             itemSpacing="[13, 0]"
             focusXOffset="[147]"
-            rowFocusAnimationStyle="fixedFocusWrap"
+            rowFocusAnimationStyle="floatingFocus"
             rowItemSize="[[262, 147]]"
             rowItemSpacing="[[16, 3]]"
             showRowLabel="true"

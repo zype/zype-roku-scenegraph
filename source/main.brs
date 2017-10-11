@@ -280,20 +280,29 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     sign_in_button.setFocus(true)
                 end if
 
-                m.scene.myLibraryContent = ParseContent(GetMyLibraryContent(is_linked))
+                my_library_count = ContentHelpers().CountTwoDimContentNodeAtIndex(m.scene.myLibraryContent, 0)
+
                 m.loadingIndicator.control = "stop"
                 m.MyLibrary.setFocus(true)
 
                 if is_linked
                     sign_in_button.setFocus(false)
 
-                    my_library_count = ContentHelpers().OneDimContentNodeCount(m.scene.myLibraryContent)
                     if my_library_count > 0
                         my_library_gridscreen.setFocus(true)
                     else
-                        my_library_gridscreen.setFocus(false)
+                        my_library = GetMyLibraryContent(is_linked)
+                        m.scene.myLibraryContent = ParseContent(my_library)
+                        my_library_count = ContentHelpers().CountTwoDimContentNodeAtIndex(m.scene.myLibraryContent, 0)
+
+                        if my_library_count > 0
+                            my_library_gridscreen.setFocus(true)
+                        else
+                            my_library_gridscreen.setFocus(false)
+                        end if
                     end if
                 else
+                    m.scene.myLibraryContent = ParseContent(GetMyLibraryContent(is_linked))
                     my_library_gridscreen.setFocus(false)
                     sign_in_button.setFocus(true)
                 end if
