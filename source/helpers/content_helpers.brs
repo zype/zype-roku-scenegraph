@@ -28,5 +28,9 @@ function ContentHelpers() as object
     return content_container
   end function
 
+  this.OneDimContentNodeCount = function(content_node as object) as integer
+      return content_node.GetChild(0).GetChildCount()
+  end function
+
   return this
 end function

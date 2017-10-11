@@ -286,7 +286,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
                 if is_linked
                     sign_in_button.setFocus(false)
-                    my_library_gridscreen.setFocus(true)
+
+                    my_library_count = ContentHelpers().OneDimContentNodeCount(m.scene.myLibraryContent)
+                    if my_library_count > 0
+                        my_library_gridscreen.setFocus(true)
+                    else
+                        my_library_gridscreen.setFocus(false)
+                    end if
                 else
                     my_library_gridscreen.setFocus(false)
                     sign_in_button.setFocus(true)
@@ -868,8 +874,8 @@ function GetMyLibraryContent(is_linked as boolean)
         row = { title: "", ContentList: [] }
 
         if video_entitlements <> invalid
-            row.title = m.global.labels.my_library_catalog_message
             if video_entitlements.count() > 0
+                row.title = m.global.labels.my_library_catalog_message
                 favs = GetFavoritesIDs()
                 video_index = 0
                 for each entitled_vid in video_entitlements
@@ -883,6 +889,8 @@ function GetMyLibraryContent(is_linked as boolean)
                 end for
 
                 row.ContentList = ArrayHelpers().RemoveDuplicatesBy(row.ContentList, "id")
+            else
+                row.title = m.global.labels.empty_my_library_catalog_message
             end if
         end if
 

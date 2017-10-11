@@ -18,5 +18,6 @@
   "device_linking_label_2": "Enter Pin:",
   "favorite_screen_label": "Favorites",
   "my_library_signin_message": "To view your library, please link your device",
-  "my_library_catalog_message": "Your Library"
+  "my_library_catalog_message": "My Library",
+  "empty_my_library_catalog_message": "My Library is empty"
 }
