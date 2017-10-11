@@ -191,8 +191,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             ' Trigger listener to push detailsScreen into HomeScene screenStack
             m.scene.DeepLinkedID = m.contentID
 
+            is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount)
+
             ' Start playing video if logged in or no monetization
-            if m.global.auth.isLoggedIn = true OR (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
+            if is_subscribed = true or (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
                 m.akamai_service.setPlayStartedOnce(true)
                 playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key}, m.app.avod)
             end if
@@ -409,16 +411,8 @@ function goIntoDeviceLinkingFlow() as void
               ' Reset details screen buttons
               m.detailsScreen.content = m.detailsScreen.content
 
-              ' Deep linked
-              if m.contentID <> invalid
-                  di = CreateObject("roDeviceInfo")
-                  ip_address = di.GetConnectionInfo().ip
-                  url = "http://" + ip_address + ":8060/keydown/back"
-                  MakePostRequest(url, {})
-              else
-                  sleep(500)
-                  CreateDialog(m.scene, "Success", "Your device is linked", ["Continue"])
-              end if
+              sleep(500)
+              CreateDialog(m.scene, "Success", "Your device is linked", ["Continue"])
               exit while
           end if
       end if
