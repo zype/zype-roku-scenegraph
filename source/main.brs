@@ -861,15 +861,19 @@ function GetFavoritesContent()
     return list
 end function
 
-function GetMyLibraryContent(is_linked as boolean)
+function GetMyLibraryContent(is_linked as boolean, page = 1 as integer)
     list = []
 
     if is_linked
         oauth = GetAccessToken(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
 
-        if m.app.per_page <> invalid then per_page = m.app.per_page else per_page = 500
-
-        video_entitlements = GetEntitledVideos({access_token: oauth.access_token, per_page: per_page})
+        video_entitlements = GetEntitledVideos({
+            access_token: oauth.access_token,
+            per_page: 20,
+            page: page
+            sort: "created_at",
+            order: "desc"
+        })
 
         row = { title: "", ContentList: [] }
 

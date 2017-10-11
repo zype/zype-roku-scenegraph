@@ -772,6 +772,7 @@ function GetEntitledVideos(urlParams as object) as object
     response = MakeRequest(url, urlParams)
 
     print url
+    print urlParams
 
     if response <> invalid then return response.response else return invalid
 end function
