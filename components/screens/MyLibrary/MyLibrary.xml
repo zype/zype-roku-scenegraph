@@ -28,6 +28,8 @@
 
         <field id="isLoggedIn" type="bool" />
 
+        <field id="paginatorSelected" type="bool" alwaysnotify="true" />
+
         <field id="SignInButtonSelected" type="intarray" alwaysnotify="true" alias="SignInButton.ItemSelected" onChange="OnSignInButtonSelected" />
         <field id="itemSelectedRole" type="string" />
         <field id="itemSelectedTarget" type="string" />

@@ -109,9 +109,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.MyLibrary = m.scene.findNode("MyLibrary")
     m.MyLibrary.observeField("visible", m.port)
+    m.MyLibrary.observeField("paginatorSelected", m.port)
 
     m.MyLibraryDetailsScreen = m.MyLibrary.findNode("MyLibraryDetailsScreen")
     m.MyLibraryDetailsScreen.observeField("itemSelected", m.port)
+
+    m.my_library_content = []
 
     if m.app.in_app_purchase or m.app.device_linking
       svod_enabled = true
@@ -288,25 +291,59 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 if is_linked
                     sign_in_button.setFocus(false)
 
+                    ' MyLibrary was set
                     if my_library_count > 0
                         my_library_gridscreen.setFocus(true)
+
+                    ' get MyLibrary first time
                     else
                         my_library = GetMyLibraryContent(is_linked)
-                        m.scene.myLibraryContent = ParseContent(my_library)
-                        my_library_count = ContentHelpers().CountTwoDimContentNodeAtIndex(m.scene.myLibraryContent, 0)
 
-                        if my_library_count > 0
+                        m.my_library_content = ArrayHelpers().RemoveDuplicatesBy(my_library[0].contentList, "id")
+
+                        my_library_content = {
+                            contentList: m.my_library_content,
+                            title: my_library[0].title
+                        }
+
+                        if m.my_library_content.count() > 0
+                            ' Push paginator to get page 2
+                            my_library_content.contentList.push(Paginator(2))
+
+                            m.scene.myLibraryContent = ParseContent([my_library_content])
                             my_library_gridscreen.setFocus(true)
                         else
+                            m.scene.myLibraryContent = ParseContent([my_library_content])
                             my_library_gridscreen.setFocus(false)
                         end if
                     end if
+
                 else
                     m.scene.myLibraryContent = ParseContent(GetMyLibraryContent(is_linked))
                     my_library_gridscreen.setFocus(false)
                     sign_in_button.setFocus(true)
                 end if
 
+            else if msg.getField() = "paginatorSelected" and msg.getData() = true and msg.getNode() = "MyLibrary"
+                my_library_focused = m.MyLibrary.focusedContent
+
+                my_library_next_page = GetMyLibraryContent(true, my_library_focused.nextPage)
+
+                ' Remove Paginator
+                m.my_library_content.pop()
+
+                m.my_library_content.append(my_library_next_page[0].contentList)
+                m.my_library_content = ArrayHelpers().RemoveDuplicatesBy(m.my_library_content, "id")
+
+                new_my_library = {
+                    title: m.scene.myLibraryContent.GetChild(0).title,
+                    contentList: m.my_library_content
+                }
+                new_my_library.contentList.push(Paginator(my_library_focused.nextPage + 1))
+
+
+                m.scene.myLibraryContent = ParseContent([new_my_library])
+                m.MyLibrary.setFocus(true)
             else if msg.getField() = "SearchString"
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
@@ -900,8 +937,6 @@ function GetMyLibraryContent(is_linked as boolean, page = 1 as integer)
                         video_index = video_index + 1
                     end if
                 end for
-
-                row.ContentList = ArrayHelpers().RemoveDuplicatesBy(row.ContentList, "id")
             else
                 row.title = m.global.labels.empty_my_library_catalog_message
             end if

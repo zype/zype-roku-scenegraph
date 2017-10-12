@@ -33,15 +33,19 @@ Function Init()
 End Function
 
 Function OnRowItemSelected()
-    ' On select any item on home scene, show Details node and hide Grid
-    m.gridScreen.visible = "false"
-    m.detailsScreen.content = m.top.focusedContent
-    ' m.detailsScreen.isLoggedIn = m.top.isLoggedIn
-    m.detailsScreen.setFocus(true)
-    m.detailsScreen.visible = "true"
-    m.detailsScreen.IsOptionsLabelVisible = "false"
+    if m.top.focusedContent.isPaginator <> invalid and m.top.focusedContent.isPaginator
+        m.top.paginatorSelected = true
+    else
+        ' On select any item on home scene, show Details node and hide Grid
+        m.gridScreen.visible = "false"
+        m.detailsScreen.content = m.top.focusedContent
+        ' m.detailsScreen.isLoggedIn = m.top.isLoggedIn
+        m.detailsScreen.setFocus(true)
+        m.detailsScreen.visible = "true"
+        m.detailsScreen.IsOptionsLabelVisible = "false"
 
-    m.top.isChildrensVisible = true
+        m.top.isChildrensVisible = true
+    end if
 End Function
 
 sub OnContentChange()
@@ -59,6 +63,8 @@ Sub OnItemFocused()
 
             ? "print: ", focusedContent
             m.videoTitle.text = focusedContent.title
+
+            if focusedContent.isPaginator = true then m.top.paginate = true
         end if
     end if
 End Sub
