@@ -60,8 +60,6 @@ Sub OnItemFocused()
         focusedContent = m.top.content.getChild(itemFocused[0]).getChild(itemFocused[1])
         if focusedContent <> invalid then
             m.top.focusedContent    = focusedContent
-
-            ? "print: ", focusedContent
             m.videoTitle.text = focusedContent.title
 
             if focusedContent.isPaginator = true then m.top.paginate = true

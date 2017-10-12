@@ -328,6 +328,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 my_library_focused = m.MyLibrary.focusedContent
 
                 my_library_next_page = GetMyLibraryContent(true, my_library_focused.nextPage)
+                my_library_next_page_count = my_library_next_page[0].contentList.count()
 
                 ' Remove Paginator
                 m.my_library_content.pop()
@@ -339,7 +340,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     title: m.scene.myLibraryContent.GetChild(0).title,
                     contentList: m.my_library_content
                 }
-                new_my_library.contentList.push(Paginator(my_library_focused.nextPage + 1))
+                if my_library_next_page_count > 0 then new_my_library.contentList.push(Paginator(my_library_focused.nextPage + 1))
 
 
                 m.scene.myLibraryContent = ParseContent([new_my_library])
