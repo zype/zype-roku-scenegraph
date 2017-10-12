@@ -50,7 +50,7 @@
 
         <!-- Custom fonts -->
         <Label>
-            <Font id="RowListFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="18"/>
+            <Font id="RowListFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="24"/>
         </Label>
 
         <!-- Favorites grid -->
@@ -75,8 +75,8 @@
             id="VideoTitle"
             color="0xa8a8a8"
             text=""
-            translation="[100,460]">
-            <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="18" />
+            translation="[90,460]">
+            <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20" />
         </Label>
 
         <!-- Overhang logo -->

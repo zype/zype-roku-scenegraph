@@ -285,9 +285,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
                 my_library_count = ContentHelpers().CountTwoDimContentNodeAtIndex(m.scene.myLibraryContent, 0)
 
-                m.loadingIndicator.control = "stop"
-                m.MyLibrary.setFocus(true)
-
                 if is_linked
                     sign_in_button.setFocus(false)
 
@@ -323,6 +320,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     my_library_gridscreen.setFocus(false)
                     sign_in_button.setFocus(true)
                 end if
+
+                m.loadingIndicator.control = "stop"
+                m.MyLibrary.setFocus(true)
 
             else if msg.getField() = "paginatorSelected" and msg.getData() = true and msg.getNode() = "MyLibrary"
                 my_library_focused = m.MyLibrary.focusedContent
