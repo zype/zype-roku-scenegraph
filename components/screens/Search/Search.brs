@@ -68,7 +68,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     if press then
         ? "key == ";  key
         if key="down" then
-            m.gridScreen.setFocus(true)
+            if m.gridScreen.content <> invalid then m.gridScreen.setFocus(true)
             result = true
         else if key="up" then
             m.keyboard.setFocus(true)
