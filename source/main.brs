@@ -306,7 +306,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                         }
 
                         if m.my_library_content.count() > 0
-                            ' Push paginator to get page 2
+                            ' Push paginator to get next page
                             my_library_content.contentList.push(Paginator(2))
 
                             m.scene.myLibraryContent = ParseContent([my_library_content])
@@ -342,6 +342,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     title: m.scene.myLibraryContent.GetChild(0).title,
                     contentList: m.my_library_content
                 }
+
+                ' add paginator only if next page is next page content is not empty
                 if my_library_next_page_count > 0 then new_my_library.contentList.push(Paginator(my_library_focused.nextPage + 1))
 
 

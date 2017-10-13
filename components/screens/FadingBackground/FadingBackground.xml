@@ -28,14 +28,14 @@ FadingBackground - Background for all nodes. It is basically poster that gets pi
             id="backgroundColor"/>
         <Poster
             id="oldBackground"
-            width="900"
-            height="550"
-            translation="[430,0]" />
+            width="775"
+            height="435"
+            translation="[555,0]" />
         <Poster
             id="background"
-            width="900"
-            height="550"
-            translation="[430,0]" />
+            width="775"
+            height="435"
+            translation="[555,0]" />
         <Rectangle
             id="shade"
             color="0x151515"
