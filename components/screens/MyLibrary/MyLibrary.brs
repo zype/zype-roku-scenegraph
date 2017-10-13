@@ -43,6 +43,7 @@ Function OnRowItemSelected()
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
         m.detailsScreen.IsOptionsLabelVisible = "false"
+        m.detailsScreen.autoplay = false
 
         m.top.isChildrensVisible = true
     end if

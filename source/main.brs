@@ -24,6 +24,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     SetVersion()
     SetTextLabels()
 
+    m.global.addFields({ autoplay: m.app.autoplay })
+
     if m.app.favorites_via_api <> invalid then favorites_via_api = m.app.favorites_via_api else favorites_via_api = GetApiConfigs().favorites_via_api
     m.global.addFields({ favorites_via_api: favorites_via_api })
 
@@ -369,20 +371,20 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 state = msg.getData()
                 m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
 
-                ' autoplay
-                next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
-                if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
-                    m.detailsScreen.triggerPlay = true
+                if m.scene.focusedChild.id = "DetailsScreen"
+                  ' autoplay
+                  next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
+                  if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
+                      m.detailsScreen.triggerPlay = true
+                  end if
                 end if
 
             else if msg.getField() = "position"
-                ' print m.videoPlayer.position
-                ' print GetLimitStreamObject().limit
                 m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
-                    AddVideoIdForResumeToReg(m.detailsScreen.content.id,m.videoPlayer.position.ToStr())
-                    AddVideoIdTimeSaveForResumeToReg(m.detailsScreen.content.id,startDate.asSeconds().ToStr())
+                    AddVideoIdForResumeToReg(m.videoPlayer.content.id,m.videoPlayer.position.ToStr())
+                    AddVideoIdTimeSaveForResumeToReg(m.videoPlayer.content.id,startDate.asSeconds().ToStr())
                 end if
 
 	            ' If midroll ads exist, watch for midroll ads
@@ -1243,17 +1245,17 @@ function handleButtonEvents(index, screen)
     button_role = screen.itemSelectedRole
 
     if button_role = "play"
-      RemakeVideoPlayer()
-      m.VideoPlayer = m.detailsScreen.VideoPlayer
+      RemakeVideoPlayer(screen)
+      m.VideoPlayer = screen.VideoPlayer
 
       m.VideoPlayer.seek = 0.00
       RemoveVideoIdForResumeFromReg(screen.content.id)
       playRegularVideo(screen)
     else if button_role = "resume"
       resume_time = GetVideoIdForResumeFromReg(screen.content.id)
-      RemakeVideoPlayer()
+      RemakeVideoPlayer(screen)
 
-      m.VideoPlayer = m.detailsScreen.VideoPlayer
+      m.VideoPlayer = screen.VideoPlayer
       m.VideoPlayer.seek = resume_time
 
       m.akamai_service.setPlayStartedOnce(true)
@@ -1322,8 +1324,8 @@ end function
 
 ' Seting details screen's RemakeVideoPlayer value to true recreates Video component
 '     Roku Video component performance degrades significantly after multiple uses, so we make a new one
-function RemakeVideoPlayer() as void
-    m.detailsScreen.RemakeVideoPlayer = true
+function RemakeVideoPlayer(screen) as void
+    screen.RemakeVideoPlayer = true
 end function
 
 Function StartLoader()

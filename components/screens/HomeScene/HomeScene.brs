@@ -177,6 +177,7 @@ Function OnRowItemSelected()
 
         m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
 
+        m.detailsScreen.autoplay = m.global.autoplay
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
@@ -245,6 +246,8 @@ end function
 ' Main Remote keypress event loop
 Function OnKeyEvent(key, press) as Boolean
     ? ">>> HomeScene >> OnkeyEvent"
+    ? "m.screenStack.count(): "; m.screenStack.count()
+
     result = false
     if press then
         if key = "options" then
@@ -390,6 +393,7 @@ Function OnKeyEvent(key, press) as Boolean
             ' Refocus on DetailsScreen
             m.screenStack.push(m.detailsScreen)
 
+            m.detailsScreen.autoplay = false
             m.detailsScreen.visible = true
             m.detailsScreen.setFocus(true)
           end if
