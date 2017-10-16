@@ -4,6 +4,7 @@
   "menu_info_button": "About",
   "menu_device_linking_button": "Link Device",
   "menu_favorites_button": "Favorites",
+  "menu_my_library_button": "My Library",
   "link_device_button": "Link Device",
   "unlink_device_button": "Unlink Device",
   "subscribe_button": "Subscribe",
@@ -15,5 +16,9 @@
   "watch_from_beginning_button": "Play from beginning",
   "device_linking_label_1": "From your computer or mobile device, visit:",
   "device_linking_label_2": "Enter Pin:",
-  "favorite_screen_label": "Favorites"
+  "favorite_screen_label": "Favorites",
+  "my_library_signin_message": "To view your library, please link your device",
+  "my_library_catalog_message": "My Library",
+  "empty_my_library_catalog_message": "My Library is empty",
+  "paginate_button_text": "See More"
 }

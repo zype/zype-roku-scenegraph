@@ -6,7 +6,8 @@ Function DarkTheme() as Object
         loader_uri:                 "pkg:/components/screens/LoadingIndicator/lightLoader.png",
         focus_grid_uri:             "pkg:/images/focus_grid_light.9.png",
         overlay_uri:                "pkg:/images/blackOverlay.png",
-        button_focus_uri:           "pkg:/images/button-focus-light.png"
+        button_focus_uri:           "pkg:/images/button-focus-light.png",
+        paginate_button:            "pkg:/images/paginate_light.png"
     }
     return theme
 End Function
@@ -19,7 +20,8 @@ Function LightTheme() as Object
         loader_uri:                 "pkg:/components/screens/LoadingIndicator/darkLoader.png",
         focus_grid_uri:             "pkg:/images/focus_grid_dark.9.png",
         overlay_uri:                "pkg:/images/whiteOverlay.png",
-        button_focus_uri:           "pkg:/images/button-focus-dark.png"
+        button_focus_uri:           "pkg:/images/button-focus-dark.png",
+        paginate_button:            "pkg:/images/paginate_dark.png"
     }
     return theme
 End Function

@@ -11,5 +11,6 @@
   "git_description" : "<GIT_DESCRIPTION>",
   "enable_lock_icons": false,
   "subscribe_to_watch_ad_free": false,
-  "favorites_via_api": false
+  "favorites_via_api": false,
+  "universal_tvod": false
 }

@@ -10,6 +10,10 @@
 		<field id="mediaType" type="string" />
 		<field id="posterThumbnail" type="string" />
 		<field id="usePoster" type="boolean" />
+
+		<!-- for pagination -->
+		<field id="isPaginator" type="boolean" />
+		<field id="nextPage" type="integer" />
 	</interface>
 
 </component>
