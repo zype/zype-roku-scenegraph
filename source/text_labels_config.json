@@ -5,6 +5,7 @@
   "menu_device_linking_button": "Link Device",
   "menu_account_button": "Account",
   "menu_favorites_button": "Favorites",
+  "menu_my_library_button": "My Library",
   "link_device_button": "Link Device",
   "unlink_device_button": "Unlink Device",
   "sign_in_button": "Sign In",
@@ -28,5 +29,9 @@
   "device_linking_label_2": "Enter Pin:",
   "favorite_screen_label": "Favorites",
   "user_credential_submit_button": "Continue",
-  "custom_plan_purchase_message": ""
+  "custom_plan_purchase_message": "",
+  "my_library_signin_message": "To view your library, please sign in",
+  "my_library_catalog_message": "My Library",
+  "empty_my_library_catalog_message": "My Library is empty",
+  "paginate_button_text": "See More"
 }

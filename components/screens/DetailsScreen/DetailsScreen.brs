@@ -149,8 +149,10 @@ Sub OnVideoPlayerStateChange()
             m.top.CurrentVideoIndex = 0
             PrepareVideoPlayer()
         else
+            m.top.videoPlayer.control = "stop"
             m.top.videoPlayer.visible = false
             m.top.videoPlayer.setFocus(false)
+            m.top.videoPlayerVisible = false
             m.top.setFocus(true)
         end if
 

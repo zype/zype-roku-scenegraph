@@ -1,3 +1,7 @@
+### 1.5.3 (16/10/2017)
+
+- Added Universal TVOD feature flag for My Library
+
 ### 1.5.2 (03/10/2017)
 
 - Added local favoriting. Favoriting via api is still configurable

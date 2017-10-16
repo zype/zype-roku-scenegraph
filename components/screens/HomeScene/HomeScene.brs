@@ -40,6 +40,10 @@ Function Init()
 
     m.AccountScreen = m.top.findNode("AccountScreen")
 
+    ' My Library
+    m.MyLibrary = m.top.findNode("MyLibrary")
+    m.MyLibrary.observeField("SignInButtonSelected", "MyLibraryTriggerSignIn")
+
     ' Observer to handle Item selection on RowList inside GridScreen (alias="GridScreen.rowItemSelected")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
@@ -171,6 +175,7 @@ Function OnRowItemSelected()
 
         m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
 
+        m.detailsScreen.autoplay = m.global.autoplay
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
@@ -262,17 +267,32 @@ Function OnMenuButtonSelected()
     else if button_role = "transition" and button_target = "Favorites"
       m.top.transitionTo = "Favorites"
     else if button_role = "transition" and button_target = "AccountScreen"
-      m.top.transitionTo = "AccountScreen"
+        m.top.transitionTo = "AccountScreen"
     else if button_role = "transition" and button_target = "TestInfoScreen"
-      m.top.transitionTo = "TestInfoScreen"
+        m.top.transitionTo = "TestInfoScreen"
+    else if button_role = "transition" and button_target = "DeviceLinking"
+        m.deviceLinking.show = true
+        m.top.transitionTo = "DeviceLinking"
+    else if button_role = "transition" and button_target = "MyLibrary"
+        m.top.transitionTo = "MyLibrary"
     end if
 End Function
+
+function MyLibraryTriggerSignIn() as void
+    button_role = m.MyLibrary.itemSelectedRole
+    button_target = m.MyLibrary.itemSelectedTarget
+
+    if button_role = "transition" and button_target = "AuthSelection"
+        m.top.transitionTo = button_target
+    end if
+end function
 
 ' Main Remote keypress event loop
 Function OnKeyEvent(key, press) as Boolean
     ? ">>> HomeScene >> OnkeyEvent"
     ? "key: "; key
     ? "press: "; press
+    ? "m.screenStack.count(): "; m.screenStack.count()
 
     result = false
     if press then
@@ -295,6 +315,8 @@ Function OnKeyEvent(key, press) as Boolean
                 m.screenStack.peek().setFocus(true)
             end if
         else if key = "back"
+            ? "isSpecialScreen(): "; isSpecialScreen()
+
             if isSpecialScreen()
                 if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
                     ? "1"
@@ -359,15 +381,15 @@ Function OnKeyEvent(key, press) as Boolean
                     m.deviceLinking.show = false
                     m.deviceLinking.setFocus(false)
 
-                    ' after Device Linking screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
-                    ' open last screen before search and focus it
                     m.screenStack.peek().visible = true
                     m.screenStack.peek().setFocus(true)
+
+                    if m.screenStack.peek().id = "MyLibrary" then m.screenStack.peek().findNode("SignInButton").setFocus(true)
 
                     result = true
                 end if
             else    ' For all other screens
-                if(m.gridScreen.visible <> true)    ' All cases except when closing the app from the Grid Screen
+                if(m.screenStack.peek().id <> "GridScreen")    ' All cases except when closing the app from the Grid Screen
                     ' if the screen is visible - it must be the last element
                     screen = m.screenStack.pop()
                     screen.visible = false
@@ -417,6 +439,7 @@ Function OnKeyEvent(key, press) as Boolean
             ' Refocus on DetailsScreen
             m.screenStack.push(m.detailsScreen)
 
+            m.detailsScreen.autoplay = false
             m.detailsScreen.visible = true
             m.detailsScreen.setFocus(true)
           end if

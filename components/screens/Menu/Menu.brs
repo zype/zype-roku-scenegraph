@@ -35,6 +35,10 @@ Function InitSidebarButtons()
         menuButtons.push({ title: m.global.labels.menu_favorites_button, role: "transition", target: "Favorites" })
     end if
 
+    if m.global.universal_tvod
+        menuButtons.push({ title: m.global.labels.menu_my_library_button, role: "transition", target: "MyLibrary" })
+    end if
+
     if m.global.test_info_screen
       menuButtons.push( {title: "Test Info", role: "transition", target: "TestInfoScreen" } )
     end if

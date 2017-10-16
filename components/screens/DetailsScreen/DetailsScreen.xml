@@ -64,9 +64,9 @@
         <!--Background poster.-->
         <Poster
             id="Background"
-            width="900"
-            height="550"
-            translation="[430,0]"
+            width="775"
+            height="435"
+            translation="[555,0]"
             />
 
         <!-- Gradient Balck Overlay -->

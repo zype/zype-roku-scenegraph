@@ -9,6 +9,7 @@ Function DarkTheme() as Object
         overlay_uri:                "pkg:/images/blackOverlay.png",
         button_focus_uri:           "pkg:/images/button-focus-light.png",
         button_filledin_uri:        "pkg:/images/button-filledin-light.png"
+        paginate_button:            "pkg:/images/paginate_light.png"
     }
     return theme
 End Function
@@ -24,6 +25,7 @@ Function LightTheme() as Object
         overlay_uri:                "pkg:/images/whiteOverlay.png",
         button_focus_uri:           "pkg:/images/button-focus-dark.png",
         button_filledin_uri:        "pkg:/images/button-filledin-dark.png"
+        paginate_button:            "pkg:/images/paginate_dark.png"
     }
     return theme
 End Function
@@ -45,6 +47,8 @@ Function CustomTheme() as Object
         focus_grid_uri:             "pkg:/images/focus_grid_custom.9.png",
         overlay_uri:                "pkg:/images/whiteOverlay.png",
         button_focus_uri:           "pkg:/images/button-focus-custom.png"
+        button_filledin_uri:        "pkg:/images/button-filledin-light.png"
+        paginate_button:            "pkg:/images/paginate_light.png"        
     }
     return theme
 End Function

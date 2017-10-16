@@ -1,13 +1,10 @@
 ' ********** Copyright 2016 Roku Corp.  All Rights Reserved. **********
- ' inits search
- ' creates all children
- ' sets all observers
 Function Init()
-    ? "[Favorites] Init"
+    m.content_helpers = ContentHelpers()
 
     m.gridScreen = m.top.findNode("Grid")
     m.gridScreen.content = {}
-    m.detailsScreen = m.top.findNode("FavoritesDetailsScreen")
+    m.detailsScreen = m.top.findNode("MyLibraryDetailsScreen")
 
     m.top.observeField("visible", "OnTopVisibilityChange")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
@@ -27,23 +24,33 @@ Function Init()
 
     m.resultsString = m.top.findNode("ResultsString")
     m.resultsString.color = m.global.theme.secondary_text_color
+
+    m.SignInButton = m.top.findNode("SignInButton")
+    m.SignInButton.color = m.global.theme.primary_text_color
+    m.SignInButton.focusBitmapUri = m.global.theme.button_focus_uri
+    m.SignInButton.content = m.content_helpers.oneDimList2ContentNode([{ title: m.global.labels.sign_in_button, role: "transition", target: "AuthSelection" }], "ButtonNode")
+    m.SignInButton.visible = false
 End Function
 
 Function OnRowItemSelected()
-    ' On select any item on home scene, show Details node and hide Grid
-    m.gridScreen.visible = "false"
-    m.detailsScreen.content = m.top.focusedContent
-    m.detailsScreen.setFocus(true)
-    m.detailsScreen.visible = "true"
-    m.detailsScreen.IsOptionsLabelVisible = "false"
-    m.detailsScreen.autoplay = false
+    if m.top.focusedContent.isPaginator <> invalid and m.top.focusedContent.isPaginator
+        m.top.paginatorSelected = true
+    else
+        ' On select any item on home scene, show Details node and hide Grid
+        m.gridScreen.visible = "false"
+        m.detailsScreen.content = m.top.focusedContent
+        ' m.detailsScreen.isLoggedIn = m.top.isLoggedIn
+        m.detailsScreen.setFocus(true)
+        m.detailsScreen.visible = "true"
+        m.detailsScreen.IsOptionsLabelVisible = "false"
+        m.detailsScreen.autoplay = false
 
-    m.top.isChildrensVisible = true
+        m.top.isChildrensVisible = true
+    end if
 End Function
 
 sub OnContentChange()
-    ? "[Favorites] On Content Change"
-    m.gridScreen.setFocus(true)
+    ? "[MyLibrary] On Content Change"
 end sub
 
 ' handler of focused item in RowList
@@ -55,12 +62,27 @@ Sub OnItemFocused()
         if focusedContent <> invalid then
             m.top.focusedContent    = focusedContent
             m.videoTitle.text = focusedContent.title
+
+            if focusedContent.isPaginator = true then m.top.paginate = true
         end if
     end if
 End Sub
 
+sub OnSignInButtonSelected()
+    m.top.itemSelectedRole = "transition"
+    m.top.itemSelectedTarget = "AuthSelection"
+end sub
+
+function currentButtonRole(index as integer) as string
+    return m.SignInButton.content.getChild(index).role
+end function
+
+function currentButtonTarget(index as integer) as string
+    return m.SignInButton.content.getChild(index).target
+end function
+
 function onKeyEvent(key as String, press as Boolean) as Boolean
-    ? ">>> Favorites >> onKeyEvent"
+    ? ">>> MyLibrary >> onKeyEvent"
     result = false
     if press then
         ? "key == ";  key
@@ -88,7 +110,7 @@ end function
 
 Sub OnTopVisibilityChange()
     if m.top.visible = true
-        m.gridScreen.visible = true
+        m.gridScreen.setFocus(false)
     else
         m.videoTitle.text = ""
     end if

@@ -13,8 +13,11 @@
         <!-- Content for RowList in Search -->
         <field id="searchContent" type="node" alias="Search.content"/>
 
-        <!-- Content for RowList in Search -->
+        <!-- Content for RowList in Favorites -->
         <field id="favoritesContent" type="node" alias="Favorites.content"/>
+
+        <!-- Content for RowList in Favorites -->
+        <field id="myLibraryContent" type="node" alias="MyLibrary.content"/>
 
         <!-- Custom Selection Boolean Interface -->
         <field id="playlistItemSelected" type="boolean" value="false" alwaysNotify="true"/>
@@ -125,6 +128,11 @@
         <TestInfoScreen
           id="TestInfoScreen"
           visible="false" />
+
+        <!-- My Library - only with universal_tvod -->
+        <MyLibrary
+            id="MyLibrary"
+            visible="false"/>
 
         <!-- Font for loading indicator -->
         <Label>

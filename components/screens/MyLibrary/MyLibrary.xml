@@ -5,7 +5,7 @@
     handles bookmark buttons
     handles start of video playback
  -->
-<component name="Favorites" extends="Group" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+<component name="MyLibrary" extends="Group" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
     <interface>
 
         <!-- Grid Favorites Content Node -->
@@ -27,10 +27,17 @@
         <field id="VideoTitleText"  type="string" alias="VideoTitle.text"/>
 
         <field id="isLoggedIn" type="bool" />
+
+        <field id="paginatorSelected" type="bool" alwaysnotify="true" />
+
+        <field id="SignInButtonSelected" type="intarray" alwaysnotify="true" alias="SignInButton.ItemSelected" onChange="OnSignInButtonSelected" />
+        <field id="itemSelectedRole" type="string" />
+        <field id="itemSelectedTarget" type="string" />
     </interface>
 
     <!-- main handler -->
-    <script type="text/brightscript" uri="pkg:/components/screens/Favorites/Favorites.brs" />
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
+    <script type="text/brightscript" uri="pkg:/components/screens/MyLibrary/MyLibrary.brs" />
 
     <children>
 
@@ -46,7 +53,6 @@
             <Font id="RowListFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="24"/>
         </Label>
 
-
         <!-- Favorites grid -->
         <RowList
             id="Grid"
@@ -56,7 +62,7 @@
             numRows="2"
             itemSpacing="[13, 0]"
             focusXOffset="[147]"
-            rowFocusAnimationStyle="fixedFocusWrap"
+            rowFocusAnimationStyle="floatingFocus"
             rowItemSize="[[262, 147]]"
             rowItemSpacing="[[16, 3]]"
             showRowLabel="true"
@@ -82,15 +88,9 @@
             loadheight="100"
             uri="pkg:/images/overhangLogo.png" />
 
-        <Poster
-            id="BackgroundDown"
-            translation="[0, 650]"
-            width="2000"
-            height="95" />
-
         <!-- Details Screen with Play button -->
         <DetailsScreen
-            id="FavoritesDetailsScreen"
+            id="MyLibraryDetailsScreen"
             visible="false"/>
 
         <Label
@@ -100,5 +100,20 @@
             translation="[100,500]">
             <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20" />
         </Label>
+
+        <LabelList
+            id="SignInButton"
+            translation="[100,300]"
+            color="0xf5f5f5"
+            focusedColor="0xf5f5f5"
+            numRows="1"
+            vertFocusAnimationStyle="floatingFocus"
+            itemSize="[300, 35]"
+            font="dictionary:MenuFont"
+            textHorizAlign="center"
+            focusedFont="dictionary:MenuFont"
+            focusBitmapUri="pkg:/images/button-focus-light.png"
+            />
+
     </children>
 </component>

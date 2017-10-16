@@ -762,4 +762,15 @@ function CreateSubscription(params as object) as object
   response = MakePostRequest(url, params)
 
   if response <> invalid then return response.response else return invalid
+End Function
+
+
+function GetEntitledVideos(urlParams as object) as object
+    url = GetApiConfigs().endpoint + "consumer/videos"
+    response = MakeRequest(url, urlParams)
+
+    print url
+    print urlParams
+
+    if response <> invalid then return response.response else return invalid
 end function

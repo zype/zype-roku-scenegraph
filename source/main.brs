@@ -128,6 +128,15 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.AuthSelection.observeField("itemSelected", m.port)
     m.AuthSelection.observeField("planSelected", m.port)
 
+    m.MyLibrary = m.scene.findNode("MyLibrary")
+    m.MyLibrary.observeField("visible", m.port)
+    m.MyLibrary.observeField("paginatorSelected", m.port)
+
+    m.MyLibraryDetailsScreen = m.MyLibrary.findNode("MyLibraryDetailsScreen")
+    m.MyLibraryDetailsScreen.observeField("itemSelected", m.port)
+
+    m.my_library_content = []
+
     m.UniversalAuthSelection = m.scene.findNode("UniversalAuthSelection")
     m.UniversalAuthSelection.observeField("itemSelected", m.port)
 
@@ -234,7 +243,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
         if msgType = "roSGNodeEvent"
             if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
-              RemakeVideoPlayer()
+              RemakeVideoPlayer(m.detailsScreen)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
               m.akamai_service.setPlayStartedOnce(true)
               playRegularVideo(m.detailsScreen)
@@ -268,17 +277,97 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 m.scene.favoritesContent = ParseContent(GetFavoritesContent())
                 m.loadingIndicator.control = "stop"
+
+            else if msg.getNode() = "MyLibrary" and msg.getField() = "visible" and msg.getData() = true
+                sign_in_button = m.MyLibrary.findNode("SignInButton")
+                my_library_gridscreen = m.MyLibrary.findNode("Grid")
+                my_library_gridscreen.setFocus(false)
+
+                if m.global.auth.isLoggedIn
+                    sign_in_button.visible = false
+                    m.loadingIndicator.control = "start"
+                else
+                    sign_in_button.visible = true
+                    sign_in_button.setFocus(true)
+                end if
+
+                my_library_count = ContentHelpers().CountTwoDimContentNodeAtIndex(m.scene.myLibraryContent, 0)
+
+                if m.global.auth.isLoggedIn
+                    sign_in_button.setFocus(false)
+
+                    ' MyLibrary was set
+                    if my_library_count > 0
+                        my_library_gridscreen.setFocus(true)
+
+                    ' get MyLibrary first time
+                    else
+                        my_library = GetMyLibraryContent(true)
+
+                        m.my_library_content = ArrayHelpers().RemoveDuplicatesBy(my_library[0].contentList, "id")
+
+                        my_library_content = {
+                            contentList: m.my_library_content,
+                            title: my_library[0].title
+                        }
+
+                        if m.my_library_content.count() > 0
+                            ' Push paginator to get next page
+                            my_library_content.contentList.push(Paginator(2))
+
+                            m.scene.myLibraryContent = ParseContent([my_library_content])
+                            my_library_gridscreen.setFocus(true)
+                        else
+                            m.scene.myLibraryContent = ParseContent([my_library_content])
+                            my_library_gridscreen.setFocus(false)
+                        end if
+                    end if
+
+                else
+                    m.scene.myLibraryContent = ParseContent(GetMyLibraryContent(false))
+                    my_library_gridscreen.setFocus(false)
+                    sign_in_button.setFocus(true)
+                end if
+
+                m.loadingIndicator.control = "stop"
+                m.MyLibrary.setFocus(true)
+
+            else if msg.getField() = "paginatorSelected" and msg.getData() = true and msg.getNode() = "MyLibrary"
+                my_library_focused = m.MyLibrary.focusedContent
+
+                my_library_next_page = GetMyLibraryContent(true, my_library_focused.nextPage)
+                my_library_next_page_count = my_library_next_page[0].contentList.count()
+
+                ' Remove Paginator
+                m.my_library_content.pop()
+
+                m.my_library_content.append(my_library_next_page[0].contentList)
+                m.my_library_content = ArrayHelpers().RemoveDuplicatesBy(m.my_library_content, "id")
+
+                new_my_library = {
+                    title: m.scene.myLibraryContent.GetChild(0).title,
+                    contentList: m.my_library_content
+                }
+
+                ' add paginator only if next page is next page content is not empty
+                if my_library_next_page_count > 0 then new_my_library.contentList.push(Paginator(my_library_focused.nextPage + 1))
+
+
+                m.scene.myLibraryContent = ParseContent([new_my_library])
+                m.MyLibrary.setFocus(true)
             else if msg.getField() = "SearchString"
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
                     lclScreen = m.favoritesDetailsScreen
                 else if msg.getNode() = "SearchDetailsScreen"
                     lclScreen = m.searchDetailsScreen
+                else if msg.getNode() = "MyLibraryDetailsScreen"
+                    lclScreen = m.MyLibraryDetailsScreen
                 else if msg.getNode() = "DetailsScreen"
                     lclScreen = m.detailsScreen
                 else if msg.getNode() = "AuthSelection"
@@ -314,16 +403,19 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 state = msg.getData()
                 m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
 
-                ' autoplay
-                next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
-                if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
-                  m.detailsScreen.triggerPlay = true
+                if m.scene.focusedChild.id = "DetailsScreen"
+                  ' autoplay
+                  next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
+                  if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
+                      m.detailsScreen.triggerPlay = true
+                  end if
                 end if
             else if msg.getField() = "position"
+                m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
-                    AddVideoIdForResumeToReg(m.gridScreen.focusedContent.id,m.videoPlayer.position.ToStr())
-                    AddVideoIdTimeSaveForResumeToReg(m.gridScreen.focusedContent.id,startDate.asSeconds().ToStr())
+                    AddVideoIdForResumeToReg(m.videoPlayer.content.id,m.videoPlayer.position.ToStr())
+                    AddVideoIdTimeSaveForResumeToReg(m.videoPlayer.content.id,startDate.asSeconds().ToStr())
                 end if
 
 	            ' If midroll ads exist, watch for midroll ads
@@ -750,6 +842,53 @@ function GetFavoritesContent()
     return list
 end function
 
+function GetMyLibraryContent(is_linked as boolean, page = 1 as integer)
+    list = []
+
+    if is_linked
+        oauth = m.current_user.getOAuth()
+
+        video_entitlements = GetEntitledVideos({
+            access_token: oauth.access_token,
+            per_page: 20,
+            page: page
+            sort: "created_at",
+            order: "desc"
+        })
+
+        row = { title: "", ContentList: [] }
+
+        if video_entitlements <> invalid
+            if video_entitlements.count() > 0
+                row.title = m.global.labels.my_library_catalog_message
+                favs = GetFavoritesIDs()
+                video_index = 0
+                for each entitled_vid in video_entitlements
+                    vid = GetVideo(entitled_vid.video_id)
+                    if vid._id <> invalid
+                        vid.inFavorites = favs.DoesExist(vid._id)
+                        vid.video_index = video_index
+                        row.ContentList.push(CreateVideoObject(vid))
+                        video_index = video_index + 1
+                    end if
+                end for
+            else
+                row.title = m.global.labels.empty_my_library_catalog_message
+            end if
+        end if
+
+        list.push(row)
+    else
+        row = {
+            title: m.global.labels.my_library_signin_message,
+            contentList: []
+        }
+        list.push(row)
+    end if
+
+    return list
+end function
+
 Function ParseContent(list As Object)
 
     RowItems = createObject("RoSGNode","ContentNode")
@@ -961,15 +1100,17 @@ function handleButtonEvents(index, screen)
     ? chr(10)
 
     if button_role = "play"
-      RemakeVideoPlayer()
+      RemakeVideoPlayer(screen)
+      m.VideoPlayer = screen.VideoPlayer
+
       RemoveVideoIdForResumeFromReg(screen.content.id)
       m.akamai_service.setPlayStartedOnce(true)
       playRegularVideo(screen)
     else if button_role = "resume"
       resume_time = GetVideoIdForResumeFromReg(screen.content.id)
-      RemakeVideoPlayer()
+      RemakeVideoPlayer(screen)
 
-      m.VideoPlayer = m.detailsScreen.VideoPlayer
+      m.VideoPlayer = screen.VideoPlayer
       m.VideoPlayer.seek = resume_time
       playRegularVideo(screen)
     else if button_role = "favorite"
@@ -1232,9 +1373,9 @@ end function
 
 ' Seting details screen's RemakeVideoPlayer value to true recreates Video component
 '     Roku Video component performance degrades significantly after multiple uses, so we make a new one
-function RemakeVideoPlayer() as void
-    m.detailsScreen.RemakeVideoPlayer = true
-    m.detailsScreen.VideoPlayer.seek = 0.0
+function RemakeVideoPlayer(screen) as void
+    screen.RemakeVideoPlayer = true
+    screen.VideoPlayer.seek = 0.0
 end function
 
 Function StartLoader()
@@ -1348,12 +1489,16 @@ function SetFeatures() as void
 
   if m.app.favorites_via_api <> invalid then favorites_via_api = m.app.favorites_via_api else favorites_via_api = configs.favorites_via_api
 
+  if m.app.universal_tvod <> invalid then universal_tvod = m.app.universal_tvod else universal_tvod = GetApiConfigs().universal_tvod
+
   m.global.addFields({
+    autoplay: m.app.autoplay,
     swaf: configs.subscribe_to_watch_ad_free,
     enable_lock_icons: configs.enable_lock_icons,
     test_info_screen: configs.test_info_screen,
     native_to_universal: configs.native_to_universal,
-    favorites_via_api: favorites_via_api
+    favorites_via_api: favorites_via_api,
+    universal_tvod: universal_tvod
   })
 end function
 
