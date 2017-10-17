@@ -6,10 +6,12 @@
   "menu_account_button": "Account",
   "menu_favorites_button": "Favorites",
   "menu_my_library_button": "My Library",
+
   "link_device_button": "Link Device",
   "unlink_device_button": "Unlink Device",
   "sign_in_button": "Sign In",
   "sign_out_button": "Sign Out",
+
   "auth_transition_button": "Sign In",
   "link_device_transition_button": "Link Device",
   "sign_in_transition_button": "Sign in with email",
@@ -17,6 +19,9 @@
   "sign_in_header_label": "Sign In To Your Account",
   "logged_in_header_label": "Signed in as: ",
   "already_have_account_label": "Already have an account?",
+  "user_credential_submit_button": "Continue",
+  "custom_plan_purchase_message": "",
+
   "subscribe_button": "Subscribe",
   "swaf_button": "Watch Ad Free",
   "favorite_button": "Favorite",
@@ -24,13 +29,15 @@
   "play_button": "Play",
   "resume_button": "Resume playing",
   "watch_from_beginning_button": "Play from beginning",
+
   "no_video_description_text": "No description",
+
   "device_linking_label_1": "From your computer or mobile device, visit:",
   "device_linking_label_2": "Enter Pin:",
+
   "favorite_screen_label": "Favorites",
   "no_favorites_message": "You don't currently have any favorites. Click the \"favorite\" button next to an episode to make it a favorite.",
-  "user_credential_submit_button": "Continue",
-  "custom_plan_purchase_message": "",
+
   "my_library_signin_message": "To view your library, please sign in",
   "my_library_catalog_message": "My Library",
   "empty_my_library_catalog_message": "My Library is empty",
