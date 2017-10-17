@@ -28,6 +28,7 @@
   "device_linking_label_1": "From your computer or mobile device, visit:",
   "device_linking_label_2": "Enter Pin:",
   "favorite_screen_label": "Favorites",
+  "no_favorites_message": "You don't currently have any favorites. Click the \"favorite\" button next to an episode to make it a favorite.",
   "user_credential_submit_button": "Continue",
   "custom_plan_purchase_message": "",
   "my_library_signin_message": "To view your library, please sign in",

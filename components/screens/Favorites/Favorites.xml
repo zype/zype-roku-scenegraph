@@ -68,8 +68,10 @@
         <Label
             id="VideoTitle"
             color="0xa8a8a8"
+            width="1280"
+            horizAlign="center"
             text=""
-            translation="[90,460]">
+            translation="[0,460]">
             <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20" />
         </Label>
 

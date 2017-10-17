@@ -254,9 +254,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
                 ' Get Playlist object from the platform
                 playlistObject = GetPlaylists({ id: content.id })
-                ' print "playlistObject: "; playlistObject[0]
                 playlistThumbnailLayout = playlistObject[0].thumbnail_layout
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
+                m.gridContent = m.gridScreen.content
 
                 rowlist = m.gridScreen.findNode("RowList")
                 rowlist.rowItemSize = m.playlistsRowItemSizes
@@ -275,7 +275,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "stop"
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
                 m.loadingIndicator.control = "start"
-                m.scene.favoritesContent = ParseContent(GetFavoritesContent())
+
+
+                favorites_content = GetFavoritesContent()
+                m.scene.favoritesContent = ParseContent(favorites_content)
+
+                if favorites_content.count() = 0 then m.Favorites.VideoTitleText = m.global.labels.no_favorites_message
+
                 m.loadingIndicator.control = "stop"
 
             else if msg.getNode() = "MyLibrary" and msg.getField() = "visible" and msg.getData() = true
