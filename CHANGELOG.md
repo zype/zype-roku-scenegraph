@@ -1,3 +1,8 @@
+### 1.5.4 (18/10/2017)
+
+- Native to Universal feature flag
+- Sign in functionality
+
 ### 1.5.3 (16/10/2017)
 
 - Added Universal TVOD feature flag for My Library
