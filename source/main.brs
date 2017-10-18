@@ -205,7 +205,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             ' Start playing video if logged in or no monetization
             if is_subscribed = true or (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
                 m.akamai_service.setPlayStartedOnce(true)
-                playVideo(m.detailsScreen, {"app_key": GetApiConfigs().app_key}, m.app.avod)
+                playRegularVideo(m.detailsScreen)
             end if
           end if
 
