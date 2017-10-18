@@ -1,6 +1,7 @@
 ### 1.5.3 (16/10/2017)
 
 - Added Universal TVOD feature flag for My Library
+- Updates to thumbnail UI. Cuts off less of background thumbnails
 
 ### 1.5.2 (03/10/2017)
 
