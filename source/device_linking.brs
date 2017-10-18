@@ -21,7 +21,8 @@ function GetUdidFromReg() as String
     Udid = RegRead("UDID", "DeviceLinking")
 
     if Udid = invalid
-        Udid = ""
+        Udid = GenerateUdid()
+        Udid = AddUdidToReg(Udid)
     end if
 
     return Udid
@@ -62,23 +63,6 @@ function AddLinkingPinToReg(pin)
     RegWrite("PIN", "DeviceLinking")
     pin = RegRead("PIN", "DeviceLinking")
     return pin
-end function
-
-' Needs to be modified
-function _IsLinked(udid as string) as Boolean
-    pinStatus = PinStatus({"linked_device_id": udid})
-    result = false
-    if pinStatus <> invalid
-        result = pinStatus.linked
-    end if
-
-    if result = false
-        ' Reset tokens
-        ResetAccessToken()
-        ClearOAuth()
-    end if
-
-    return result
 end function
 
 function GetPin(udid as string) as Object

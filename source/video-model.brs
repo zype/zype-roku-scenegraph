@@ -19,9 +19,6 @@ REM
 Function CreateVideoObject(attrs As Object) As Object
   properties = attrs
 
-  ' print properties.title
-  ' print properties.inFavorites
-
   video = {
     stream: {url: ""},
     streamformat: "str",
@@ -97,7 +94,6 @@ Function GetVideoBackgroundImage(attrs As Object) As Object
 
   return src
 End Function
-
 
 '******************************************************
 ' Get the url for a video poster thumbnail as a background

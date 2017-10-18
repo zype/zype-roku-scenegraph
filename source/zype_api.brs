@@ -64,8 +64,6 @@ Function MakeRequest(src As String, params As Object) As Object
   ' print url ' uncomment to debug
   request.SetUrl(url)
 
-  ' print url
-
   if request.AsyncGetToString()
     while true
       msg = wait(0, port)
@@ -296,7 +294,6 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
     data = response.response
   end if
 
-  ' print "GetAppConfigs: "; data
   return data
 End Function
 
@@ -379,8 +376,6 @@ End Function
 '******************************************************
 Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   print "Video ID: " + videoid
-  ' id = videoid.tokenize(":")
-  ' videoid = id[0]
   info = {}
   info.stream = {url: ""}
   info.streamFormat = ""
@@ -393,9 +388,7 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   info.analytics = {}
 
   url = GetApiConfigs().player_endpoint + "embed/" + videoid + "/"
-  ' params = AppendAppKeyToParams(urlParams)
   params = urlParams
-  ' print params
   response = MakeRequest(url, params)
 
   if response <> invalid
@@ -572,11 +565,6 @@ function IsLinked(urlParams as Object) as Object
     end while
   end if
 
-  if result.linked = false
-    ResetAccessToken()
-    ClearOAuth()
-  end if
-
   return result
 end function
 
@@ -675,41 +663,17 @@ end function
 
 '*************************
 ' Get Subscription Plans
-' ----------------------
-' If in_app_purchase is true then get the prices and plans from Roku Store.
-' If in_app_purchase is false then get the prices and plans from zype API.
-'
-' The way it is setup right now, it always loads the prices and plans from Roku Store
 '*************************
-Function GetPlans(urlParams = {} as Object, in_app_purchase = true, productsCatalog = [])
-
-  'print "m.productsCatalog: "; productsCatalog[0]
-  if(in_app_purchase = true)
-    plans = []
-    for each plan in productsCatalog
-      plans.push({
-        _id: plan.code
-        name: plan.title
-        amount: plan.cost
-        description: plan.description
-      })
-    end for
-    'print "m.productsCatalog: "; plans
-    return plans
-  else
+Function GetPlans(urlParams = {} as Object)
     url = GetApiConfigs().endpoint + "plans"
     params = AppendAppKeyToParams(urlParams)
     response = MakeRequest(url, params)
-    'print url
-    'print "Plans Response: "; response
     if response <> invalid
       data = response.response
     else if response = invalid
       data = invalid
     end if
-    'print "GetPlans: "; data[0]
     return data
-  end if
 End Function
 
 '****************************
@@ -735,11 +699,9 @@ End Function
 Function UnlinkDevice(consumer_id, pin, urlParams as Object)
     print "consumer_id: "; consumer_id; " pin: "; pin
     url = GetApiConfigs().endpoint + "pin/unlink"
-    'print "url: ";url
     params = AppendAppKeyToParams(urlParams)
     params.consumer_id = consumer_id
     params.pin = pin
-    '{"consumer_id": consumer_id, "pin": pin}
     response = MakePutRequest(url, params)
     if response <> invalid
       data = response.response
@@ -749,21 +711,57 @@ Function UnlinkDevice(consumer_id, pin, urlParams as Object)
     return data
 End Function
 
-'**********************************************************************************
-' This is a work in progress. This function is supposed to send back consumer data
-' after the successful native store purchase
-'**********************************************************************************
-Function SaveSubscriptionData(_data, urlParams as Object)
-  url = GetApiConfigs().endpoint + "save-subscription/"
-  params = AppendAppKeyToParams(urlParams)
-  response = MakePostRequest(url, _data)
-  if response <> invalid
-    data = response.response
-  else if response = invalid
-    data = invalid
-  end if
+'****************************
+' Consumer functions
+'****************************
+function GetConsumer(consumer_id, access_token) as object
+  url = GetApiConfigs().endpoint + "consumers/" + consumer_id
+  response = MakeRequest(url, {access_token: access_token})
 
-  return data
+  if response <> invalid
+    return response.response
+  else
+    return invalid
+  end if
+end function
+
+function CreateConsumer(urlParams as object) as object
+  url = GetApiConfigs().endpoint + "consumers"
+  params = AppendAppKeyToParams(urlParams)
+
+  response = MakePostRequest(url, params)
+
+  if response <> invalid then
+    return response.response
+  else
+    return invalid
+  end if
+end function
+
+' Calls BiFrost API to check if native subscription is valid
+'   Return: { "success": true/false, "is_valid": true/false, "expired": true/false }
+'
+'   Required params: consumer_id, site_id, subscription_plan_id, device_type (roku), roku_api_key, transaction_id (from roku receipt)
+'
+function GetNativeSubscriptionStatus(params as object) as object
+  url = GetApiConfigs().bifrost_endpoint + "api/v1/subscribe"
+  response = MakePostRequest(url, params)
+
+  print "bifrost response: "; response
+
+  if response <> invalid then return response else return invalid
+end function
+
+' Create subscription for consumer
+'
+'   Required params: subscription[consumer_id], subscription[plan_id], subscription[third_party_id]
+function CreateSubscription(params as object) as object
+  url = GetApiConfigs().endpoint + "subscriptions"
+  params.api_key = GetApiConfigs().zype_api_key
+
+  response = MakePostRequest(url, params)
+
+  if response <> invalid then return response.response else return invalid
 End Function
 
 

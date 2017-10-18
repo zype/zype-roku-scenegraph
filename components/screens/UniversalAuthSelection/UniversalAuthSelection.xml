@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!-- node that renders UniversalAuthSelection
+    should display buttons for selecting method of universal authentication (sign in / device link)
+ -->
+<component name="UniversalAuthSelection" extends="Group" initialFocus="UAuthMethods" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+        <field id="itemSelected" type="integer" alwaysnotify="true" alias="UAuthMethods.itemSelected" onChange="onItemSelected" />
+
+        <field id="itemSelectedRole" type="string" />
+        <field id="itemSelectedTarget" type="string" />
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
+    <script type="text/brightscript" uri="pkg:/components/screens/UniversalAuthSelection/UniversalAuthSelection.brs" />
+
+    <children>
+        <Rectangle
+          id="Background"
+          color="#FFFFFF"
+          width="1280"
+          height="720"
+          translation="[0,0]" />
+
+        <Label
+          id="Header"
+          width="1280"
+          horizAlign="center"
+          text="Have an account?"
+          translation="[0,150]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="40"/>
+        </Label>
+
+        <LabelList
+            id="UAuthMethods"
+            translation="[440,300]"
+            color="0xf5f5f5"
+            focusedColor="0xf5f5f5"
+            numRows="5"
+            vertFocusAnimationStyle="floatingFocus"
+            itemSize="[400, 75]"
+            itemSpacing="[0, 25]"
+            textHorizAlign="center"
+            font="dictionary:ButtonFont"
+            focusedFont="dictionary:ButtonFont"
+            focusBitmapUri="pkg:/images/button-focus-light.png"
+            />
+    </children>
+</component>

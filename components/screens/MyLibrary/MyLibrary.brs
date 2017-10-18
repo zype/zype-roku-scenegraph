@@ -28,7 +28,7 @@ Function Init()
     m.SignInButton = m.top.findNode("SignInButton")
     m.SignInButton.color = m.global.theme.primary_text_color
     m.SignInButton.focusBitmapUri = m.global.theme.button_focus_uri
-    m.SignInButton.content = m.content_helpers.oneDimList2ContentNode([{ title: m.global.labels.link_device_button, role: "transition", target: "DeviceLinking" }], "ButtonNode")
+    m.SignInButton.content = m.content_helpers.oneDimList2ContentNode([{ title: m.global.labels.sign_in_button, role: "transition", target: "AuthSelection" }], "ButtonNode")
     m.SignInButton.visible = false
 End Function
 
@@ -70,7 +70,7 @@ End Sub
 
 sub OnSignInButtonSelected()
     m.top.itemSelectedRole = "transition"
-    m.top.itemSelectedTarget = "DeviceLinking"
+    m.top.itemSelectedTarget = "AuthSelection"
 end sub
 
 function currentButtonRole(index as integer) as string

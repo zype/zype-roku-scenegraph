@@ -19,7 +19,7 @@ REM
 Function CreatePlaylistObject(attrs As Object) As Object
   properties = attrs
   isPoster = false
-  
+
   if properties.thumbnail_layout = "poster"
     isPoster = true
   else

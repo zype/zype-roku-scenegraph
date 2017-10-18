@@ -5,13 +5,14 @@
         <status xmlns="">Success</status>
         <products>
                 <!--Earth 1-->
+                <!-- Remember to update purchaseDate, expirationDate, and renewalDate when testing -->
                  <!-- <product xmlns="">
                         <HDPosterUrl i:nil="true"/>
                         <SDPosterUrl i:nil="true"/>
-                        <code>5845c95dc7e83b0feb000833</code>
+                        <code>59848598dead5214130052f2</code>
                         <cost>$1.99</cost>
                         <description/>
-                        <expirationDate>2014-04-29T22:17:48</expirationDate>
+                        <expirationDate>2017-10-29T22:17:48</expirationDate>
                         <freeTrialQuantity>0</freeTrialQuantity>
                         <freeTrialType>None</freeTrialType>
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
@@ -19,12 +20,12 @@
                         <maxQty i:nil="true"/>
                         <name>Monthly Subscription</name>
                         <productType>MonthlySub</productType>
-                        <purchaseDate>2013-04-29T22:17:48</purchaseDate>
+                        <purchaseDate>2017-09-29T22:17:48</purchaseDate>
                         <purchaseId>871e9522ace140a99821a1ab010bb0d7</purchaseId>
                         <qty>1</qty>
-                        <renewalDate>2014-04-29T22:17:48</renewalDate>
+                        <renewalDate>2017-10-29T22:17:48</renewalDate>
                         <upsellProduct i:nil="true"/>
-                </product>  -->
+                </product> -->
 
                 <!--Abstract 2-->
                 <!-- <product xmlns="">
@@ -33,18 +34,18 @@
                         <code>56d7594a0f8aca08010008e3_m</code>
                         <cost>$9.99</cost>
                         <description/>
-                        <expirationDate>2014-04-29T22:17:48</expirationDate>
+                        <expirationDate>2017-06-29T22:17:48</expirationDate>
                         <freeTrialQuantity>0</freeTrialQuantity>
                         <freeTrialType>None</freeTrialType>
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
                         <inStock>false</inStock>
                         <maxQty i:nil="true"/>
-                        <name>Monthly Subscription</name>
-                        <productType>MonthlySub</productType>
-                        <purchaseDate>2013-04-29T22:17:48</purchaseDate>
-                        <purchaseId>871e9522ace140a99821a1ab010bb0d7</purchaseId>
+                        <name>Yearly Subscription</name>
+                        <productType>YearlySub</productType>
+                        <purchaseDate>2016-07-29T22:17:48</purchaseDate>
+                        <purchaseId>871e9522ace140a99821a1ab010bb0d7123</purchaseId>
                         <qty>1</qty>
-                        <renewalDate>2014-04-29T22:17:48</renewalDate>
+                        <renewalDate>2017-07-29T22:17:48</renewalDate>
                         <upsellProduct i:nil="true"/>
                 </product> -->
                 <!--<product xmlns="">

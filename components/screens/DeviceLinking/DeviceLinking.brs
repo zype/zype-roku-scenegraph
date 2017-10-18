@@ -12,20 +12,8 @@ Function Init()
 
     m.unlinkButton = m.top.findNode("UnlinkButton")
 
-    'm.linkText.text = "Please, visit havoc.com to link your device!"
-
     di = CreateObject("roDeviceInfo")
     m.pin = m.top.findNode("Pin")
-End Function
-
-' onChange handler for "show" field
-Sub On_show()
-    print " [DeviceLinking] On_show()"
-
-    m.top.visible = m.top.show
-    m.top.setFocus(m.top.show)
-    m.pin.text = "" ' Setting it empty because after the screen loads, it will load either pin or message
-    'm.linkText.text = "Please visit " + m.top.DeviceLinkingURL + " to link your device!"
 
     m.background.color = m.global.theme.background_color
 
@@ -42,8 +30,19 @@ Sub On_show()
 
     m.unlinkButton.focusedColor = m.global.theme.primary_text_color
     m.unlinkButton.focusBitmapUri = m.global.theme.button_focus_uri
+End Function
 
-    if(m.top.isDeviceLinked = true)
+' onChange handler for "show" field
+Sub On_show()
+    print " [DeviceLinking] On_show()"
+
+    m.top.visible = m.top.show
+    m.top.setFocus(m.top.show)
+    m.pin.text = "" ' Setting it empty because after the screen loads, it will load either pin or message
+
+    m.linkText2.text = m.top.DeviceLinkingURL
+
+    if(m.global.auth.isLinked = true)
         CreateUnlinkButton()
         m.unlinkButton.setFocus(true)
     else
@@ -52,7 +51,7 @@ Sub On_show()
 End Sub
 
 Function onDeviceLinkingStateChanged()
-    if(m.top.isDeviceLinked = false)
+    if m.global.auth.isLinked = false
         m.unlinkButton.content = invalid
         m.pin.text = "Device Unlinked Successfully!"
         m.top.setUnlinkFocus = false
@@ -63,14 +62,13 @@ End Function
 
 Function setUnlinkFocusCallback()
     print "setUnlinkFocusCallback"
-    if(m.top.isDeviceLinked = true)
+    if m.global.auth.isLinked = true
         m.unlinkButton.setFocus(true)
     end if
 End Function
 
 Function CreateUnlinkButton()
     result = []
-    'btns = ["Unlink Device"]
     result.push({title : m.global.labels.unlink_device_button})
     m.unlinkButton.content = ContentList2SimpleNode(result)
 End Function

@@ -5,6 +5,8 @@
 Function Init()
     ? "[DetailsScreen] init"
 
+    m.content_helpers = ContentHelpers()
+
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
     m.top.DontShowSubscriptionPackages = true
@@ -63,14 +65,6 @@ Function ReinitializeVideoPlayer()
   end if
 End Function
 
-Function onShowSubscriptionPackagesCallback()
-    print "onShowSubscriptionPackagesCallback"
-    if(m.top.ShowSubscriptionPackagesCallback = true)
-        print "onShowSubscriptionPackagesCallback: true"
-        AddPackagesButtons()
-    end if
-End Function
-
 ' set proper focus to buttons if Details opened and stops Video if Details closed
 Sub onVisibleChange()
     ? "[DetailsScreen] onVisibleChange"
@@ -92,7 +86,7 @@ End Sub
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.top.videoPlayer.hasFocus() then
-      ' Just in case overlay looses visibility when returning from video player. Cause of bug unknown
+      ' Just in case overlay loses visibility when returning from video player. Cause of bug unknown
       m.overlay.uri = m.global.theme.overlay_uri
       m.overlay.visible = true
 
@@ -213,36 +207,23 @@ End Function
 Sub onItemSelected()
     index = m.top.itemSelected
     m.top.itemSelectedRole = currentButtonRole(index)
-
-    if m.top.itemSelectedRole = "subscribe"
-      AddPackagesButtons()
-    end if
+    m.top.itemSelectedTarget = currentButtonTarget(index)
 End Sub
 
 ' Content change handler
 Sub OnContentChange()
-    m.top.SubscriptionPackagesShown = false
-
     if m.top.content<>invalid then
-        ' idParts = m.top.content.id.tokenize(":")
+        is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
+        svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
 
-        if(m.top.content.subscriptionRequired = false OR m.global.auth.isLoggedIn = true OR m.top.NoAuthenticationEnabled = true)
-            m.top.canWatchVideo = true
+        no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
+
+        if no_sub_needed or (svod_enabled and is_subscribed)
+          m.top.canWatchVideo = true
+          AddButtons()
         else
-            m.top.canWatchVideo = false
-        end if
-
-        ' If all else is good and device is linked but there's no subscription found on the server then show native subscription buttons.
-        if(m.top.isDeviceLinked = true AND m.global.usvod.UniversalSubscriptionsCount = 0 AND m.top.content.subscriptionRequired = true AND m.top.BothActive = true AND m.top.JustBoughtNativeSubscription = false AND m.global.nsvod.isLoggedInViaNativeSVOD = false)
-            m.top.canWatchVideo = false
-        end if
-
-        if(m.top.canWatchVideo)
-            AddButtons()
-            m.top.SubscriptionButtonsShown = false
-        else
-            AddActionButtons()
-            m.top.SubscriptionButtonsShown = true
+          m.top.canWatchVideo = false
+          AddActionButtons()
         end if
 
         m.description.content   = m.top.content
@@ -260,6 +241,10 @@ function currentButtonRole(index as integer) as string
     return m.buttons.content.getChild(index).role
 end function
 
+function currentButtonTarget(index as integer) as string
+    return m.buttons.content.getChild(index).target
+end function
+
 Sub AddButtons()
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
     m.top.ResumeVideo.id = "ResumeVideo"
@@ -271,10 +256,8 @@ Sub AddButtons()
         else
             startDate = CreateObject("roDateTime")
             timeDiff = startDate.asSeconds() - m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
-
         end if
     end if
-
 
     if m.top.content <> invalid then
         ' create buttons
@@ -291,7 +274,7 @@ Sub AddButtons()
             ]
         end if
 
-        if m.global.favorites_via_api = false or (m.top.BothActive AND m.top.isDeviceLinked)
+        if m.global.favorites_via_api = false or (m.global.device_linking and m.global.auth.isLoggedIn)
             if m.top.content.inFavorites = true
                 btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
             else
@@ -299,67 +282,25 @@ Sub AddButtons()
             end if
         end if
 
-        if m.global.swaf and m.global.svod_enabled and m.global.is_subscribed = false
+        if m.global.in_app_purchase or m.global.device_linking then svod_enabled = true else svod_enabled = false
+        if m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0 then is_subscribed = true else is_subscribed = false
+
+        if m.global.swaf and svod_enabled and is_subscribed = false
           btns.push({title: m.global.labels.swaf_button, role: "swaf"})
         end if
 
         m.btns = btns
 
-        m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
+        m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
-
-function ShowSubscribeButtons() as void
-  if m.top.ShowSubscribeButtons = true
-    AddActionButtons()
-    m.buttons.setFocus(true)
-  end if
-end function
 
 Sub AddActionButtons()
     if m.top.content <> invalid then
-        ' create buttons
-        result = []
-        btns = [
-          {title: m.global.labels.subscribe_button, role: "subscribe"}
-        ]
-        if(m.top.BothActive AND m.top.isDeviceLinked = false)
-            btns.push({ title: m.global.labels.link_device_button, role: "device_linking" })
-        end if
-
-        m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
+        btns = [ { title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" } ]
+        m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
-
-Sub AddPackagesButtons()
-    if m.top.content <> invalid then
-        ' create buttons
-        btns = []
-        'for each plan in m.top.SubscriptionPlans
-        for each plan in m.top.ProductsCatalog
-           btns.push({
-            title: plan["title"] + " at " + plan["cost"],
-            role: "native_sub"
-          })
-        end for
-
-        m.buttons.content = ContentList2SimpleNode(btns, "ButtonNode")
-    end if
-End Sub
-
-'///////////////////////////////////////////'
-' Helper function convert AA to Node
-Function ContentList2SimpleNode(contentList as Object, nodeType = "ContentNode" as String) as Object
-    result = createObject("roSGNode","ContentNode")
-    if result <> invalid
-        for each itemAA in contentList
-            item = createObject("roSGNode", nodeType)
-            item.setFields(itemAA)
-            result.appendChild(item)
-        end for
-    end if
-    return result
-End Function
 
 Function getStatusOfVideo() as boolean
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")

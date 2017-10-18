@@ -1,18 +1,25 @@
 ' **************************************************
 ' Akamai Service
 '   - Service for Akamai custom integration with scene graph
+'   - Used in conjunction with Akamai SDK (source/services/Akamai)
 '
 ' Functions in service
-'     
+'     setPlayStartedOnce
+'     handleVideoEvents
 '
 ' Usage
 '     akamai_service = AkamaiService()
 ' **************************************************
-
 Function AkamaiService() as object
     this = {}
     this.playStartedOnce = invalid
 
+    ' Should be called when video plays from beginning for proper tracking of play vs resume
+    this.setPlayStartedOnce = function(v)
+        m.playStartedOnce = v
+    end function
+
+    ' Call on video player state changes to pass info to Akamai
     this.handleVideoEvents = function (state, pluginInstance, sessionTimer, lastHeadPosition)
         if(m.playStartedOnce <> invalid AND state = "playing")
             state = "resumed"
@@ -44,10 +51,6 @@ Function AkamaiService() as object
             pluginInstance.handlePlaybackCompleteEvent(sessionTimer, endReasonCode, lastHeadPosition)
         end if
 
-    end function
-
-    this.setPlayStartedOnce = function(v)
-        m.playStartedOnce = v
     end function
 
     return this

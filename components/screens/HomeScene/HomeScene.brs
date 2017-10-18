@@ -29,6 +29,17 @@ Function Init()
     ' Info Screen
     m.infoScreen = m.top.findNode("InfoScreen")
 
+    ' Auth Selection Screen
+    m.AuthSelection = m.top.findNode("AuthSelection")
+
+    ' Universal Auth Selection (OAuth - signin / device link)
+    m.UniversalAuthSelection = m.top.findNode("UniversalAuthSelection")
+
+    m.SignInScreen = m.top.findNode("SignInScreen")
+    m.SignUpScreen = m.top.findNode("SignUpScreen")
+
+    m.AccountScreen = m.top.findNode("AccountScreen")
+
     ' My Library
     m.MyLibrary = m.top.findNode("MyLibrary")
     m.MyLibrary.observeField("SignInButtonSelected", "MyLibraryTriggerSignIn")
@@ -47,6 +58,8 @@ Function Init()
 
     ' loading indicator starts at initializatio of channel
     m.loadingIndicator = m.top.findNode("loadingIndicator")
+
+    m.TestInfoScreen = m.top.findNode("TestInfoScreen")
 
     ' Set theme
     m.loadingIndicator.backgroundColor = m.global.theme.background_color
@@ -97,7 +110,6 @@ Function DeleteLastPositionFromTracker() as Void
     m.IndexTracker.Delete(index)
 End Function
 
-
 Function AddPosterPlaylists() as Void
     rowList = m.gridScreen.findNode("RowList")
     rowItemSizes = rowList.rowItemSize
@@ -125,20 +137,6 @@ Function DeleteLastPosterPlaylists() as Void
     m.rowItemSizes.Delete(index)
     m.rowSpacings.Delete(index)
 End Function
-
-function transitionToScreen() as void
-  if focusedChild() = "GridScreen" then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
-
-  m.screenStack.peek().setFocus(false)
-  m.screenStack.peek().visible = false
-
-  screen = m.top.findNode(m.top.transitionTo)
-
-  PushScreenIntoScreenStack(screen)
-
-  screen.visible = true
-  screen.setFocus(true)
-end function
 
 ' if content set, focus on GridScreen and remove loading indicator
 Function OnChangeContent()
@@ -184,7 +182,6 @@ Function OnRowItemSelected()
         m.screenStack.push(m.detailsScreen)
         print "m.gridScreen.focusedContent: "; type(m.gridScreen.focusedContent)
     end if
-    print "Subscription Plans: "; m.top.SubscriptionPlans
 End Function
 
 Function OnDeepLink()
@@ -197,6 +194,52 @@ end function
 
 function PushContentIntoContentStack(content) as void
   m.contentStack.push(content)
+end function
+
+function transitionToScreen() as void
+  if focusedChild() = "GridScreen" then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
+
+  m.screenStack.peek().setFocus(false)
+  m.screenStack.peek().visible = false
+
+  screen = m.top.findNode(m.top.transitionTo)
+
+  PushScreenIntoScreenStack(screen)
+
+  screen.visible = true
+  screen.setFocus(true)
+end function
+
+function goBackToNonAuthCallback() as void
+
+  ' keep removing and hiding auth related screens until reach last non auth screen
+  while isAuthScreen(m.screenStack.peek().id)
+    auth_screen = m.screenStack.pop()
+    auth_screen.visible = false
+    auth_screen.setFocus(false)
+  end while
+
+  ' show and refocus last non auth screen
+  m.screenStack.peek().visible = true
+  m.screenStack.peek().setFocus(true)
+end function
+
+function isAuthScreen(screen_id as string) as boolean
+  auth_screen_ids = [
+    "AccountScreen",
+    "AuthSelection",
+    "CredentialsInput",
+    "DeviceLinking",
+    "UniversalAuthSelection",
+    "SignInScreen",
+    "SignUpScreen"
+  ]
+
+  for each auth_id in auth_screen_ids
+    if screen_id = auth_id then return true
+  end for
+
+  return false
 end function
 
 function focusedChild() as string
@@ -216,15 +259,17 @@ Function OnMenuButtonSelected()
     menu.visible = false
 
     if button_role = "transition" and button_target = "Search"
-        m.top.SearchString = ""
-        m.top.ResultsText = ""
-        m.top.transitionTo = "Search"
+      m.top.SearchString = ""
+      m.top.ResultsText = ""
+      m.top.transitionTo = "Search"
     else if button_role = "transition" and button_target = "InfoScreen"
-        m.top.transitionTo = "InfoScreen"
+      m.top.transitionTo = "InfoScreen"
     else if button_role = "transition" and button_target = "Favorites"
-        m.top.transitionTo = "Favorites"
+      m.top.transitionTo = "Favorites"
     else if button_role = "transition" and button_target = "AccountScreen"
         m.top.transitionTo = "AccountScreen"
+    else if button_role = "transition" and button_target = "TestInfoScreen"
+        m.top.transitionTo = "TestInfoScreen"
     else if button_role = "transition" and button_target = "DeviceLinking"
         m.deviceLinking.show = true
         m.top.transitionTo = "DeviceLinking"
@@ -237,8 +282,7 @@ function MyLibraryTriggerSignIn() as void
     button_role = m.MyLibrary.itemSelectedRole
     button_target = m.MyLibrary.itemSelectedTarget
 
-    if button_role = "transition" and button_target = "DeviceLinking"
-        m.deviceLinking.show = true
+    if button_role = "transition" and button_target = "AuthSelection"
         m.top.transitionTo = button_target
     end if
 end function
@@ -246,6 +290,8 @@ end function
 ' Main Remote keypress event loop
 Function OnKeyEvent(key, press) as Boolean
     ? ">>> HomeScene >> OnkeyEvent"
+    ? "key: "; key
+    ? "press: "; press
     ? "m.screenStack.count(): "; m.screenStack.count()
 
     result = false
@@ -343,7 +389,7 @@ Function OnKeyEvent(key, press) as Boolean
                     result = true
                 end if
             else    ' For all other screens
-                if(m.gridScreen.visible <> true)    ' All cases except when closing the app from the Grid Screen
+                if(m.screenStack.peek().id <> "GridScreen")    ' All cases except when closing the app from the Grid Screen
                     ' if the screen is visible - it must be the last element
                     screen = m.screenStack.pop()
                     screen.visible = false

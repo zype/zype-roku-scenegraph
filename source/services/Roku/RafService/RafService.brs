@@ -5,6 +5,7 @@ Library "Roku_Ads.brs"
 '   - Service for Roku Ad Framework
 '
 ' Functions in service
+'     replaceMacros
 '     playAds
 '
 ' Usage
@@ -29,8 +30,6 @@ function RafService() as object
 
     url = strReplace(url, "[uuid]", "ROKU_ADS_TRACKING_ID")
     url = strReplace(url, "[app_name]", manifest.title)
-    ' Replace app[bundle]
-    ' Replace app[domain]
     url = strReplace(url, "[device_type]", "7")
     url = strReplace(url, "[device_make]", "Roku")
     url = strReplace(url, "[device_model]", "ROKU_ADS_DEVICE_MODEL")

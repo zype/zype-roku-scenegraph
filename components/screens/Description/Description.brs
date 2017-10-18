@@ -25,7 +25,7 @@ Sub OnContentChanged()
         if value.toStr() <> "" then
             m.top.Description.text = value.toStr()
         else
-            m.top.Description.text = "No description"
+            m.top.Description.text = m.global.labels.no_video_description_text
         end if
     end if
 

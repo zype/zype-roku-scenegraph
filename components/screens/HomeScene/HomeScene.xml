@@ -37,10 +37,6 @@
 
         <field id="FavoritesVideoTitle" type="string" alwaysnotify="true" alias="Favorites.VideoTitleText"/>
 
-        <!-- Subscription Plans -->
-        <field id="SubscriptionPlans" type="roArray" />
-
-
         <field id="deepLinkedID" type="string" onChange="OnDeepLink"/>
 
         <field id="TriggerDeviceUnlink" type="bool" />
@@ -49,6 +45,8 @@
 
         <!-- Name of screen to transition to -->
         <field id="transitionTo" type="string" alwaysNotify="true" onChange="transitionToScreen" />
+
+        <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
 
         <function name="AddCurrentPositionToTracker" />
         <function name="PushScreenIntoScreenStack" />
@@ -101,6 +99,35 @@
         <InfoScreen
             id="InfoScreen"
             visible="false"/>
+
+        <!-- Auth selection screen - choose native svod purchase + signup or oauth -->
+        <AuthSelection
+          id="AuthSelection"
+          visible="false" />
+
+        <!-- OAuth selection - choose signin / device link -->
+        <UniversalAuthSelection
+          id="UniversalAuthSelection"
+          visible="false" />
+
+        <!-- Sign In Screen -->
+        <CredentialsInput
+          id="SignInScreen"
+          visible="false" />
+
+        <!-- Sign Up Screen -->
+        <CredentialsInput
+          id="SignUpScreen"
+          visible="false" />
+
+        <!-- Account Screen - shows signin / signout button -->
+        <AccountScreen
+          id="AccountScreen"
+          visible="false" />
+
+        <TestInfoScreen
+          id="TestInfoScreen"
+          visible="false" />
 
         <!-- My Library - only with universal_tvod -->
         <MyLibrary

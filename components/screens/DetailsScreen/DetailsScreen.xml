@@ -12,63 +12,15 @@
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="Buttons.itemSelected" onChange="onItemSelected" />
 
         <field id="itemSelectedRole" type="string" />
+        <field id="itemSelectedTarget" type="string" />
 
         <!-- Playback flag -->
-        <!-- <field id="videoPlayerVisible" type="bool" alwaysnotify="true" alias="VideoPlayer.visible"  onChange="onVideoVisibleChange" /> -->
         <field id="videoPlayerVisible" type="bool" alwaysnotify="true" onChange="onVideoVisibleChange" />
 
         <!-- Content fields -->
         <field id="content" type="node" alwaysnotify="true" onChange="OnContentChange" />
 
-        <!-- If User is Logged In -->
-        <field id="redrawContent" type="bool"  alwaysnotify="true" onChange="OnContentChange"/>
-
-        <!-- If User is Logged In via Native SVOD -->
-        <field id="isLoggedInViaNativeSVOD" type="bool"/>
-
-        <!-- If User is Logged In via Universal SVOD -->
-        <field id="isLoggedInViaUniversalSVOD" type="bool"/>
-
-        <!-- Subscription Buttons Shown -->
-        <field id="SubscriptionButtonsShown" type="bool" />
-
-        <!-- Subscription Packages Shown -->
-        <field id="SubscriptionPackagesShown" type="bool" />
-
-        <!-- Subscription Plans -->
-        <field id="SubscriptionPlans" type="roArray" />
-
-        <!-- Products Catalog -->
-        <field id="ProductsCatalog" type="roArray" />
-
         <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
-
-        <!-- No Authentication Enabled -->
-        <field id="NoAuthenticationEnabled" type="bool" />
-
-        <!-- Only Native SVOD -->
-        <field id="OnlyNativeSVOD" type="bool" />
-
-        <!-- BothActive -->
-        <field id="BothActive" type="bool" />
-
-        <!-- isDeviceLinked -->
-        <field id="isDeviceLinked" type="bool" />
-
-        <!-- Universal Subscriptions Count -->
-        <field id="UniversalSubscriptionsCount" type="integer" />
-
-        <!-- JustBoughtNativeSubscription -->
-        <!-- This is just a flag to mark in the system that the user just bought via IAP and should be able to Play -->
-        <field id="JustBoughtNativeSubscription" type="bool" />
-
-        <!-- DontShowSubscriptionPackages -->
-        <!-- This is when we click the subscription button and there might be a new subscription on the server
-             We need to load the Play/Favorite buttons if there was a new subscription found.
-             In this time period, do not show the packages when Subscription button is clicked
-        -->
-        <field id="DontShowSubscriptionPackages" type="bool" />
-        <field id="ShowSubscriptionPackagesCallback" type="bool" alwaysNotify="true" onChange="onShowSubscriptionPackagesCallback"/>
 
     		<!-- Resume video task node -->
     		<field id="ResumeVideo" type="node" />
@@ -88,22 +40,17 @@
         <field id="VideoPlayer" type="node" />
         <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
 
-        <field id="ShowSubscribeButtons" type="bool" alwaysNotify="true" onChange="ShowSubscribeButtons" />
-
         <field id="PlaylistRowIndex" type="integer" />
         <field id="CurrentVideoIndex" type="integer" />
         <field id="totalVideosCount" type="integer" />
 
-        <field id="ReFocusButtons" type="bool" alwaysNotify="true" onChange="OnFocusedChildChange" />
-
         <function name="currentButtonSelected" />
     </interface>
 
+    <!-- helpers -->
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/DetailsScreen/DetailsScreen.brs" />
-
-    <!-- store functions -->
-    <script type="text/brightscript" uri="pkg:/source/purchase/store.brs" />
 
     <children>
         <!-- Main Background -->
@@ -130,14 +77,6 @@
             height="720"
             translation="[0, 0]"
         />
-
-        <!--<Rectangle
-            id = "Shade"
-            width="1280"
-            height="720"
-            color="0x000000"
-            opacity="0.5"
-            />-->
 
         <!-- Custom fonts -->
         <Label>
@@ -172,27 +111,11 @@
             focusBitmapUri="pkg:/images/button-focus-light.png"
             />
 
-        <!--Black hud at bottom of the Details Screen.-->
-        <!--<Rectangle
-            id="testRectangle"
-            color="0x000000FF"
-            width="1280"
-            height="251"
-            translation="[0, 462]" />-->
-
         <!--Item description.-->
         <Description
             id="Description"
             translation="[106, 140]"
             itemSpacings="[7,17]" />
-
-        <!--Item poster.-->
-        <!--<Poster
-            id="Poster"
-            translation="[60, 495]"
-            width="317"
-            height="178"
-            />-->
 
         <!-- Overhang -->
         <Group
@@ -225,14 +148,6 @@
                uri="pkg:/images/options.png"/>
            </Group>
         </Group>
-
-        <!--Playback node.-->
-        <!-- <Video
-            id="VideoPlayer"
-            visible="false"
-            translation="[0, 0]"
-            width="1280"
-            height="720"/> -->
 
     </children>
 </component>

@@ -1,10 +1,9 @@
 ' ********** Copyright 2016 Zype.  All Rights Reserved. **********
  'setting top interfaces
 Sub Init()
-    m.content_helpers = ContentHelpers()
-
-
     m.top.observeField("focusedChild", "OnFocusedChildChange")
+
+    m.content_helpers = ContentHelpers()
 
     m.buttons = m.top.findNode("MenuButtons")
 
@@ -28,11 +27,11 @@ Function InitSidebarButtons()
         { title: m.global.labels.menu_info_button, role: "transition", target: "InfoScreen" }
     ]
 
-    if(m.top.isDeviceLinkingEnabled = true)
-        menuButtons.push({ title: m.global.labels.menu_device_linking_button, role: "transition", target: "DeviceLinking" })
+    if(m.global.device_linking = true)
+        menuButtons.push( { title: m.global.labels.menu_account_button, role: "transition", target: "AccountScreen" } )
     end if
 
-    if m.global.favorites_via_api = false or (m.top.isDeviceLinkingEnabled = true and m.global.favorites_via_api = true)
+    if m.global.favorites_via_api = false or (m.global.device_linking = true and m.global.favorites_via_api = true)
         menuButtons.push({ title: m.global.labels.menu_favorites_button, role: "transition", target: "Favorites" })
     end if
 
@@ -40,17 +39,11 @@ Function InitSidebarButtons()
         menuButtons.push({ title: m.global.labels.menu_my_library_button, role: "transition", target: "MyLibrary" })
     end if
 
+    if m.global.test_info_screen
+      menuButtons.push( {title: "Test Info", role: "transition", target: "TestInfoScreen" } )
+    end if
+
     m.buttons.content = m.content_helpers.oneDimList2ContentNode(menuButtons, "ButtonNode")
-End Function
-
-Function GetRowListContent() as object
-    'Populate the RowList content here
-    data = CreateObject("roSGNode", "ContentNode")
-
-    row = data.CreateChild("ContentNode")
-    row.title = "Menu Buttons"
-
-    return data
 End Function
 
 ' on Menu Button press handler
@@ -59,11 +52,6 @@ Sub onItemSelected()
     index = m.top.itemSelected
     m.top.itemSelectedRole = currentButtonRole(index)
     m.top.itemSelectedTarget = currentButtonTarget(index)
-End Sub
-
-' on Row List content change
-Sub onContentChange()
-    ? "[Menu] Row List content changed"
 End Sub
 
 ' set proper focus to Buttons in case if return from Video PLayer

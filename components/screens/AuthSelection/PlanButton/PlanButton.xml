@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!-- node that renders PlanButton
+    should display information for Native Subscription
+ -->
+<component name="PlanButton" extends="Group" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+      <field id="itemContent" type="node" onChange="PlanChanged"/>
+
+      <function name="GetPlanInfo" />
+      <function name="SetPlan" />
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/AuthSelection/PlanButton/PlanButton.brs" />
+
+    <children>
+      <Rectangle
+        id="PlanDisplay"
+        width="400"
+        height="150">
+
+        <Label
+          id="PlanName"
+          opacity="1"
+          width="400"
+          horizAlign="center"
+          wrap="true"
+          text=""
+          translation="[0,20]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="30"/>
+        </Label>
+
+        <Label
+          id="TrialPeriod"
+          opacity="1"
+          width="400"
+          horizAlign="center"
+          wrap="true"
+          text=""
+          translation="[0,60]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Light.ttf" size="24"/>
+        </Label>
+
+        <Label
+          id="Cost"
+          opacity="1"
+          width="400"
+          horizAlign="center"
+          wrap="true"
+          text=""
+          translation="[0,90]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Light.ttf" size="20"/>
+        </Label>
+
+      </Rectangle>
+    </children>
+</component>

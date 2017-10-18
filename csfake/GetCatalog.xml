@@ -4,10 +4,11 @@
         <errorMessage xmlns=""/>
         <status xmlns="">Success</status>
         <products>
+                <!-- MonthlySub -->
                 <product xmlns="">
                         <HDPosterUrl i:nil="true"/>
                         <SDPosterUrl i:nil="true"/>
-                        <code>5845c95dc7e83b0feb000833</code>
+                        <code>59848598dead5214130052f2</code>
                         <cost>$1.99</cost>
                         <description/>
                         <expirationDate i:nil="true"/>
@@ -16,7 +17,7 @@
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
                         <inStock>true</inStock>
                         <maxQty>8</maxQty>
-                        <name>Monthly Subscription1</name>
+                        <name>Test Monthly Subscription</name>
                         <productType>MonthlySub</productType>
                         <purchaseDate>0001-01-01T00:00:00</purchaseDate>
                         <purchaseId i:nil="true"/>
@@ -24,7 +25,9 @@
                         <renewalDate i:nil="true"/>
                         <upsellProduct i:nil="true"/>
                 </product>
-                <!-- <product xmlns="">
+
+                <!-- YearlySub -->
+                <product xmlns="">
                         <HDPosterUrl i:nil="true"/>
                         <SDPosterUrl i:nil="true"/>
                         <code>584ac20e70d7637d5da333df</code>
@@ -36,13 +39,57 @@
                         <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
                         <inStock>true</inStock>
                         <maxQty>8</maxQty>
-                        <name>Yearly Subscription1</name>
+                        <name>Test Yearly Subscription</name>
                         <productType>YearlySub</productType>
                         <purchaseDate>0001-01-01T00:00:00</purchaseDate>
                         <purchaseId i:nil="true"/>
                         <qty>1</qty>
                         <renewalDate i:nil="true"/>
                         <upsellProduct i:nil="true"/>
-                </product> -->
+                </product>
+
+                <!-- Consumable -->
+                <product xmlns="">
+                      <HDPosterUrl i:nil="true"/>
+                      <SDPosterUrl i:nil="true"/>
+                      <code>TS1</code>
+                      <cost>$1.99</cost>
+                      <description/>
+                      <expirationDate i:nil="true"/>
+                      <freeTrialQuantity>12</freeTrialQuantity>
+                      <freeTrialType>Months</freeTrialType>
+                      <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                      <inStock>true</inStock>
+                      <maxQty>8</maxQty>
+                      <name>Test Consumable / Recurring Purchase</name>
+                      <productType>Consumable</productType>
+                      <purchaseDate>0001-01-01T00:00:00</purchaseDate>
+                      <purchaseId i:nil="true"/>
+                      <qty>1</qty>
+                      <renewalDate i:nil="true"/>
+                      <upsellProduct i:nil="true"/>
+              </product>
+
+              <!-- NonConsumable -->
+              <product xmlns="">
+                    <HDPosterUrl i:nil="true"/>
+                    <SDPosterUrl i:nil="true"/>
+                    <code>NW1</code>
+                    <cost>$0.99</cost>
+                    <description>Nifty Widget</description>
+                    <expirationDate i:nil="true"/>
+                    <freeTrialQuantity>0</freeTrialQuantity>
+                    <freeTrialType>None</freeTrialType>
+                    <fulfills xmlns:a="http://schemas.microsoft.com/2003/10/Serialization/Arrays"/>
+                    <inStock>true</inStock>
+                    <maxQty>8</maxQty>
+                    <name>Test NonConsumable / One Time Purchase</name>
+                    <productType>NonConsumable</productType>
+                    <purchaseDate>0001-01-01T00:00:00</purchaseDate>
+                    <purchaseId i:nil="true"/>
+                    <qty>1</qty>
+                    <renewalDate i:nil="true"/>
+                    <upsellProduct i:nil="true"/>
+            </product>
         </products>
 </result>

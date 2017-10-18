@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Zype.  All Rights Reserved. **********-->
+<!--
+    Account Screen - display user info or sign in button
+-->
+<component name="AccountScreen" extends="Group" initialFocus="Button">
+    <interface>
+      <field id="itemSelected" type="integer" alwaysNotify="true" alias="Button.itemSelected" onChange="onItemSelected" />
+      <field id="itemSelectedRole" type="string" />
+      <field id="itemSelectedTarget" type="string" />
+
+      <field id="resetText" type="boolean" alwaysNotify="true" onChange="resetTextCallback" />
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
+    <script type="text/brightscript" uri="pkg:/components/screens/AccountScreen/AccountScreen.brs" />
+
+    <children>
+      <Rectangle
+        id="Background"
+        width="1280"
+        height="720"
+        color="0x151515"
+        translation="[0,0]" />
+
+      <Label
+        id="Header"
+        width="1280"
+        horizAlign="center"
+        text=""
+        translation="[0,150]">
+        <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="40"/>
+      </Label>
+
+      <LabelList
+        id="Button"
+        translation="[440,300]"
+        color="0xf5f5f5"
+        focusedColor="0xf5f5f5"
+        numRows="2"
+        vertFocusAnimationStyle="floatingFocus"
+        itemSize="[400, 75]"
+        font="dictionary:MenuFont"
+        textHorizAlign="center"
+        focusedFont="dictionary:MenuFont"
+        focusBitmapUri="pkg:/images/button-focus-light.png" />
+    </children>
+
+</component>

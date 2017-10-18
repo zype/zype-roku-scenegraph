@@ -1,4 +1,4 @@
-function GetAccessToken(client_id as String, client_secret as String, udid as String, pin as String)
+function GetAccessTokenWithPin(client_id as String, client_secret as String, udid as String, pin as String)
   oauth = RegReadAccessToken()
 
 
@@ -33,7 +33,8 @@ function RegReadAccessToken()
     oauth.AddReplace("refresh_token", RegRead("RefreshToken", "OAuth"))
     oauth.AddReplace("scope", RegRead("Scope", "OAuth"))
     oauth.AddReplace("created_at", RegRead("CreatedAt","OAuth"))
-
+    oauth.AddReplace("email", RegRead("Email","OAuth"))
+    oauth.AddReplace("password", RegRead("Password","OAuth"))
     return oauth
   end if
 
@@ -69,8 +70,8 @@ function RegWriteAccessToken(data as object)
   scope = ToString(data.scope)
   created_at = AnyToString(data.created_at)
 
-'   print expires_in
-'   print created_at
+  email = ToString(data.email)
+  password = ToString(data.password)
 
   RegWrite("AccessToken", access_token, "OAuth")
   RegWrite("TokenType", token_type, "OAuth")
@@ -78,6 +79,9 @@ function RegWriteAccessToken(data as object)
   RegWrite("RefreshToken", refresh_token, "OAuth")
   RegWrite("Scope", scope, "OAuth")
   RegWrite("CreatedAt", created_at, "OAuth")
+
+  RegWrite("Email", email, "OAuth")
+  RegWrite("Password", password, "OAuth")
 end function
 
 function RequestToken(client_id as String, client_secret as String, udid as String, pin as String)
@@ -87,8 +91,6 @@ function RequestToken(client_id as String, client_secret as String, udid as Stri
   data.AddReplace("linked_device_id", udid)
   data.AddReplace("pin", pin)
   data.AddReplace("grant_type", "password")
-
-'   print "creating OAuth"
 
   res = RetrieveToken(data)
   if res <> invalid
@@ -100,8 +102,6 @@ function IsExpired(created_at as integer, expires_in as integer)
   dt = createObject("roDateTime")
   dt.mark()
   delta = dt.asSeconds() - created_at
-  ' print str(delta)
-  ' print str(expires_in)
   print "Checking is_expired"
   return delta > expires_in
 end function
@@ -113,6 +113,8 @@ function ResetAccessToken()
   RegDelete("RefreshToken", "OAuth")
   RegDelete("Scope", "OAuth")
   RegDelete("CreatedAt", "OAuth")
+  RegDelete("Email", "OAuth")
+  RegDelete("Password", "OAuth")
 end function
 
 function AddOAuth(data as object)
@@ -122,7 +124,6 @@ function AddOAuth(data as object)
   m.oauth.refresh_token = data.refresh_token
   m.oauth.scope = data.scope
   m.oauth.created_at = data.created_at
-  '   print m.oauth
 end function
 
 function ClearOAuth()
@@ -171,7 +172,7 @@ Function RequestPost(url As String, data As dynamic)
     roUrlTransfer.AddHeader("Content-Type", "application/json")
     roUrlTransfer.AddHeader("Accept", "application/json")
     json = FormatJson(data)
-    ' print "Posting to " + roUrlTransfer.GetUrl() + ": " + json
+    ' print "Posting to "  roUrlTransfer.GetUrl()  ": "  json
 
     if(roUrlTransfer.AsyncPostFromString(json))
       while(true)
@@ -194,3 +195,67 @@ Function RequestPost(url As String, data As dynamic)
     end if
     return invalid
 End Function
+
+Function RequestTokenByEmail(client_id as String, client_secret as String, email as String, password as String)
+  print "client_id: "; client_id; " --- client_secret: "; client_secret; " --- email: "; email; " --- password: "; password
+  data = CreateObject("roAssociativeArray")
+  data.AddReplace("client_id", client_id)
+  data.AddReplace("client_secret", client_secret)
+  data.AddReplace("username", email)
+  data.AddReplace("password", password)
+  data.AddReplace("grant_type", "password")
+
+  res = RetrieveToken(data)
+  if res <> invalid
+    res.email = email
+    res.password = password
+    RegWriteAccessToken(res)
+  end if
+End Function
+
+Function Login(client_id as String, client_secret as String, email as String, password as String)
+  oauth = RegReadAccessToken()
+  if oauth = invalid
+    ResetAccessToken()
+    RequestTokenByEmail(client_id, client_secret, email, password)
+  else if IsExpired(oauth.created_at.ToInt(), oauth.expires_in.ToInt())
+    ResetAccessToken()
+    data = {
+      "client_id": client_id,
+      "client_secret": client_secret,
+      "refresh_token": oauth.refresh_token,
+      "grant_type": "refresh_token"
+    }
+    res = RefreshToken(data)
+    if res <> invalid
+      res.email = email
+      res.password = password
+
+      RegWriteAccessToken(res)
+    end if
+  end if
+
+  return RegReadAccessToken()
+End Function
+
+Function Logout()
+  oauth = RegReadAccessToken()
+  if oauth <> invalid
+    ClearOAuth()
+    ResetAccessToken()
+  end if
+End Function
+
+function GetAndSaveNewToken(method as string) as void
+  oauth = RegReadAccessToken()
+
+  configs = GetApiConfigs()
+
+  if method = "login"
+    Logout()
+    Login(configs.client_id, configs.client_secret, oauth.email, oauth.password)
+  else if method = "device_linking"
+    Logout()
+    GetAccessTokenWithPin( configs.client_id, configs.client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()) )
+  end if
+end function

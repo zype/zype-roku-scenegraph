@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- node that renders InputDisplay
+    should display textEditBox for showing text input
+ -->
+<component name="InputDisplay" extends="Group" initialFocus="InputBox" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+      <field id="itemContent" type="node" onChange="onContentUpdate" alwaysNotify="true" />
+      <field id="rowHasFocus" type="boolean" onChange="onInputFocus" alwaysNotify="true" />
+
+      <field id="name" type="string" alwaysNotify="true" onChange="setInputRules" />
+      <field id="value" type="string" />
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/source/helpers/text_helpers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
+    <script type="text/brightscript" uri="pkg:/components/screens/CredentialsInput/InputDisplay/InputDisplay.brs" />
+
+    <children>
+      <Label
+          id="Text"
+          translation="[0,0]"
+          width="500"
+          text=""
+          visible="false">
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="30"/>
+      </Label>
+
+      <TextEditBox
+        id="InputBox"
+        translation="[0,0]"
+        hintText=""
+        active="false"
+        width="500" />
+    </children>
+</component>
