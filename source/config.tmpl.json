@@ -19,5 +19,6 @@
   "test_info_screen": false,
   "native_to_universal": false,
   "favorites_via_api": false,
-  "universal_tvod": false
+  "universal_tvod": false,
+  "enable_device_linking": true
 }

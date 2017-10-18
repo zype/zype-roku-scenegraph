@@ -1269,7 +1269,7 @@ function handleButtonEvents(index, screen)
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
-      m.scene.transitionTo = "UniversalAuthSelection"
+      if m.global.enable_device_linking = false then m.scene.transitionTo = "SignInScreen" else m.scene.transitionTo = "UniversalAuthSelection"
     else if button_role = "transition" and button_target = "DeviceLinking"
       m.DeviceLinking.show = true
       m.DeviceLinking.setFocus(true)
@@ -1504,7 +1504,8 @@ function SetFeatures() as void
     test_info_screen: configs.test_info_screen,
     native_to_universal: configs.native_to_universal,
     favorites_via_api: favorites_via_api,
-    universal_tvod: universal_tvod
+    universal_tvod: universal_tvod,
+    enable_device_linking: configs.enable_device_linking
   })
 end function
 
