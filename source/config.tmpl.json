@@ -17,7 +17,7 @@
   "enable_lock_icons": false,
   "subscribe_to_watch_ad_free": false,
   "test_info_screen": false,
-  "native_to_universal": false,
+  "native_to_universal_subscription": false,
   "favorites_via_api": false,
   "universal_tvod": false,
   "enable_device_linking": true

@@ -403,7 +403,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               if already_purchased
                 CreateDialog(m.scene, "Already purchased", already_purchased_message, ["Close"])
               else
-                if m.global.auth.isLoggedIn or m.global.native_to_universal = false then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
+                if m.global.auth.isLoggedIn or m.global.native_to_universal_subscription = false then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
               end if
             else if msg.getField() = "state"
                 state = msg.getData()
@@ -1299,7 +1299,7 @@ function handleNativeToUniversal() as void
       m.auth_state_service.incrementNativeSubCount()
       StartLoader()
 
-      if m.global.native_to_universal = true
+      if m.global.native_to_universal_subscription = true
         ' Store email used for purchase. For sync subscription later
         m.native_email_storage.DeleteEmail()
         m.native_email_storage.WriteEmail(user_info.email)
@@ -1367,7 +1367,7 @@ function handleNativeToUniversal() as void
 
         sleep(500)
         CreateDialog(m.scene, "Success", "Thank you for purchasing the subscription.", ["Dismiss"])
-      end if ' end if global.native_to_universal
+      end if ' end if global.native_to_universal_subscription
 
   ' User cancelled purchase or error from Roku store
   else
@@ -1502,7 +1502,7 @@ function SetFeatures() as void
     swaf: configs.subscribe_to_watch_ad_free,
     enable_lock_icons: configs.enable_lock_icons,
     test_info_screen: configs.test_info_screen,
-    native_to_universal: configs.native_to_universal,
+    native_to_universal_subscription: configs.native_to_universal_subscription,
     favorites_via_api: favorites_via_api,
     universal_tvod: universal_tvod,
     enable_device_linking: configs.enable_device_linking
@@ -1521,7 +1521,7 @@ function SetGlobalAuthObject() as void
 
   if current_user_info.subscription_count <> invalid then universal_sub_count = current_user_info.subscription_count else universal_sub_count = 0
 
-  if m.global.native_to_universal = false
+  if m.global.native_to_universal_subscription = false
     valid_native_subs = m.roku_store_service.getUserNativeSubscriptionPurchases()
   end if
 
