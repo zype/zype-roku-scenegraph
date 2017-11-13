@@ -1,3 +1,7 @@
+### 1.5.5 (13/11/2017)
+
+- Deep linking bug fix for invalid playlists
+
 ### 1.5.4 (18/10/2017)
 
 - Native to Universal feature flag
