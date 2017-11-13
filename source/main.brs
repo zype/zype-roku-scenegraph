@@ -210,7 +210,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
           end if
 
         else if mediaType = "season" or mediaType = "series"
-          transitionToNestedPlaylist(m.contentID)
+          deep_linked_playlist = GetPlaylists({ id: m.contentID })
+          valid_playlist = (deep_linked_playlist.count() > 0 and deep_linked_playlist[0].active)
+
+          if valid_playlist
+            transitionToNestedPlaylist(m.contentID)
+          end if
         end if
 
 
