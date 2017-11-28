@@ -371,6 +371,44 @@ Function GetCategory(id as String, urlParams = {} As Object) As Object
   return data
 End Function
 
+function MakeGetRequest(src, params) as object
+    resp = {}
+
+    request = CreateObject("roUrlTransfer")
+    request.RetainBodyOnError(true) ' Need this for error messages
+    port = CreateObject("roMessagePort")
+    request.setMessagePort(port)
+    url = AppendParamsToUrl(src, params)
+
+    if url.InStr(0, "https") = 0
+      request.SetCertificatesFile("common:/certs/ca-bundle.crt")
+      request.AddHeader("X-Roku-Reserved-Dev-Id", "")
+      request.InitClientCertificates()
+    end if
+
+    print url ' uncomment to debug
+    request.SetUrl(url)
+
+    if request.AsyncGetToString()
+      while true
+        msg = wait(0, port)
+        if type(msg) = "roUrlEvent"
+          code = msg.GetResponseCode()
+
+          resp.body = ParseJson(msg.GetString())
+          resp.status = code
+
+          exit while
+        else if event = invalid
+          request.AsyncCancel()
+          exit while
+        end if
+      end while
+    end if
+
+    return resp
+end function
+
 '******************************************************
 'Get a player info
 '******************************************************
@@ -386,15 +424,21 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   info.subtitles = []
   info.video = {}
   info.analytics = {}
+  info.errorMessages = {}
+
+  info.statusCode = invalid
 
   url = GetApiConfigs().player_endpoint + "embed/" + videoid + "/"
   params = urlParams
-  response = MakeRequest(url, params)
+  response = MakeGetRequest(url, params)
 
-  if response <> invalid
-    response = response.response
+  if response.status = 200
+    response = response.body.response
     print "Beacon: "; response.body.analytics.beacon
     print "Dimensions: "; response.body.analytics.dimensions
+
+    info.statusCode = 200
+
     if response.DoesExist("body")
 
       if response.body.DoesExist("on_air")
@@ -452,6 +496,10 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
         info.video.duration = video.duration
       end if
     end if ' end of if video
+
+  else
+    info.statusCode = response.status
+    info.errorMessage = response.body.message
   end if
 
   return info

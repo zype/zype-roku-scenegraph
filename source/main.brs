@@ -591,9 +591,9 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
     video_service = VideoService()
 
     ' If video source is not available
-    if(screen.content.streamFormat = "(null)")
+    if(playerInfo.statusCode <> 200 or screen.content.streamFormat = "(null)")
       CloseVideoPlayer()
-      CreateVideoUnavailableDialog()
+      CreateVideoUnavailableDialog(playerInfo.errorMessage)
     else
 		PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo)
 		playContent = true
@@ -724,11 +724,11 @@ sub CloseVideoPlayer()
   m.detailsScreen.setFocus(true)
 end sub
 
-sub CreateVideoUnavailableDialog()
+sub CreateVideoUnavailableDialog(errorMessage as String)
   dialog = createObject("roSGNode", "Dialog")
   dialog.title = "Error!"
   dialog.optionsDialog = true
-  dialog.message = "We're sorry, that video is no longer available. Please try another video."
+  dialog.message = errorMessage
   dialog.buttons = ["OK"]
   dialog.focusButton = 0
   m.scene.dialog = dialog

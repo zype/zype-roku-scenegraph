@@ -35,6 +35,9 @@ Function CreateVideoObject(attrs As Object) As Object
     inFavorites: properties.inFavorites,
     onAir: properties.on_air,
     subscriptionRequired: properties.subscription_required,
+    purchaseRequired: properties.purchase_required,
+    rentalRequired: properties.rental_required,
+    passRequired: properties.pass_required,
     contentId: properties._id,
     mediaType: "movie",
     usePoster: properties.usePoster

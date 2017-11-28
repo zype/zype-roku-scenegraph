@@ -168,6 +168,9 @@ Function PrepareVideoPlayer()
     nextVideoObject = m.top.videosTree[m.top.PlaylistRowIndex][m.top.CurrentVideoIndex]
     if(nextVideoObject <> invalid)
         m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
+        m.top.content.purchaseRequired = nextVideoObject.purchaseRequired
+        m.top.content.rentalRequired = nextVideoObject.rentalRequired
+        m.top.content.passRequired = nextVideoObject.passRequired
         m.top.content.id = nextVideoObject.id
         m.top.content.CONTENTTYPE = nextVideoObject.contenttype
         m.top.content.DESCRIPTION = nextVideoObject.description
@@ -218,7 +221,12 @@ Sub OnContentChange()
 
         no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
 
-        if no_sub_needed or (svod_enabled and is_subscribed)
+        requiresNonSvodEntitlement = (m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
+
+        if m.global.device_linking and requiresNonSvodEntitlement
+          m.top.canWatchVideo = false
+          AddSigninButton()
+        else if no_sub_needed or (svod_enabled and is_subscribed)
           m.top.canWatchVideo = true
           AddButtons()
         else
@@ -301,6 +309,13 @@ Sub AddActionButtons()
         m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
+
+sub AddSigninButton()
+    if m.top.content <> invalid
+      btns = [ { title: m.global.labels.sign_in_button, role: "transition", target: "UniversalAuthSelection" } ]
+      m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+    end if
+end sub
 
 Function getStatusOfVideo() as boolean
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")

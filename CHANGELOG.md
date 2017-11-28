@@ -1,3 +1,7 @@
+### 1.5.6 (28/11/2017)
+
+- Display error message from Zype platform for player requests
+
 ### 1.5.5 (13/11/2017)
 
 - Deep linking bug fix for invalid playlists
