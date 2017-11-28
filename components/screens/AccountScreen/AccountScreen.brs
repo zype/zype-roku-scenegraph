@@ -29,7 +29,7 @@ function resetTextCallback() as void
 
     if m.global.auth.universalSubCount = 0 and m.global.nsvod.currentPlan.count() > 0 then btn.push({ title: m.global.labels.sync_native_button, role: "syncNative", target: "" })
   else
-    m.header.text = m.global.labels.sign_in_header_label
+    m.header.text = m.global.labels.account_screen_header
 
     btn = [ { title: m.global.labels.sign_in_button, role: "transition", target: "UniversalAuthSelection" } ]
   end if

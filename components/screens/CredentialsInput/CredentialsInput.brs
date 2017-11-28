@@ -81,6 +81,10 @@ function setHeader() as void
   m.header_label.text = m.top.header
 end function
 
+function setHelperMessage() as void
+  m.helper_message.text = m.top.helperMessage
+end function
+
 function handleInput() as void
   m.input_keyboard.setFocus(false)
   m.input_keyboard.visible = false
@@ -184,6 +188,9 @@ function initializers() as object
     self.submit_button.color = self.global.theme.primary_text_color
     self.submit_button.focusedColor = self.global.theme.primary_text_color
     self.submit_button.content = self.content_helpers.oneDimList2ContentNode([{title: self.global.labels.user_credential_submit_button}], "ButtonNode")
+
+    self.helper_message = self.top.findNode("HelperMessage")
+    self.helper_message.color = self.global.theme.primary_text_color
 
     self.input_keyboard = self.top.findNode("InputKeyboard")
   end function

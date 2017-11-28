@@ -141,11 +141,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.UniversalAuthSelection.observeField("itemSelected", m.port)
 
     m.SignInScreen = m.scene.findNode("SignInScreen")
-    m.SignInScreen.header = "Sign in to existing account"
+    m.SignInScreen.header = m.global.labels.sign_in_screen_header
+    m.SignInScreen.helperMessage = m.global.labels.sign_in_helper_message
     m.SignInScreen.observeField("itemSelected", m.port)
 
     m.SignUpScreen = m.scene.findNode("SignUpScreen")
-    m.SignUpScreen.header = "Create an account"
+    m.SignUpScreen.header = m.global.labels.sign_up_screen_header
+    m.SignUpScreen.helperMessage = m.global.labels.sign_up_helper_message
     m.SignUpScreen.observeField("itemSelected", m.port)
 
     m.AccountScreen = m.scene.findNode("AccountScreen")
