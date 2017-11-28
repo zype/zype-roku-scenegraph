@@ -556,9 +556,14 @@ sub playRegularVideo(screen as Object)
     di = CreateObject("roDeviceInfo")
     consumer = m.current_user.getInfo()
 
-    if consumer._id <> invalid and consumer._id <> "" and consumer.subscription_count > 0
+    if consumer._id <> invalid and consumer._id <> ""
         oauth = m.current_user.getOAuth()
-        auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
+
+        if IsEntitled(screen.content.id, {access_token: oauth.access_token})
+          auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
+        else
+          auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
+        end if
     else
         auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
     end if
