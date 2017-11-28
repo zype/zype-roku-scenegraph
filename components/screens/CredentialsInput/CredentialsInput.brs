@@ -85,6 +85,10 @@ function setHelperMessage() as void
   m.helper_message.text = m.top.helperMessage
 end function
 
+function setSubmitButtonText() as void
+  m.submit_button.content = m.content_helpers.oneDimList2ContentNode([{title: m.top.submitButtonText}], "ButtonNode")
+end function
+
 function handleInput() as void
   m.input_keyboard.setFocus(false)
   m.input_keyboard.visible = false
