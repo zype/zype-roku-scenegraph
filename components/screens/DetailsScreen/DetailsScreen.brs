@@ -223,7 +223,7 @@ Sub OnContentChange()
 
         requiresNonSvodEntitlement = (m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
 
-        if m.global.device_linking and requiresNonSvodEntitlement
+        if m.global.device_linking and requiresNonSvodEntitlement and m.global.auth.isLoggedIn = false
           m.top.canWatchVideo = false
           AddSigninButton()
         else if no_sub_needed or (svod_enabled and is_subscribed)
