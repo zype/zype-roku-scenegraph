@@ -13,7 +13,7 @@
 		<field id="subscriptionRequired" type="boolean" />
 		<field id="purchaseRequired" type="boolean" />
 		<field id="rentalRequired" type="boolean" />
-		<field id="passPlanRequired" type="boolean" />
+		<field id="passRequired" type="boolean" />
 
 		<!-- for pagination -->
 		<field id="isPaginator" type="boolean" />
