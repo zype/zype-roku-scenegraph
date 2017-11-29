@@ -735,7 +735,7 @@ end sub
 
 sub CreateVideoUnavailableDialog(errorMessage as String)
   dialog = createObject("roSGNode", "Dialog")
-  dialog.title = "Error"
+  dialog.title = ""
   dialog.optionsDialog = true
   dialog.message = errorMessage
   dialog.buttons = ["OK"]
@@ -1507,19 +1507,15 @@ end function
 function SetFeatures() as void
   configs = GetApiConfigs()
 
-  if m.app.favorites_via_api <> invalid then favorites_via_api = m.app.favorites_via_api else favorites_via_api = configs.favorites_via_api
-
-  if m.app.universal_tvod <> invalid then universal_tvod = m.app.universal_tvod else universal_tvod = GetApiConfigs().universal_tvod
-
   m.global.addFields({
     autoplay: m.app.autoplay,
-    swaf: configs.subscribe_to_watch_ad_free,
-    enable_lock_icons: configs.enable_lock_icons,
-    test_info_screen: configs.test_info_screen,
-    native_to_universal_subscription: configs.native_to_universal_subscription,
-    favorites_via_api: favorites_via_api,
-    universal_tvod: universal_tvod,
-    enable_device_linking: configs.enable_device_linking
+    swaf: m.app.subscribe_to_watch_ad_free,
+    enable_lock_icons: m.app.enable_lock_icons,
+    native_to_universal_subscription: m.app.native_to_universal_subscription,
+    favorites_via_api: m.app.favorites_via_api,
+    universal_tvod: m.app.universal_tvod,
+    enable_device_linking: configs.enable_device_linking,
+    test_info_screen: configs.test_info_screen
   })
 end function
 
