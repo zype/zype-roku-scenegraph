@@ -90,13 +90,31 @@ Sub OnFocusedChildChange()
       m.overlay.uri = m.global.theme.overlay_uri
       m.overlay.visible = true
 
-      if m.top.canWatchVideo <> invalid and m.top.canWatchVideo = true
+      is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
+      svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
+
+      no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
+
+      requiresNonSvodEntitlement = (m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
+
+      logged_in = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
+
+      if m.global.device_linking and requiresNonSvodEntitlement and logged_in = false
+        m.top.canWatchVideo = false
+        AddSigninButton()
+      else if m.global.device_linking and requiresNonSvodEntitlement and logged_in = true
+        m.top.canWatchVideo = true
         AddButtons()
-        m.buttons.setFocus(true)
+
+      else if no_sub_needed or (svod_enabled and is_subscribed)
+        m.top.canWatchVideo = true
+        AddButtons()
       else
+        m.top.canWatchVideo = false
         AddActionButtons()
-        m.buttons.setFocus(true)
       end if
+
+      m.buttons.setFocus(true)
     end if
 End Sub
 
@@ -223,9 +241,15 @@ Sub OnContentChange()
 
         requiresNonSvodEntitlement = (m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
 
-        if m.global.device_linking and requiresNonSvodEntitlement and (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn = false)
+        logged_in = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
+
+        if m.global.device_linking and requiresNonSvodEntitlement and logged_in = false
           m.top.canWatchVideo = false
           AddSigninButton()
+        else if m.global.device_linking and requiresNonSvodEntitlement and logged_in = true
+          m.top.canWatchVideo = true
+          AddButtons()
+
         else if no_sub_needed or (svod_enabled and is_subscribed)
           m.top.canWatchVideo = true
           AddButtons()

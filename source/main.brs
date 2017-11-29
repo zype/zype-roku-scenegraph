@@ -735,7 +735,7 @@ end sub
 
 sub CreateVideoUnavailableDialog(errorMessage as String)
   dialog = createObject("roSGNode", "Dialog")
-  dialog.title = "Error!"
+  dialog.title = "Error"
   dialog.optionsDialog = true
   dialog.message = errorMessage
   dialog.buttons = ["OK"]
