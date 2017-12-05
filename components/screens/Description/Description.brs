@@ -22,11 +22,7 @@ Sub OnContentChanged()
 
     value = item.description
     if value <> invalid then
-        if value.toStr() <> "" then
-            m.top.Description.text = value.toStr()
-        else
-            m.top.Description.text = m.global.labels.no_video_description_text
-        end if
+        m.top.Description.text = value.toStr()
     end if
 
     value = item.ReleaseDate
