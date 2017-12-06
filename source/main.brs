@@ -1293,7 +1293,8 @@ function handleButtonEvents(index, screen)
 end function
 
 function handleNativeToUniversal() as void
-  EndLoader()
+  m.AuthSelection.visible = false
+  StartLoader()
 
   ' Get updated user info
   user_info = m.current_user.getInfo()
@@ -1311,7 +1312,6 @@ function handleNativeToUniversal() as void
 
   if purchase_subscription.success
       m.auth_state_service.incrementNativeSubCount()
-      StartLoader()
 
       if m.global.native_to_universal_subscription = true
         ' Store email used for purchase. For sync subscription later
