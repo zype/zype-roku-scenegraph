@@ -553,6 +553,7 @@ end function
 '     3- Both NSVOD and USVOD. User either purchased a native subscription or is linked
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
+    StartLoader()
     di = CreateObject("roDeviceInfo")
     consumer = m.current_user.getInfo()
 
