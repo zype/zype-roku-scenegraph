@@ -1309,6 +1309,9 @@ function handleNativeToUniversal() as void
 
   ' Make nsvod purchase
   purchase_subscription = m.roku_store_service.makePurchase(order)
+  EndLoader()
+  m.AuthSelection.visible = true
+  m.AuthSelection.setFocus(true)
 
   if purchase_subscription.success
       m.auth_state_service.incrementNativeSubCount()
