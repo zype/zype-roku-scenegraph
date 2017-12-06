@@ -1,3 +1,7 @@
+### 1.5.7 (06/12/2017)
+
+- Loading screen when user tries to make purchase for better UX
+
 ### 1.5.6 (28/11/2017)
 
 - Display error message from Zype platform for player requests
