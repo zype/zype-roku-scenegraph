@@ -38,6 +38,13 @@ In order to test native subscriptions, you need to setup the fake Roku store bef
 
 Older Roku devices will have less powerful hardware and therefore less processing power. One noticeable difference when running the apps on newer Roku devices (Roku 4 and newer) is that the loading indicator/spinner will have an animation. This feature was taken out for older Roku devices which did not have hardware to support animations and rendering of higher resolution images.
 
+## Notes on customization
+
+There are certain parts of the SDK that you may want to customize. If so these documents may interest you:
+
+- [Customizing text](docs/customization/text_customization.md)
+- [Customizing buttons](docs/customization/buttons_customization.md)
+
 ## Contributing to the repo
 
 We welcome contributions to Zype Roku Scenegraph SDK. If you have any suggestions or notice any bugs you can raise an issue. If you have any changes to the code base that you want to see added, you can fork the repository, then submit a pull request with your changes explaining what you changed, why you believe it should be added, and how one would test these changes. Thank you to the community!

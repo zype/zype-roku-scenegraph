@@ -90,29 +90,7 @@ Sub OnFocusedChildChange()
       m.overlay.uri = m.global.theme.overlay_uri
       m.overlay.visible = true
 
-      is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
-      svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
-
-      no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
-
-      requiresNonSvodEntitlement = (m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
-
-      logged_in = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
-
-      if m.global.device_linking and requiresNonSvodEntitlement and logged_in = false
-        m.top.canWatchVideo = false
-        AddSigninButton()
-      else if m.global.device_linking and requiresNonSvodEntitlement and logged_in = true
-        m.top.canWatchVideo = true
-        AddButtons()
-
-      else if no_sub_needed or (svod_enabled and is_subscribed)
-        m.top.canWatchVideo = true
-        AddButtons()
-      else
-        m.top.canWatchVideo = false
-        AddActionButtons()
-      end if
+      handleButtonLogic()
 
       m.buttons.setFocus(true)
     end if
@@ -121,15 +99,8 @@ End Sub
 ' set proper focus on buttons and stops video if return from Playback to details
 Sub onVideoVisibleChange()
     if m.top.videoPlayer.visible = false and m.top.visible = true
-      if m.top.canWatchVideo <> invalid AND m.top.canWatchVideo = true
-        AddButtons()
-        m.buttons.setFocus(true)
+        handleButtonLogic()
         m.top.videoPlayer.control = "stop"
-      else
-        AddActionButtons()
-        m.buttons.setFocus(true)
-        m.top.videoPlayer.control = "stop"
-      end if
     end if
 End Sub
 
@@ -185,23 +156,10 @@ Function PrepareVideoPlayer()
     print "PrepareVideoPlayer"
     nextVideoObject = m.top.videosTree[m.top.PlaylistRowIndex][m.top.CurrentVideoIndex]
     if(nextVideoObject <> invalid)
-        m.top.content.subscriptionRequired = nextVideoObject.subscriptionrequired
-        m.top.content.purchaseRequired = nextVideoObject.purchaseRequired
-        m.top.content.rentalRequired = nextVideoObject.rentalRequired
-        m.top.content.passRequired = nextVideoObject.passRequired
-        m.top.content.id = nextVideoObject.id
-        m.top.content.CONTENTTYPE = nextVideoObject.contenttype
-        m.top.content.DESCRIPTION = nextVideoObject.description
-        m.top.content.HDBACKGROUNDIMAGEURL = nextVideoObject.hdbackgroundimageurl
-        m.top.content.HDPOSTERURL = nextVideoObject.hdposterurl
-        m.top.content.inFavorites = nextVideoObject.infavorites
-        m.top.content.LENGTH = nextVideoObject.length
-        m.top.content.onAir = nextVideoObject.onair
-        m.top.content.RELEASEDATE = nextVideoObject.releasedate
-        m.top.content.STREAMFORMAT = nextVideoObject.streamformat
-        m.top.content.TITLE = nextVideoObject.title
-        m.top.content.URL = nextVideoObject.url
-        m.top.content.POSTERTHUMBNAIL = nextVideoObject.posterThumbnail
+
+        for each key in nextVideoObject.keys()
+            m.top.content[key] = nextVideoObject[key]
+        end for
 
         print "nextVideoObject: "; nextVideoObject
         print "New: "; m.top.content
@@ -234,29 +192,7 @@ End Sub
 ' Content change handler
 Sub OnContentChange()
     if m.top.content<>invalid then
-        is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
-        svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
-
-        no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
-
-        requiresNonSvodEntitlement = (m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
-
-        logged_in = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
-
-        if m.global.device_linking and requiresNonSvodEntitlement and logged_in = false
-          m.top.canWatchVideo = false
-          AddSigninButton()
-        else if m.global.device_linking and requiresNonSvodEntitlement and logged_in = true
-          m.top.canWatchVideo = true
-          AddButtons()
-
-        else if no_sub_needed or (svod_enabled and is_subscribed)
-          m.top.canWatchVideo = true
-          AddButtons()
-        else
-          m.top.canWatchVideo = false
-          AddActionButtons()
-        end if
+        handleButtonLogic()
 
         m.description.content   = m.top.content
         m.description.Description.height = "250"
@@ -340,6 +276,47 @@ sub AddSigninButton()
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 end sub
+
+function handleButtonLogic() as void
+    sign_in_enabled = m.global.device_linking
+    svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
+
+    user_is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
+    is_logged_in = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
+
+    videoHasMonetization = (m.top.content.subscriptionRequired or m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
+
+    if m.top.content.subscriptionRequired
+        if user_is_subscribed
+            m.top.canWatchVideo = true
+            AddButtons()  ' show Play/Favorite
+        else
+            m.top.canWatchVideo = false
+
+            ' Show Subscribe
+            '   - normal behavior: transition to AuthSelection (has native plans and sign in)
+            '   - plans are empty if no native subscriptions exist (if testing sideloaded app, remember to turn on store and/or update items in csfake folder)
+            '   - sign in enabled when device linking is turned on in Zype platform
+            AddActionButtons()
+        end if
+
+    else if sign_in_enabled and videoHasMonetization
+        if is_logged_in
+            m.top.canWatchVideo = true
+            AddButtons()  ' show Play/Favorite.
+        else
+            m.top.canWatchVideo = false
+
+             ' Show Sign In
+             '    - Normal behavior transition to UniversalAuthSelection (choose between device linking and sign in)
+             '    - Can skip authentication select and go straight to Sign In by setting "enable_device_linking" in source/configs.json to false
+            AddSigninButton()
+        end if
+    else
+        m.top.canWatchVideo = true
+        AddButtons()  ' show Play/Favorite.
+    end if
+end function
 
 Function getStatusOfVideo() as boolean
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
