@@ -12,8 +12,8 @@ The most common button you may see is the `"transition"` button which lets you t
 
 ### Customizing Button Appearance
 
-If you want to change which buttons appear, you will need to update the component's XML and BrightScript file. Most of the components are organized in their own folders inside the `components/screens` folder.
+If you want to change how the buttons appear, you will need to update the component's XML and BrightScript file. Most of the components are organized in their own folders inside `components/screens`.
 
-The component's XML file is where you create the view. You can determine appears and set values like text size and color. There are many ways to create buttons within Roku Scenegraph, but most of the buttons in this SDK use the LabelList.
+The component's XML file is where you create the view. You can determine what appears and set values like text size and color. There are many ways to create buttons within Roku Scenegraph, but most of the buttons in this SDK use the LabelList component.
 
-You can also alter the appearance further inside the component's BrightScript file. The BrightScript file is like the component's controller and handles how the component behaves with different user input. The buttons can be referenced inside this file and have their fields updated, so the fields inside the XML file are not final. For example, this is where dynamic values (colors) can be set.
+You can also alter the appearance further inside the component's BrightScript file. The BrightScript file is like the component's controller and handles how the component behaves with different user input. The buttons can be referenced inside this file and have their fields updated. This means that the fields inside the XML file are not final and can be altered later. For example, this is where dynamic values (colors) can be set.
