@@ -7,4 +7,4 @@ rm -rf "$DIR/.git"
 rm "$DIR/.gitignore"
 rm "$DIR/images/overhangLogo.png"
 rm -rf "$DIR/docs"
-rm "$DIR/*.md"
+rm *.md
