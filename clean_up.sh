@@ -6,3 +6,5 @@ find "$DIR" -name "*.DS_Store" -type f -delete
 rm -rf "$DIR/.git"
 rm "$DIR/.gitignore"
 rm "$DIR/images/overhangLogo.png"
+rm -rf "$DIR/docs"
+rm "$DIR/*.md"
