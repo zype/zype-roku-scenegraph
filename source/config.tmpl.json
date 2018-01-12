@@ -9,7 +9,7 @@
   "oauth_endpoint": "https://login.zype.com/",
   "bifrost_endpoint": "https://bifrost.zype.com/",
 
-  "version": "1.5.7",
+  "version": "1.5.8",
   "theme": "dark",
   "brand_color": "#ffffff",
   "git_description" : "<GIT_DESCRIPTION>",
