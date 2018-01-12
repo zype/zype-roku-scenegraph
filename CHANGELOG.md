@@ -1,3 +1,7 @@
+### 1.5.8 (12/01/2017)
+
+- Updates to fix Roku static analysis errors during submissions
+
 ### 1.5.7 (06/12/2017)
 
 - Loading screen when user tries to make purchase for better UX
