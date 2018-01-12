@@ -163,101 +163,101 @@ FUNCTION AkaMA_plugin() as object
                 
                 else if m.pluginInstance.getCurrenPlaybackState() = "ad"
                     print "currently in ad state..."
-                else if type(msg) = "roVideoScreenEvent" or type(msg) = "roVideoPlayerEvent" then
-                        if msg.isStreamStarted() then
-                                print"recieved isStreamStarted"
-                                currentStreamInfo = msg.GetInfo()
-                                AkaMA_PrintAnyAA(2,currentStreamInfo)
-                                print "Playback position = "; msg.GetIndex()
-                                if currentStreamInfo.IsUnderrun = true
-                                    print "Entering into rebuffer mode"
-                                    m.pluginInstance.handleRebufferEvent(m.sessionTimer, m.lastHeadPosition)
-                                endif   
+'                 else if type(msg) = "state" then
+'                         if msg.isStreamStarted() then
+'                                 print"recieved isStreamStarted"
+'                                 currentStreamInfo = msg.GetInfo()
+'                                 AkaMA_PrintAnyAA(2,currentStreamInfo)
+'                                 print "Playback position = "; msg.GetIndex()
+'                                 if currentStreamInfo.IsUnderrun = true
+'                                     print "Entering into rebuffer mode"
+'                                     m.pluginInstance.handleRebufferEvent(m.sessionTimer, m.lastHeadPosition)
+'                                 endif   
                                 
-                            if m.currentStreamInfo.DoesExist("Url") = false
-                                m.currentStreamInfo.addReplace("Url",currentStreamInfo.Url)
-                            endif    
-                            if currentStreamInfo.StreamBitrate <> 0 or currentStreamInfo.StreamBitrate <> invalid
-                                m.currentStreamInfo.addReplace("StreamBitrate", currentStreamInfo.StreamBitrate)
-                            endif     
+'                             if m.currentStreamInfo.DoesExist("Url") = false
+'                                 m.currentStreamInfo.addReplace("Url",currentStreamInfo.Url)
+'                             endif    
+'                             if currentStreamInfo.StreamBitrate <> 0 or currentStreamInfo.StreamBitrate <> invalid
+'                                 m.currentStreamInfo.addReplace("StreamBitrate", currentStreamInfo.StreamBitrate)
+'                             endif     
                                                         
-'                            m.currentStreamInfo = msg.GetInfo()  
-                            m.pluginInstance.updateBitrateInfo(m.currentStreamInfo, m.lastHeadPosition)
-                         else if msg.isStatusMessage() then
-                            print "********* Status message *********:"
-                            aa = msg.GetInfo()
-                            AkaMA_PrintAnyAA(2,aa)
-                            if m.lastHeadPosition > 0 and m.connectionTimer = invalid
-                                if msg.getMessage() = "startup progress" 
-                                    m.pluginInstance.handleRebufferEvent(m.sessionTimer, m.lastHeadPosition)
-                                else if msg.getMessage() = "start of play"
-                                    m.pluginInstance.handleRebufferEndEvent(m.sessionTimer, m.lastHeadPosition) 
-                                endif
-                            endif
-                            print "received status message = ";msg.getMessage()
-                            print "*********Executed Status message *********:"
-                         else if msg.isPaused()
-                            print"executing paused..."
-                            aa = msg.GetInfo()
-                            AkaMA_PrintAnyAA(2,aa)
-                            m.pluginInstance.handlePlaybackPauseEvent(m.sessionTimer, m.lastHeadPosition)
-                            print"executed paused..."
-                         else if msg.isResumed()
-                            print"executing resumed..."
-                            aa = msg.GetInfo()
-                            AkaMA_PrintAnyAA(2,aa)
-                            m.pluginInstance.handlePlaybackResumeEvent(m.sessionTimer, m.lastHeadPosition)
-                            print"executed resumed..."
-                         else if msg.isPlaybackPosition()
-                            'print "********* Palyback Position event *********:"
-                            'hanlde seek 
-                            if m.pluginInstance.getCurrenPlaybackState() = "pause"
-                                if m.lastHeadPosition + 1 > msg.GetIndex()
-                                    print "End of seek back operation..."
-                                else if  m.lastHeadPosition + 1 < msg.GetIndex()
-                                    print "end of seek forward operation..."
-                                endif
-                                m.lastHeadPosition = msg.GetIndex()
-                                'Check if we are getting isStreamStarted before isPlaybackPosition
-                                m.pluginInstance.handlePlaybackSeekEndEvent(m.sessionTimer, m.lastHeadPosition, m.currentStreamInfo)
-                            endif
+' '                            m.currentStreamInfo = msg.GetInfo()  
+'                             m.pluginInstance.updateBitrateInfo(m.currentStreamInfo, m.lastHeadPosition)
+'                          else if msg.isStatusMessage() then
+'                             print "********* Status message *********:"
+'                             aa = msg.GetInfo()
+'                             AkaMA_PrintAnyAA(2,aa)
+'                             if m.lastHeadPosition > 0 and m.connectionTimer = invalid
+'                                 if msg.getMessage() = "startup progress" 
+'                                     m.pluginInstance.handleRebufferEvent(m.sessionTimer, m.lastHeadPosition)
+'                                 else if msg.getMessage() = "start of play"
+'                                     m.pluginInstance.handleRebufferEndEvent(m.sessionTimer, m.lastHeadPosition) 
+'                                 endif
+'                             endif
+'                             print "received status message = ";msg.getMessage()
+'                             print "*********Executed Status message *********:"
+'                          else if msg.isPaused()
+'                             print"executing paused..."
+'                             aa = msg.GetInfo()
+'                             AkaMA_PrintAnyAA(2,aa)
+'                             m.pluginInstance.handlePlaybackPauseEvent(m.sessionTimer, m.lastHeadPosition)
+'                             print"executed paused..."
+'                          else if msg.isResumed()
+'                             print"executing resumed..."
+'                             aa = msg.GetInfo()
+'                             AkaMA_PrintAnyAA(2,aa)
+'                             m.pluginInstance.handlePlaybackResumeEvent(m.sessionTimer, m.lastHeadPosition)
+'                             print"executed resumed..."
+'                          else if msg.isPlaybackPosition()
+'                             'print "********* Palyback Position event *********:"
+'                             'hanlde seek 
+'                             if m.pluginInstance.getCurrenPlaybackState() = "pause"
+'                                 if m.lastHeadPosition + 1 > msg.GetIndex()
+'                                     print "End of seek back operation..."
+'                                 else if  m.lastHeadPosition + 1 < msg.GetIndex()
+'                                     print "end of seek forward operation..."
+'                                 endif
+'                                 m.lastHeadPosition = msg.GetIndex()
+'                                 'Check if we are getting isStreamStarted before isPlaybackPosition
+'                                 m.pluginInstance.handlePlaybackSeekEndEvent(m.sessionTimer, m.lastHeadPosition, m.currentStreamInfo)
+'                             endif
                             
-                            m.lastHeadPosition = msg.GetIndex()
-                            'handle rebuffer
-                            if m.pluginInstance.getCurrenPlaybackState() = "rebuffer"
-                                print"Entering into rebufferEnd state"
-                                m.pluginInstance.handleRebufferEndEvent(m.sessionTimer, m.lastHeadPosition)
-                            endif
+'                             m.lastHeadPosition = msg.GetIndex()
+'                             'handle rebuffer
+'                             if m.pluginInstance.getCurrenPlaybackState() = "rebuffer"
+'                                 print"Entering into rebufferEnd state"
+'                                 m.pluginInstance.handleRebufferEndEvent(m.sessionTimer, m.lastHeadPosition)
+'                             endif
                             
-                            'handle play start
-                            'print "Playback current Head position = "; m.lastHeadPosition
-                            'if m.lastHeadPosition = 0 and m.connectionTimer <> invalid
-                            if m.connectionTimer <> invalid
-                                bufferTime = m.connectionTimer.TotalMilliseconds()
-                                m.connectionTimer = invalid
-                                m.pluginInstance.populateStreamInfo(m.currentStreamInfo, bufferTime)
-                                m.pluginInstance.handlePlayStartEvent(m.sessionTimer, m.lastHeadPosition)
-                                m.secondaryLogTimer = CreateObject("roTimespan")
-                                m.streamStartTimer = CreateObject("roTimespan")
-                            endif
+'                             'handle play start
+'                             'print "Playback current Head position = "; m.lastHeadPosition
+'                             'if m.lastHeadPosition = 0 and m.connectionTimer <> invalid
+'                             if m.connectionTimer <> invalid
+'                                 bufferTime = m.connectionTimer.TotalMilliseconds()
+'                                 m.connectionTimer = invalid
+'                                 m.pluginInstance.populateStreamInfo(m.currentStreamInfo, bufferTime)
+'                                 m.pluginInstance.handlePlayStartEvent(m.sessionTimer, m.lastHeadPosition)
+'                                 m.secondaryLogTimer = CreateObject("roTimespan")
+'                                 m.streamStartTimer = CreateObject("roTimespan")
+'                             endif
                             
-                            aa = msg.GetInfo()
-                            AkaMA_PrintAnyAA(2,aa)
-                            'print "********* Executed Palyback Position event *********:"
-                         else if msg.isStreamSegmentInfo() then
-                            print "********* streamSegmentInfo *********:"
-                            streamSegmentInfo = msg.GetInfo()
-                            if m.currentStreamInfo.DoesExist("Url") = false
-                                m.currentStreamInfo.addReplace("Url",streamSegmentInfo.Url)
-                            endif    
-                            if streamSegmentInfo.StreamBandwidth <> 0 or streamSegmentInfo.StreamBandwidth <> invalid
-                                m.currentStreamInfo.addReplace("StreamBitrate", streamSegmentInfo.StreamBandwidth)
-                            endif
+'                             aa = msg.GetInfo()
+'                             AkaMA_PrintAnyAA(2,aa)
+'                             'print "********* Executed Palyback Position event *********:"
+'                          else if msg.isStreamSegmentInfo() then
+'                             print "********* streamSegmentInfo *********:"
+'                             streamSegmentInfo = msg.GetInfo()
+'                             if m.currentStreamInfo.DoesExist("Url") = false
+'                                 m.currentStreamInfo.addReplace("Url",streamSegmentInfo.Url)
+'                             endif    
+'                             if streamSegmentInfo.StreamBandwidth <> 0 or streamSegmentInfo.StreamBandwidth <> invalid
+'                                 m.currentStreamInfo.addReplace("StreamBitrate", streamSegmentInfo.StreamBandwidth)
+'                             endif
                             
-                            m.pluginInstance.updateBitrateInfo(m.currentStreamInfo, m.lastHeadPosition)
-                            AkaMA_PrintAnyAA(2,streamSegmentInfo)
-                            print "*********Executed streamSegmentInfo *********:"
-                         end if
+'                             m.pluginInstance.updateBitrateInfo(m.currentStreamInfo, m.lastHeadPosition)
+'                             AkaMA_PrintAnyAA(2,streamSegmentInfo)
+'                             print "*********Executed streamSegmentInfo *********:"
+'                          end if
                  else if type(msg) = "roSystemLogEvent" then
                         ' Handle the roSystemLogEvents:
                         i = msg.GetInfo()

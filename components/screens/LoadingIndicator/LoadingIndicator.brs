@@ -124,14 +124,14 @@ end sub
 
 sub onTextChange()
     prevTextHeight = m.textHeight
-    if m.top.text = ""
-        m.textHeight = 0
-    else
-        m.textHeight = m.text.localBoundingRect().height + m.top.spacing
-    end if
-    if m.textHeight <> prevTextHeight
-        updatelayout()
-    end if
+    ' if m.top.text = ""
+    '     m.textHeight = 0
+    ' else
+    '     m.textHeight = m.text.localBoundingRect().height + m.top.spacing
+    ' end if
+    ' if m.textHeight <> prevTextHeight
+    '     updatelayout()
+    ' end if
 end sub
 
 

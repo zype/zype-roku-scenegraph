@@ -147,7 +147,7 @@
           fadeInterval="0.5"
           spacing="20"
           imageWidth="100"
-          text="Loading..."
+          text=""
           width="1280"
           height="720"
           centered="false"
