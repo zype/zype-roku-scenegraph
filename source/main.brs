@@ -22,6 +22,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.current_user = CurrentUser()
 
+    if RegReadAccessToken() <> invalid
+      if m.current_user.isLinked() then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+    end if
+
     SetTheme()
     SetFeatures()
     SetMonetizationSettings()
@@ -167,10 +171,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.deviceLinking.isDeviceLinked = user_info.linked
     m.deviceLinking.observeField("show", m.port)
     m.deviceLinking.observeField("itemSelected", m.port)
-
-    if m.global.auth.isLoggedIn
-      if m.global.auth.isLinked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
-    end if
 
     LoadLimitStream() ' Load LimitStream Object
 

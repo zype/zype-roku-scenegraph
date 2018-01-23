@@ -41,6 +41,10 @@ function CurrentUser() as object
     return consumer
   end function
 
+  this.isLinked = function() as boolean
+    if m.helpers.linkedUser() <> invalid then return true else return false
+  end function
+
   this.addNativeSubscription = function(plan) as void
     m.native_subscriptions.push(plan)
   end function
