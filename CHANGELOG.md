@@ -1,6 +1,7 @@
 ### 1.5.9 (23/01/2017)
 
 - Bug fix for invalid access tokens. Requests new access token when invalid/expired and keeps user signed in
+- Update UX bug where app focuses wrong thumbnail when returning from player in Favorites, Search or My Library
 
 ### 1.5.8 (12/01/2017)
 
