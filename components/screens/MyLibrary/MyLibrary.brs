@@ -91,8 +91,13 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         else if key = "back"
             ' if Details opened
             if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false then
+                itemFocused = m.top.itemFocused
+
                 m.detailsScreen.visible = false
                 m.gridScreen.setFocus(true)
+
+                m.gridScreen.jumpToRowItem = itemFocused
+
                 m.gridScreen.visible = true
                 m.top.isChildrensVisible = false
                 result = true
