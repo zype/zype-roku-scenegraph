@@ -9,7 +9,7 @@
 function CurrentUserHelpers() as object
   this = {}
 
-  this.consumerIdFromAccessToken = function(access_token) as string
+  this.consumerIdFromAccessToken = function(access_token) as dynamic
     token_status = RetrieveTokenStatus({ access_token: access_token })
 
     if token_status <> invalid then return token_status.resource_owner_id else return invalid
