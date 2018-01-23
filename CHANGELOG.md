@@ -1,3 +1,7 @@
+### 1.5.9 (23/01/2017)
+
+- Bug fix for invalid access tokens. Requests new access token when invalid/expired and keeps user signed in
+
 ### 1.5.8 (12/01/2017)
 
 - Updates to fix Roku static analysis errors during submissions
