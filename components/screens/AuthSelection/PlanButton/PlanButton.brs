@@ -59,7 +59,7 @@ function initializers() as object
     if self.private.plan.freeTrialType = "None"
       self.trial_period.text = "No Free Trial"
     else
-      self.trial_period.text = str(qty) + "-" + time_period + " Free Trail"
+      self.trial_period.text = str(qty) + "-" + time_period + " Free Trial"
     end if
 
     if self.private.plan.productType = "MonthlySub"
