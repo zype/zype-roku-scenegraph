@@ -758,6 +758,7 @@ function GetSearchContent(SearchString as String)
     row.ContentList = []
 
     params = {}
+    params.AddReplace("playlist_id.inclusive", m.app.featured_playlist_id)
     params.AddReplace("q", SearchString)
     params.AddReplace("dpt", "true")
     videos = []
