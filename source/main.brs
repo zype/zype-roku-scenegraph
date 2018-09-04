@@ -181,47 +181,54 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     ' Deep Linking
     if (m.contentID <> invalid)
-        if mediaType <> "season" and mediaType <> "series"
-          ' Get video object and create VideoNode
-          linkedVideo = GetVideo(m.contentID)
 
-          ' If m.contentID is for active video
-          if linkedVideo.DoesExist("_id") and linkedVideo.active = true
-            linkedVideoObject =  CreateVideoObject(linkedVideo)
-            linkedVideoNode = createObject("roSGNode", "VideoNode")
+        if mediaType = "episode" or mediaType = "season"
+          contentIds = DeepLinkingHelpers().parseContentId(m.contentID, "-")
+          ' contentIds should be ["playlistId", "videoId"]
 
-            for each key in linkedVideoObject
-              linkedVideoNode[key] = linkedVideoObject[key]
-            end for
+          if contentIds.count() >= 2
+            playlists = GetPlaylists({ id: contentIds[0] })
+            validPlaylist = (playlists.count() > 0 and playlists[0].active)
 
-            ' Set focused content to linkedVideoNode
-            m.gridScreen.focusedContent = linkedVideoNode
-            m.gridScreen.visible = "false"
-            m.detailsScreen.content = m.gridScreen.focusedContent
-            m.detailsScreen.setFocus(true)
-            m.detailsScreen.visible = "true"
+            linkedVideo = GetVideo(contentIds[1])
+            validVideo = (linkedVideo.DoesExist("_id") and linkedVideo.active = true)
 
-            ' Trigger listener to push detailsScreen into HomeScene screenStack
-            m.scene.DeepLinkedID = m.contentID
+            if validPlaylist
+              playlistVideos = GetPlaylistVideos(playlists[0]._id, {"dpt": "true", "per_page": m.app.per_page})
 
-            is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount)
+              index = 0
+              for each video in playlistVideos
+                if video._id = linkedVideo._id
+                    exit for
+                end if
+                index = index + 1
+              end for
 
-            ' Start playing video if logged in or no monetization
-            if is_subscribed = true or (linkedVideo.subscription_required = false and linkedVideo.purchase_required = false)
-                m.akamai_service.setPlayStartedOnce(true)
-                playRegularVideo(m.detailsScreen)
+              if index < playlistVideos.count() ' was able to find video in playlist videos
+                transitionToNestedPlaylist(contentIds[0], index)
+              else
+                transitionToNestedPlaylist(contentIds[0], 0)
+              end if
+
+              if validVideo and mediatype = "episode"
+                transitionToVideoPlayer(linkedVideo)
+              end if
             end if
           end if
-
-        else if mediaType = "season" or mediaType = "series"
-          deep_linked_playlist = GetPlaylists({ id: m.contentID })
-          valid_playlist = (deep_linked_playlist.count() > 0 and deep_linked_playlist[0].active)
+        else if mediaType = "series"
+          playlists = GetPlaylists({ id: m.contentID })
+          valid_playlist = (playlists.count() > 0 and playlists[0].active)
 
           if valid_playlist
             transitionToNestedPlaylist(m.contentID)
           end if
+        else if mediaType <> invalid
+          linkedVideo = GetVideo(m.contentID)
+          ' If m.contentID is for active video
+          if linkedVideo.DoesExist("_id") and linkedVideo.active = true
+            transitionToVideoPlayer(linkedVideo)
+          end if
         end if
-
 
       ' Close loading screen if still visible
       if m.LoadingScreen.visible = true
@@ -528,7 +535,36 @@ function goIntoDeviceLinkingFlow() as void
   end while
 end function
 
-function transitionToNestedPlaylist(id) as void
+' Used in video deep linking (movie, episode, short-form, special, live)
+function transitionToVideoPlayer(videoObject as object) as void
+    linkedVideoObject =  CreateVideoObject(videoObject)
+    linkedVideoNode = createObject("roSGNode", "VideoNode")
+
+    for each key in linkedVideoObject
+        linkedVideoNode[key] = linkedVideoObject[key]
+    end for
+
+    ' Set focused content to linkedVideoNode
+    m.gridScreen.focusedContent = linkedVideoNode
+    m.gridScreen.visible = "false"
+    m.detailsScreen.content = m.gridScreen.focusedContent
+    m.detailsScreen.setFocus(true)
+    m.detailsScreen.visible = "true"
+
+    ' Trigger listener to push detailsScreen into HomeScene screenStack
+    m.scene.DeepLinkedID = videoObject._id
+
+    is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount)
+
+    ' Start playing video if logged in or no monetization
+    if is_subscribed = true or (videoObject.subscription_required = false and videoObject.purchase_required = false)
+        m.akamai_service.setPlayStartedOnce(true)
+        playRegularVideo(m.detailsScreen)
+    end if
+end function
+
+' Used in playlist deep linking (season, series, episode)
+function transitionToNestedPlaylist(id, index = 0 as integer) as void
   m.scene.callFunc("AddCurrentPositionToTracker", invalid)
   m.scene.callFunc("PushContentIntoContentStack", m.gridScreen.content)
   m.scene.callFunc("PushScreenIntoScreenStack", m.gridScreen)
@@ -538,7 +574,7 @@ function transitionToNestedPlaylist(id) as void
   m.gridScreen.content = ParseContent(GetPlaylistsAsRows(id))
 
   rowList = m.gridScreen.findNode("RowList")
-  rowlist.jumpToRowItem = [0,0]
+  rowlist.jumpToRowItem = [0, index]
 
   current_video_list_stack = m.scene.videoliststack
   current_video_list_stack.push(m.videosList)
