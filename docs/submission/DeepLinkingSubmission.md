@@ -8,9 +8,10 @@ When submitting your app remember to include parameters for deep linking. If you
 
 With deep linking, the app is supposed to open a video or playlist depending on the parameters provided. If the user is deep linked and entitled to the video (movie, short-form, special, episode), the video should automatically play after the app loads. If the user is deep linked to a playlist (series, season), the app should display all the videos for that series/season.
 
-### Provide the following info
+### Provide the following information
 
-![Deep linking](images/deep-linking2.png)
+> ["Your channel must support as many or as few mediaType as is necessary to accurately index all the content in your channel."](https://sdkdocs.roku.com/display/sdkdoc/Deep+Linking#DeepLinking-Requirementsfordeeplinkingbehavior)
+> __- From Roku's deep linking documentation__
 
 __mediaType__ can be one of the following: movie, short-form, special, series, season, or episode.
 - Use _movie_, _short-form_ or _special_ if linking to a video
@@ -21,7 +22,11 @@ __mediaType__ can be one of the following: movie, short-form, special, series, s
 __contentID__ is the id the content that you are linking the user to
 - When you provide a __video id__, please provide an id for an __active and playable video__. To avoid complications with submission, it is recommended that you provide an id for a free video. If the app does not link to a playable video, the app will be rejected.
 - When providing a __playlist id__, please provide an id for an __active playlist__. If the app does not link to a working playlist, the app will be rejected.
-- When using the __season__ or __episode__ mediaType, the contentID should be the playlist id combined with the video id in the following format: __playlistId-videoId__. Note the dash that separates the playlist and video id. The __playlist id__ is the id for the playlist that the video is. The __video id__ is the id for the video that you are linking the user to. Make sure both the playlist and the video are active.
+- When using the __season__ or __episode__ mediaType, the contentID should be the playlist id combined with the video id in the following format: __playlistId-videoId__. Note the dash that separates the playlist and video id. The __playlist id__ is the id for the playlist that the video is in. The __video id__ is the id for the video that you are linking the user to. Make sure both the playlist and the video are active.
   - The app expects the ids to be provided in this format when linking to a season or episode.
   - When linking to a __season__ the app takes the user directly to the playlist with the video pre-selected.
   - When linking to an __episode__ the app behaves similarly to the __season__ mediaType, except that the app also starts playing the pre-selected video.
+
+##### Example of deep linking parameters with multiple media types:
+
+![Deep linking](images/deep-linking2.png)
