@@ -609,96 +609,101 @@ sub playRegularVideo(screen as Object)
 end sub
 
 sub playVideo(screen as Object, auth As Object, adsEnabled = false)
-    playerInfo = GetPlayerInfo(screen.content.id, auth)
+  playerInfo = GetPlayerInfo(screen.content.id, auth)
 
-    if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
-        print "PlayerInfo.analytics: "; playerInfo.analytics
+  if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
+    print "PlayerInfo.analytics: "; playerInfo.analytics
 
-		if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
-        if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
+    if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
+    if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
 
-        cd = {
-			siteId: playerInfo.analytics.siteid,
-			videoId: playerInfo.analytics.videoid,
-			title: screen.content.title,
-			deviceType: playerInfo.analytics.device,
-			playerId: playerInfo.analytics.playerId,
-			contentLength: screen.content.length,
-			consumerId: consumer_id
-		}
-        print "Custom Dimensions: "; cd
-        m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
+    cd = {
+      siteId: playerInfo.analytics.siteid,
+      videoId: playerInfo.analytics.videoid,
+      title: screen.content.title,
+      deviceType: playerInfo.analytics.device,
+      playerId: playerInfo.analytics.playerId,
+      contentLength: screen.content.length,
+      consumerId: consumer_id
+    }
+    print "Custom Dimensions: "; cd
+    m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
+  end if
+
+  screen.content.stream = playerInfo.stream
+  screen.content.streamFormat = playerInfo.streamFormat
+  screen.content.url = playerInfo.url
+
+  video_service = VideoService()
+
+  ' If video source is not available
+  if(playerInfo.statusCode <> 200 or screen.content.streamFormat = "(null)")
+    CloseVideoPlayer()
+    CreateVideoUnavailableDialog(playerInfo.errorMessage)
+  else
+    PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo)
+    playContent = true
+
+    m.VideoPlayer = screen.VideoPlayer
+    m.VideoPlayer.observeField("position", m.port)
+
+    if(screen.content.onAir <> true)
+      m.VideoPlayer.observeField("state", m.port)
     end if
 
-    screen.content.stream = playerInfo.stream
-    screen.content.streamFormat = playerInfo.streamFormat
-    screen.content.url = playerInfo.url
+    m.videoPlayer.content = screen.content
 
-    video_service = VideoService()
-
-    ' If video source is not available
-    if(playerInfo.statusCode <> 200 or screen.content.streamFormat = "(null)")
-      CloseVideoPlayer()
-      CreateVideoUnavailableDialog(playerInfo.errorMessage)
-    else
-		PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo)
-		playContent = true
-
-        m.VideoPlayer = screen.VideoPlayer
-        m.VideoPlayer.observeField("position", m.port)
-
-        if(screen.content.onAir <> true)
-            m.VideoPlayer.observeField("state", m.port)
-        end if
-
-        m.videoPlayer.content = screen.content
-
-		if(adsEnabled)
+    if(adsEnabled)
       is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
-			no_ads = (m.global.swaf and is_subscribed)
-			ads = video_service.PrepareAds(playerInfo, no_ads)
+      no_ads = (m.global.swaf and is_subscribed)
+      ads = video_service.PrepareAds(playerInfo, no_ads)
 
-			if screen.content.onAir = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
+      if screen.content.onAir = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
+      m.loadingIndicator.control = "stop"
 
-			m.loadingIndicator.control = "stop"
-
-			' preroll ad
-			if ads.preroll <> invalid
-			  playContent = m.raf_service.playAds(playerInfo.video, ads.preroll.url)
-			end if
-		end if
-
-		' Start playing video
-		if playContent then
-			m.loadingIndicator.control = "stop"
-			print "[Main] Playing video"
-
-                        ' if live stream, set position at end of stream
-                        ' roku video player does not automatically detect if live stream
-                        if screen.content.onAir = true
-                          m.videoPlayer.content.live = true
-                          m.videoPlayer.content.playStart = 100000000000
-                          m.videoPlayer.enableTrickPlay = false
-                        else
-                          m.videoPlayer.enableTrickPlay = true
-                        end if
-
-			m.videoPlayer.visible = true
-			screen.videoPlayerVisible = true
-
-			if m.LoadingScreen.visible = true
-			  EndLoader()
-			end if
-
-			m.currentVideoInfo = playerInfo.video
-
-			m.videoPlayer.setFocus(true)
-			m.videoPlayer.control = "play"
-		else
-		  CloseVideoPlayer()
-		  m.currentVideoInfo = invalid
-		end if ' end of if playContent
+      ' preroll ad
+      if ads.preroll <> invalid
+        playContent = m.raf_service.playAds(playerInfo.video, ads.preroll.url)
+      end if
     end if
+
+    ' Start playing video
+    if playContent then
+      m.loadingIndicator.control = "stop"
+      print "[Main] Playing video"
+
+      ' if live stream, set position at end of stream
+      ' roku video player does not automatically detect if live stream
+      if screen.content.onAir = true
+        m.videoPlayer.content.live = true
+        m.videoPlayer.content.playStart = 100000000000
+        m.videoPlayer.enableTrickPlay = false
+      else
+        m.videoPlayer.enableTrickPlay = true
+      end if
+
+      m.videoPlayer.visible = true
+      screen.videoPlayerVisible = true
+
+      if m.LoadingScreen.visible = true
+        EndLoader()
+      end if
+
+      m.currentVideoInfo = playerInfo.video
+
+      m.videoPlayer.setFocus(true)
+      m.videoPlayer.control = "play"
+
+      if screen.content.onAir <> invalid and screen.content.onAir = true
+        print "seeking live time"
+        m.videoPlayer.seek = 100000000000
+      end if
+
+    else
+      CloseVideoPlayer()
+      m.currentVideoInfo = invalid
+    end if ' end of if playContent
+  end if
 end sub
 
 sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo)
