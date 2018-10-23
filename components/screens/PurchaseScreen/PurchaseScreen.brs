@@ -2,7 +2,7 @@ function init()
   m.private = {}
 
   m.contentHelpers = ContentHelpers()
-  m.initializers = initializers
+  m.initializers = initializers()
   m.helpers = helpers()
 
   m.initializers.initChildren(m)
@@ -17,11 +17,10 @@ function onKeyEvent(key as string, press as boolean) as boolean
   result = false
 
   if key = "down"
-    if m.global.auth.isLoggedIn = false then m.oauthButton.setFocus(true)
+    if m.global.auth.isLoggedIn = false then m.OauthButton.setFocus(true)
   else if key = "up"
     m.PurchaseButtons.setFocus(true)
   else if key = "back"
-    result = true
   end if
 
   return result
@@ -29,23 +28,25 @@ end function
 
 function onVisibleChange() as void
   if m.top.visible = true
-    m.PurchaseButtons.setFocus(true)
+      m.PurchaseButtons.setFocus(true)
 
     if m.global.device_linking = true
       if m.global.auth.isLoggedIn = false then
         btn = [{title: m.global.labels.sign_in_button, role: "transition", target: "UniversalAuthSelection"}]
-        m.oauthButton.content = m.contentHelpers.oneDimList2ContentNode(btn, "ButtonNode")
-         m.oauthLabel.translation = [135,0]
-        m.oauthLabel.text = m.global.labels.already_have_account_label
-        m.oauthLabel.visible = true
-      else
-        m.oauthButton.content = invalid
-         m.oauthLabel.translation = [135,0]
-        m.oauthLabel.text = m.global.labels.logged_in_header_label + m.global.auth.email
-        m.oauthLabel.visible = true
-      end if
-    end if
+        m.OauthButton.content = m.contentHelpers.oneDimList2ContentNode(btn, "ButtonNode")
 
+        m.OauthLabel.translation = [135,0]
+        m.OauthLabel.text = m.global.labels.already_have_account_label
+        m.OauthLabel.visible = true
+      else
+        m.OauthButton.content = invalid
+
+        m.OauthLabel.translation = [135,0]
+        m.OauthLabel.text = m.global.labels.logged_in_header_label + m.global.auth.email
+        m.OauthLabel.visible = true
+      end if
+
+    end if
   end if
 end function
 
@@ -88,7 +89,7 @@ function initializers() as object
   this = {}
 
   this.initChildren = function(self) as void
-    self.top.observeField("visible", onVisibleChange)
+    self.top.observeField("visible", "onVisibleChange")
 
     self.Background = self.top.findNode("Background")
     self.Background.color = self.global.theme.background_color
@@ -103,9 +104,8 @@ function initializers() as object
 
     self.PurchaseButtons = self.top.findNode("PurchaseButtons")
     self.PurchaseButtons.color = self.global.theme.primary_text_color
-    self.PurchaseButtons.focusedColor = self.global.theme.background_color
-    self.PurchaseButtons.focusedBitmapUri = self.global.theme.button_filledin_uri
-    self.PurchaseButtons.focusedFootprintBitmapUri = self.global.theme.focused_grid_uri
+    self.PurchaseButtons.focusedColor = self.global.theme.primary_text_color
+    self.PurchaseButtons.focusedFootprintBitmapUri = self.global.theme.focus_grid_uri
 
     btns = [
       { title: "Purchase product - $X.XX", role: "confirm_purchase" },

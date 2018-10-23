@@ -1000,6 +1000,8 @@ Function ParseContent(list As Object)
               purchaseItem = consumables[0]
 
               item.storeProduct = purchaseItem
+            else
+              item.storeProduct = invalid
             end if
 
             row.appendChild(item)
