@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <component name="PlanNode" extends="ContentNode">
-
-	<interface>
+  <interface>
     <field id="code" type="string" />
     <field id="name" type="string" />
     <field id="cost" type="string" />
     <field id="productType" type="string" />
     <field id="freeTrialQuantity" type="integer" />
     <field id="freeTrialType" type="string" />
-	</interface>
 
+    <field id="zypePlanId" type="string" />
+  </interface>
 </component>
