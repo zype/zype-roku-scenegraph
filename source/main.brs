@@ -55,6 +55,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.auth_state_service = AuthStateService()
     m.bifrost_service = BiFrostService()
     m.raf_service = RafService()
+    m.marketplaceConnect = MarketplaceConnectService()
 
     m.native_email_storage =  NativeEmailStorageService()
 
@@ -128,6 +129,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.autoplay = m.app.autoplay
 
     m.AuthSelection = m.scene.findNode("AuthSelection")
+
+    ' TODO: Add logic here to filter native plans by matching marketplace connect ids
+    ' rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans()
+    ' filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans)
+    ' m.AuthSelection.plans = filteredPlans
+
     m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
     m.AuthSelection.observeField("itemSelected", m.port)
     m.AuthSelection.observeField("planSelected", m.port)
@@ -427,6 +434,17 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               else
                 if m.global.auth.isLoggedIn or m.global.native_to_universal_subscription = false then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
               end if
+
+            else if msg.getNode() = "PurchaseScreen" and msg.getField() = "purchaseButtonSelected" then
+              buttonRole = m.PurchaseScreen.itemSelectedRole
+              buttonTarget = m.PurchaseScreen.itemSelectedTarget
+               if buttonRole = "confirm_purchase"
+                if m.global.auth.isLoggedIn or m.global.native_tvod = false then handleNativePurchase() else m.scene.transitionTo = "SignUpScreen"
+              else if buttonRole = "cancel"
+                m.detailsScreen.content = m.detailsScreen.content
+                m.scene.goBackToNonAuth = true
+              end if
+
             else if msg.getField() = "state"
                 state = msg.getData()
                 m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
@@ -974,6 +992,16 @@ Function ParseContent(list As Object)
                 item[key] = itemAA[key]
             end for
 
+            if item.purchaseRequired
+              ' TODO: Add logic for finding matching sku
+
+              ' use hard coded sku for now
+              consumables = m.roku_store_service.getConsumables()
+              purchaseItem = consumables[0]
+
+              item.storeProduct = purchaseItem
+            end if
+
             row.appendChild(item)
         end for
 
@@ -1262,7 +1290,13 @@ function handleButtonEvents(index, screen)
           m.SignUpScreen.reset = true
           m.scene.goBackToNonAuth = true
 
-          handleNativeToUniversal()
+          ' Add logic to determine if subscribing or purchasing
+          
+          if m.detailsScreen.content.subscriptionRequired
+            handleNativeToUniversal()
+          else if m.detailsScreen.content.purchaseRequired
+            handleNativePurchase()
+          end if
         else
           EndLoader()
           m.SignUpScreen.setFocus(true)
@@ -1331,6 +1365,13 @@ function handleButtonEvents(index, screen)
 
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
+    else if button_role = "transition" and button_target = "PurchaseScreen"
+      m.PurchaseScreen.purchaseItem = screen.content.storeProduct
+      m.PurchaseScreen.itemName = screen.content.title
+      m.PurchaseScreen.videoId = screen.content.id
+
+      m.scene.transitionTo = "PurchaseScreen"
+
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
       if m.global.enable_device_linking = false then m.scene.transitionTo = "SignInScreen" else m.scene.transitionTo = "UniversalAuthSelection"
     else if button_role = "transition" and button_target = "DeviceLinking"
@@ -1442,6 +1483,46 @@ function handleNativeToUniversal() as void
   end if
 end function
 
+function handleNativePurchase() as void
+  m.PurchaseScreen.visible = false
+  StartLoader()
+
+  ' Get updated user info
+  userInfo = m.current_user.getInfo()
+  m.auth_state_service.updateAuthWithUserInfo(userInfo)
+
+  order = [{
+    code: m.PurchaseScreen.purchaseItem.code,
+    qty: 1
+  }]
+
+  purchase_item = m.roku_store_service.makePurchase(order)
+  EndLoader()
+
+  if purchase_item.success
+    ' TODO: refactor this later to send receipt data to entitle user account to video
+    ' - need to send app id, consumer id, video id, and receipt
+
+    m.native_email_storage.DeleteEmail()
+    m.native_email_storage.WriteEmail(userInfo.email)
+
+    EndLoader()
+
+    ' Refresh lock icons with grid screen content callback
+    m.scene.gridContent = m.gridContent
+
+    m.scene.goBackToNonAuth = true
+
+    ' details screen should update self
+    m.detailsScreen.content = m.detailsScreen.content
+
+    sleep(500)
+    CreateDialog(m.scene, "Success", "Thank you for purchasing the video.", ["Dismiss"])
+  else
+    m.PurchaseScreen.findNode("PurchaseButtons").setFocus(true)
+    CreateDialog(m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
+  end if
+end function
 
 ' Seting details screen's RemakeVideoPlayer value to true recreates Video component
 '     Roku Video component performance degrades significantly after multiple uses, so we make a new one
