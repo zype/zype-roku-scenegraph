@@ -29,8 +29,11 @@ Function Init()
     ' Info Screen
     m.infoScreen = m.top.findNode("InfoScreen")
 
-    ' Auth Selection Screen
+    ' Auth Selection Screen - Confirm subscription + sign up or sign in
     m.AuthSelection = m.top.findNode("AuthSelection")
+
+    ' Purchase Screen - Confirm purchase + sign up or sign in
+    m.PurchaseScreen = m.top.findNode("PurchaseScreen")
 
     ' Universal Auth Selection (OAuth - signin / device link)
     m.UniversalAuthSelection = m.top.findNode("UniversalAuthSelection")
@@ -232,7 +235,8 @@ function isAuthScreen(screen_id as string) as boolean
     "DeviceLinking",
     "UniversalAuthSelection",
     "SignInScreen",
-    "SignUpScreen"
+    "SignUpScreen",
+    "PurchaseScreen"
   ]
 
   for each auth_id in auth_screen_ids

@@ -132,6 +132,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.AuthSelection.observeField("itemSelected", m.port)
     m.AuthSelection.observeField("planSelected", m.port)
 
+    m.PurchaseScreen = m.scene.findNode("PurchaseScreen")
+    m.PurchaseScreen.observeField("itemSelected", m.port)
+    m.PurchaseScreen.observeField("purchaseButtonSelected", m.port)
+
     m.MyLibrary = m.scene.findNode("MyLibrary")
     m.MyLibrary.observeField("visible", m.port)
     m.MyLibrary.observeField("paginatorSelected", m.port)
@@ -381,7 +385,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -402,6 +406,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.SignUpScreen
                 else if msg.getNode() = "AccountScreen"
                     lclScreen = m.AccountScreen
+                else if msg.getNode() = "PurchaseScreen"
+                    lclScreen = m.PurchaseScreen
                 end if
 
                 index = msg.getData()
@@ -1558,6 +1564,7 @@ function SetFeatures() as void
     swaf: m.app.subscribe_to_watch_ad_free,
     enable_lock_icons: m.app.enable_lock_icons,
     native_to_universal_subscription: m.app.native_to_universal_subscription,
+    native_tvod: configs.native_tvod,
     favorites_via_api: m.app.favorites_via_api,
     universal_tvod: m.app.universal_tvod,
     enable_device_linking: configs.enable_device_linking,

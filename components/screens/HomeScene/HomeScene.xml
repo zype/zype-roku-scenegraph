@@ -105,6 +105,11 @@
           id="AuthSelection"
           visible="false" />
 
+        <!-- Purchase Screen - Confirm purchase + signup or oauth -->
+        <PurchaseScreen 
+          id="PurchaseScreen"
+          visible="false" />
+
         <!-- OAuth selection - choose signin / device link -->
         <UniversalAuthSelection
           id="UniversalAuthSelection"
