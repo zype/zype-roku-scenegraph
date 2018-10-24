@@ -1294,10 +1294,12 @@ function handleButtonEvents(index, screen)
 
           ' Add logic to determine if subscribing or purchasing
           
-          if m.detailsScreen.content.subscriptionRequired
-            handleNativeToUniversal()
-          else if m.detailsScreen.content.purchaseRequired
-            handleNativePurchase()
+          if m.detailsScreen.itemSelectedRole = "transition"
+            if m.detailsScreen.itemSelectedTarget = "AuthSelection" ' SVOD
+              handleNativeToUniversal()
+            else if m.detailsScreen.itemSelectedTarget = "PurchaseScreen" ' TVOD
+              handleNativePurchase()
+            end if
           end if
         else
           EndLoader()
