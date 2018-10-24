@@ -98,6 +98,10 @@ sub refreshButtons() as void
     ' - Brightscript components cannot make HTTP requests to check, needs to be done in main.brs
     userIsEntitled = false
 
+    if m.global.auth.entitlements <> invalid
+      if m.global.auth.entitlements.DoesExist(m.top.content.id) then userIsEntitled = true
+    end if
+
     if svodEnabled ' SVOD
       if userIsEntitled or isSubscribed
         m.top.canWatchVideo = true

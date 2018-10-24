@@ -1671,12 +1671,33 @@ function SetGlobalAuthObject() as void
     valid_native_subs = m.roku_store_service.getUserNativeSubscriptionPurchases()
   end if
 
+  entitlements = {}
+  oauth = RegReadAccessToken()
+
+  if oauth <> invalid and oauth.access_token <> invalid
+    videoEntitlements = GetEntitledVideos({
+      access_token: oauth.access_token,
+      per_page: 500,
+      page: 1
+      sort: "created_at",
+      order: "desc"
+    })
+
+    if videoEntitlements <> invalid
+      for each entitlement in videoEntitlements
+        videoId = entitlement["video_id"]
+        entitlements[videoId] = videoId
+      end for
+    end if
+  end if
+
   m.global.addFields({ auth: {
     nativeSubCount: valid_native_subs.count(),
     universalSubCount: universal_sub_count,
     isLoggedIn: is_logged_in,
     isLinked: current_user_info.linked,
-    email: user_email
+    email: user_email,
+    entitlements: entitlements
   } })
 
 
