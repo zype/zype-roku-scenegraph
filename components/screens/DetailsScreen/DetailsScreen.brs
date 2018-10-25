@@ -93,11 +93,7 @@ sub refreshButtons() as void
   videoRequiresEntitlement = (m.top.content.subscriptionRequired or m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
 
   if videoRequiresEntitlement
-    ' TODO: 
-    ' - Add way to get user entitlements. 
-    ' - Brightscript components cannot make HTTP requests to check, needs to be done in main.brs
     userIsEntitled = false
-
     if m.global.auth.entitlements <> invalid
       if m.global.auth.entitlements.DoesExist(m.top.content.id) then userIsEntitled = true
     end if

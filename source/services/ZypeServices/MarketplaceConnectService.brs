@@ -2,6 +2,9 @@
 ' Marketplace Connect Service
 '   - Service for Zype Marketplace Connect
 '
+' Dependencies
+'   - source/zype_api.brs
+'
 ' Functions in service
 '   getSubscriptionPlans
 '
@@ -38,6 +41,46 @@ Function MarketplaceConnectService() as object
     end for
 
     return filteredPlans
+  end function
+
+  ' verifyMarketplaceSubscription()
+  ' - calls Zype Marketplace Connect to verify native subscription
+  '
+  ' Parameters
+  '   marketplaceParams - associative array of parameters (access token, consumer id, plan id, transaction id, app id, site id)
+  '
+  ' Return
+  '   Boolean for Marketplace Connect verification
+  this.verifyMarketplaceSubscription = function(marketplaceParams = {} as object) as boolean
+    marketplaceConnectEndpoint = "https://mkt.zype.com/v1/roku"
+    verifiedSubscription = false
+
+    response = MakePostRequest(marketplaceConnectEndpoint, marketplaceParams)
+    if response <> invalid
+
+    end if
+
+    return true ' hardcoded for now
+  end function
+
+  ' verifyMarketplacePurchase()
+  ' - calls Zype Marketplace Connect to verify native purchase (consumable)
+  '
+  ' Parameters
+  '   marketplaceParams - associative array of parameters (access token, consumer id, video id, transaction id, app id, site id)
+  '
+  ' Return
+  '   Boolean for Marketplace Connect verification
+  this.verifyMarketplacePurchase = function(marketplaceParams = {} as object) as boolean
+    marketplaceConnectEndpoint = "https://mkt.zype.com/v1/roku"
+    verifiedPurchase = false
+
+    response = MakePostRequest(marketplaceConnectEndpoint, marketplaceParams)
+    if response <> invalid
+
+    end if
+
+    return true ' hardcoded for now
   end function
 
   return this

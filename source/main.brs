@@ -1420,6 +1420,18 @@ function handleNativeToUniversal() as void
 
         third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
 
+        ' TODO: Replace call with Marketplace Connect call when available
+        ' marketplaceParams = {
+        '   access_token: m.current_user.getOAuth().access_token,
+        '   consumer_id: m.current_user.getInfo()._id,
+        '   transaction_id: purchase_subscription.receipt.purchaseId,
+        '   plan_id: plan.zypePlanId,
+        '   app_id: m.app._id,
+        '   site_id: m.app.site_id
+        ' }
+
+        ' successfulVerification = m.MarketplaceConnectService.verifyMarketplaceSubscription(marketplaceParams)
+
         bifrost_params = {
           app_key: GetApiConfigs().app_key,
           consumer_id: user_info._id,
@@ -1504,24 +1516,43 @@ function handleNativePurchase() as void
   EndLoader()
 
   if purchase_item.success
-    ' TODO: refactor this later to send receipt data to entitle user account to video
-    ' - need to send app id, consumer id, video id, and receipt
-
     m.native_email_storage.DeleteEmail()
     m.native_email_storage.WriteEmail(userInfo.email)
 
-    EndLoader()
+    marketplaceParams = {
+      access_token: m.current_user.getOAuth().access_token,
+      consumer_id: m.current_user.getInfo()._id,
+      transaction_id: purchase_item.receipt.purchaseId,
+      video_id: m.detailsScreen.content.id,
+      app_id: m.app._id,
+      site_id: m.app.site_id
+    }
 
-    ' Refresh lock icons with grid screen content callback
-    m.scene.gridContent = m.gridContent
+    successfulVerification = m.MarketplaceConnectService.verifyMarketplacePurchase(marketplaceParams)
 
-    m.scene.goBackToNonAuth = true
+    if successfulVerification
+      userInfo = m.current_user.getInfo()
 
-    ' details screen should update self
-    m.detailsScreen.content = m.detailsScreen.content
+      if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+      m.auth_state_service.updateAuthWithUserInfo(userInfo)
 
-    sleep(500)
-    CreateDialog(m.scene, "Success", "Thank you for purchasing the video.", ["Dismiss"])
+      ' Refresh lock icons with grid screen content callback
+      m.scene.gridContent = m.gridContent
+
+      m.scene.goBackToNonAuth = true
+
+      ' details screen should update self
+      m.detailsScreen.content = m.detailsScreen.content
+
+      EndLoader()
+      sleep(500)
+      CreateDialog(m.scene, "Success", "Thank you for purchasing the video.", ["Dismiss"])
+
+    else ' failed
+      EndLoader()
+      sleep(500)
+      CreateDialog(m.scene, "Error", "Could not verify your purchase with Roku marketplace. Please try again later.", ["Close"])
+    end if
   else
     m.PurchaseScreen.findNode("PurchaseButtons").setFocus(true)
     CreateDialog(m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
