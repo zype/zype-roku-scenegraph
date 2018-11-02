@@ -1533,7 +1533,7 @@ function handleNativePurchase() as void
     if successfulVerification
       userInfo = m.current_user.getInfo()
 
-      if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+      if userInfo.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
       m.auth_state_service.updateAuthWithUserInfo(userInfo)
 
       ' Refresh lock icons with grid screen content callback
