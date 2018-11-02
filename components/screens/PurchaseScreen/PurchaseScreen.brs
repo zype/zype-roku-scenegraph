@@ -105,6 +105,7 @@ function initializers() as object
     self.PurchaseButtons = self.top.findNode("PurchaseButtons")
     self.PurchaseButtons.color = self.global.theme.primary_text_color
     self.PurchaseButtons.focusedColor = self.global.theme.primary_text_color
+    self.PurchaseButtons.focusBitmapUri = self.global.theme.focus_grid_uri
     self.PurchaseButtons.focusedFootprintBitmapUri = self.global.theme.focus_grid_uri
 
     btns = [
