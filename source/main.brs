@@ -1430,7 +1430,7 @@ function handleNativeToUniversal() as void
         '   site_id: m.app.site_id
         ' }
 
-        ' successfulVerification = m.MarketplaceConnectService.verifyMarketplaceSubscription(marketplaceParams)
+        ' successfulVerification = m.marketplaceConnect.verifyMarketplaceSubscription(marketplaceParams)
 
         bifrost_params = {
           app_key: GetApiConfigs().app_key,
@@ -1528,7 +1528,7 @@ function handleNativePurchase() as void
       site_id: m.app.site_id
     }
 
-    successfulVerification = m.MarketplaceConnectService.verifyMarketplacePurchase(marketplaceParams)
+    successfulVerification = m.marketplaceConnect.verifyMarketplacePurchase(marketplaceParams)
 
     if successfulVerification
       userInfo = m.current_user.getInfo()
