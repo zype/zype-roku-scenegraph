@@ -52,10 +52,10 @@ Function MarketplaceConnectService() as object
   ' Return
   '   Boolean for Marketplace Connect verification
   this.verifyMarketplaceSubscription = function(marketplaceParams = {} as object) as boolean
-    marketplaceConnectEndpoint = "https://mkt.zype.com/v1/roku"
+    marketplaceConnectEndpoint = GetApiConfigs().marketplace_connect_endpoint + "transactions"
     verifiedSubscription = false
 
-    response = MakePostRequest(marketplaceConnectEndpoint, marketplaceParams)
+    response = MakePostRequestWithStatus(marketplaceConnectEndpoint, marketplaceParams)
     if response <> invalid
 
     end if
@@ -72,12 +72,19 @@ Function MarketplaceConnectService() as object
   ' Return
   '   Boolean for Marketplace Connect verification
   this.verifyMarketplacePurchase = function(marketplaceParams = {} as object) as boolean
-    marketplaceConnectEndpoint = "https://mkt.zype.com/v1/roku"
+    marketplaceConnectEndpoint = GetApiConfigs().marketplace_connect_endpoint + "transactions"
     verifiedPurchase = false
 
-    response = MakePostRequest(marketplaceConnectEndpoint, marketplaceParams)
+    response = MakePostRequestWithStatus(marketplaceConnectEndpoint, marketplaceParams)
     if response <> invalid
 
+      if response.status <> invalid
+        if response.status = 200
+          return true
+        else
+          return false
+        end if
+      end if
     end if
 
     return true ' hardcoded for now

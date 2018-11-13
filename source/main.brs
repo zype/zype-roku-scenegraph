@@ -1519,13 +1519,16 @@ function handleNativePurchase() as void
     m.native_email_storage.DeleteEmail()
     m.native_email_storage.WriteEmail(userInfo.email)
 
+    regex = CreateObject("roRegex", "[^\d\.]", "i") ' regex for non-digit and period characters
+
     marketplaceParams = {
-      access_token: m.current_user.getOAuth().access_token,
-      consumer_id: m.current_user.getInfo()._id,
-      transaction_id: purchase_item.receipt.purchaseId,
-      video_id: m.detailsScreen.content.id,
       app_id: m.app._id,
-      site_id: m.app.site_id
+      site_id: m.app.site_id,
+      transaction_id: purchase_item.receipt.purchaseId
+      consumer_id: m.current_user.getInfo()._id,
+      video_id: m.detailsScreen.content.id,
+      transaction_type: "purchase",
+      amount: regex.ReplaceAll(purchase_item.receipt.amount, "")
     }
 
     successfulVerification = m.marketplaceConnect.verifyMarketplacePurchase(marketplaceParams)
@@ -1549,6 +1552,14 @@ function handleNativePurchase() as void
       CreateDialog(m.scene, "Success", "Thank you for purchasing the video.", ["Dismiss"])
 
     else ' failed
+      ' Refresh lock icons with grid screen content callback
+      m.scene.gridContent = m.gridContent
+
+      m.scene.goBackToNonAuth = true
+
+      ' details screen should update self
+      m.detailsScreen.content = m.detailsScreen.content
+
       EndLoader()
       sleep(500)
       CreateDialog(m.scene, "Error", "Could not verify your purchase with Roku marketplace. Please try again later.", ["Close"])

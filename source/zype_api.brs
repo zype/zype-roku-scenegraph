@@ -409,6 +409,45 @@ function MakeGetRequest(src, params) as object
     return resp
 end function
 
+Function MakePostRequestWithStatus(src As String, params As Object) As Object
+  resp = {}
+
+  request = CreateObject("roUrlTransfer")
+  request.RetainBodyOnError(true) ' Need this for error messages
+  port = CreateObject("roMessagePort")
+  request.setMessagePort(port)
+  url = src
+
+  bodyData = paramsToString(params)
+
+  if url.InStr(0, "https") = 0
+    request.SetCertificatesFile("common:/certs/ca-bundle.crt")
+    request.AddHeader("X-Roku-Reserved-Dev-Id", "")
+    request.InitClientCertificates()
+  end if
+
+  ' print url ' uncomment to debug
+  request.SetUrl(url)
+
+  if request.AsyncPostFromString(bodyData)
+    while true
+      msg = wait(0, port)
+      if type(msg) = "roUrlEvent"
+        code = msg.GetResponseCode()
+
+        resp.body = ParseJson(msg.GetString())
+        resp.status = code
+
+        exit while
+      else if event = invalid
+        request.AsyncCancel()
+      end if
+    end while
+  end if
+
+  return resp
+End Function
+
 '******************************************************
 'Get a player info
 '******************************************************

@@ -8,7 +8,7 @@
   "player_endpoint": "https://player.zype.com/",
   "oauth_endpoint": "https://login.zype.com/",
   "bifrost_endpoint": "https://bifrost.zype.com/",
-  "marketplace_connect_endpoint": "https://mkt.zype.com/v1/roku",
+  "marketplace_connect_endpoint": "https://mkt.zype.com/v1/roku/",
 
   "version": "1.7.0",
   "theme": "dark",
