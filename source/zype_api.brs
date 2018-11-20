@@ -418,7 +418,9 @@ Function MakePostRequestWithStatus(src As String, params As Object) As Object
   request.setMessagePort(port)
   url = src
 
-  bodyData = paramsToString(params)
+  bodyData = FormatJson(params)
+  request.AddHeader("Content-Type", "application/json")
+  request.AddHeader("Accept", "application/json")
 
   if url.InStr(0, "https") = 0
     request.SetCertificatesFile("common:/certs/ca-bundle.crt")
