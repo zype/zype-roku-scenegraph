@@ -22,8 +22,18 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.current_user = CurrentUser()
 
-    if RegReadAccessToken() <> invalid
-      if m.current_user.isLinked() then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+    ' if RegReadAccessToken() <> invalid
+    '   if m.current_user.isLinked() then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+    ' end if
+
+    store = CreateObject("roChannelStore")
+    storedCreds = store.GetChannelCred()
+    if storedCreds.json <> invalid and storedCreds.json <> ""
+      credsObj = ParseJSON(storedCreds.json)
+      if credsObj <> invalid and credsObj.stored_data <> invalid and credsObj.stored_data <> ""
+        storedData = ParseJSON(credsObj.stored_data)
+        RegWriteAccessToken(storedData)
+      end if
     end if
 
     SetTheme()
@@ -178,6 +188,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.favorites_management_service.setFavoriteIds(fav_ids)
 
     startDate = CreateObject("roDateTime")
+
+    CreateDialog(m.scene, "Universal SSO", storedCreds.json, ["Close"])
 
     ' Deep Linking
     if (m.contentID <> invalid)
@@ -511,6 +523,20 @@ function goIntoDeviceLinkingFlow() as void
 
               ' get and store access token locally
               GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+              oauth = RegReadAccessToken()
+              if oauth <> invalid
+                dataAsJson = FormatJson({
+                  "access_token": oauth.access_token,
+                  "token_type": oauth.token_type,
+                  "expires_in": oauth.expires_in,
+                  "refresh_token": oauth.refresh_token,
+                  "scope": oauth.scope,
+                  "created_at": oauth.created_at,
+                  "email": oauth.email,
+                  "password": oauth.password
+                })
+                m.store.StoreChannelCredData(ToStr(dataAsJson))
+              end if
 
               user_info = m.current_user.getInfo()
               m.auth_state_service.updateAuthWithUserInfo(user_info)
@@ -1213,7 +1239,25 @@ function handleButtonEvents(index, screen)
         CreateDialog(m.scene, "Error", "Password is empty", ["Close"])
       else
 
-        if screen.email <> "" and screen.password <> "" then login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password) else login_response = invalid
+        if screen.email <> "" and screen.password <> ""
+          login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+          oauth = RegReadAccessToken()
+          if oauth <> invalid
+            dataAsJson = FormatJson({
+              "access_token": oauth.access_token,
+              "token_type": oauth.token_type,
+              "expires_in": oauth.expires_in,
+              "refresh_token": oauth.refresh_token,
+              "scope": oauth.scope,
+              "created_at": oauth.created_at,
+              "email": oauth.email,
+              "password": oauth.password
+            })
+            m.store.StoreChannelCredData(ToStr(dataAsJson))
+          end if
+        else
+          login_response = invalid
+        end if
 
         if login_response <> invalid
           m.SignInScreen.reset = true
@@ -1249,6 +1293,20 @@ function handleButtonEvents(index, screen)
 
         if create_consumer_response <> invalid
           login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+          oauth = RegReadAccessToken()
+          if oauth <> invalid
+            dataAsJson = FormatJson({
+              "access_token": oauth.access_token,
+              "token_type": oauth.token_type,
+              "expires_in": oauth.expires_in,
+              "refresh_token": oauth.refresh_token,
+              "scope": oauth.scope,
+              "created_at": oauth.created_at,
+              "email": oauth.email,
+              "password": oauth.password
+            })
+            m.store.StoreChannelCredData(ToStr(dataAsJson))
+          end if
 
           user_info = m.current_user.getInfo()
           m.auth_state_service.updateAuthWithUserInfo(user_info)
@@ -1291,7 +1349,7 @@ function handleButtonEvents(index, screen)
         ' native subscription sync success
         if updated_user_info.subscription_count > 0
           ' Re-login. Get new access token
-          if updated_user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+        '   if updated_user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
           m.auth_state_service.updateAuthWithUserInfo(updated_user_info)
 
           ' Refresh lock icons with grid screen content callback
@@ -1385,7 +1443,7 @@ function handleNativeToUniversal() as void
             user_info = m.current_user.getInfo()
 
             ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
-            if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+            ' if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
             m.auth_state_service.updateAuthWithUserInfo(user_info)
 
             current_native_plan = m.roku_store_service.latestNativeSubscriptionPurchase()
