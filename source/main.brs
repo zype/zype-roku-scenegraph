@@ -28,11 +28,45 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     store = CreateObject("roChannelStore")
     storedCreds = store.GetChannelCred()
-    if storedCreds.json <> invalid and storedCreds.json <> ""
-      credsObj = ParseJSON(storedCreds.json)
-      if credsObj <> invalid and credsObj.stored_data <> invalid and credsObj.stored_data <> ""
-        storedData = ParseJSON(credsObj.stored_data)
-        RegWriteAccessToken(storedData)
+    if storedCreds.channelID <> "dev"
+      if storedCreds.json <> invalid and storedCreds.json <> ""
+        data = ParseJSON(storedCreds.json)
+        if data <> invalid and data.channel_data <> invalid and data.channel_data <> ""
+          channelData = ParseJSON(data.channel_data)
+          refreshTokenParams = {
+            "client_id": GetApiConfigs().client_id,
+            "client_secret": GetApiConfigs().client_secret,
+            "refresh_token": channelData.refresh_token,
+            "grant_type": "refresh_token"
+          }
+
+          ' Refresh token and store new oauth tokens
+          refreshTokenResp = RefreshToken(refreshTokenParams)
+          if refreshTokenResp <> invalid
+            RegWriteAccessToken(refreshTokenResp)
+            newCreds = {
+              "access_token": refreshTokenResp.access_token
+              "refresh_token": refreshTokenResp.refresh_token
+            }
+
+            ' Save udid for unlinking device on logout
+            if channelData.udid <> invalid and channelData.udid <> "" and channelData.udid <> "Invalid"
+              newCreds["udid"] = channelData.udid
+              RemoveUdidFromReg()
+              AddUdidToReg(channelData.udid)
+            end if
+
+            store.StoreChannelCredData(FormatJson(newCreds))
+          end if
+        else
+          LogOut()
+          isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+          if isDeviceLinked <> invalid and isDeviceLinked.linked = true
+            res = UnlinkDevice(isDeviceLinked.consumer_id, isDeviceLinked.pin, {})
+            RemoveUdidFromReg()
+          end if
+          store.StoreChannelCredData("") ' clear out Universal SSO data
+        end if
       end if
     end if
 
@@ -188,8 +222,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.favorites_management_service.setFavoriteIds(fav_ids)
 
     startDate = CreateObject("roDateTime")
-
-    CreateDialog(m.scene, "Universal SSO", storedCreds.json, ["Close"])
 
     ' Deep Linking
     if (m.contentID <> invalid)
@@ -475,6 +507,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             else if msg.getField() = "TriggerDeviceUnlink" AND msg.GetData() = true then
                 isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
                 res = UnlinkDevice(isDeviceLinked.consumer_id, isDeviceLinked.pin, {})
+                RemoveUdidFromReg()
 
                 if res <> invalid
                   m.scene.TriggerDeviceUnlink = false
@@ -512,52 +545,53 @@ function goIntoDeviceLinkingFlow() as void
   website.text = m.app.device_link_url
 
   while true
-      if m.deviceLinking.show = false
-          exit while
-      else
-          print "refreshing PIN"
-          pin_status = PinStatus({"linked_device_id": GetUdidFromReg()})
+    if m.deviceLinking.show = false
+      exit while
+    else
+      print "refreshing PIN"
+      pin_status = PinStatus({"linked_device_id": GetUdidFromReg()})
 
-          if pin_status.linked then
-              pin.text = "The device is linked"
+      if pin_status.linked then
+        pin.text = "The device is linked"
 
-              ' get and store access token locally
-              GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
-              oauth = RegReadAccessToken()
-              if oauth <> invalid
-                dataAsJson = FormatJson({
-                  "access_token": oauth.access_token,
-                  "token_type": oauth.token_type,
-                  "expires_in": oauth.expires_in,
-                  "refresh_token": oauth.refresh_token,
-                  "scope": oauth.scope,
-                  "created_at": oauth.created_at,
-                  "email": oauth.email,
-                  "password": oauth.password
-                })
-                m.store.StoreChannelCredData(ToStr(dataAsJson))
-              end if
+        ' get and store access token locally
+        GetAccessTokenWithPin(GetApiConfigs().client_id, GetApiConfigs().client_secret, GetUdidFromReg(), GetPin(GetUdidFromReg()))
+        oauth = RegReadAccessToken()
+        if oauth <> invalid
+          udid = GetUdidFromReg()
+          dataAsJson = FormatJson({
+            "access_token": oauth.access_token,
+            "refresh_token": oauth.refresh_token,
+            "udid": udid
+          })
 
-              user_info = m.current_user.getInfo()
-              m.auth_state_service.updateAuthWithUserInfo(user_info)
+          store = CreateObject("roChannelStore")
+          store.StoreChannelCredData(dataAsJson) ' store Universal SSO data
+        end if
 
-              m.deviceLinking.isDeviceLinked = true
-              m.deviceLinking.setUnlinkFocus = true
+        user_info = m.current_user.getInfo()
+        m.auth_state_service.updateAuthWithUserInfo(user_info)
 
-              m.scene.gridContent = m.gridContent
+        m.deviceLinking.isDeviceLinked = true
+        m.deviceLinking.setUnlinkFocus = true
 
-              m.scene.goBackToNonAuth = true
+        m.scene.gridContent = m.gridContent
 
-              ' Reset details screen buttons
-              m.detailsScreen.content = m.detailsScreen.content
+        m.scene.goBackToNonAuth = true
 
-              sleep(500)
-              CreateDialog(m.scene, "Success", "Your device is linked", ["Continue"])
-              exit while
-          end if
+        ' Reset details screen buttons
+        m.detailsScreen.content = m.detailsScreen.content
+
+        sleep(500)
+
+        data = store.GetChannelCred()
+
+        CreateDialog(m.scene, "Success", "Your device is linked", ["Continue"])
+        exit while
       end if
+    end if
 
-      sleep(5000)
+    sleep(5000)
   end while
 end function
 
@@ -1213,8 +1247,12 @@ function handleButtonEvents(index, screen)
       user_info = m.current_user.getInfo()
       pin = GetPin(GetUdidFromReg())
       if user_info.linked then UnlinkDevice(user_info._id, pin, {})
+      RemoveUdidFromReg()
 
       LogOut()
+      store = CreateObject("roChannelStore")
+      store.StoreChannelCredData("") ' clear out Universal SSO data
+
       user_info = m.current_user.getInfo()
       m.auth_state_service.updateAuthWithUserInfo(user_info)
 
@@ -1245,15 +1283,12 @@ function handleButtonEvents(index, screen)
           if oauth <> invalid
             dataAsJson = FormatJson({
               "access_token": oauth.access_token,
-              "token_type": oauth.token_type,
-              "expires_in": oauth.expires_in,
               "refresh_token": oauth.refresh_token,
-              "scope": oauth.scope,
-              "created_at": oauth.created_at,
               "email": oauth.email,
               "password": oauth.password
             })
-            m.store.StoreChannelCredData(ToStr(dataAsJson))
+            store = CreateObject("roChannelStore")
+            store.StoreChannelCredData(dataAsJson) ' store Universal SSO data
           end if
         else
           login_response = invalid
@@ -1297,15 +1332,12 @@ function handleButtonEvents(index, screen)
           if oauth <> invalid
             dataAsJson = FormatJson({
               "access_token": oauth.access_token,
-              "token_type": oauth.token_type,
-              "expires_in": oauth.expires_in,
               "refresh_token": oauth.refresh_token,
-              "scope": oauth.scope,
-              "created_at": oauth.created_at,
               "email": oauth.email,
               "password": oauth.password
             })
-            m.store.StoreChannelCredData(ToStr(dataAsJson))
+            store = CreateObject("roChannelStore")
+            store.StoreChannelCredData(dataAsJson) ' store Universal SSO data
           end if
 
           user_info = m.current_user.getInfo()
