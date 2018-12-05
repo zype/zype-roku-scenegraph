@@ -1524,7 +1524,7 @@ function handleNativePurchase() as void
     marketplaceParams = {
       app_id: m.app._id,
       site_id: m.app.site_id,
-      transaction_id: purchase_item.receipt.purchaseId
+      transaction_id: purchase_item.receipt.purchaseId,
       consumer_id: m.current_user.getInfo()._id,
       video_id: m.detailsScreen.content.id,
       transaction_type: "purchase",

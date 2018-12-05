@@ -431,7 +431,7 @@ Function MakePostRequestWithStatus(src As String, params As Object) As Object
   ' print url ' uncomment to debug
   request.SetUrl(url)
 
-  if request.AsyncPostFromString(bodyData)
+  if request.AsyncPostFromString(ToStr(bodyData))
     while true
       msg = wait(0, port)
       if type(msg) = "roUrlEvent"
