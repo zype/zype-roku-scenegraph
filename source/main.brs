@@ -156,12 +156,14 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.UniversalAuthSelection.observeField("itemSelected", m.port)
 
     m.SignInScreen = m.scene.findNode("SignInScreen")
+    m.SignInScreen.isSignup = false
     m.SignInScreen.header = m.global.labels.sign_in_screen_header
     m.SignInScreen.helperMessage = m.global.labels.sign_in_helper_message
     m.SignInScreen.submitButtonText = m.global.labels.sign_in_submit_button
     m.SignInScreen.observeField("itemSelected", m.port)
 
     m.SignUpScreen = m.scene.findNode("SignUpScreen")
+    m.SignUpScreen.isSignup = true
     m.SignUpScreen.header = m.global.labels.sign_up_screen_header
     m.SignUpScreen.helperMessage = m.global.labels.sign_up_helper_message
     m.SignUpScreen.submitButtonText = m.global.labels.sign_up_submit_button
@@ -1275,10 +1277,14 @@ function handleButtonEvents(index, screen)
       end if ' end of email/password validation
 
     else if button_role = "submitCredentials" and screen.id = "SignUpScreen"
+      signUpChecked = screen.callFunc("isSignupChecked")
+
       if screen.email = ""
         CreateDialog(m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
       else if screen.password = ""
         CreateDialog(m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
+      else if signUpChecked = false
+        CreateDialog(m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
       else
         StartLoader()
         create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
@@ -1694,6 +1700,7 @@ function SetFeatures() as void
     native_tvod: configs.native_tvod,
     favorites_via_api: m.app.favorites_via_api,
     universal_tvod: m.app.universal_tvod,
+    confirm_signup: configs.confirm_signup,
     enable_device_linking: configs.enable_device_linking,
     test_info_screen: configs.test_info_screen
   })
