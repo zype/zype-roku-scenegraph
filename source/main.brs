@@ -55,6 +55,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.auth_state_service = AuthStateService()
     m.bifrost_service = BiFrostService()
     m.raf_service = RafService()
+    m.marketplaceConnect = MarketplaceConnectService()
 
     m.native_email_storage =  NativeEmailStorageService()
 
@@ -128,9 +129,19 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.autoplay = m.app.autoplay
 
     m.AuthSelection = m.scene.findNode("AuthSelection")
+
+    ' TODO: Add logic here to filter native plans by matching marketplace connect ids
+    ' rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans()
+    ' filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans)
+    ' m.AuthSelection.plans = filteredPlans
+
     m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
     m.AuthSelection.observeField("itemSelected", m.port)
     m.AuthSelection.observeField("planSelected", m.port)
+
+    m.PurchaseScreen = m.scene.findNode("PurchaseScreen")
+    m.PurchaseScreen.observeField("itemSelected", m.port)
+    m.PurchaseScreen.observeField("purchaseButtonSelected", m.port)
 
     m.MyLibrary = m.scene.findNode("MyLibrary")
     m.MyLibrary.observeField("visible", m.port)
@@ -145,12 +156,14 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.UniversalAuthSelection.observeField("itemSelected", m.port)
 
     m.SignInScreen = m.scene.findNode("SignInScreen")
+    m.SignInScreen.isSignup = false
     m.SignInScreen.header = m.global.labels.sign_in_screen_header
     m.SignInScreen.helperMessage = m.global.labels.sign_in_helper_message
     m.SignInScreen.submitButtonText = m.global.labels.sign_in_submit_button
     m.SignInScreen.observeField("itemSelected", m.port)
 
     m.SignUpScreen = m.scene.findNode("SignUpScreen")
+    m.SignUpScreen.isSignup = true
     m.SignUpScreen.header = m.global.labels.sign_up_screen_header
     m.SignUpScreen.helperMessage = m.global.labels.sign_up_helper_message
     m.SignUpScreen.submitButtonText = m.global.labels.sign_up_submit_button
@@ -381,7 +394,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -402,6 +415,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.SignUpScreen
                 else if msg.getNode() = "AccountScreen"
                     lclScreen = m.AccountScreen
+                else if msg.getNode() = "PurchaseScreen"
+                    lclScreen = m.PurchaseScreen
                 end if
 
                 index = msg.getData()
@@ -421,6 +436,17 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               else
                 if m.global.auth.isLoggedIn or m.global.native_to_universal_subscription = false then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
               end if
+
+            else if msg.getNode() = "PurchaseScreen" and msg.getField() = "purchaseButtonSelected" then
+              buttonRole = m.PurchaseScreen.itemSelectedRole
+              buttonTarget = m.PurchaseScreen.itemSelectedTarget
+               if buttonRole = "confirm_purchase"
+                if m.global.auth.isLoggedIn or m.global.native_tvod = false then handleNativePurchase() else m.scene.transitionTo = "SignUpScreen"
+              else if buttonRole = "cancel"
+                m.detailsScreen.content = m.detailsScreen.content
+                m.scene.goBackToNonAuth = true
+              end if
+
             else if msg.getField() = "state"
                 state = msg.getData()
                 m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
@@ -968,6 +994,18 @@ Function ParseContent(list As Object)
                 item[key] = itemAA[key]
             end for
 
+            if item.purchaseRequired
+              ' TODO: Add logic for finding matching sku
+
+              ' use hard coded sku for now
+              consumables = m.roku_store_service.getConsumables()
+              purchaseItem = consumables[0]
+
+              item.storeProduct = purchaseItem
+            else
+              item.storeProduct = invalid
+            end if
+
             row.appendChild(item)
         end for
 
@@ -1239,10 +1277,14 @@ function handleButtonEvents(index, screen)
       end if ' end of email/password validation
 
     else if button_role = "submitCredentials" and screen.id = "SignUpScreen"
+      signUpChecked = screen.callFunc("isSignupChecked")
+
       if screen.email = ""
         CreateDialog(m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
       else if screen.password = ""
         CreateDialog(m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
+      else if signUpChecked = false
+        CreateDialog(m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
       else
         StartLoader()
         create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
@@ -1256,7 +1298,15 @@ function handleButtonEvents(index, screen)
           m.SignUpScreen.reset = true
           m.scene.goBackToNonAuth = true
 
-          handleNativeToUniversal()
+          ' Add logic to determine if subscribing or purchasing
+          
+          if m.detailsScreen.itemSelectedRole = "transition"
+            if m.detailsScreen.itemSelectedTarget = "AuthSelection" ' SVOD
+              handleNativeToUniversal()
+            else if m.detailsScreen.itemSelectedTarget = "PurchaseScreen" ' TVOD
+              handleNativePurchase()
+            end if
+          end if
         else
           EndLoader()
           m.SignUpScreen.setFocus(true)
@@ -1325,6 +1375,13 @@ function handleButtonEvents(index, screen)
 
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
+    else if button_role = "transition" and button_target = "PurchaseScreen"
+      m.PurchaseScreen.purchaseItem = screen.content.storeProduct
+      m.PurchaseScreen.itemName = screen.content.title
+      m.PurchaseScreen.videoId = screen.content.id
+
+      m.scene.transitionTo = "PurchaseScreen"
+
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
       if m.global.enable_device_linking = false then m.scene.transitionTo = "SignInScreen" else m.scene.transitionTo = "UniversalAuthSelection"
     else if button_role = "transition" and button_target = "DeviceLinking"
@@ -1368,6 +1425,18 @@ function handleNativeToUniversal() as void
         recent_purchase = purchase_subscription.receipt
 
         third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
+
+        ' TODO: Replace call with Marketplace Connect call when available
+        ' marketplaceParams = {
+        '   access_token: m.current_user.getOAuth().access_token,
+        '   consumer_id: m.current_user.getInfo()._id,
+        '   transaction_id: purchase_subscription.receipt.purchaseId,
+        '   plan_id: plan.zypePlanId,
+        '   app_id: m.app._id,
+        '   site_id: m.app.site_id
+        ' }
+
+        ' successfulVerification = m.marketplaceConnect.verifyMarketplaceSubscription(marketplaceParams)
 
         bifrost_params = {
           app_key: GetApiConfigs().app_key,
@@ -1436,6 +1505,76 @@ function handleNativeToUniversal() as void
   end if
 end function
 
+function handleNativePurchase() as void
+  m.PurchaseScreen.visible = false
+  StartLoader()
+
+  ' Get updated user info
+  userInfo = m.current_user.getInfo()
+  m.auth_state_service.updateAuthWithUserInfo(userInfo)
+
+  order = [{
+    code: m.PurchaseScreen.purchaseItem.code,
+    qty: 1
+  }]
+
+  purchase_item = m.roku_store_service.makePurchase(order)
+  EndLoader()
+
+  if purchase_item.success
+    m.native_email_storage.DeleteEmail()
+    m.native_email_storage.WriteEmail(userInfo.email)
+
+    regex = CreateObject("roRegex", "[^\d\.]", "i") ' regex for non-digit and period characters
+
+    marketplaceParams = {
+      app_id: m.app._id,
+      site_id: m.app.site_id,
+      transaction_id: purchase_item.receipt.purchaseId,
+      consumer_id: m.current_user.getInfo()._id,
+      video_id: m.detailsScreen.content.id,
+      transaction_type: "purchase",
+      amount: regex.ReplaceAll(purchase_item.receipt.amount, "")
+    }
+
+    successfulVerification = m.marketplaceConnect.verifyMarketplacePurchase(marketplaceParams)
+
+    if successfulVerification
+      userInfo = m.current_user.getInfo()
+
+      if userInfo.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+      m.auth_state_service.updateAuthWithUserInfo(userInfo)
+
+      ' Refresh lock icons with grid screen content callback
+      m.scene.gridContent = m.gridContent
+
+      m.scene.goBackToNonAuth = true
+
+      ' details screen should update self
+      m.detailsScreen.content = m.detailsScreen.content
+
+      EndLoader()
+      sleep(500)
+      CreateDialog(m.scene, "Success", "Thank you for purchasing the video.", ["Dismiss"])
+
+    else ' failed
+      ' Refresh lock icons with grid screen content callback
+      m.scene.gridContent = m.gridContent
+
+      m.scene.goBackToNonAuth = true
+
+      ' details screen should update self
+      m.detailsScreen.content = m.detailsScreen.content
+
+      EndLoader()
+      sleep(500)
+      CreateDialog(m.scene, "Error", "Could not verify your purchase with Roku marketplace. Please try again later.", ["Close"])
+    end if
+  else
+    m.PurchaseScreen.findNode("PurchaseButtons").setFocus(true)
+    CreateDialog(m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
+  end if
+end function
 
 ' Seting details screen's RemakeVideoPlayer value to true recreates Video component
 '     Roku Video component performance degrades significantly after multiple uses, so we make a new one
@@ -1558,8 +1697,10 @@ function SetFeatures() as void
     swaf: m.app.subscribe_to_watch_ad_free,
     enable_lock_icons: m.app.enable_lock_icons,
     native_to_universal_subscription: m.app.native_to_universal_subscription,
+    native_tvod: configs.native_tvod,
     favorites_via_api: m.app.favorites_via_api,
     universal_tvod: m.app.universal_tvod,
+    confirm_signup: configs.confirm_signup,
     enable_device_linking: configs.enable_device_linking,
     test_info_screen: configs.test_info_screen
   })
@@ -1581,12 +1722,33 @@ function SetGlobalAuthObject() as void
     valid_native_subs = m.roku_store_service.getUserNativeSubscriptionPurchases()
   end if
 
+  entitlements = {}
+  oauth = RegReadAccessToken()
+
+  if oauth <> invalid and oauth.access_token <> invalid
+    videoEntitlements = GetEntitledVideos({
+      access_token: oauth.access_token,
+      per_page: 500,
+      page: 1
+      sort: "created_at",
+      order: "desc"
+    })
+
+    if videoEntitlements <> invalid
+      for each entitlement in videoEntitlements
+        videoId = entitlement["video_id"]
+        entitlements[videoId] = videoId
+      end for
+    end if
+  end if
+
   m.global.addFields({ auth: {
     nativeSubCount: valid_native_subs.count(),
     universalSubCount: universal_sub_count,
     isLoggedIn: is_logged_in,
     isLinked: current_user_info.linked,
-    email: user_email
+    email: user_email,
+    entitlements: entitlements
   } })
 
 

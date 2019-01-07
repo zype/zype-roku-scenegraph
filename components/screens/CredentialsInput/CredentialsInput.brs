@@ -19,9 +19,23 @@ function onKeyEvent(key as string, press as boolean) as boolean
 
   if press
     if key = "down"
-      if m.helpers.focusedChild(m) = "Inputs" then m.submit_button.setFocus(true) : result = true
+      if m.helpers.focusedChild(m) = "Inputs"
+        m.submit_button.setFocus(true)
+        result = true
+      else if m.helpers.focusedChild(m) = "SubmitButton"
+        if m.global.confirm_signup and m.top.isSignup = true
+          m.confirm_signup.setFocus(true)
+          result = true
+        end if
+      end if
     else if key = "up"
-      if m.helpers.focusedChild(m) = "SubmitButton" then m.inputs.setFocus(true) : result = true
+      if m.helpers.focusedChild(m) = "SubmitButton"
+        m.inputs.setFocus(true)
+        result = true
+      else if m.helpers.focusedChild(m) = "ConfirmSignup"
+        m.submit_button.setFocus(true)
+        result = true
+      end if
     else if key = "back"
       if m.helpers.focusedChild(m) = "InputKeyboard" then
         m.inputs.setFocus(true)
@@ -87,6 +101,28 @@ end function
 
 function setSubmitButtonText() as void
   m.submit_button.content = m.content_helpers.oneDimList2ContentNode([{title: m.top.submitButtonText}], "ButtonNode")
+end function
+
+function updateCheckbox() as void
+  if m.global.confirm_signup and m.top.isSignup = true
+    m.confirm_signup.visible = true
+
+    m.helper_message.translation = [0,620]
+  else
+    m.confirm_signup.visible = false
+    m.helper_message.translation = [0,520]
+  end if
+end function
+
+function isSignupChecked() as boolean
+  signupChecked = false
+  if m.confirm_signup.checkedState[0] = true then signupChecked = true
+
+  if m.global.confirm_signup and m.top.isSignup = true and signupChecked = true
+    return true
+  end if
+
+  return signupChecked
 end function
 
 function handleInput() as void
@@ -197,6 +233,8 @@ function initializers() as object
     self.helper_message.color = self.global.theme.primary_text_color
 
     self.input_keyboard = self.top.findNode("InputKeyboard")
+
+    self.confirm_signup = self.top.findNode("ConfirmSignup")
   end function
 
   return this

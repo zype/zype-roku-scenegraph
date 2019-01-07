@@ -83,6 +83,57 @@ Sub onVisibleChange()
     end if
 End Sub
 
+' gets buttons based on video monetization and consumer state
+sub refreshButtons() as void
+  isSubscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
+  svodEnabled = ((m.global.in_app_purchase or m.global.device_linking) and m.top.content.subscriptionRequired)
+
+  userIsLoggedIn = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
+
+  videoRequiresEntitlement = (m.top.content.subscriptionRequired or m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
+
+  if videoRequiresEntitlement
+    userIsEntitled = false
+    if m.global.auth.entitlements <> invalid
+      if m.global.auth.entitlements.DoesExist(m.top.content.id) then userIsEntitled = true
+    end if
+
+    if svodEnabled ' SVOD
+      if userIsEntitled or isSubscribed
+        m.top.canWatchVideo = true
+        AddButtons()
+      else
+        m.top.canWatchVideo = false
+        AddActionButtons()
+      end if
+
+    else if m.top.content.purchaseRequired and m.global.native_tvod ' TVOD
+
+      if userIsEntitled
+        m.top.canWatchVideo = true
+        AddButtons()
+      else
+        m.top.canWatchVideo = false
+        AddActionButtons()
+      end if
+
+    else
+      if userIsLoggedIn
+        m.top.canWatchVideo = true
+        AddButtons()
+      else
+        m.top.canWatchVideo = false
+        AddSigninButton()
+      end if
+    end if
+
+  else
+    m.top.canWatchVideo = true
+    AddButtons()
+  end if
+
+end sub
+
 ' set proper focus to Buttons in case if return from Video PLayer
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.buttons.hasFocus() and not m.top.videoPlayer.hasFocus() then
@@ -90,38 +141,7 @@ Sub OnFocusedChildChange()
       m.overlay.uri = m.global.theme.overlay_uri
       m.overlay.visible = true
 
-      is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
-      svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
-
-      no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
-
-      requiresNonSvodEntitlement = (m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
-
-      logged_in = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
-
-      if m.global.device_linking and requiresNonSvodEntitlement and logged_in = false
-        m.top.canWatchVideo = false
-        if no_sub_needed
-          AddSigninButton()
-        else
-          if is_subscribed
-            m.top.canWatchVideo = true
-            AddButtons()
-          else
-            AddActionButtons()
-          end if
-        end if
-      else if m.global.device_linking and requiresNonSvodEntitlement and logged_in = true
-        m.top.canWatchVideo = true
-        AddButtons()
-
-      else if no_sub_needed or (svod_enabled and is_subscribed)
-        m.top.canWatchVideo = true
-        AddButtons()
-      else
-        m.top.canWatchVideo = false
-        AddActionButtons()
-      end if
+      refreshButtons()
 
       m.buttons.setFocus(true)
     end if
@@ -211,6 +231,7 @@ Function PrepareVideoPlayer()
         m.top.content.TITLE = nextVideoObject.title
         m.top.content.URL = nextVideoObject.url
         m.top.content.POSTERTHUMBNAIL = nextVideoObject.posterThumbnail
+        m.top.content.storeProduct = nextVideoObject.storeProduct
 
         print "nextVideoObject: "; nextVideoObject
         print "New: "; m.top.content
@@ -243,34 +264,7 @@ End Sub
 ' Content change handler
 Sub OnContentChange()
     if m.top.content<>invalid then
-        is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
-        svod_enabled = (m.global.in_app_purchase or m.global.device_linking)
-
-        no_sub_needed = (svod_enabled = false or m.top.content.subscriptionRequired = false)
-
-        requiresNonSvodEntitlement = (m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
-
-        logged_in = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
-
-        if m.global.device_linking and requiresNonSvodEntitlement and logged_in = false
-          m.top.canWatchVideo = false
-          if is_subscribed
-            m.top.canWatchVideo = true
-            AddButtons()
-          else
-            AddActionButtons()
-          end if
-        else if m.global.device_linking and requiresNonSvodEntitlement and logged_in = true
-          m.top.canWatchVideo = true
-          AddButtons()
-
-        else if no_sub_needed or (svod_enabled and is_subscribed)
-          m.top.canWatchVideo = true
-          AddButtons()
-        else
-          m.top.canWatchVideo = false
-          AddActionButtons()
-        end if
+        refreshButtons()
 
         m.description.content   = m.top.content
         m.description.Description.height = "250"
@@ -291,7 +285,7 @@ function currentButtonTarget(index as integer) as string
     return m.buttons.content.getChild(index).target
 end function
 
-Sub AddButtons()
+Sub AddButtons() ' user has access
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
     m.top.ResumeVideo.id = "ResumeVideo"
 
@@ -341,14 +335,29 @@ Sub AddButtons()
     end if
 End Sub
 
-Sub AddActionButtons()
+Sub AddActionButtons() ' trigger monetization
     if m.top.content <> invalid then
-        btns = [ { title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" } ]
-        m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+      btns = []
+
+      if m.top.content.subscriptionrequired
+        btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" })
+      end if
+
+      if m.top.content.purchaseRequired and m.global.native_tvod
+        if m.top.content.storeProduct <> invalid and m.top.content.storeProduct.cost <> invalid
+          purchaseButtonText = "Purchase video - " + m.top.content.storeProduct.cost
+        else
+          purchaseButtonText = "Purchase video"
+        end if
+
+        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
+      end if
+
+      m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
 
-sub AddSigninButton()
+sub AddSigninButton() ' sign in only
     if m.top.content <> invalid
       btns = [ { title: m.global.labels.sign_in_button, role: "transition", target: "UniversalAuthSelection" } ]
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")

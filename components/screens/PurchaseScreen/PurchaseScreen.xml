@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="PurchaseScreen" extends="Group" initialFocus="PurchaseButtons" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+  <interface>
+    <field id="itemSelected" 
+      type="integer"
+      alias="OAuthButton.itemSelected"
+      alwaysNotify="true"
+      onChange="onOauthSelected"/>
+
+    <field id="itemSelectedRole" type="string" />
+    <field id="itemSelectedTarget" type="string" />
+
+    <field id="purchaseButtonSelected" 
+      type="integer" 
+      alias="PurchaseButtons.itemSelected" 
+      alwaysNotify="true" 
+      onChange="onPurchaseButtonSelected" />
+
+    <field id="purchaseItem" type="assocarray" onChange="onPurchaseItemChanged" />
+    <field id="itemName" type="string" onChange="onItemNameChanged" />
+    <field id="videoId" type="string" />
+  </interface>
+
+  <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
+  <script type="text/brightscript" uri="pkg:/components/screens/PurchaseScreen/PurchaseScreen.brs" />
+
+  <children>
+    <Rectangle
+      id="Background"
+      color="#151515"
+      width="1280"
+      height="720"
+      opacity="1"
+      translation="[0,0]" />
+
+     <!-- Display the information -->
+    <Group id="TextContainer" translation="[200,0]">
+      <Poster
+        id="Logo"
+        uri="pkg:/images/overhangLogo.png"
+        loadDisplayMode="scaleToFit"
+        width="150"
+        height="112.5"
+        translation="[350,30]" />
+
+       <Label
+        id="Header"
+        width="880"
+        horizAlign="center"
+        text="Confirm purchase"
+        translation="[0,150]" >
+        <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="40"/>
+      </Label>
+
+       <Label
+        id="ItemNameLabel"
+        width="880"
+        horizAlign="center"
+        wrap="true"
+        text=""
+        translation="[0,220]">
+        <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20"/>
+      </Label>
+    </Group>
+
+     <!-- Purchase confirm/cancel buttons -->
+    <LabelList
+      id="PurchaseButtons"
+      translation="[440,300]"
+      color="0xf5f5f5"
+      focusedColor="0xf5f5f5"
+      numRows="2"
+      vertFocusAnimationStyle="floatingFocus"
+      itemSize="[400, 75]"
+      font="dictionary:MenuFont"
+      textHorizAlign="center"
+      focusedFont="dictionary:MenuFont"
+      focusBitmapUri="pkg:/images/button-focus-light.png" />
+     <!-- Transition to sign in -->
+    <Group id="OAuthTransition" translation="[0,500]">
+      <Label
+        id="OAuthLabel"
+        width="1000"
+        horizAlign="center"
+        text=""
+        visible="false"
+        translation="[30,0]">
+        <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="20"/>
+      </Label>
+
+      <LabelList
+        id="OAuthButton"
+        translation="[590,50]"
+        color="0xf5f5f5"
+        focusedColor="0xf5f5f5"
+        itemSize="[100, 50]"
+        numRows="1"
+        vertFocusAnimationStyle="floatingFocus"
+        textHorizAlign="center"
+        font="dictionary:ButtonFont"
+        focusedFont="dictionary:ButtonFont"
+        focusBitmapUri="pkg:/images/button-focus.png"
+        />
+    </Group>
+
+  </children>
+</component>
