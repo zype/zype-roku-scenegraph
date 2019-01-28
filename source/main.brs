@@ -1617,9 +1617,13 @@ function handleNativePurchase() as void
 
     regex = CreateObject("roRegex", "[^\d\.]", "i") ' regex for non-digit and period characters
 
+    appInfo = CreateObject("roAppInfo")
+    rokuAppId = appInfo.GetID()
+
     marketplaceParams = {
       app_id: m.app._id,
       site_id: m.app.site_id,
+      roku_id: rokuAppId,
       transaction_id: purchase_item.receipt.purchaseId,
       consumer_id: m.current_user.getInfo()._id,
       video_id: m.detailsScreen.content.id,
