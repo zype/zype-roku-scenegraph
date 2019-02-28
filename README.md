@@ -15,9 +15,6 @@ This SDK allows you to set up an eye-catching, easy to use Roku video streaming 
 - Subtitle Support (WebVTT, SRT)
 - Subscribe to watch ad free (setting in config file)
 - Lock icons for subscription videos
-
-## Unsupported Features
-
 - Closed Caption Support
 
 ## Monetizations Supported
@@ -34,17 +31,13 @@ In order to create an app using the Zype Roku Scenegraph, please follow the inst
 
 In order to test native subscriptions, you need to setup the fake Roku store before sideloading. For more information on how to do this, [see here](docs/testing/TestingNativeSubscriptions.md)
 
-## Device Endpoint Notes
-
-Older Roku devices will have less powerful hardware and therefore less processing power. One noticeable difference when running the apps on newer Roku devices (Roku 4 and newer) is that the loading indicator/spinner will have an animation. This feature was taken out for older Roku devices which did not have hardware to support animations and rendering of higher resolution images.
-
 ## Contributing to the repo
 
 We welcome contributions to Zype Roku Scenegraph SDK. If you have any suggestions or notice any bugs you can raise an issue. If you have any changes to the code base that you want to see added, you can fork the repository, then submit a pull request with your changes explaining what you changed, why you believe it should be added, and how one would test these changes. Thank you to the community!
 
 ## Support
 
-If you need more information on how Zype API works, you can read the [documentation here](http://dev.zype.com/api_docs/intro/). If you have any other questions, feel free to contact us at [support@zype.com](mailto:support@zype.com).
+If you need more information on how Zype API works, you can read the [documentation here](https://docs.zype.com/reference). If you have any other questions, feel free to contact us at [support@zype.com](mailto:support@zype.com).
 
 ## Authors
 
