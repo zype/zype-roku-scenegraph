@@ -1,6 +1,16 @@
 # Testing Native Subscriptions
 
-In order to test Native Subscriptions in development, you will need to configure your fake server before side loading your app. In order to do this you will need to turn on the fake server and update the files within the _csfake_ folder.
+## Testing with Roku Billing
+
+If you want to test with IAP products from your Roku Account, Roku provides [Billing Testing](https://sdkdocs.roku.com/display/sdkdoc/Testing+In-Channel+Purchasing#TestingIn-ChannelPurchasing-UsingaChanneltoTestBilling) if __you already have your Roku Developer account setup__. Once you create your IAPs, you can make test purchases on your Roku device.
+
+The advantage of using Billing Testing is that the transactions go through the Roku servers and will persist. The disadvantage is if you are developing / testing your app, you will not start with a fresh purchase history when re-opening the app.
+
+## Testing with Fake Server
+
+In order to test Native Subscriptions in development, you can configure your fake server before side loading your app. In order to do this you will need to turn on the fake server and update the files within the _csfake_ folder.
+
+The advantage of using the Fake Server is that you can test and develop with the assurance that you have a fresh purchase history (using mocked data in _csfake_). The disadvantage is that enabling the Fake Server means you will not be testing with the IAPs from Roku's servers.
 
 1. To turn on the fake server go into _source/main.brs_. You will want to go inside `SetHomeScene()` and update the line with `' m.store.FakeServer(true)` to `m.store.FakeServer(true)`. Removing the apostrophe will uncomment the line and causing the app to run a fake server in the side loaded app.
 2. Next you will want to update the files inside _csfake_. These files will contain the mocked responses for the faked store when you are running the side loaded app. To test the native subscriptions, you will need to replace the __code__ for the products inside the XML files with a valid __subscription plan id__ from the platform. The native subscription's code needs to match a subscription plan id so it integrates smoothly with the Zype platform and subscriptions via device linking.
