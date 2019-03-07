@@ -125,6 +125,8 @@ function initializers() as object
 
     self.OauthLabel = self.top.findNode("OAuthLabel")
     self.OauthLabel.color = self.global.theme.primary_text_color
+
+    ' TODO: add logic here to check global flag (marketplace_connect) to show or hide OAuthLabel and OauthButton
   end function
 
   this.setupPurchaseButtons = function(self, btnContent) as void

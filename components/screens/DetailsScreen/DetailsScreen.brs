@@ -109,6 +109,7 @@ sub refreshButtons() as void
 
     else if m.top.content.purchaseRequired and m.global.native_tvod ' TVOD
 
+      ' TODO: update entitlement check to also check locally
       if userIsEntitled
         m.top.canWatchVideo = true
         AddButtons()
@@ -150,6 +151,7 @@ End Sub
 ' set proper focus on buttons and stops video if return from Playback to details
 Sub onVideoVisibleChange()
     if m.top.videoPlayer.visible = false and m.top.visible = true
+      ' TODO: update entitlement check to also check locally
       if m.top.canWatchVideo <> invalid AND m.top.canWatchVideo = true
         AddButtons()
         m.buttons.setFocus(true)

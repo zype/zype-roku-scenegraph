@@ -101,6 +101,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.raf_service = RafService()
     m.marketplaceConnect = MarketplaceConnectService()
 
+    ' TODO: setup service (not created yet) to store/manage entitlements
+    ' m.entitlement_service = EntitlementService()
+
     m.native_email_storage =  NativeEmailStorageService()
 
     SetGlobalAuthObject()
@@ -485,6 +488,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               buttonRole = m.PurchaseScreen.itemSelectedRole
               buttonTarget = m.PurchaseScreen.itemSelectedTarget
                if buttonRole = "confirm_purchase"
+                ' TODO: add logic to determine whether transition to native purchase flow is needed
                 if m.global.auth.isLoggedIn or m.global.native_tvod = false then handleNativePurchase() else m.scene.transitionTo = "SignUpScreen"
               else if buttonRole = "cancel"
                 m.detailsScreen.content = m.detailsScreen.content
@@ -1612,6 +1616,11 @@ function handleNativePurchase() as void
   EndLoader()
 
   if purchase_item.success
+
+    ' TODO: Add call to add entitlement to local storage
+
+    ' TODO: wrap marketplace connect validation inside if statement.
+    '       If marketplace_connect is true, validate. Else return user to DetailsScreen
     m.native_email_storage.DeleteEmail()
     m.native_email_storage.WriteEmail(userInfo.email)
 
@@ -1796,7 +1805,8 @@ function SetFeatures() as void
     universal_tvod: m.app.universal_tvod,
     confirm_signup: configs.confirm_signup,
     enable_device_linking: configs.enable_device_linking,
-    test_info_screen: configs.test_info_screen
+    test_info_screen: configs.test_info_screen,
+    marketplace_connect: configs.marketplace_connect
   })
 end function
 
