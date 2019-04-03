@@ -13,6 +13,7 @@
     <field id="purchaseRequired" type="boolean" />
     <field id="rentalRequired" type="boolean" />
     <field id="passRequired" type="boolean" />
+    <field id="registrationRequired" type="boolean" />
 
     <!-- Associated in-store product (if tvod) -->
     <field id="storeProduct" type="assocarray" />

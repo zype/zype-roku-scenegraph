@@ -90,7 +90,8 @@ sub refreshButtons() as void
 
   userIsLoggedIn = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
 
-  videoRequiresEntitlement = (m.top.content.subscriptionRequired or m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.content.passRequired)
+  videoRequiresEntitlement = (m.top.content.subscriptionRequired or m.top.content.purchaseRequired or m.top.content.rentalRequired)
+  videoRequiresEntitlement = (videoRequiresEntitlement or m.top.content.passRequired or m.top.content.registrationRequired)
 
   if videoRequiresEntitlement
     userIsEntitled = false
@@ -117,6 +118,15 @@ sub refreshButtons() as void
         AddActionButtons()
       end if
 
+
+    else if m.top.content.registrationRequired
+      if userIsLoggedIn
+        m.top.canWatchVideo = true
+        AddButtons()
+      else
+        m.top.canWatchVideo = false
+        AddSignupButton()
+      end if
     else
       if userIsLoggedIn
         m.top.canWatchVideo = true
@@ -363,6 +373,15 @@ sub AddSigninButton() ' sign in only
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 end sub
+
+
+sub AddSignupButton() ' sign in only
+  if m.top.content <> invalid
+    btns = [ { title: m.global.labels.sign_up_to_watch_submit_button, role: "transition", target: "RegistrationScreen" } ]
+    m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+  end if
+end sub
+
 
 Function getStatusOfVideo() as boolean
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")

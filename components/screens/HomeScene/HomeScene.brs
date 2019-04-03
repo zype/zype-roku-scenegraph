@@ -40,6 +40,7 @@ Function Init()
 
     m.SignInScreen = m.top.findNode("SignInScreen")
     m.SignUpScreen = m.top.findNode("SignUpScreen")
+    m.RegistrationScreen = m.top.findNode("RegistrationScreen")
 
     m.AccountScreen = m.top.findNode("AccountScreen")
 
@@ -236,6 +237,7 @@ function isAuthScreen(screen_id as string) as boolean
     "UniversalAuthSelection",
     "SignInScreen",
     "SignUpScreen",
+    "RegistrationScreen",
     "PurchaseScreen"
   ]
 

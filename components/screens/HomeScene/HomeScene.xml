@@ -125,6 +125,12 @@
           id="SignUpScreen"
           visible="false" />
 
+        <!-- Registration Screen -->
+        <CredentialsInput
+          id="RegistrationScreen"
+          isRegister="true"
+          visible="false" />
+
         <!-- Account Screen - shows signin / signout button -->
         <AccountScreen
           id="AccountScreen"
