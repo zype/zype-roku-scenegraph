@@ -51,7 +51,7 @@
         <RowList
             id="Grid"
             focusBitmapUri="pkg:/images/focus_grid_light.9.png"
-            itemComponentName="GridScreenItem"
+            itemComponentName="favoriteScreenItem"
             translation="[-60, 250]"
             itemSize="[1327, 250]"
             numRows="2"
