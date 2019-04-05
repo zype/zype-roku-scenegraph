@@ -1,6 +1,7 @@
 function init() as void
   m.itemImage = m.top.findNode("itemImage")
   m.statusImage = m.top.findNode("statusImage")
+  m.itemText=m.top.findNode("itemText")
 end function
 
 function itemContentChanged() as void
@@ -22,7 +23,7 @@ function itemContentChanged() as void
       m.itemImage.loadHeight = 147
       m.itemImage.uri = itemData.HDPOSTERURL
     end if
-
+    m.itemText.text=itemData.title
     ' Lock icons
     offset = m.itemImage.loadwidth - 32 - 5
     if m.statusImage <> invalid

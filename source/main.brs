@@ -206,6 +206,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.SignInScreen.submitButtonText = m.global.labels.sign_in_submit_button
     m.SignInScreen.observeField("itemSelected", m.port)
 
+    m.RegistrationScreen = m.scene.findNode("RegistrationScreen")
+    m.RegistrationScreen.observeField("itemSelected", m.port)
+
     m.SignUpScreen = m.scene.findNode("SignUpScreen")
     m.SignUpScreen.isSignup = true
     m.SignUpScreen.header = m.global.labels.sign_up_screen_header
@@ -438,7 +441,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -457,6 +460,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.SignInScreen
                 else if msg.getNode() = "SignUpScreen"
                     lclScreen = m.SignUpScreen
+                else if msg.getNode() = "RegistrationScreen"
+                    lclScreen = m.RegistrationScreen
                 else if msg.getNode() = "AccountScreen"
                     lclScreen = m.AccountScreen
                 else if msg.getNode() = "PurchaseScreen"
@@ -1407,6 +1412,60 @@ function handleButtonEvents(index, screen)
 
       end if
 
+    else if button_role = "submitCredentials" and screen.id = "RegistrationScreen"
+      signUpChecked = screen.callFunc("isSignupChecked")
+      if screen.email = ""
+        sleep(500)
+        CreateDialog(m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
+      else if screen.password = ""
+        sleep(500)
+        CreateDialog(m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
+      else if signUpChecked = false
+        sleep(500)
+        CreateDialog(m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
+      else
+        StartLoader()
+        if not m.RegistrationScreen.isSignin
+          create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
+        end if
+        if m.RegistrationScreen.isSignin or create_consumer_response <> invalid
+          oauth = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+'          oauth = RegReadAccessToken()
+          if oauth <> invalid
+            dataAsJson = FormatJson({
+              "access_token": oauth.access_token,
+              "refresh_token": oauth.refresh_token,
+              "email": oauth.email,
+              "password": oauth.password
+            })
+            store = CreateObject("roChannelStore")
+            store.StoreChannelCredData(dataAsJson) ' store Universal SSO data
+            user_info = m.current_user.getInfo()
+            m.auth_state_service.updateAuthWithUserInfo(user_info)
+'            m.scene.gridContent = m.gridContent
+            m.RegistrationScreen.isSignin = false
+            m.RegistrationScreen.reset = true
+            m.detailsScreen.content = m.detailsScreen.content
+            m.scene.goBackToNonAuth = true
+            EndLoader()
+  
+            sleep(500)
+            CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+          else
+            EndLoader()
+            m.RegistrationScreen.setFocus(true)
+            m.RegistrationScreen.findNode("SubmitButton").setFocus(true)
+            sleep(500)
+            CreateDialog(m.scene, "Error", "Could not find user with that email and password.", ["Close"])
+          end if
+        else
+          EndLoader()
+          m.RegistrationScreen.setFocus(true)
+          m.RegistrationScreen.findNode("SubmitButton").setFocus(true)
+          sleep(500)
+          CreateDialog(m.scene, "Error", "It appears that email was taken.", ["Close"])
+        end if
+      end if
     else if button_role = "syncNative"
       user_info = m.current_user.getInfo()
       latest_native_sub = m.roku_store_service.latestNativeSubscriptionPurchase()
@@ -1479,6 +1538,8 @@ function handleButtonEvents(index, screen)
       m.DeviceLinking.setFocus(true)
     else if button_role = "transition" and button_target = "SignInScreen"
       m.scene.transitionTo = "SignInScreen"
+    else if button_role = "transition" and button_target = "RegistrationScreen"
+      m.scene.transitionTo = "RegistrationScreen"
     end if
 end function
 
