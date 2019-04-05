@@ -39,7 +39,6 @@
 
         <RowList
             id="RowList"
-            itemComponentName="GridScreenItem"
             focusBitmapUri="pkg:/images/focus_grid_light.9.png"
             translation="[-60, 410]"
             itemSize="[1327, 262]"

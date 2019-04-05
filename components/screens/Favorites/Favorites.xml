@@ -51,8 +51,9 @@
         <RowList
             id="Grid"
             focusBitmapUri="pkg:/images/focus_grid_light.9.png"
+            itemComponentName="GridScreenItem"
             translation="[-60, 250]"
-            itemSize="[1327, 218]"
+            itemSize="[1327, 250]"
             numRows="2"
             itemSpacing="[13, 0]"
             focusXOffset="[147]"
