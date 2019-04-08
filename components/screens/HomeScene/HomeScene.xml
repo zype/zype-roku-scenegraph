@@ -10,6 +10,9 @@
         <!-- Content for RowList in GridScreen on Home Scene -->
         <field id="gridContent" type="node" alias="GridScreen.content" onChange="OnChangeContent" alwaysNotify="true"/>
 
+        <!--Content for HeroCarousel on Home Scene-->
+        <field id="heroCarouselData" type="array" alias="GridScreen.heroCarouselData" alwaysNotify="true"/>
+
         <!-- Content for RowList in Search -->
         <field id="searchContent" type="node" alias="Search.content"/>
 

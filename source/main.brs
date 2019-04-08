@@ -17,7 +17,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen = CreateObject("roSGScreen")
 
     m.app = GetAppConfigs()
-
     m.global = screen.getGlobalNode()
 
     m.current_user = CurrentUser()
@@ -130,12 +129,14 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     'm.scene.gridContent = ParseContent(GetContent()) ' Uses featured categories (depreciated)
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
-
     m.gridScreen = m.scene.findNode("GridScreen")
     rowlist = m.gridScreen.findNode("RowList")
     rowlist.rowItemSize = m.playlistsRowItemSizes
     rowlist.rowSpacings = m.playlistRowsSpacings
 
+    if LoadHeroCarousels()<>invalid
+        m.scene.heroCarouselData = LoadHeroCarousels()
+    end if
     m.scene.gridContent = m.gridContent
 
     if m.contentID = invalid

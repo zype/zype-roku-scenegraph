@@ -54,7 +54,6 @@ Function MakeRequest(src As String, params As Object) As Object
   port = CreateObject("roMessagePort")
   request.setMessagePort(port)
   url = AppendParamsToUrl(src, params)
-
   if url.InStr(0, "https") = 0
     request.SetCertificatesFile("common:/certs/ca-bundle.crt")
     request.AddHeader("X-Roku-Reserved-Dev-Id", "")
@@ -69,6 +68,7 @@ Function MakeRequest(src As String, params As Object) As Object
       msg = wait(0, port)
       if type(msg) = "roUrlEvent"
         code = msg.GetResponseCode()
+        ?"the code is=>"code
         if code = 200
           response = ParseJson(msg.GetString())
           return response
@@ -289,7 +289,6 @@ Function GetAppConfigs(urlParams = {} As Object) As Object
   url = GetApiConfigs().endpoint + "app/"
   params = AppendAppKeyToParams(urlParams)
   response = MakeRequest(url, params)
-
   if response <> invalid
     data = response.response
   end if

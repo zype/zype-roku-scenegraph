@@ -10,6 +10,9 @@
         <!-- Grid Content Node -->
         <field id="content" type="node" alias="RowList.content" onChange="onContentChange"/>
 
+        <!-- herCarousel Content Data -->
+        <field id="heroCarouselData" type="array" onChange="showHeroCarousel"/>
+
         <!-- Row item selection handler -->
         <field id="rowItemSelected" type="intarray" alwaysnotify="true" alias="RowList.rowItemSelected"/>
 
@@ -25,14 +28,74 @@
 
 
     <children>
-        <FadingBackground
+       
+
+     
+        <!-- Overhang logo -->
+
+        <Group id="carouselShow" visible="false">
+            <FadingBackground
             id="Background"
             width="1280"
             height="720"
             color="0x151515"
             ShadeOpacity="0.8" />
+            <Group id="Overhang">
+                <Poster
+                    id="PosterOverhang"
+                    translation="[100, 30]"
+                    loadDisplayMode="scaleToFit"
+                    loadwidth="500"
+                    loadheight="100"
+                    uri="pkg:/images/overhangLogo.png" />
 
-        <!-- Custom fonts -->
+                <Label
+                    id="OptionsLabel"
+                    translation="[726, 58]"
+                    width="400"
+                    horizAlign="right"
+                    text="Options"
+                    color="0xf5f5f5">
+                    <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="21" />
+                </Label>
+
+                <Poster
+                    id="OptionsIcon"
+                    blendColor="#ffffff"
+                    enableColorBlending="false"
+                    translation="[1139, 53]"
+                    width="24"
+                    height="24"
+                    uri="pkg:/images/options.png" />
+            </Group>
+
+            <Poster
+                id="BackgroundDown"
+                translation="[0, 650]"
+                width="2000"
+                height="95" />
+
+            <Description
+                id="Description"
+                translation="[106, 140]"
+                itemSpacings="[7,17]" />
+        </Group>
+
+        <Group id="sliderGroup">
+            <button id="sliderButton"
+            focusBitmapUri="pkg:/images/tra.png"
+            iconUri="pkg:/images/tra.png"
+            focusedIconUri="pkg:/images/tra.png"/>
+
+            <Rectangle id="sliderFocus"/>
+            <Poster id="slider1"/>
+            <Poster id="slider2"/>
+            <Poster id="slider3"/>
+
+            <Timer id="sliderTimer" duration="5" repeat="true"/>
+        </Group>
+
+           <!-- Custom fonts -->
         <Label>
             <Font id="RowListFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="18"/>
         </Label>
@@ -55,45 +118,5 @@
             rowLabelOffset="[[147, 20]]"
             rowLabelFont="dictionary:RowListFont"
             rowLabelColor="0xf5f5f5" />
-        <!-- Overhang logo -->
-        <Group id="Overhang">
-            <Poster
-                id="PosterOverhang"
-                translation="[100, 30]"
-                loadDisplayMode="scaleToFit"
-                loadwidth="500"
-                loadheight="100"
-                uri="pkg:/images/overhangLogo.png" />
-
-            <Label
-                id="OptionsLabel"
-                translation="[726, 58]"
-                width="400"
-                horizAlign="right"
-                text="Options"
-                color="0xf5f5f5">
-                <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="21" />
-            </Label>
-
-            <Poster
-                id="OptionsIcon"
-                blendColor="#ffffff"
-                enableColorBlending="false"
-                translation="[1139, 53]"
-                width="24"
-                height="24"
-                uri="pkg:/images/options.png" />
-        </Group>
-
-        <Poster
-            id="BackgroundDown"
-            translation="[0, 650]"
-            width="2000"
-            height="95" />
-
-        <Description
-            id="Description"
-            translation="[106, 140]"
-            itemSpacings="[7,17]" />
     </children>
 </component>
