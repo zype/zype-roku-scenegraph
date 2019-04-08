@@ -164,7 +164,7 @@ Function OnRowItemSelected()
     ' Video selected
     else
         ? "[HomeScene] Detail Screen"
-        m.gridScreen.visible = "false"
+        m.gridScreen.visible = false
 
         for each key in m.gridScreen.focusedContent.keys()
           m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
@@ -182,7 +182,7 @@ Function OnRowItemSelected()
         m.detailsScreen.autoplay = m.global.autoplay
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
-        m.detailsScreen.visible = "true"
+        m.detailsScreen.visible = true
         m.screenStack.push(m.detailsScreen)
         print "m.gridScreen.focusedContent: "; type(m.gridScreen.focusedContent)
     end if

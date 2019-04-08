@@ -14,6 +14,7 @@
     <field id="rentalRequired" type="boolean" />
     <field id="passRequired" type="boolean" />
     <field id="registrationRequired" type="boolean" />
+    <field id="trailers" type="array" />
 
     <!-- Associated in-store product (if tvod) -->
     <field id="storeProduct" type="assocarray" />

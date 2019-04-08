@@ -39,6 +39,7 @@ Function CreateVideoObject(attrs As Object) As Object
     registrationRequired: properties.registration_required,
     rentalRequired: properties.rental_required,
     passRequired: properties.pass_required,
+    trailers: properties.preview_ids,
     contentId: properties._id,
     mediaType: "movie",
     usePoster: properties.usePoster
