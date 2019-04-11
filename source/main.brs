@@ -504,17 +504,22 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                   ' autoplay
                   next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
                   if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
-                      m.detailsScreen.triggerPlay = true
+                      m.detailsScreen.triggerPlay = true     
                   end if
                 end if
             else if msg.getField() = "position"
                 m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position
                 print m.videoPlayer.position
+                ?m.videoPlayer.duration
+                ?m.global.enable_newplaylistvideocard
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
                     AddVideoIdForResumeToReg(m.videoPlayer.content.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.videoPlayer.content.id,startDate.asSeconds().ToStr())
                 end if
 
+                if (m.videoPlayer.position >= m.videoPlayer.duration-20 AND m.global.enable_newplaylistvideocard=true)
+                    m.detailsScreen.showPlayListCard=true
+                end if
 	            ' If midroll ads exist, watch for midroll ads
 	            if m.midroll_ads <> invalid and m.midroll_ads.count() > 0
                     handleMidrollAd()
@@ -1857,7 +1862,8 @@ function SetFeatures() as void
     universal_tvod: m.app.universal_tvod,
     confirm_signup: configs.confirm_signup,
     enable_device_linking: configs.enable_device_linking,
-    test_info_screen: configs.test_info_screen
+    test_info_screen: configs.test_info_screen,
+    enable_newPlayListVideocard:configs.enable_newplaylistvideocard
   })
 end function
 

@@ -1,7 +1,7 @@
 {
-  "app_key": "<APPKEY>",
-  "client_id": "<CLIENT_ID>",
-  "client_secret": "<CLIENT_SECRET>",
+  "app_key": "<ROKU_APP_KEY>",
+  "client_id": "<ROKU_CLIENT_ID>",
+  "client_secret": "<ROKU_CLIENT_SECRET>",
   "roku_api_key": "<ROKU_API_KEY>",
 
   "endpoint": "https://api.zype.com/",
@@ -18,10 +18,11 @@
   "enable_lock_icons": false,
   "subscribe_to_watch_ad_free": false,
   "test_info_screen": false,
-  "native_to_universal_subscription": false,
+  "native_to_universal_subscription": true,
   "native_tvod": false,
-  "favorites_via_api": false,
+  "favorites_via_api": true,
   "universal_tvod": false,
-  "confirm_signup": false,
-  "enable_device_linking": true
+  "confirm_signup": true,
+  "enable_device_linking": true,
+  "enable_newplaylistvideocard": true
 }

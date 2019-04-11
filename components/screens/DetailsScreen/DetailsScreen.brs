@@ -49,6 +49,9 @@ Function Init()
 
     m.optionsIcon = m.top.findNode("OptionsIcon")
     m.optionsIcon.blendColor = m.global.brand_color
+
+    m.frameFocus=m.top.findNode("frameFocus")
+    m.frameFocus.ObserveField("buttonSelected","nextVideoPlay")' as Boolean
 End Function
 
 Function ReinitializeVideoPlayer()
@@ -77,6 +80,7 @@ Sub onVisibleChange()
         end if
 
         m.buttons.setFocus(true)
+ 
     else
         m.top.videoPlayer.visible = false
         m.top.videoPlayer.control = "stop"
@@ -180,6 +184,9 @@ Sub OnVideoPlayerStateChange()
     if m.top.videoPlayer.state = "error" and live = false
         ' error handling
         m.top.videoPlayer.visible = false
+        if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id="nextPlayFrame"
+            m.top.removeChildIndex(m.top.getChildren(3000,0).Count()-1)
+        end if
     else if m.top.videoPlayer.state = "playing"
         ' playback handling
         if(m.top.autoplay = true)
@@ -212,7 +219,9 @@ Sub OnVideoPlayerStateChange()
             m.top.videoPlayerVisible = false
             m.top.setFocus(true)
         end if
-
+        if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id="nextPlayFrame"
+            m.top.removeChildIndex(m.top.getChildren(3000,0).Count()-1)
+        end if
     ' Try playing live stream again instead of closing by default.
     ' Video player tries to close at first sign of missing manifest chunks
     else if m.top.videoPlayer.state = "finished" and live = true
@@ -257,6 +266,72 @@ Function PrepareVideoPlayer()
     end if
 End Function
 
+Sub showPrePlayCard()
+    if m.top.videoPlayer.visible=true 
+        nextVideoObject = m.top.videosTree[m.top.PlaylistRowIndex][m.top.CurrentVideoIndex+1]
+        '?"next player frame"m.top.getChild(m.top.getChildren(3000,0).Count()-1)
+        if nextVideoObject<>invalid AND m.top.getChild(m.top.getChildren(3000,0).Count()-1).id<>"nextPlayFrame"
+            m.nextPlayFrame=m.top.createChild("nextPlayFrame")
+            m.nextPlayFrame.id="nextPlayFrame"
+            m.nextPlayFrame.frameImageURI=nextVideoObject.hdposterurl
+            m.nextPlayFrame.frameTitle=nextVideoObject.title
+            m.nextPlayFrame.visible=true
+            m.nextPlayFrame.translation = [960,430]
+            m.frameFocus.setFocus(true)
+        else if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id<>"nextPlayFrame"
+            m.nextPlayFrame=m.top.createChild("nextPlayFrame")
+            m.nextPlayFrame.id="nextPlayFrame"
+            m.nextPlayFrame.visible=true
+            m.nextPlayFrame.frameTitle=nextVideoObject.title
+            m.nextPlayFrame.frameImageURI=nextVideoObject.hdposterurl
+            m.nextPlayFrame.translation = [960,430]
+            m.frameFocus.setFocus(true)
+        end if
+    else
+        m.nextPlayFrame.visible=false
+
+    end if
+    if m.nextPlayFrame<>invalid
+        '?"duration left=>"Cint(m.top.videoPlayer.Duration-m.top.videoPlayer.Position)
+        m.nextPlayFrame.startingNextTitle="Starting in "+Cint(m.top.videoPlayer.Duration-m.top.videoPlayer.Position).toStr()+ " seconds"
+
+    end if
+    m.top.showPlayListCard=false
+End Sub
+
+Sub removePrePlayFrame()
+    '?"remove"m.top.getChild(m.top.getChildren(3000,0).Count()-1)
+    m.nextPlayFrame.visible=false
+    if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id="nextPlayFrame"
+        m.top.removeChildIndex(m.top.getChildren(3000,0).Count()-1)
+    end if
+    m.top.removePrePlayFrame=false
+End SUb
+
+Sub nextVideoPlay()
+    print "Video finished playing"
+    print "Current: "; m.top.content
+    print "Current Type: "; type(m.top.content)
+    print "m.top.CurrentVideoIndex: "; m.top.CurrentVideoIndex
+
+    m.top.ResumeVideo = m.top.createChild("ResumeVideo")
+    m.top.ResumeVideo.id = "ResumeVideo"
+    m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
+
+    if m.top.autoplay = true AND isLastVideoInPlaylist() = false
+        m.top.videoPlayer.visible = true
+
+        m.top.CurrentVideoIndex = m.top.CurrentVideoIndex + 1
+        PrepareVideoPlayer()
+    else if m.top.autoplay = true AND isLastVideoInPlaylist() = true
+        m.top.videoPlayer.visible = true
+
+        m.top.CurrentVideoIndex = 0
+        PrepareVideoPlayer()
+    end if
+    
+End Sub
+
 Function isLastVideoInPlaylist()
     if(m.top.CurrentVideoIndex = (m.top.totalVideosCount - 1))
         return true
@@ -298,7 +373,9 @@ end function
 Sub AddButtons() ' user has access
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
     m.top.ResumeVideo.id = "ResumeVideo"
-
+    if m.nextPlayFrame<>invalid
+      m.nextPlayFrame.visible=false
+    end if
     statusOfVideo = getStatusOfVideo()
     ' If video id entry is there in Register.
     if(statusOfVideo = true)
@@ -346,10 +423,16 @@ Sub AddButtons() ' user has access
 End Sub
 
 Sub AddActionButtons() ' trigger monetization
+    if m.nextPlayFrame<>invalid
+      m.nextPlayFrame.visible=false
+    end if
     if m.top.content <> invalid then
       btns = []
-
       if m.top.content.subscriptionrequired
+            if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id="nextPlayFrame"
+                m.top.removeChildIndex(m.detailsScreen.getChildren(3000,0).Count()-1)
+            end if
+            m.nextPlayFrame.visible=false
         btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" })
       end if
 

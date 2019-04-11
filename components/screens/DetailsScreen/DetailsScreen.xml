@@ -13,6 +13,10 @@
 
         <field id="itemSelectedRole" type="string" />
         <field id="itemSelectedTarget" type="string" />
+        <field id="showPlayListCard" type="bool"  onChange="showPrePlayCard" />
+        <field id="removePrePlayFrame" type="bool" onChange="removePrePlayFrame" />
+
+
 
         <!-- Playback flag -->
         <field id="videoPlayerVisible" type="bool" alwaysnotify="true" onChange="onVideoVisibleChange" />
@@ -148,6 +152,12 @@
                uri="pkg:/images/options.png"/>
            </Group>
         </Group>
+
+
+        <button id="frameFocus"
+        focusBitmapUri="pkg:/images/tra.png"
+        iconUri="pkg:/images/tra.png"
+        focusedIconUri="pkg:/images/tra.png"/>
 
     </children>
 </component>
