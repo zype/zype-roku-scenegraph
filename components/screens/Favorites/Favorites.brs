@@ -6,7 +6,7 @@ Function Init()
     ? "[Favorites] Init"
 
     m.gridScreen = m.top.findNode("Grid")
-    m.gridScreen.content = {}
+    m.gridScreen.content = invalid
     m.detailsScreen = m.top.findNode("FavoritesDetailsScreen")
 
     m.top.observeField("visible", "OnTopVisibilityChange")
@@ -31,10 +31,10 @@ End Function
 
 Function OnRowItemSelected()
     ' On select any item on home scene, show Details node and hide Grid
-    m.gridScreen.visible = "false"
+    m.gridScreen.visible = false
     m.detailsScreen.content = m.top.focusedContent
     m.detailsScreen.setFocus(true)
-    m.detailsScreen.visible = "true"
+    m.detailsScreen.visible = true
     m.detailsScreen.IsOptionsLabelVisible = "false"
     m.detailsScreen.autoplay = false
 
