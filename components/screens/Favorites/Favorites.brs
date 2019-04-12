@@ -54,7 +54,7 @@ Sub OnItemFocused()
         focusedContent = m.top.content.getChild(itemFocused[0]).getChild(itemFocused[1])
         if focusedContent <> invalid then
             m.top.focusedContent    = focusedContent
-            m.videoTitle.text = focusedContent.title
+            'm.videoTitle.text = focusedContent.title
         end if
     end if
 End Sub
