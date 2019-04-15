@@ -174,6 +174,9 @@ Sub onVideoVisibleChange()
         m.top.videoPlayer.control = "stop"
       end if
     end if
+     if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id="nextPlayFrame"
+        removePrePlayFrame()
+    end if
 End Sub
 
 ' event handler of Video player msg
@@ -192,7 +195,33 @@ Sub OnVideoPlayerStateChange()
         if(m.top.autoplay = true)
             m.top.triggerPlay = false
         end if
+
+    else if m.top.videoPlayer.state = "stopped" AND m.frameFocus.hasFocus() AND m.nextvideoframePressed=true
+        m.nextvideoframePressed=false
+        print "Video stopped playing"
+        print "Current: "; m.top.content
+        print "Current Type: "; type(m.top.content)
+        print "m.top.CurrentVideoIndex: "; m.top.CurrentVideoIndex
+
+        m.top.ResumeVideo = m.top.createChild("ResumeVideo")
+        m.top.ResumeVideo.id = "ResumeVideo"
+        m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
+
+        m.top.videoPlayer.control="play"
+        m.top.videoPlayer.visible = true
+        m.top.videoPlayer.setFocus(true)
+        m.top.CurrentVideoIndex = m.top.CurrentVideoIndex + 1
+        m.top.triggerPlay = true  
+        PrepareVideoPlayer()
+
+        if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id="nextPlayFrame"
+            m.top.removeChildIndex(m.top.getChildren(3000,0).Count()-1)
+        end if
     else if m.top.videoPlayer.state = "finished" and live = false
+        if m.nextPlayFrame<>invalid
+            removePrePlayFrame()
+          m.nextPlayFrame.visible=false
+        end if
         print "Video finished playing"
         print "Current: "; m.top.content
         print "Current Type: "; type(m.top.content)
@@ -277,6 +306,7 @@ Sub showPrePlayCard()
             m.nextPlayFrame.frameTitle=nextVideoObject.title
             m.nextPlayFrame.visible=true
             m.nextPlayFrame.translation = [960,430]
+            m.animation=createObject("","")
             m.frameFocus.setFocus(true)
         else if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id<>"nextPlayFrame"
             m.nextPlayFrame=m.top.createChild("nextPlayFrame")
@@ -292,15 +322,18 @@ Sub showPrePlayCard()
 
     end if
     if m.nextPlayFrame<>invalid
-        '?"duration left=>"Cint(m.top.videoPlayer.Duration-m.top.videoPlayer.Position)
-        m.nextPlayFrame.startingNextTitle="Starting in "+Cint(m.top.videoPlayer.Duration-m.top.videoPlayer.Position).toStr()+ " seconds"
+        durationLeft=Cint(m.top.videoPlayer.Duration-m.top.videoPlayer.Position)
+        if durationLeft<0
+            durationLeft=0
+        end if
+        m.nextPlayFrame.startingNextTitle="Up next in "+Cint(durationLeft).toStr()+ " seconds"
 
     end if
     m.top.showPlayListCard=false
 End Sub
 
 Sub removePrePlayFrame()
-    '?"remove"m.top.getChild(m.top.getChildren(3000,0).Count()-1)
+    ?"remove"m.top.getChild(m.top.getChildren(3000,0).Count()-1)
     m.nextPlayFrame.visible=false
     if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id="nextPlayFrame"
         m.top.removeChildIndex(m.top.getChildren(3000,0).Count()-1)
@@ -309,26 +342,14 @@ Sub removePrePlayFrame()
 End SUb
 
 Sub nextVideoPlay()
+    m.nextvideoframePressed=true
+    removePrePlayFrame()
+    m.top.videoPlayer.control="stop"
     print "Video finished playing"
     print "Current: "; m.top.content
     print "Current Type: "; type(m.top.content)
     print "m.top.CurrentVideoIndex: "; m.top.CurrentVideoIndex
 
-    m.top.ResumeVideo = m.top.createChild("ResumeVideo")
-    m.top.ResumeVideo.id = "ResumeVideo"
-    m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
-
-    if m.top.autoplay = true AND isLastVideoInPlaylist() = false
-        m.top.videoPlayer.visible = true
-
-        m.top.CurrentVideoIndex = m.top.CurrentVideoIndex + 1
-        PrepareVideoPlayer()
-    else if m.top.autoplay = true AND isLastVideoInPlaylist() = true
-        m.top.videoPlayer.visible = true
-
-        m.top.CurrentVideoIndex = 0
-        PrepareVideoPlayer()
-    end if
     
 End Sub
 
@@ -371,9 +392,12 @@ function currentButtonTarget(index as integer) as string
 end function
 
 Sub AddButtons() ' user has access
+
+   
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
     m.top.ResumeVideo.id = "ResumeVideo"
     if m.nextPlayFrame<>invalid
+        removePrePlayFrame()
       m.nextPlayFrame.visible=false
     end if
     statusOfVideo = getStatusOfVideo()
@@ -424,6 +448,7 @@ End Sub
 
 Sub AddActionButtons() ' trigger monetization
     if m.nextPlayFrame<>invalid
+        removePrePlayFrame()
       m.nextPlayFrame.visible=false
     end if
     if m.top.content <> invalid then
