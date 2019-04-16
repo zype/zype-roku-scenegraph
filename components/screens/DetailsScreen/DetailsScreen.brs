@@ -392,12 +392,10 @@ function currentButtonTarget(index as integer) as string
 end function
 
 Sub AddButtons() ' user has access
-
-   
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
     m.top.ResumeVideo.id = "ResumeVideo"
 
-    
+
     statusOfVideo = getStatusOfVideo()
     ' If video id entry is there in Register.
     if(statusOfVideo = true)
