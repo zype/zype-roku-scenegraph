@@ -396,10 +396,6 @@ Sub AddButtons() ' user has access
    
     m.top.ResumeVideo = m.top.createChild("ResumeVideo")
     m.top.ResumeVideo.id = "ResumeVideo"
-    if m.nextPlayFrame<>invalid
-        removePrePlayFrame()
-      m.nextPlayFrame.visible=false
-    end if
     statusOfVideo = getStatusOfVideo()
     ' If video id entry is there in Register.
     if(statusOfVideo = true)
@@ -447,17 +443,10 @@ Sub AddButtons() ' user has access
 End Sub
 
 Sub AddActionButtons() ' trigger monetization
-    if m.nextPlayFrame<>invalid
-        removePrePlayFrame()
-      m.nextPlayFrame.visible=false
-    end if
+   
     if m.top.content <> invalid then
       btns = []
       if m.top.content.subscriptionrequired
-            if m.top.getChild(m.top.getChildren(3000,0).Count()-1).id="nextPlayFrame"
-                m.top.removeChildIndex(m.detailsScreen.getChildren(3000,0).Count()-1)
-            end if
-            m.nextPlayFrame.visible=false
         btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" })
       end if
 
