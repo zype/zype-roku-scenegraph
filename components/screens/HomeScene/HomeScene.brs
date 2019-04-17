@@ -149,6 +149,16 @@ Function OnChangeContent()
     m.loadingIndicator.control = "stop"
 End Function
 
+
+Function heroCarouselSelection()
+    ?m.top.carouselSelectData
+    if m.top.carouselSelectData.videoid<>invalid
+
+    else if m.top.carouselSelectData.playlistid<>invalid
+    
+    end if
+ENd SUb
+
 ' Row item selected handler
 Function OnRowItemSelected()
     ' On select any item on home scene, show Details node and hide Grid

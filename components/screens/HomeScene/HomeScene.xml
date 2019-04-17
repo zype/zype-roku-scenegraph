@@ -31,6 +31,9 @@
         <!-- Row item focus handler -->
         <field id="rowItemFocused" type="intarray" alwaysNotify="true" alias="GridScreen.itemFocused"/>
 
+        <!--Interface to handle heroCarousel selection-->
+        <field id="carouselSelectData" type="assocArray" alias="carouselSelectData.carouselSelectData" onChange="heroCarouselSelection" />
+
 
         <field id="SearchString" type="string" alwaysnotify="true" alias="Search.SearchString"/>
 

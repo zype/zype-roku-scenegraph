@@ -76,20 +76,20 @@ Sub showHeroCarousel()
     m.sliderData=[]
     m.index=0
     m.sliderValuesHome={}
-    m.sliderValuesHome.height=300
-    m.sliderValuesHome.width=950
-    m.sliderValuesHome.translation1=[-800,5]
-    m.sliderValuesHome.translation2=[165,5]
-    m.sliderValuesHome.translation3=[1130,5]
+    m.sliderValuesHome.height=380
+    m.sliderValuesHome.width=1150
+    m.sliderValuesHome.translation1=[-1100,0]
+    m.sliderValuesHome.translation2=[65,0]
+    m.sliderValuesHome.translation3=[1230,0]
 
     m.sliderFocusValuesHome={}
-    m.sliderFocusValuesHome.height=310
-    m.sliderFocusValuesHome.width=960
-    m.sliderFocusValuesHome.translation=[160,0]
+    m.sliderFocusValuesHome.height=390
+    m.sliderFocusValuesHome.width=1160
+    m.sliderFocusValuesHome.translation=[60,-6]
 
     m.sliderButton=m.top.findNode("sliderButton")
     m.sliderGroup=m.top.findNode("sliderGroup")
-    m.sliderGroup.translation=[0,60]
+    m.sliderGroup.translation=[0,5]
 
     m.slider1=m.top.findNode("slider1")
     m.slider1.loadHeight=m.sliderValuesHome.height
@@ -136,6 +136,7 @@ End Sub
 
 Sub selectSlider()
     ?m.top.heroCarouselData[m.value]
+    m.top.carouselSelectData=m.top.heroCarouselData[m.value]
 End SUb
 
 Sub changeSliderImage()

@@ -21,6 +21,11 @@
 
         <!-- Interface to focused item (Content Node) -->
         <field id="focusedContent"  type="node"/>
+
+        <!--Interface to handle heroCarousel selection-->
+        <field id="carouselSelectData" type="assocArray"  />
+
+
     </interface>
 
     <!-- main handler -->
@@ -92,7 +97,7 @@
             <Poster id="slider2"/>
             <Poster id="slider3"/>
 
-            <Timer id="sliderTimer" duration="5" repeat="true"/>
+            <Timer id="sliderTimer" duration="10" repeat="true"/>
         </Group>
 
            <!-- Custom fonts -->
