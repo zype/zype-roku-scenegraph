@@ -140,7 +140,6 @@ sub refreshButtons() as void
         AddSigninButton()
       end if
     end if
-
   else
     m.top.canWatchVideo = true
     AddButtons()
@@ -231,12 +230,12 @@ Sub OnVideoPlayerStateChange()
         m.top.ResumeVideo.id = "ResumeVideo"
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
 
-        if m.top.autoplay = true AND isLastVideoInPlaylist() = false
+        if m.top.autoplay = true AND isLastVideoInPlaylist() = false and m.top.itemSelectedRole <> "trailer"
             m.top.videoPlayer.visible = true
 
             m.top.CurrentVideoIndex = m.top.CurrentVideoIndex + 1
             PrepareVideoPlayer()
-        else if m.top.autoplay = true AND isLastVideoInPlaylist() = true
+        else if m.top.autoplay = true AND isLastVideoInPlaylist() = true and m.top.itemSelectedRole <> "trailer"
             m.top.videoPlayer.visible = true
 
             m.top.CurrentVideoIndex = 0
@@ -369,14 +368,13 @@ End Sub
 
 ' Content change handler
 Sub OnContentChange()
-    if m.top.content<>invalid then
-        refreshButtons()
-
-        m.description.content   = m.top.content
-        m.description.Description.height = "250"
-        m.top.videoPlayer.content   = m.top.content
-        m.background.uri        = m.top.content.hdBackgroundImageUrl
-    end if
+  if m.top.content <> invalid
+    refreshButtons()
+    m.description.content   = m.top.content
+    m.description.Description.height = "250"
+    m.top.videoPlayer.content   = m.top.content
+    m.background.uri        = m.top.content.hdBackgroundImageUrl
+  end if
 End Sub
 
 function currentButtonSelected(index as integer) as string
@@ -392,53 +390,59 @@ function currentButtonTarget(index as integer) as string
 end function
 
 Sub AddButtons() ' user has access
-    m.top.ResumeVideo = m.top.createChild("ResumeVideo")
-    m.top.ResumeVideo.id = "ResumeVideo"
+  m.top.ResumeVideo = m.top.createChild("ResumeVideo")
+  m.top.ResumeVideo.id = "ResumeVideo"
 
-    statusOfVideo = getStatusOfVideo()
-    ' If video id entry is there in Register.
-    if(statusOfVideo = true)
-        if(m.top.ResumeVideo.GetVideoIdTimerValue = "notimer")
-        else
-            startDate = CreateObject("roDateTime")
-            timeDiff = startDate.asSeconds() - m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
-        end if
+  statusOfVideo = getStatusOfVideo()
+  ' If video id entry is there in Register.
+  if(statusOfVideo = true)
+    if not (m.top.ResumeVideo.GetVideoIdTimerValue = "notimer")
+      startDate = CreateObject("roDateTime")
+      timeDiff = startDate.asSeconds() - m.top.ResumeVideo.GetVideoIdTimerValue.toInt()
+    end if
+  end if
+
+  if m.top.content <> invalid
+    ' create buttons
+    result = []
+
+    if(statusOfVideo = false)
+      btns = [
+        {title: m.global.labels.play_button, role: "play"}
+      ]
+    else
+      btns = [
+        {title: m.global.labels.watch_from_beginning_button, role: "play"},
+        {title: m.global.labels.resume_button, role: "resume"}
+      ]
     end if
 
-    if m.top.content <> invalid then
-        ' create buttons
-        result = []
-
-        if(statusOfVideo = false)
-            btns = [
-              {title: m.global.labels.play_button, role: "play"}
-            ]
-        else
-            btns = [
-              {title: m.global.labels.watch_from_beginning_button, role: "play"},
-              {title: m.global.labels.resume_button, role: "resume"}
-            ]
-        end if
-
-        if m.global.favorites_via_api = false or (m.global.device_linking and m.global.auth.isLoggedIn)
-            if m.top.content.inFavorites = true
-                btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
-            else
-                btns.push({title: m.global.labels.favorite_button, role: "favorite"})
-            end if
-        end if
-
-        if m.global.in_app_purchase or m.global.device_linking then svod_enabled = true else svod_enabled = false
-        if m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0 then is_subscribed = true else is_subscribed = false
-
-        if m.global.swaf and svod_enabled and is_subscribed = false
-          btns.push({title: m.global.labels.swaf_button, role: "swaf"})
-        end if
-
-        m.btns = btns
-
-        m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+    if m.global.favorites_via_api = false or (m.global.device_linking and m.global.auth.isLoggedIn)
+      if m.top.content.inFavorites = true
+        btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
+      else
+        btns.push({title: m.global.labels.favorite_button, role: "favorite"})
+      end if
     end if
+
+    if m.global.in_app_purchase or m.global.device_linking then svod_enabled = true else svod_enabled = false
+    if m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0 then is_subscribed = true else is_subscribed = false
+
+    if m.global.swaf and svod_enabled and is_subscribed = false
+      btns.push({title: m.global.labels.swaf_button, role: "swaf"})
+    end if
+    addWatchTrailerButton(btns)
+    m.btns = btns
+    m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+  end if
+End Sub
+
+Sub addWatchTrailerButton(btns)
+  if m.top.content.trailers <> invalid and m.top.content.trailers.count() > 0
+    for each trailer in m.top.content.trailers
+      btns.push({title: m.global.labels.watch_trailer_button, role: "trailer", target: trailer})
+    end for
+  end if
 End Sub
 
 Sub AddActionButtons() ' trigger monetization
@@ -458,7 +462,7 @@ Sub AddActionButtons() ' trigger monetization
 
         btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
       end if
-
+      addWatchTrailerButton(btns)
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
@@ -466,6 +470,7 @@ End Sub
 sub AddSigninButton() ' sign in only
     if m.top.content <> invalid
       btns = [ { title: m.global.labels.sign_in_button, role: "transition", target: "UniversalAuthSelection" } ]
+      addWatchTrailerButton(btns)
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 end sub
@@ -474,6 +479,7 @@ end sub
 sub AddSignupButton() ' sign in only
   if m.top.content <> invalid
     btns = [ { title: m.global.labels.sign_up_to_watch_submit_button, role: "transition", target: "RegistrationScreen" } ]
+    addWatchTrailerButton(btns)
     m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
   end if
 end sub
