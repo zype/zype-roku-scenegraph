@@ -511,13 +511,13 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position
                 print m.videoPlayer.position
                 ?m.videoPlayer.duration
-                ?m.global.enable_newplaylistvideocard
+                ?m.global.enable_upnext
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
                     AddVideoIdForResumeToReg(m.videoPlayer.content.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.videoPlayer.content.id,startDate.asSeconds().ToStr())
                 end if
 
-                if (m.videoPlayer.position >= m.videoPlayer.duration-20 AND m.global.enable_newplaylistvideocard=true)
+                if (m.videoPlayer.position >= m.videoPlayer.duration-20 AND m.global.enable_upnext=true)
                     m.detailsScreen.showPlayListCard=true
                 end if
 	            ' If midroll ads exist, watch for midroll ads
@@ -1863,7 +1863,7 @@ function SetFeatures() as void
     confirm_signup: configs.confirm_signup,
     enable_device_linking: configs.enable_device_linking,
     test_info_screen: configs.test_info_screen,
-    enable_newPlayListVideocard:configs.enable_newplaylistvideocard
+    enable_upnext:configs.enable_upnext
   })
 end function
 

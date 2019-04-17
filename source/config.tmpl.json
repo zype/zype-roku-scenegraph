@@ -24,5 +24,5 @@
   "universal_tvod": false,
   "confirm_signup": true,
   "enable_device_linking": true,
-  "enable_upnext": false,  //Turn this feature on if you'd like to have the 'Up Next' popup display prior to the end of the current video
+  "enable_upnext": false
 }
