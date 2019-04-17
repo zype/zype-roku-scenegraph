@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!--
+    node that renders details screen
+    handles start of video playback
+ -->
+<component name="nextPlayFrame" extends="Group" initialFocus="Buttons" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+
+    <interface>
+        <field id="frameImageURI" type="string" alias="frameImage.uri" />  
+        <field id="frameTitle" type="string" alias="frameTitle.text" />  
+        <field id="startingNextTitle" type="string" alias="startingNextTitle.text" />  
+
+
+    </interface>
+
+
+    <script type="text/brightscript" uri="pkg:/components/screens/DetailsScreen/nextPlayFrame.brs" />
+
+    <children>
+        <Rectangle id="frameBG" color="#000000" opacity="0.7" height="225" width="250" />
+        <Poster id="frameImage" height="130" width="250" />
+        <Poster id="playIcon" height="64" width="64" translation="[93,38]" uri="pkg://images/play-button.png" />
+
+         <Label
+           id="watchNextTitle"
+           translation="[0,112]"
+           width="250"
+           visible="false"
+           text="Watch Next"
+           horizAlign="Left"
+           color="#000000">
+           <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="19" />
+        </Label>
+        <Label
+           id="frameTitle"
+           translation="[10,140]"
+           width="240"
+           horizAlign="Left"
+           color="#ffffff">
+           <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="21" />
+        </Label>
+        <Label
+           id="startingNextTitle"
+           translation="[0,188]"
+           width="235"
+           horizAlign="Right"
+           color="#ffffff">
+           <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="18" />
+        </Label>
+    </children>
+</component>

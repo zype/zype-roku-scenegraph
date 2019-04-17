@@ -349,7 +349,7 @@ Function OnKeyEvent(key, press) as Boolean
                     m.detailsScreen.videoPlayer.control = "stop"
                     m.detailsScreen.videoPlayer.visible = false
                     m.detailsScreen.videoPlayer.setFocus(false)
-
+                    m.detailsScreen.removePrePlayFrame=true
                     m.detailsScreen.visible = true
                     m.detailsScreen.setFocus(true)
                     result = true
