@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+
+<component name="favoriteScreenItem" extends="Group">
+
+<interface>
+  <field id="itemContent" type="node" onChange="itemContentChanged" alwaysNotify="true"/>
+</interface>
+
+<script type="text/brightscript" uri="pkg:/components/screens/GridScreen/GridScreenItem/favoriteScreenItem.brs" />
+
+<children>
+    <LayoutGroup layoutDirection="vert" vertAlignment="top" horizAlignment="custom" translation="[0,0]" >
+        <Group>
+          <Poster id="itemImage" translation="[0,0]" loadWidth="262" loadHeight="147" loadDisplayMode="scaleToFit" />
+          <Poster id="statusImage" translation="[-50,-50]" width="32" height="32" visible="false" />
+        </Group>
+    </LayoutGroup>
+
+        <Label id="itemText" horizAlign="center" lineSpacing="0.5" translation="[0,160]" wrap="true" font="font:SmallestSystemFont" width="262" height="80" />
+</children>
+
+</component>
