@@ -168,8 +168,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.productsCatalog = m.productsCatalog
     m.detailsScreen.observeField("triggerPlay", m.port)
     m.detailsScreen.dataArray = m.playlistRows
-
+    ?"m.videosList=>"m.videosList
     m.scene.videoliststack = [m.videosList]
+    ?"m.detailsScreen.videosTree=>"m.detailsScreen.videosTree
+    ?"m.scene.videoliststack.peek()==>"m.scene.videoliststack.peek()
     m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 

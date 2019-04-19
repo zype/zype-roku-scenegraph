@@ -152,13 +152,12 @@ End Function
 
 
 Function heroCarouselSelection()
-    ?m.top.carouselSelectData
     if m.top.carouselSelectData.videoid<>invalid
 
     else if m.top.carouselSelectData.playlistid<>invalid
     
     end if
-ENd SUb
+ENd Function
 
 ' Row item selected handler
 Function OnRowItemSelected()
@@ -192,6 +191,7 @@ Function OnRowItemSelected()
         m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
 
         m.detailsScreen.autoplay = m.global.autoplay
+        ?"m.gridScreen.focusedContent==>"m.gridScreen.focusedContent
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
