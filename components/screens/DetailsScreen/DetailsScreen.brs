@@ -209,6 +209,7 @@ Sub OnVideoPlayerStateChange()
             m.top.videoPlayer.visible = false
             m.top.videoPlayer.setFocus(false)
             m.top.videoPlayerVisible = false
+            refreshButtons()
             m.top.setFocus(true)
         end if
 
