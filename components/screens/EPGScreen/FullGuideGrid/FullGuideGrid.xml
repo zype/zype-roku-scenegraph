@@ -9,7 +9,7 @@
     <field id="timezoneShift" type="int" value="0" />
     <field id="channelCellWidth" type="int" value="200" onChange="onChangeTimeline" />
 
-    <field id="timelineStartTime" type="int" value="0" onChange="setupTimelineStartTime" />
+    <field id="timelineStartTime" type="int" value="0" alwaysnotify="true" onChange="setupTimelineStartTime" />
     <field id="visibleHours" type="int" value="4" />
     <field id="programs" type="array" />
     <field id="channels" type="array" />

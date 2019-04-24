@@ -1,9 +1,6 @@
 Function Init()
   ? "[EPGScreen] Init"
-  m.global.addFields({ timeShift: 0 })
-
   m.fullGuideGrid = m.top.findNode("fullGuideGrid")
-
   m.timeline = m.top.findNode("timeline")
 
   ' Set theme
@@ -25,9 +22,7 @@ sub onFocusChanged()
   if m.top.hasFocus()
     if isEmpty(m.fullGuideGrid.channels)
       date = CreateObject("roDatetime")
-      utc = date.asSeconds()
       date.toLocalTime()
-      m.global.timeShift = date.asSeconds() - utc
       m.top.timelineStartTime = date.asSeconds()
       m.epgRequest = runTask("epgRequest", invalid, {responseAA: "onEpgRequest"})
       m.top.getScene().loadingIndicator.control = "start"

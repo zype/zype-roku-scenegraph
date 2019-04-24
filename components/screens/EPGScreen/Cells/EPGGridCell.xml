@@ -68,7 +68,9 @@
 
 <children> 
   <Rectangle id="backgroundColor" />
-  <Label id="itemText" font="font:SmallestBoldSystemFont" vertAlign="center" color="0xFFFFFFFF" translation="[14,0]" wrap="true" maxlines="2" />
+  <Label id="itemText" vertAlign="center" color="0xFFFFFFFF" translation="[14,0]" wrap="true" maxlines="2" >
+    <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="16" />
+  </Label>
   <Rectangle id="borderTop" color="0x888888" height="1" />
   <Rectangle id="borderLeft" color="0x888888" width="1" />
   <Rectangle id="borderBottom" color="0x888888" height="1" />

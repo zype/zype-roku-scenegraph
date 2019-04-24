@@ -1,4 +1,5 @@
 Sub Init()
+  if not m.global.hasField("timeShift") then m.global.addFields({ timeShift: getTimeshift() })
 '  baseGroupInit()
 '  m.top.observeField("focusedChild","onFocusedChildChange")
 End Sub
@@ -44,21 +45,33 @@ End Sub
 'Get remaining hours from a total seconds
 '******************************************************
 Function hoursLeft(seconds As Integer) As Integer
-    hours% = seconds / 3600
-    return hours%
+  hours% = seconds / 3600
+  return hours%
 End Function
 
 
+function utcToLocal(utcStart)
+  return utcStart + m.global.timeShift
+end function
+
+
+function getTimeshift()
+  date = CreateObject("roDatetime")
+  utc = date.asSeconds()
+  date.toLocalTime()
+  return date.asSeconds() - utc
+end function
+
+
 Function getHourStart(secs = 0)
-    date = CreateObject("roDateTime")
-'    date.toLocalTime()
-    if evalBoolean(secs)
-        date.fromSeconds(secs)
-    else
-        secs = date.asSeconds()
-    end if
-    hourStart = secs - date.GetSeconds() - date.GetMinutes() * 60
-    return hourStart
+  date = CreateObject("roDateTime")
+  if evalBoolean(secs)
+    date.fromSeconds(secs)
+  else
+    secs = date.asSeconds()
+  end if
+  hourStart = secs - date.GetSeconds() - date.GetMinutes() * 60
+  return hourStart
 end function
 
 

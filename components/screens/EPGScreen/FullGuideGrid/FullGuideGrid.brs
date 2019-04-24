@@ -5,6 +5,7 @@ Function Init()
   m.showListArea = m.top.findNode("showListArea")
   m.channelList = m.top.findNode("channelList")
   m.startRow = 0
+  m.focusedGridCell = 0
 End Function
 
 
@@ -22,7 +23,7 @@ sub onGridFocusChanged()
 end sub
 
 
-sub fillChannels()
+sub fillGrid()
   if isNonEmptyArray(m.top.channels)
   '  m.channelList.removeChildren(m.channelList.getChildren(m.channelList.getChildCount(), 0))
     m.startRow = m.top.focusedRow - m.top.focusRow
@@ -39,7 +40,6 @@ sub fillChannels()
       item.gridHasFocus = true
       item.rowHasFocus = m.top.focusedRow = i
       item.itemContent = {title: m.top.channels[i].title}
-  '    setShowsRowFocus(i - m.startRow, false)
       fillShowRow(i)
     end for
   end if
@@ -54,28 +54,33 @@ sub fillShowRow(i)
 '    row.itemSpacings = [0]
   end if
   ci = 0
-  if m.top.programs[i][0].utcStart + m.global.timeShift > m.timelineStart
+  if utcToLocal(m.top.programs[i][0].utcStart) > m.timelineStart
     item = getOrCreateRowItem(row, ci)
-    item.width = m.top.hourWidth * (m.top.programs[i][0].utcStart + m.global.timeShift - m.timelineStart) / 3600
-    item.rowHasFocus = false'm.top.focusedRow = i'!!!!!!!!
-    item.itemContent = {title: ""}
+    item.width = m.top.hourWidth * (utcToLocal(m.top.programs[i][0].utcStart) - m.timelineStart) / 3600
+    item.rowHasFocus = false
+    item.cellHasFocus = false
+    item.itemContent = {id: "fake", title: ""}
+    if m.top.focusedRow = i and m.focusedGridCell = 0 then m.focusedGridCell = 1
     ci++
   end if
   for j = 0 to m.top.programs[i].count() - 1
     p = m.top.programs[i][j]
-    if p.utcStart + m.global.timeShift > m.timelineEnd then exit for
-    if p.utcStart + p.duration + m.global.timeShift > m.timelineStart
+    if utcToLocal(p.utcStart) > m.timelineEnd then exit for
+    if utcToLocal(p.utcStart + p.duration) > m.timelineStart
       item = getOrCreateRowItem(row, ci)
       item.width = m.top.hourWidth * p.duration / 3600
-      if p.utcStart + m.global.timeShift < m.timelineStart
-        removeHours = (m.timelineStart - (p.utcStart + m.global.timeShift)) / 3600
+      if utcToLocal(p.utcStart) < m.timelineStart
+        removeHours = (m.timelineStart - utcToLocal(p.utcStart)) / 3600
         item.width -= m.top.hourWidth * removeHours
       end if
       item.rowHasFocus = m.top.focusedRow = i
-      item.itemContent = {title: p.title}
+      item.cellHasFocus = false
+      item.itemContent = {id: p.id, title: p.title, utcStart: p.utcStart, duration: p.duration}
       ci++
     end if
   end for
+  if ci < row.getChildCount() then row.removeChildrenIndex(row.getChildCount() - ci, ci)
+  if m.top.focusedRow = i then setInrowFocus()
 end sub
 
 
@@ -91,73 +96,83 @@ end function
 sub setupTimelineStartTime()
   m.timelineStart = getHourStart(m.top.timelineStartTime)
   m.timelineEnd = getHourStart(m.top.timelineStartTime) + m.top.visibleHours * 3600
-  fillChannels()
+  fillGrid()
 end sub
 
 
 sub onFocusChanged()
   Dbg("get/lost hasFocus", m.top.hasFocus())
-  if m.top.hasFocus()
-    fillChannels()
-    m.showList.getChild(0).getChild(0).cellHasFocus = true
-    m.focusedGridCell = 0
-  
-'    m.top.gridHasFocus = true
-'  else if not m.top.isinfocuschain()
-'    m.top.gridHasFocus = false
-  end if
+  if m.top.hasFocus() then fillGrid()
 end sub
+
+
+function isTimelineUpdateRequired()
+  p = m.top.programs[m.top.focusedRow][m.top.focusedCell]
+  isOutOfTimeline = utcToLocal(p.utcStart + p.duration) > m.timelineEnd
+  return isOutOfTimeline or utcToLocal(p.utcStart) < m.timelineStart
+end function
 
 
 function moveCellFocus(stepValue)
   Dbg("MoveCellFocus", stepValue)
   if m.top.focusedCell + stepValue >= 0 and m.top.focusedCell + stepValue < m.top.programs[m.top.focusedRow].count()
-    m.showList.getChild(m.top.focusedRow - m.startRow).getChild(m.focusedGridCell).cellHasFocus = false
     m.top.focusedCell += stepValue
-    if m.focusedGridCell + stepValue >= 0 and m.focusedGridCell + stepValue < m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount()
-      m.focusedGridCell += stepValue
-      m.showList.getChild(m.top.focusedRow - m.startRow).getChild(m.focusedGridCell).cellHasFocus = true
-    else
-      moveCellFocus(1)
-    end if
-    p = m.top.programs[m.top.focusedRow][m.top.focusedCell]
-'      timelineEnd = getHourStart(m.top.timelineStartTime) + m.top.visibleHours * 3600
-    if p.utcStart + p.duration - m.global.timeShift > m.timelineEnd
-      m.showList.getChild(m.top.focusedRow - m.startRow).getChild(m.focusedGridCell).cellHasFocus = false
+    if not moveCellInnerFocus(stepValue) or isTimelineUpdateRequired()
       m.focusedGridCell = 0
-      m.showList.getChild(m.top.focusedRow - m.startRow).getChild(m.focusedGridCell).cellHasFocus = true
-      m.top.timelineStartTime = getHourStart(p.utcStart - m.global.timeShift)  ' + p.duration)
-    else if p.utcStart - m.global.timeShift < m.timelineStart
-      m.showList.getChild(m.top.focusedRow - m.startRow).getChild(m.focusedGridCell).cellHasFocus = false
-      m.focusedGridCell = 0
-      m.showList.getChild(m.top.focusedRow - m.startRow).getChild(m.focusedGridCell).cellHasFocus = true
-      m.top.timelineStartTime = getHourStart(p.utcStart - m.global.timeShift)  ' + p.duration)
+      p = m.top.programs[m.top.focusedRow][m.top.focusedCell]
+      m.top.timelineStartTime = getHourStart(utcToLocal(p.utcStart))  ' + p.duration)
     end if
-'    slideLeftRight()
-    if m.showList.getChild(m.top.focusedRow - m.startRow).getChild(m.focusedGridCell).title = "" then moveCellFocus(1)
+'    if m.showList.getChild(m.top.focusedRow - m.startRow).getChild(m.focusedGridCell).title = "" then moveCellFocus(stepValue)
     return true
   end if
   return false
 end function
 
 
+function moveCellInnerFocus(stepValue)
+  Dbg("moveCellInnerFocus", stepValue)
+  if m.focusedGridCell + stepValue >= 0 and m.focusedGridCell + stepValue < m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount()
+    m.focusedGridCell += stepValue
+    setInrowFocus()
+    return true
+  end if
+  return false
+end function
+
+
+sub setInrowFocus()
+  if m.showList.getChild(m.top.focusedRow - m.startRow) <> invalid and m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount() > 0
+    p = m.top.programs[m.top.focusedRow][m.top.focusedCell]
+    for i = 0 to m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount() - 1
+      c = m.showList.getChild(m.top.focusedRow - m.startRow).getChild(i)
+      c.cellHasFocus = c.itemContent.id = p.id  'm.focusedGridCell = i
+      if c.itemContent.id = p.id then m.focusedGridCell = i 
+    end for
+  end if
+end sub
+
+
+function findFocusedCellOnRowChange(prevFocusedRow, nextFocusedRow)
+  utcStart = m.top.programs[prevFocusedRow][m.top.focusedCell].utcStart
+  newRow = m.top.programs[nextFocusedRow]
+  for i = 0 to newRow.count() - 1
+    if newRow[i].utcStart <= utcStart and utcStart < newRow[i].utcStart + newRow[i].duration then return i
+  end for
+  return 0
+end function
+
+
 function moveRowFocus(stepValue)
   Dbg("moveRowFocus", stepValue)
-  if m.top.focusedRow + stepValue >= 0 and m.top.focusedRow + stepValue < m.top.channels.count()  'm.channelList.getChildCount()
-'    grid = m.top.findNode("grid")
-'    m.channelList.getChild(m.top.focusedRow).rowHasFocus = false
-'    m.showList.getChild(m.top.focusedRow).getChild(m.top.focusedCell).cellHasFocus = false
-'    setShowsRowFocus(m.top.focusedRow - m.startRow, false)
+  if m.top.focusedRow + stepValue >= 0 and m.top.focusedRow + stepValue < m.top.channels.count()
+    prevFocusedRow = m.top.focusedRow
     m.top.focusedRow += stepValue
-'    m.channelList.getChild(m.top.focusedRow).rowHasFocus = true
-'    setShowsRowFocus(m.top.focusedRow, true)
-'    m.showList.getChild(m.top.focusedRow).getChild(m.top.focusedCell).cellHasFocus = true
-'    if isSlideUpDown(stepValue) then grid.translation = [grid.translation[0], grid.translation[1] - stepValue * (m.top.rowHeight + m.channelList.itemSpacings[0] + 1)]
-    fillChannels()
+    m.top.focusedCell = findFocusedCellOnRowChange(prevFocusedRow, m.top.focusedRow)
+    fillGrid()
     if m.focusedGridCell > m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount() - 1
       m.focusedGridCell = m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount() - 1
+      setInrowFocus()
     end if
-    moveCellFocus(0)
     return true
   end if
   return false
@@ -188,15 +203,6 @@ function slideLeftRight()
 end function
 
 
-sub setShowsRowFocus(index, rowHasFocus)
-  if m.showList.getChild(index) <> invalid
-    for i = 0 to m.showList.getChild(index).getChildCount() - 1
-      m.showList.getChild(index).getChild(i).rowHasFocus = rowHasFocus
-    end for
-  end if
-end sub
-
-
 Function OnKeyEvent(key, press) as Boolean
   result = false
   if press
@@ -207,18 +213,11 @@ Function OnKeyEvent(key, press) as Boolean
           result = true
         end if
       else if key = "OK"
-          if not result
-'            onChannelListItemSelected()
-          else
-'                m.infoPanel.show = not m.infoPanel.show
-          end if
           result = true
 '      else if key = "play"
 '        if result
-'          getScene().videoscreen.fullScreen = false
 '          result = true
 '        else
-'          getScene().videoscreen.fullScreen = true
 '          result = true
 '        end if
       else if key = "left"

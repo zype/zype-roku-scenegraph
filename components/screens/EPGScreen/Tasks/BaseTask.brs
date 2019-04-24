@@ -28,6 +28,7 @@ sub epgRequest()
             program.delete("category")
             program.delete("created_at")
             program.delete("updated_at")
+            if program.title = invalid or program.title = "" then program.title = "--"
             events.push(program)
             eventids.push(program.id)
           end if
