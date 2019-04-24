@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="BaseGroup" extends="Group">
+  <interface>
+    <field id="focusBackParams" type="assocarray" />
+    <field id="backNode" type="node" />
+    <field id="backNavigation" type="string"/>
+  </interface>
+  
+  <script type="text/brightscript" uri="BaseGroup.brs" />
+</component>

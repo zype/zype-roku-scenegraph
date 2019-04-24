@@ -371,6 +371,34 @@ Function GetCategory(id as String, urlParams = {} As Object) As Object
   return data
 End Function
 
+
+'******************************************************
+'Get EPG
+'******************************************************
+Function GetProgramGuides(urlParams = {} As Object) As Object
+  data = []
+  url = GetApiConfigs().endpoint + "program_guides/"
+  params = AppendAppKeyToParams(urlParams)
+  response = MakeRequest(url, params)
+  if response <> invalid and response.response <> invalid
+    data = response.response
+  end if
+  return data
+End Function
+
+
+Function GetProgramGuide(id as String, urlParams = {} As Object) As Object
+  data = []
+  url = GetApiConfigs().endpoint + "program_guides/" + id + "/entries"
+  params = AppendAppKeyToParams(urlParams)
+  response = MakeRequest(url, params)
+  if response <> invalid and response.response <> invalid
+    data = response.response
+  end if
+  return data
+End Function
+
+
 function MakeGetRequest(src, params) as object
     resp = {}
 

@@ -153,6 +153,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.infoScreenText = m.infoScreen.findNode("Info")
     m.infoScreenText.text = m.app.about_page
 
+    m.epgScreen = m.scene.findNode("EPGScreen")
+
     m.search = m.scene.findNode("Search")
     m.searchDetailsScreen = m.search.findNode("SearchDetailsScreen")
     m.searchDetailsScreen.observeField("itemSelected", m.port)
@@ -1881,6 +1883,7 @@ function SetFeatures() as void
   m.global.addFields({
     autoplay: m.app.autoplay,
     swaf: m.app.subscribe_to_watch_ad_free,
+    enable_epg: configs.enable_epg,
     enable_lock_icons: m.app.enable_lock_icons,
     native_to_universal_subscription: m.app.native_to_universal_subscription,
     native_tvod: configs.native_tvod,

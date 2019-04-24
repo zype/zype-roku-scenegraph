@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="EPGScreen" extends="BaseGroup" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+  <interface>
+    <field id="timelineStartTime" alias="fullGuideGrid.timelineStartTime" onChange="setupTimelineStartTime" />
+  </interface>
+  <script type="text/brightscript" uri="EPGScreen.brs" />
+  <children>
+    <Rectangle
+      id="AppBackground"
+      color="0x151515"
+      width="1280"
+      height="720"
+      translation="[0,0]" />
+
+    <!-- Overhang logo -->
+    <Poster
+      id="PosterOverhang"
+      translation="[100, 30]"
+      loadDisplayMode="scaleToFit"
+      loadwidth="500"
+      loadheight="100"
+      uri="pkg:/images/overhangLogo.png" />
+
+    <Poster
+      id="BackgroundDown"
+      translation="[0, 650]"
+      width="2000"
+      height="95" />
+
+    <FullGuideGrid
+      id="fullGuideGrid"
+      width="1280"
+      height="830"
+      translation="[0, 225]"
+      hourWidth="270"
+      focusRow="1"
+      numRows="5" />
+
+    <Timeline
+      id="timeline"
+      topOffset="180"
+      visible="true"
+      hourWidth="270" />
+  </children>
+</component>

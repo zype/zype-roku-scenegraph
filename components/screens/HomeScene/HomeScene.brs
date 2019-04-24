@@ -61,13 +61,13 @@ Function Init()
     m.screenStack.push(m.gridScreen)
 
     ' loading indicator starts at initializatio of channel
-    m.loadingIndicator = m.top.findNode("loadingIndicator")
+    m.top.loadingIndicator = m.top.findNode("loadingIndicator")
 
     m.TestInfoScreen = m.top.findNode("TestInfoScreen")
 
     ' Set theme
-    m.loadingIndicator.backgroundColor = m.global.theme.background_color
-    m.loadingIndicator.imageUri = m.global.theme.loader_uri
+    m.top.loadingIndicator.backgroundColor = m.global.theme.background_color
+    m.top.loadingIndicator.imageUri = m.global.theme.loader_uri
 
     ' For tracking position bwtn playlist levels
     m.IndexTracker = {}
@@ -145,7 +145,7 @@ End Function
 ' if content set, focus on GridScreen and remove loading indicator
 Function OnChangeContent()
     m.gridScreen.setFocus(true)
-    m.loadingIndicator.control = "stop"
+    m.top.loadingIndicator.control = "stop"
 End Function
 
 ' Row item selected handler
@@ -268,6 +268,8 @@ Function OnMenuButtonSelected()
       m.top.SearchString = ""
       m.top.ResultsText = ""
       m.top.transitionTo = "Search"
+    else if button_role = "transition" and button_target = "EPGScreen"
+      m.top.transitionTo = "EPGScreen"
     else if button_role = "transition" and button_target = "InfoScreen"
       m.top.transitionTo = "InfoScreen"
     else if button_role = "transition" and button_target = "Favorites"

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="FullGuideGrid" extends="BaseGroup" >
+  <interface>
+    <field id="program" type="assocarray" />
+    <field id="channel" type="assocarray" />
+    <field id="moveCellFocus" type="int" alwaysnotify="true" />
+    <field id="gridHasFocus" type="boolean" alwaysnotify="true" value="false" onChange="onGridFocusChanged" />
+    <field id="selected" type="boolean" alwaysnotify="true" />
+    <field id="timezoneShift" type="int" value="0" />
+    <field id="channelCellWidth" type="int" value="200" onChange="onChangeTimeline" />
+
+    <field id="timelineStartTime" type="int" value="0" onChange="setupTimelineStartTime" />
+    <field id="visibleHours" type="int" value="4" />
+    <field id="programs" type="array" />
+    <field id="channels" type="array" />
+    <field id="hourWidth" type="int" value="270" />
+    <field id="numRows" type="int" value="5" />
+    <field id="focusRow" type="int" value="2" />
+    <field id="focusedRow" type="int" value="0" />
+    <field id="focusedCell" type="int" value="0" />
+    <field id="width" type="float" value="1280" onChange="onSizeChanged" />
+    <field id="height" type="float" value="980" onChange="onSizeChanged" />
+    <field id="rowHeight" type="float" value="80" />
+    <field id="leftOffset" type="int" value="200" onChange="onSizeChanged" />
+  </interface>
+    
+  <script type="text/brightscript" uri="FullGuideGrid.brs" />
+    
+  <children>
+    <LayoutGroup id="grid" layoutDirection="horiz" vertAlignment="top" horizAlignment="left" itemSpacings="0" >
+      <LayoutGroup id="channelList" layoutDirection="vert" vertAlignment="top" horizAlignment="left" itemSpacings="[0]" />
+      <Group id="showListArea" >
+        <LayoutGroup id="showList" layoutDirection="vert" vertAlignment="top" horizAlignment="left" itemSpacings="[0]" />
+      </Group>
+    </LayoutGroup>
+  </children>
+</component>
