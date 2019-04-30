@@ -41,7 +41,7 @@ End Sub
 ' set proper focus to RowList in case if return from Details Screen
 Sub onVisibleChange()
     if m.top.visible = true then
-        if m.top.heroCarouselData.count()>0
+        if m.top.heroCarouselData.count()>0 AND m.top.heroCarouselShow=true
             m.carouselShow.visible=false
             m.sliderGroup.visible=true
             m.sliderButton.setFocus(true)
@@ -53,10 +53,12 @@ Sub onVisibleChange()
     end if
 End Sub
 
+
+
 ' set proper focus to RowList in case if return from Details Screen
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.rowList.hasFocus()  then
-        if m.top.heroCarouselData.count()>0
+        if m.top.heroCarouselData.count()>0 AND m.top.heroCarouselShow=true
             m.sliderButton.setFocus(true)
             m.sliderGroup.visible=true
             m.carouselShow.visible=false
@@ -92,9 +94,9 @@ Sub showHeroCarousel()
     m.sliderGroup.translation=[0,5]
 
     m.slider1=m.top.findNode("slider1")
-    m.slider1.loadHeight=m.sliderValuesHome.height
-    m.slider1.loadWidth=m.sliderValuesHome.width
-    m.slider1.loadDisplayMode="scaleToFill"
+    m.slider1.Height=m.sliderValuesHome.height
+    m.slider1.Width=m.sliderValuesHome.width
+    'm.slider1.loadDisplayMode="scaleToFill"
     m.slider1.translation=m.sliderValuesHome.translation1
     m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
@@ -104,20 +106,21 @@ Sub showHeroCarousel()
         m.index=0
     end if
     m.slider2=m.top.findNode("slider2")
-    m.slider2.loadHeight=m.sliderValuesHome.height
-    m.slider2.loadWidth=m.sliderValuesHome.width
-    m.slider2.loadDisplayMode="scaleToFill"
+    m.slider2.Height=m.sliderValuesHome.height
+    m.slider2.Width=m.sliderValuesHome.width
+    'm.slider2.loadDisplayMode="scaleToFill"
     m.slider2.translation=m.sliderValuesHome.translation2
     m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
+    m.valueSelection=m.index
 
     m.index+=1
     if m.top.heroCarouselData[m.index]=invalid
         m.index=0
     end if
     m.slider3=m.top.findNode("slider3")
-    m.slider3.loadHeight=m.sliderValuesHome.height
-    m.slider3.loadWidth=m.sliderValuesHome.width
-    m.slider3.loadDisplayMode="scaleToFill"
+    m.slider3.Height=m.sliderValuesHome.height
+    m.slider3.Width=m.sliderValuesHome.width
+   'm.slider3.loadDisplayMode="scaleToFill"
     m.slider3.translation=m.sliderValuesHome.translation3
     m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
@@ -135,9 +138,17 @@ Sub showHeroCarousel()
 End Sub
 
 Sub selectSlider()
-    ?m.top.heroCarouselData[m.value]
-    m.top.carouselSelectData=m.top.heroCarouselData[m.value]
+
+    ?m.top.heroCarouselData[m.valueSelection]
+    m.top.carouselSelectData=m.top.heroCarouselData[m.valueSelection]
 End SUb
+
+SUb moveFocusToheroCarousel()
+    m.top.moveFocusToheroCarousel=false
+    m.sliderButton.setFocus(true)
+    m.sliderGroup.visible=true
+    m.carouselShow.visible=false
+End Sub
 
 Sub changeSliderImage()
     m.index+=1
@@ -150,8 +161,8 @@ Sub changeSliderImage()
     if m.top.heroCarouselData[m.index]=invalid
         m.index=0
     end if
-    m.value=m.index
     m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
+    m.valueSelection=m.index
 
     m.index+=1
     if m.top.heroCarouselData[m.index]=invalid
@@ -171,7 +182,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 result=true
             end if
         else if key="up"
-            if m.rowList.hasFocus() AND m.top.heroCarouselData.Count()>0
+            if m.rowList.hasFocus() AND m.top.heroCarouselData.Count()>0 AND m.top.heroCarouselShow=true
                 m.carouselShow.visible=false
                 m.sliderGroup.visible=true
                 m.sliderButton.setFocus(true)
@@ -187,7 +198,8 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                     m.index=0
                 end if
                 m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url   
-
+                m.valueSelection=m.index
+                
                 m.index+=1
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=0
@@ -199,18 +211,21 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                     m.index=0
                 end if
                 m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
+                m.value=m.index
+
+                ?m.top.heroCarouselData[m.index]
                 result=true
           
             end if
         else if key="left"
             if m.sliderGroup.visible=true
                 m.value=m.value-1
-            
                 m.index=m.value
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=m.top.heroCarouselData.Count()-1
                 end if
                 m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
+                m.valueSelection=m.index
 
                 m.index-=1
                 if m.top.heroCarouselData[m.index]=invalid
@@ -223,6 +238,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                     m.index=m.top.heroCarouselData.Count()-1
                 end if
                 m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
+                 m.value=m.index
                 result=true
             
             end if

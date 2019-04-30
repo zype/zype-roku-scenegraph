@@ -285,7 +285,7 @@ End Function
 '******************************************************
 Function GetAppConfigs(urlParams = {} As Object) As Object
   data = {}
-
+  
   url = GetApiConfigs().endpoint + "app/"
   params = AppendAppKeyToParams(urlParams)
   response = MakeRequest(url, params)

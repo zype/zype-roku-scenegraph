@@ -32,7 +32,10 @@
         <field id="rowItemFocused" type="intarray" alwaysNotify="true" alias="GridScreen.itemFocused"/>
 
         <!--Interface to handle heroCarousel selection-->
-        <field id="carouselSelectData" type="assocArray" alias="GridScreen.carouselSelectData" onChange="heroCarouselSelection" />
+        <field id="carouselSelectData" type="assocArray" alias="GridScreen.carouselSelectData" onChange="carouselSelectDataSelected"/>
+
+        <field id="DeepLinkToDetailPage" type="node" onChange="CarouselDeepLinkToDetailPage"/>
+
 
 
         <field id="SearchString" type="string" alwaysnotify="true" alias="Search.SearchString"/>

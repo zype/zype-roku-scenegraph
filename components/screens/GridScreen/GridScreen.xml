@@ -13,6 +13,12 @@
         <!-- herCarousel Content Data -->
         <field id="heroCarouselData" type="array" onChange="showHeroCarousel"/>
 
+        <!-- herCarousel Data to be shown or not -->
+        <field id="heroCarouselShow" type="bool" />
+        <field id="moveFocusToheroCarousel" type="bool" onChange="moveFocusToheroCarousel" />
+
+
+
         <!-- Row item selection handler -->
         <field id="rowItemSelected" type="intarray" alwaysnotify="true" alias="RowList.rowItemSelected"/>
 

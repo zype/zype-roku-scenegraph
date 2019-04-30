@@ -77,7 +77,7 @@ Function Init()
     ' For tracking thumbnail sizes and row spacing bwtn levels
     m.rowItemSizes = {}
     m.rowSpacings  = {}
-
+    m.playListFromHeroSlider=false
     m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
 End Function
 
@@ -150,19 +150,29 @@ Function OnChangeContent()
     m.loadingIndicator.control = "stop"
 End Function
 
-
-Function heroCarouselSelection()
-    if m.top.carouselSelectData.videoid<>invalid
-
-    else if m.top.carouselSelectData.playlistid<>invalid
-    
+Sub carouselSelectDataSelected()
+    ?"m.top.carouselSelectData->"m.top.carouselSelectData
+    if m.top.carouselSelectData<>invalid
+        if m.top.carouselSelectData.playlistid<>invalid
+            m.playListFromHeroSlider=true
+            m.gridScreen.heroCarouselShow=false
+            m.contentStack.push(m.gridScreen.content)
+        end if
     end if
-ENd Function
+End SUb
+
+Sub CarouselDeepLinkToDetailPage()
+    m.gridScreen.visible = "false"
+    m.detailsScreen.autoplay = false
+    m.detailsScreen.content = m.top.DeepLinkToDetailPage
+    m.detailsScreen.setFocus(true)
+    m.detailsScreen.visible = "true"
+    m.screenStack.push(m.detailsScreen)
+ENd SUb
 
 ' Row item selected handler
 Function OnRowItemSelected()
     ' On select any item on home scene, show Details node and hide Grid
-    ? m.gridScreen.focusedContent.contenttype
     if m.gridScreen.focusedContent.contentType = 2 then
         ? "[HomeScene] Playlist Selected"
 
@@ -191,7 +201,6 @@ Function OnRowItemSelected()
         m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
 
         m.detailsScreen.autoplay = m.global.autoplay
-        ?"m.gridScreen.focusedContent==>"m.gridScreen.focusedContent
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = "true"
@@ -341,6 +350,7 @@ Function OnKeyEvent(key, press) as Boolean
                     ' if detailsScreen is open and video is stopped, details is lastScreen
                     details = m.screenStack.pop()
                     details.visible = false
+                    ?"m.screenStack==>"m.screenStack
                     m.screenStack.peek().visible = true
                     m.screenStack.peek().setFocus(true)
 
@@ -365,6 +375,24 @@ Function OnKeyEvent(key, press) as Boolean
                     m.detailsScreen.visible = true
                     m.detailsScreen.setFocus(true)
                     result = true
+               else if  m.playListFromHeroSlider=true then
+                    ?m.contentStack
+                    previousContent = m.contentStack[0]
+                    m.gridScreen.content = previousContent
+                    lastPosition = GetLastPositionFromTracker()
+                    lastRowItemSizes = GetLastRowItemSizes()
+                    lastRowSpacings = GetLastRowSpacings()
+
+                    video_list_stack =  m.top.videoliststack
+                    video_list_stack.pop()
+                    m.top.videoliststack = video_list_stack
+
+                    m.detailsScreen.videosTree = m.top.videoliststack.peek()
+                    result = true
+                    m.gridscreen.visible=true
+                    m.gridScreen.heroCarouselShow=true
+                    m.gridScreen.moveFocusToheroCarousel=true
+                    m.playListFromHeroSlider=false
                 else if m.contentStack.count() > 0 and m.gridScreen.visible = true then
                     previousContent = m.contentStack.pop()
 
@@ -417,6 +445,7 @@ Function OnKeyEvent(key, press) as Boolean
                     m.screenStack.peek().visible = true
                     m.screenStack.peek().setFocus(true)
                     result = true
+              
                 end if
             end if
         end if

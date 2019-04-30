@@ -135,6 +135,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     rowlist.rowSpacings = m.playlistRowsSpacings
 
     if LoadHeroCarousels()<>invalid
+        m.gridScreen.heroCarouselShow=true
         m.scene.heroCarouselData = LoadHeroCarousels()
     end if
     m.scene.gridContent = m.gridContent
@@ -168,10 +169,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.productsCatalog = m.productsCatalog
     m.detailsScreen.observeField("triggerPlay", m.port)
     m.detailsScreen.dataArray = m.playlistRows
-    ?"m.videosList=>"m.videosList
+
     m.scene.videoliststack = [m.videosList]
-    ?"m.detailsScreen.videosTree=>"m.detailsScreen.videosTree
-    ?"m.scene.videoliststack.peek()==>"m.scene.videoliststack.peek()
+    m.scene.ObserveField("carouselSelectData",m.port)
     m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 
@@ -326,6 +326,47 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
               m.akamai_service.setPlayStartedOnce(true)
               playRegularVideo(m.detailsScreen)
+            else if msg.getField()="carouselSelectData"
+                if msg.GetData()<>invalid
+                    if msg.GetData().videoid<>invalid
+                        m.loadingIndicator.control = "start"
+                        m.gridScreen.visible = "false"
+                        m.detailsScreen.autoplay = false
+                        linkedVideoNode = createObject("roSGNode", "VideoNode")
+                        linkedVideoObject=CreateVideoObject(GetVideo(msg.GetData().videoid))
+                        for each key in linkedVideoObject
+                            linkedVideoNode[key] = linkedVideoObject[key]
+                        end for
+                        m.scene.DeepLinkToDetailPage = linkedVideoNode
+                        m.loadingIndicator.control = "stop"
+                    else if msg.GetData().playlistid<>invalid
+                        m.loadingIndicator.control = "start"
+                        m.gridScreen.playlistItemSelected = false
+                        content = m.gridScreen.focusedContent
+
+                        ' Get Playlist object from the platform
+                        playlistObject = GetPlaylists({ id: msg.GetData().playlistid })
+                        playlistThumbnailLayout = playlistObject[0].thumbnail_layout
+                        m.gridScreen.content = ParseContent(GetPlaylistsAsRows(msg.GetData().playlistid, playlistThumbnailLayout))
+                        m.gridContent = m.gridScreen.content
+
+                        rowlist = m.gridScreen.findNode("RowList")
+                        rowlist.rowItemSize = m.playlistsRowItemSizes
+                        rowlist.rowSpacings = m.playlistRowsSpacings
+
+                        rowlist.jumpToRowItem = [0,0]
+
+                        m.scene.gridContent = m.gridContent
+
+                        current_video_list_stack = m.scene.videoliststack
+                        current_video_list_stack.push(m.videosList)
+                        m.scene.videoliststack = current_video_list_stack
+
+                        m.detailsScreen.videosTree = m.scene.videoliststack.peek()
+
+                        m.loadingIndicator.control = "stop"
+                    end if
+                end if
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
