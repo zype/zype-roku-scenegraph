@@ -681,10 +681,10 @@ function transitionToVideoPlayer(videoObject as object) as void
 
     ' Set focused content to linkedVideoNode
     m.gridScreen.focusedContent = linkedVideoNode
-    m.gridScreen.visible = "false"
+    m.gridScreen.visible = false
     m.detailsScreen.content = m.gridScreen.focusedContent
     m.detailsScreen.setFocus(true)
-    m.detailsScreen.visible = "true"
+    m.detailsScreen.visible = true
 
     ' Trigger listener to push detailsScreen into HomeScene screenStack
     m.scene.DeepLinkedID = videoObject._id
@@ -739,14 +739,36 @@ sub playRegularVideo(screen as Object)
     else
         auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
     end if
-
     playVideo(screen, auth, m.app.avod)
 end sub
 
-sub playVideo(screen as Object, auth As Object, adsEnabled = false)
-  playerInfo = GetPlayerInfo(screen.content.id, auth)
 
-  if(screen.content.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
+sub playTrailerVideo(screen as Object, content = invalid)
+  print "PLAY TRAILER VIDEO"
+  StartLoader()
+  di = CreateObject("roDeviceInfo")
+  consumer = m.current_user.getInfo()
+  if consumer._id <> invalid and consumer._id <> ""
+    oauth = m.current_user.getOAuth()
+    if IsEntitled(content.id, {access_token: oauth.access_token})
+      auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
+    else
+      auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
+    end if
+  else
+    auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
+  end if
+  playVideo(screen, auth, false, content)
+end sub
+
+
+sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = invalid)
+  if content = invalid then content = screen.content
+  playerInfo = GetPlayerInfo(content.id, auth)
+  if playerInfo.video.duration <> invalid then content.length = playerInfo.video.duration
+  if playerInfo.video.title <> invalid then content.title = playerInfo.video.title
+
+  if(playerInfo.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
     print "PlayerInfo.analytics: "; playerInfo.analytics
 
     if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
@@ -755,24 +777,24 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
     cd = {
       siteId: playerInfo.analytics.siteid,
       videoId: playerInfo.analytics.videoid,
-      title: screen.content.title,
+      title: content.title,
       deviceType: playerInfo.analytics.device,
       playerId: playerInfo.analytics.playerId,
-      contentLength: screen.content.length,
+      contentLength: content.length,
       consumerId: consumer_id
     }
     print "Custom Dimensions: "; cd
     m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
   end if
 
-  screen.content.stream = playerInfo.stream
-  screen.content.streamFormat = playerInfo.streamFormat
-  screen.content.url = playerInfo.url
+  content.stream = playerInfo.stream
+  content.streamFormat = playerInfo.streamFormat
+  content.url = playerInfo.url
 
   video_service = VideoService()
 
   ' If video source is not available
-  if(playerInfo.statusCode <> 200 or screen.content.streamFormat = "(null)")
+  if(playerInfo.statusCode <> 200 or content.streamFormat = "(null)")
     CloseVideoPlayer()
     CreateVideoUnavailableDialog(playerInfo.errorMessage)
   else
@@ -782,18 +804,18 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
     m.VideoPlayer = screen.VideoPlayer
     m.VideoPlayer.observeField("position", m.port)
 
-    if(screen.content.onAir <> true)
+    if(content.onAir <> true)
       m.VideoPlayer.observeField("state", m.port)
     end if
 
-    m.videoPlayer.content = screen.content
+    m.videoPlayer.content = content
 
     if(adsEnabled)
       is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
       no_ads = (m.global.swaf and is_subscribed)
       ads = video_service.PrepareAds(playerInfo, no_ads)
 
-      if screen.content.onAir = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
+      if playerInfo.onAir = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
       m.loadingIndicator.control = "stop"
 
       ' preroll ad
@@ -809,7 +831,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
 
       ' if live stream, set position at end of stream
       ' roku video player does not automatically detect if live stream
-      if screen.content.onAir = true
+      if playerInfo.onAir = true
         m.videoPlayer.content.live = true
         m.videoPlayer.content.playStart = 100000000000
         m.videoPlayer.enableTrickPlay = false
@@ -829,7 +851,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
       m.videoPlayer.setFocus(true)
       m.videoPlayer.control = "play"
 
-      if screen.content.onAir <> invalid and screen.content.onAir = true
+      if playerInfo.onAir <> invalid and playerInfo.onAir = true
         print "seeking live time"
         m.videoPlayer.seek = 100000000000
       end if
@@ -841,14 +863,15 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false)
   end if
 end sub
 
-sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo)
+sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo, content = invalid)
+  if content = invalid then content = screen.content
 	' show loading indicator before requesting ad and playing video
 	m.loadingIndicator.control = "start"
-	m.on_air = screen.content.onAir
+	m.on_air = content.onAir
 
 	m.VideoPlayer = screen.VideoPlayer
 	m.VideoPlayer.observeField("position", m.port)
-	m.videoPlayer.content = screen.content
+	m.videoPlayer.content = content
 
   video_service = VideoService()
 
@@ -1323,6 +1346,14 @@ function handleButtonEvents(index, screen)
       m.VideoPlayer = screen.VideoPlayer
       m.VideoPlayer.seek = resume_time
       playRegularVideo(screen)
+    else if button_role = "trailer"
+      RemakeVideoPlayer(screen)
+      m.VideoPlayer = screen.VideoPlayer
+      m.akamai_service.setPlayStartedOnce(true)
+      content = screen.content.clone(true)
+      content.id = button_target
+      content.title = content.title + " - Trailer"
+      playTrailerVideo(screen, content)
     else if button_role = "favorite"
       markFavoriteButton(screen)
     else if button_role = "swaf"
