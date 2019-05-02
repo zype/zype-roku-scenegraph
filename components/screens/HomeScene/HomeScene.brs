@@ -180,6 +180,11 @@ Function OnRowItemSelected()
         m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
 
         m.detailsScreen.autoplay = m.global.autoplay
+        rowContent=m.gridScreen.content.getChild(m.gridScreen.rowItemSelected[0])
+        ?"the rowContent is=>"rowContent
+        if rowContent.DESCRIPTION<>invalid 
+            m.detailsScreen.rowTVODInitiateContent=rowContent
+        end if
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = true

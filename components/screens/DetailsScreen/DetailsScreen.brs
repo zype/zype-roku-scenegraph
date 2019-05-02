@@ -90,9 +90,8 @@ sub refreshButtons() as void
 
   userIsLoggedIn = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
 
-  videoRequiresEntitlement = (m.top.content.subscriptionRequired or m.top.content.purchaseRequired or m.top.content.rentalRequired)
+  videoRequiresEntitlement = (m.top.content.subscriptionRequired or m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.rowTVODInitiateContent.description<>"")
   videoRequiresEntitlement = (videoRequiresEntitlement or m.top.content.passRequired or m.top.content.registrationRequired)
-
   if videoRequiresEntitlement
     userIsEntitled = false
     if m.global.auth.entitlements <> invalid
@@ -107,7 +106,8 @@ sub refreshButtons() as void
         m.top.canWatchVideo = false
         AddActionButtons()
       end if
-
+    else if m.top.rowTVODInitiateContent.description<>""
+      AddTVODActionButtons()
     else if m.top.content.purchaseRequired and m.global.native_tvod ' TVOD
 
       if userIsEntitled
@@ -370,6 +370,22 @@ Sub AddActionButtons() ' trigger monetization
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
+
+Sub AddTVODActionButtons()
+  if m.top.content <> invalid then
+      btns = []
+
+  
+
+          purchaseButtonText = "BUY ALL "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" videos $"+m.top.rowTVODInitiateContent.description
+ 
+
+        btns.push({ title: Ucase(purchaseButtonText), role: "transition", target: "PurchaseScreen" })
+  
+      m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+  end if
+
+ENd SUb
 
 sub AddSigninButton() ' sign in only
     if m.top.content <> invalid

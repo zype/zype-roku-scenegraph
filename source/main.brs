@@ -1073,6 +1073,10 @@ Function ParseContent(list As Object)
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
         row.Title = rowAA.Title
+        if rowAA.purchase_price<>invalid
+            row.NumEpisodes=rowAA.playlist_item_count
+            row.Description=rowAA.purchase_price
+        end if
 
         for each itemAA in rowAA.ContentList
             item = createObject("RoSGNode","VideoNode")
@@ -1228,6 +1232,13 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     for each item in rawPlaylists
         row = {}
         row.title = item.title
+        if item.purchase_required<>invalid
+            if item.purchase_required=true
+                row.playlist_item_count=item.playlist_item_count
+                row.purchase_price=item.purchase_price
+            end if
+        end if
+
         row.ContentList = []
         if item.playlist_item_count > 0
             row.ContentList = []
