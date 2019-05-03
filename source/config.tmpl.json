@@ -1,7 +1,7 @@
 {
-  "app_key": "A-uiMQrKARLw9BocU9udKSj3Rgm0RL_kSn5HM8_011HLPNNKNBShlis2MpOpZstg",
-  "client_id": "627d7a4260cf47d88d3baa0d69303db6dce4e8912b9a9c7e8f67d01f56b66796",
-  "client_secret": "e270ce0424b829fc994f6f97f20782499cafa16a6bf3c72b633fbe0d73e12805",
+  "app_key": "<APPKEY>",
+  "client_id": "<CLIENT_ID>",
+  "client_secret": "<CLIENT_SECRET>",
   "roku_api_key": "<ROKU_API_KEY>",
 
   "endpoint": "https://api.zype.com/",
