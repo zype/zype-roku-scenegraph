@@ -22,8 +22,8 @@
 
         <field id="IsOptionsLabelVisible" type="bool" alias="Optionslabel.visible"/>
 
-		<!-- Resume video task node -->
-		<field id="ResumeVideo" type="node" />
+    		<!-- Resume video task node -->
+    		<field id="ResumeVideo" type="node" />
 
         <field id="dataArray" type="roArray" />
 
