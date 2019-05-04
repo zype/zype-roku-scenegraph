@@ -9,6 +9,14 @@ function LoadLimitStream()
     end if
 end function
 
+function LoadHeroCarousels()
+    rawData = GetZObjects({"zobject_type": "top_playlists"})
+    if rawData <> invalid 
+      return rawData
+    end if
+    return invalid
+end function
+
 function GetLimitStreamObject() as Object
     if m.limitStream <> invalid then
         return m.limitStream

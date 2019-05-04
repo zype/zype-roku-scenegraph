@@ -355,7 +355,12 @@ Sub AddActionButtons() ' trigger monetization
       btns = []
 
       if m.top.content.subscriptionrequired
-        btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" })
+        userIsLoggedIn = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
+        if userIsLoggedIn
+          btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "SubscriptionScreen" })
+        else
+          btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "RegistrationAndSubscribeScreen" })
+        end if
       end if
 
       if m.top.content.purchaseRequired and m.global.native_tvod

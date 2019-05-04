@@ -17,7 +17,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen = CreateObject("roSGScreen")
 
     m.app = GetAppConfigs()
-
     m.global = screen.getGlobalNode()
 
     m.current_user = CurrentUser()
@@ -130,12 +129,15 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     'm.scene.gridContent = ParseContent(GetContent()) ' Uses featured categories (depreciated)
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
-
     m.gridScreen = m.scene.findNode("GridScreen")
     rowlist = m.gridScreen.findNode("RowList")
     rowlist.rowItemSize = m.playlistsRowItemSizes
     rowlist.rowSpacings = m.playlistRowsSpacings
 
+    if LoadHeroCarousels()<>invalid
+        m.gridScreen.heroCarouselShow=true
+        m.scene.heroCarouselData = LoadHeroCarousels()
+    end if
     m.scene.gridContent = m.gridContent
 
     if m.contentID = invalid
@@ -169,6 +171,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.dataArray = m.playlistRows
 
     m.scene.videoliststack = [m.videosList]
+    m.scene.ObserveField("carouselSelectData",m.port)
     m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 
@@ -323,6 +326,47 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
               m.akamai_service.setPlayStartedOnce(true)
               playRegularVideo(m.detailsScreen)
+            else if msg.getField()="carouselSelectData"
+                if msg.GetData()<>invalid
+                    if msg.GetData().videoid<>invalid
+                        m.loadingIndicator.control = "start"
+                        m.gridScreen.visible = "false"
+                        m.detailsScreen.autoplay = false
+                        linkedVideoNode = createObject("roSGNode", "VideoNode")
+                        linkedVideoObject=CreateVideoObject(GetVideo(msg.GetData().videoid))
+                        for each key in linkedVideoObject
+                            linkedVideoNode[key] = linkedVideoObject[key]
+                        end for
+                        m.scene.DeepLinkToDetailPage = linkedVideoNode
+                        m.loadingIndicator.control = "stop"
+                    else if msg.GetData().playlistid<>invalid
+                        m.loadingIndicator.control = "start"
+                        m.gridScreen.playlistItemSelected = false
+                        content = m.gridScreen.focusedContent
+
+                        ' Get Playlist object from the platform
+                        playlistObject = GetPlaylists({ id: msg.GetData().playlistid })
+                        playlistThumbnailLayout = playlistObject[0].thumbnail_layout
+                        m.gridScreen.content = ParseContent(GetPlaylistsAsRows(msg.GetData().playlistid, playlistThumbnailLayout))
+                        m.gridContent = m.gridScreen.content
+
+                        rowlist = m.gridScreen.findNode("RowList")
+                        rowlist.rowItemSize = m.playlistsRowItemSizes
+                        rowlist.rowSpacings = m.playlistRowsSpacings
+
+                        rowlist.jumpToRowItem = [0,0]
+
+                        m.scene.gridContent = m.gridContent
+
+                        current_video_list_stack = m.scene.videoliststack
+                        current_video_list_stack.push(m.videosList)
+                        m.scene.videoliststack = current_video_list_stack
+
+                        m.detailsScreen.videosTree = m.scene.videoliststack.peek()
+
+                        m.loadingIndicator.control = "stop"
+                    end if
+                end if
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
@@ -441,7 +485,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen") and msg.getField() = "itemSelected"
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -471,6 +515,16 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 index = msg.getData()
 
                 handleButtonEvents(index, lclscreen)
+            else if (msg.getNode() = "RegistrationAndSubscribeScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected"
+              if msg.getNode() = "RegistrationAndSubscribeScreen"
+                lclScreen = m.RegistrationScreen
+              else if msg.getNode() = "RegistrationScreen"
+                lclScreen = m.RegistrationScreen
+              else if msg.getNode() = "SubscriptionScreen"
+                lclScreen = m.SubscriptionScreen
+              end if
+              index = msg.getData()
+              handleButtonEvents(index, lclscreen)
 
             else if msg.getNode() = "AuthSelection" and msg.getField() = "planSelected" then
               app_info = CreateObject("roAppInfo")
@@ -1447,10 +1501,18 @@ function handleButtonEvents(index, screen)
       signUpChecked = screen.callFunc("isSignupChecked")
       if screen.email = ""
         sleep(500)
-        CreateDialog(m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
+        if m.RegistrationScreen.isSignin
+          CreateDialog(m.scene, "Error", "Email is empty.", ["Close"])
+        else
+          CreateDialog(m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
+        end if
       else if screen.password = ""
         sleep(500)
-        CreateDialog(m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
+        if m.RegistrationScreen.isSignin
+          CreateDialog(m.scene, "Error", "Password is empty.", ["Close"])
+        else
+          CreateDialog(m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
+        end if
       else if signUpChecked = false
         sleep(500)
         CreateDialog(m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
@@ -1482,6 +1544,7 @@ function handleButtonEvents(index, screen)
   
             sleep(500)
             CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+            if m.RegistrationScreen.isSubscribeNext then m.scene.transitionTo = "SubscriptionScreen"
           else
             EndLoader()
             m.RegistrationScreen.setFocus(true)
@@ -1570,7 +1633,13 @@ function handleButtonEvents(index, screen)
     else if button_role = "transition" and button_target = "SignInScreen"
       m.scene.transitionTo = "SignInScreen"
     else if button_role = "transition" and button_target = "RegistrationScreen"
+      m.RegistrationScreen.isSubscribeNext = false
       m.scene.transitionTo = "RegistrationScreen"
+    else if button_role = "transition" and button_target = "RegistrationAndSubscribeScreen"
+      m.RegistrationScreen.isSubscribeNext = true
+      m.scene.transitionTo = "RegistrationScreen"
+    else if button_role = "transition" and button_target = "SubscriptionScreen"
+      m.scene.transitionTo = "SubscriptionScreen"
     end if
 end function
 
