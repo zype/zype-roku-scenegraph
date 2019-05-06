@@ -175,6 +175,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 
+    m.SubscriptionScreen = m.scene.findNode("SubscriptionScreen")
+    m.SubscriptionScreen.observeField("itemSelected", m.port)
+    m.SubscriptionScreen.observeField("planSelected", m.port)
+
     m.AuthSelection = m.scene.findNode("AuthSelection")
 
     ' TODO: Add logic here to filter native plans by matching marketplace connect ids

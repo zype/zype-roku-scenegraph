@@ -1,9 +1,12 @@
 function Init()
+  m.store = m.top.findNode("store")
   m.continueButton = m.top.findNode("continueButton")
   m.continueButton.color = m.global.theme.primary_text_color
   m.continueButton.focusedColor = m.global.theme.background_color
   m.continueButton.focusBitmapUri = m.global.theme.button_filledin_uri
   m.continueButton.focusFootprintBitmapUri = m.global.theme.focus_grid_uri
+  m.plan_buttons = m.top.findNode("Plans")
+  m.plan_buttons.focusBitmapUri = m.global.theme.focus_grid_uri
 
 
   m.private = {
@@ -27,7 +30,12 @@ function onPlanSelection() as void
 end function
 
 function onVisibleChange() as void
-'    if m.top.visible = true
+    if m.top.visible
+      if m.store.catalog <> invalid and m.store.catalog.status = 1
+        content = CreateObject("roSGNode", "ContentNode")
+        content.appendChild(m.store.catalog)
+        m.plan_buttons.content = content
+      end if
 '      ' if only one plan center plan
 '      if m.top.plans.count() = 1 then m.plan_buttons.translation = [450,350] else m.plan_buttons.translation = [220,350]
 '
@@ -47,9 +55,9 @@ function onVisibleChange() as void
 '          end if
 '      end if
 '
-'      m.plan_buttons.jumpToRowItem = [0,0]
-'      m.plan_buttons.setFocus(true)
-'    end if
+      m.plan_buttons.jumpToRowItem = [0,0]
+      m.plan_buttons.setFocus(true)
+    end if
 end function
 
 ' ***********************
@@ -116,10 +124,6 @@ function initializers() as object
     end if
 
     self.description.color = self.global.theme.primary_text_color
-
-    self.plan_buttons = self.top.findNode("Plans")
-    self.plan_buttons.focusBitmapUri = self.global.theme.focus_grid_uri
-
 
     self.oauth_label = self.top.findNode("OAuthLabel")
     self.oauth_label.color = self.global.theme.primary_text_color
