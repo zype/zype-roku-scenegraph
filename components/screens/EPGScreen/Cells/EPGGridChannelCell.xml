@@ -27,9 +27,7 @@
   
     function updateLayout()
       if m.top.itemContent <> invalid and m.top.width > 0 and m.top.height > 0
-        'm.backgroundColor.width=m.top.width '-24
-        'm.backgroundColor.height=m.top.height '- 12
-        m.itemText.width = m.top.width - 6
+        m.itemText.width = m.top.width - 12
         'm.itemText.height = m.top.height
         m.channelLogo.height = m.top.height - 36
         m.channelLogo.width = int(m.top.height * 108 / 69)
@@ -55,13 +53,13 @@
     end function
       
       function focusOn()
-        m.backgroundColor.color = "0x222222"
-        m.itemText.color = "0xffffff"
+        m.backgroundColor.color = m.global.theme.plan_button_color
+        m.itemText.color = m.global.theme.primary_text_color
       end function
       
       function focusOff()
-        m.backgroundColor.color = "0x22222200"
-        m.itemText.color = "0xdddddd"
+        m.backgroundColor.color = m.global.theme.plan_button_color
+        m.itemText.color = m.global.theme.primary_text_color
       end function
   
   ]]>
@@ -71,12 +69,14 @@
     <Rectangle id="backgroundColor" color="0x121E2A" >
       <LayoutGroup id="contentGroup" layoutDirection="vert" vertAlignment="top" horizAlignment="center" itemSpacings="6" >
         <Poster id="channelLogo" loadDisplayMode="scaleToFit" />
-        <Label id="itemText" font="font:SmallestSystemFont" horizAlign="center" vertAlign="center" color="0xff0000" />
+        <Label id="itemText" horizAlign="center" vertAlign="center" color="0xff0000" >
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="16" />
+        </Label>
       </LayoutGroup>
-      <Rectangle id="borderTop" color="0x888888" height="1" />
-      <Rectangle id="borderLeft" color="0x888888" width="1" />
-      <Rectangle id="borderBottom" color="0x888888" height="1" />
-      <Rectangle id="borderRight" color="0x888888" width="1" />
+      <Rectangle id="borderTop" color="0x606060" height="1" />
+      <Rectangle id="borderLeft" color="0x606060" width="1" />
+      <Rectangle id="borderBottom" color="0x80808000" height="1" />
+      <Rectangle id="borderRight" color="0x606060" width="1" />
     </Rectangle>
   </children>
 </component>

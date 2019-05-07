@@ -21,15 +21,26 @@ End Function
 
 
 sub initTimeline()
+  if m.top.halfHour
+    segmentWidth = m.top.hourwidth / 2
+    m.segmentTime = 1800
+    m.segments = m.top.visibleHours * 2
+  else
+    m.segmentTime = 3600
+    segmentWidth = m.top.hourwidth
+    m.segments = m.top.visibleHours
+  end if
+  m.timelinebg.color = m.global.theme.plan_button_color
+  m.currenttimemark.color = m.global.brand_color
+  m.clocklabel.color = m.global.theme.primary_text_color
+  m.currenttimelabel.color = m.global.theme.primary_text_color
   m.currenttimemark.translation = [m.top.leftOffset, 0]
-  m.tlseparator1.translation = [m.top.leftOffset - 1, 0]
-  m.top.findNode("tlseparator2").translation = [m.top.leftOffset + m.top.hourwidth * 1 - 1, 0]
-  m.top.findNode("tlseparator3").translation = [m.top.leftOffset + m.top.hourwidth * 2 - 1, 0]
-  m.top.findNode("tlseparator4").translation = [m.top.leftOffset + m.top.hourwidth * 3 - 1, 0]
-  m.timelabel1.translation = [m.top.leftOffset + int(m.top.hourwidth * 0.05), 0]
-  m.timelabel2.translation = [m.top.leftOffset + m.top.hourwidth * 1 + int(m.top.hourwidth * 0.05), 0]
-  m.timelabel3.translation = [m.top.leftOffset + m.top.hourwidth * 2 + int(m.top.hourwidth * 0.05), 0]
-  m.timelabel4.translation = [m.top.leftOffset + m.top.hourwidth * 3 + int(m.top.hourwidth * 0.05), 0]
+  for i = 0 to m.segments - 1
+    timelabel = m["timelabel" + (i + 1).toStr()]
+    timelabel.color = m.global.theme.primary_text_color
+    timelabel.translation = [m.top.leftOffset + segmentWidth * i + int(segmentWidth * 0.05), 0]
+    m.top.findNode("tlseparator" + (i + 1).toStr()).translation = [m.top.leftOffset + segmentWidth * i - 1, 0]
+  end for
 '  m.currenttimelabel.width = m.top.leftOffset - 20
 end sub
 
@@ -38,10 +49,9 @@ function setupTimeline() as object
   m.timelinegroup.translation = [0, m.top.topOffset]
   m.hourStart = getHourStart(m.top.timelineStartTime)
   initialShift = hoursLeft(getHourStart(utcToLocal(CreateObject("roDatetime").asSeconds())) - m.hourStart)
-  m.timelabel1.text = secondsToTime(m.hourStart)
-  m.timelabel2.text = secondsToTime(m.hourStart + 3600)
-  m.timelabel3.text = secondsToTime(m.hourStart + 3600 * 2)
-  m.timelabel4.text = secondsToTime(m.hourStart + 3600 * 3)
+  for i = 0 to m.segments - 1
+    m["timelabel" + (i + 1).toStr()].text = secondsToTime(m.hourStart + m.segmentTime * i)
+  end for
   m.currenttimemark.visible = (initialShift >= 0) and (initialShift < 3)
   tiktak()
 end function

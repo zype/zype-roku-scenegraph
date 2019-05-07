@@ -4,6 +4,8 @@
     <field id="itemContent" type="assocarray" onChange="onItemContentChange" />
     <field id="show" type="Boolean" value="true" alwaysnotify="true" onChange="onShow" />
     <field id="timelineStartTime" type="int" value="0" onChange="setupTimeline" />
+    <field id="halfHour" type="Boolean" value="true" onChange="initTimeline" />
+    <field id="visibleHours" type="int" value="2" />
     <field id="hourWidth" type="int" value="270" onChange="initTimeline" />
     <field id="leftOffset" alias="currenttimelabel.width" value="200" onChange="initTimeline" />
     <field id="topOffset" type="int" value="200" onChange="initTimeline" />
@@ -14,10 +16,10 @@
   <children>
     <Group id="timelinegroup" >
       <Rectangle id="timelinebg" color="0x31313100" width="1280" height="44" >
-        <Rectangle id="tlseparator1" color="0xbbbbbb" width="2" height="44" translation="[200, 0]" />
-        <Rectangle id="tlseparator2" color="0xbbbbbb" width="2" height="44" translation="[470, 0]" />
-        <Rectangle id="tlseparator3" color="0xbbbbbb" width="2" height="44" translation="[740, 0]" />
-        <Rectangle id="tlseparator4" color="0xbbbbbb" width="2" height="44" translation="[1010, 0]" />
+        <Rectangle id="tlseparator1" color="0xbbbbbb00" width="1" height="44" translation="[200, 0]" />
+        <Rectangle id="tlseparator2" color="0x606060" width="1" height="44" translation="[470, 0]" />
+        <Rectangle id="tlseparator3" color="0x606060" width="1" height="44" translation="[740, 0]" />
+        <Rectangle id="tlseparator4" color="0x606060" width="1" height="44" translation="[1010, 0]" />
         <Label id="timelabel1" font="font:SmallestBoldSystemFont" vertAlign="center" height="44" color="0xd6d6d6" translation="[210, 0]" />
         <Label id="timelabel2" font="font:SmallestBoldSystemFont" vertAlign="center" height="44" color="0xd6d6d6" translation="[485, 0]" />
         <Label id="timelabel3" font="font:SmallestBoldSystemFont" vertAlign="center" height="44" color="0xd6d6d6" translation="[750, 0]" />

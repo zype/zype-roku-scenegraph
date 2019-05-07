@@ -4,6 +4,7 @@ Function Init()
   m.showList = m.top.findNode("showList")
   m.showListArea = m.top.findNode("showListArea")
   m.channelList = m.top.findNode("channelList")
+  m.borderBottom = m.top.findNode("borderBottom")
   m.startRow = 0
   m.focusedGridCell = 0
 End Function
@@ -12,6 +13,8 @@ End Function
 sub onSizeChanged()
   m.top.clippingRect = [0, 0, m.top.width, m.top.height]
   m.showListArea.clippingRect = [0, 0, m.top.width - m.top.leftOffset, m.top.height]
+  m.borderBottom.width = m.top.width
+  m.borderBottom.translation = [0, m.top.height - 1]
 '  m.top.rowHeight = m.top.height / m.top.numRows - m.channelList.itemSpacings[0]
 end sub
 
@@ -54,17 +57,19 @@ sub fillShowRow(i)
 '    row.itemSpacings = [0]
   end if
   ci = 0
-  if utcToLocal(m.top.programs[i][0].utcStart) > m.timelineStart
+  n = getFirstItemIndex(i)
+  p = getProgramsArray(i)[n]
+  if p <> invalid and utcToLocal(p.utcStart) > m.timelineStart
     item = getOrCreateRowItem(row, ci)
-    item.width = m.top.hourWidth * (utcToLocal(m.top.programs[i][0].utcStart) - m.timelineStart) / 3600
+    item.width = m.top.hourWidth * (utcToLocal(p.utcStart) - m.timelineStart) / 3600
     item.rowHasFocus = false
     item.cellHasFocus = false
     item.itemContent = {id: "fake", title: ""}
     if m.top.focusedRow = i and m.focusedGridCell = 0 then m.focusedGridCell = 1
     ci++
   end if
-  for j = 0 to m.top.programs[i].count() - 1
-    p = m.top.programs[i][j]
+  for j = n to getProgramsArray(i).count() - 1
+    p = getProgramsArray(i)[j]
     if utcToLocal(p.utcStart) > m.timelineEnd then exit for
     if utcToLocal(p.utcStart + p.duration) > m.timelineStart
       item = getOrCreateRowItem(row, ci)
@@ -93,10 +98,32 @@ function getOrCreateRowItem(row, ci)
 end function
 
 
+function getFirstItemIndex(i)
+  for j = 0 to getProgramsArray(i).count() - 1
+    p = getProgramsArray(i)[j]
+    if utcToLocal(p.utcStart + p.duration) > m.timelineStart then return j
+  end for
+  return 0
+end function
+
+
 sub setupTimelineStartTime()
   m.timelineStart = getHourStart(m.top.timelineStartTime)
   m.timelineEnd = getHourStart(m.top.timelineStartTime) + m.top.visibleHours * 3600
   fillGrid()
+end sub
+
+
+sub onProgramsUpdate()
+  if isNonEmptyAA(m.top.program)
+    programs = getProgramsArray(m.top.focusedRow)
+    for i = 0 to programs.count() - 1
+      if programs[i].id = m.top.program.id then m.top.focusedCell = i  :  exit for
+    end for
+  else
+    m.top.focusedCell = getFirstItemIndex(m.top.focusedRow)
+    m.top.program = getProgramsArray(m.top.focusedRow)[m.top.focusedCell]
+  end if
 end sub
 
 
@@ -106,21 +133,25 @@ sub onFocusChanged()
 end sub
 
 
+function getProgramsArray(i)
+  return m.top.programs[m.top.channels[i].id]
+end function
+
+
 function isTimelineUpdateRequired()
-  p = m.top.programs[m.top.focusedRow][m.top.focusedCell]
-  isOutOfTimeline = utcToLocal(p.utcStart + p.duration) > m.timelineEnd
-  return isOutOfTimeline or utcToLocal(p.utcStart) < m.timelineStart
+  isOutOfTimeline = utcToLocal(m.top.program.utcStart + m.top.program.duration) > m.timelineEnd
+  return isOutOfTimeline or utcToLocal(m.top.program.utcStart) < m.timelineStart
 end function
 
 
 function moveCellFocus(stepValue)
   Dbg("MoveCellFocus", stepValue)
-  if m.top.focusedCell + stepValue >= 0 and m.top.focusedCell + stepValue < m.top.programs[m.top.focusedRow].count()
+  if m.top.focusedCell + stepValue >= 0 and m.top.focusedCell + stepValue < getProgramsArray(m.top.focusedRow).count()
     m.top.focusedCell += stepValue
+    m.top.program = getProgramsArray(m.top.focusedRow)[m.top.focusedCell]
     if not moveCellInnerFocus(stepValue) or isTimelineUpdateRequired()
       m.focusedGridCell = 0
-      p = m.top.programs[m.top.focusedRow][m.top.focusedCell]
-      m.top.timelineStartTime = getHourStart(utcToLocal(p.utcStart))  ' + p.duration)
+      m.top.timelineStartTime = getHourStart(utcToLocal(m.top.program.utcStart))  ' + p.duration)
     end if
 '    if m.showList.getChild(m.top.focusedRow - m.startRow).getChild(m.focusedGridCell).title = "" then moveCellFocus(stepValue)
     return true
@@ -142,19 +173,18 @@ end function
 
 sub setInrowFocus()
   if m.showList.getChild(m.top.focusedRow - m.startRow) <> invalid and m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount() > 0
-    p = m.top.programs[m.top.focusedRow][m.top.focusedCell]
     for i = 0 to m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount() - 1
       c = m.showList.getChild(m.top.focusedRow - m.startRow).getChild(i)
-      c.cellHasFocus = c.itemContent.id = p.id  'm.focusedGridCell = i
-      if c.itemContent.id = p.id then m.focusedGridCell = i 
+      c.cellHasFocus = c.itemContent.id = m.top.program.id  'm.focusedGridCell = i
+      if c.itemContent.id = m.top.program.id then m.focusedGridCell = i 
     end for
   end if
 end sub
 
 
 function findFocusedCellOnRowChange(prevFocusedRow, nextFocusedRow)
-  utcStart = m.top.programs[prevFocusedRow][m.top.focusedCell].utcStart
-  newRow = m.top.programs[nextFocusedRow]
+  utcStart = m.top.program.utcStart
+  newRow = getProgramsArray(nextFocusedRow)
   for i = 0 to newRow.count() - 1
     if newRow[i].utcStart <= utcStart and utcStart < newRow[i].utcStart + newRow[i].duration then return i
   end for
@@ -168,6 +198,7 @@ function moveRowFocus(stepValue)
     prevFocusedRow = m.top.focusedRow
     m.top.focusedRow += stepValue
     m.top.focusedCell = findFocusedCellOnRowChange(prevFocusedRow, m.top.focusedRow)
+    m.top.program = getProgramsArray(m.top.focusedRow)[m.top.focusedCell]
     fillGrid()
     if m.focusedGridCell > m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount() - 1
       m.focusedGridCell = m.showList.getChild(m.top.focusedRow - m.startRow).getChildCount() - 1

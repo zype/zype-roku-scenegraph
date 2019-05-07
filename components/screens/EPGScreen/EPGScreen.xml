@@ -32,7 +32,8 @@
       width="1280"
       height="830"
       translation="[0, 225]"
-      hourWidth="270"
+      hourWidth="540"
+      visibleHours="2"
       focusRow="1"
       numRows="5" />
 
@@ -40,6 +41,7 @@
       id="timeline"
       topOffset="180"
       visible="true"
-      hourWidth="270" />
+      visibleHours="2"
+      hourWidth="540" />
   </children>
 </component>

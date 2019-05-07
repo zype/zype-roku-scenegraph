@@ -10,12 +10,7 @@
         <!-- Content for RowList in GridScreen on Home Scene -->
         <field id="gridContent" type="node" alias="GridScreen.content" onChange="OnChangeContent" alwaysNotify="true"/>
 
-<<<<<<< HEAD
         <field id="loadingIndicator" type="node" />
-=======
-        <!--Content for HeroCarousel on Home Scene-->
-        <field id="heroCarouselData" type="array" alias="GridScreen.heroCarouselData" alwaysNotify="true"/>
->>>>>>> 7ede4f864917b76940e3099d1c7d28cf87b2b1e2
 
         <!-- Content for RowList in Search -->
         <field id="searchContent" type="node" alias="Search.content"/>
@@ -34,12 +29,6 @@
 
         <!-- Row item focus handler -->
         <field id="rowItemFocused" type="intarray" alwaysNotify="true" alias="GridScreen.itemFocused"/>
-
-        <!--Interface to handle heroCarousel selection-->
-        <field id="carouselSelectData" type="assocArray" alias="GridScreen.carouselSelectData" onChange="carouselSelectDataSelected"/>
-
-        <field id="DeepLinkToDetailPage" type="node" onChange="CarouselDeepLinkToDetailPage"/>
-
 
 
         <field id="SearchString" type="string" alwaysnotify="true" alias="Search.SearchString"/>
