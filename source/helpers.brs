@@ -11,7 +11,7 @@ end function
 
 function LoadHeroCarousels()
     rawData = GetZObjects({"zobject_type": "top_playlists"})
-    if rawData <> invalid 
+    if rawData <> invalid AND rawData.Count()>0
       return rawData
     end if
     return invalid
