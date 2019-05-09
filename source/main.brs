@@ -81,6 +81,16 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
+    if m.app.theme = "dark"
+       theme=DarkTheme()
+    else if m.app.theme = "light"
+      theme=LightTheme()
+    else if m.app.theme = "custom"
+      theme=CustomTheme() 
+    end if
+
+    m.scene.backgroundColor=theme.background_color
+
     screen.SetMessagePort(m.port)
     screen.Show()
 
@@ -136,6 +146,15 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     rowlist.rowItemSize = m.playlistsRowItemSizes
     rowlist.rowSpacings = m.playlistRowsSpacings
 
+<<<<<<< HEAD
+=======
+    if LoadHeroCarousels()<>invalid
+        m.gridScreen.heroCarouselShow=true
+        m.scene.heroCarouselData = LoadHeroCarousels()
+    else
+        m.gridScreen.heroCarouselShow=false
+    end if
+>>>>>>> 084d74cfdab6cc622ee30032a1b4120be0e74bab
     m.scene.gridContent = m.gridContent
 
     if m.contentID = invalid
@@ -325,6 +344,50 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
               m.akamai_service.setPlayStartedOnce(true)
               playRegularVideo(m.detailsScreen)
+<<<<<<< HEAD
+=======
+            else if msg.getField()="carouselSelectData"
+                if msg.GetData()<>invalid
+                    if msg.GetData().videoid<>invalid
+                        m.loadingIndicator.control = "start"
+                        m.gridScreen.visible = "false"
+                        m.detailsScreen.autoplay = false
+                        linkedVideoNode = createObject("roSGNode", "VideoNode")
+                        linkedVideoObject=CreateVideoObject(GetVideo(msg.GetData().videoid))
+                        for each key in linkedVideoObject
+                            linkedVideoNode[key] = linkedVideoObject[key]
+                        end for
+                        m.scene.DeepLinkToDetailPage = linkedVideoNode
+                        m.loadingIndicator.control = "stop"
+                    else if msg.GetData().playlistid<>invalid
+                        m.loadingIndicator.control = "start"
+                        m.gridScreen.playlistItemSelected = false
+                        content = m.gridScreen.focusedContent
+
+                        ' Get Playlist object from the platform
+                        
+                        playlistObject = GetPlaylists({ id: msg.GetData().playlistid })
+                        playlistThumbnailLayout = playlistObject[0].thumbnail_layout
+                        m.gridScreen.content = ParseContent(GetPlaylistsAsRows(msg.GetData().playlistid, playlistThumbnailLayout))
+                        m.gridContent = m.gridScreen.content
+                        rowlist = m.gridScreen.findNode("RowList")
+                        rowlist.rowItemSize = m.playlistsRowItemSizes
+                        rowlist.rowSpacings = m.playlistRowsSpacings
+
+                        rowlist.jumpToRowItem = [0,0]
+
+                        m.scene.gridContent = m.gridContent
+
+                        current_video_list_stack = m.scene.videoliststack
+                        current_video_list_stack.push(m.videosList)
+                        m.scene.videoliststack = current_video_list_stack
+
+                        m.detailsScreen.videosTree = m.scene.videoliststack.peek()
+
+                        m.loadingIndicator.control = "stop"
+                    end if
+                end if
+>>>>>>> 084d74cfdab6cc622ee30032a1b4120be0e74bab
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false
