@@ -93,5 +93,11 @@ Function GetPlaylistBackgroundImage(attrs As Object) As Object
     src = "pkg:/images/placeholder.png"
   end if
 
+  if properties.images <> invalid and properties.images.count() > 0
+    for each image in properties.images
+      if image.title <> invalid and image.title = "featured-thumbnail" then src = image.url
+    end for
+  end if
+
   return src
 End Function
