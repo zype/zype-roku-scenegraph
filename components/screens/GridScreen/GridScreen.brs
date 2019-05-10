@@ -11,13 +11,9 @@ Function Init()
 
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
-<<<<<<< HEAD
-
-=======
     m.carouselShow=m.top.findNode("carouselShow")
     m.sliderButton=m.top.findNode("sliderButton")
     m.sliderGroup=m.top.findNode("sliderGroup")
->>>>>>> 084d74cfdab6cc622ee30032a1b4120be0e74bab
     ' Set theme
     m.rowList.focusBitmapUri = m.global.theme.focus_grid_uri
     m.rowList.rowLabelColor = m.global.theme.primary_text_color
@@ -47,9 +43,6 @@ End Sub
 ' set proper focus to RowList in case if return from Details Screen
 Sub onVisibleChange()
     if m.top.visible = true then
-<<<<<<< HEAD
-        m.rowList.setFocus(true)
-=======
         if m.top.heroCarouselShow=true
             m.carouselShow.visible=false
             m.sliderGroup.visible=true
@@ -59,18 +52,13 @@ Sub onVisibleChange()
             m.sliderGroup.visible=false
             m.rowList.setFocus(true)
         end if
->>>>>>> 084d74cfdab6cc622ee30032a1b4120be0e74bab
     end if
 End Sub
 
+
+
 ' set proper focus to RowList in case if return from Details Screen
 Sub OnFocusedChildChange()
-<<<<<<< HEAD
-    if m.top.isInFocusChain() and not m.rowList.hasFocus() then
-        m.rowList.setFocus(true)
-    end if
-End Sub
-=======
     if m.top.isInFocusChain() and not m.rowList.hasFocus()  then
         if m.top.heroCarouselShow=true
             m.sliderButton.setFocus(true)
@@ -258,4 +246,3 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     end if
     return result
 end function
->>>>>>> 084d74cfdab6cc622ee30032a1b4120be0e74bab

@@ -5,9 +5,8 @@
     <field id="channel" type="assocarray" />
     <field id="moveCellFocus" type="int" alwaysnotify="true" />
     <field id="gridHasFocus" type="boolean" alwaysnotify="true" value="false" onChange="onGridFocusChanged" />
-    <field id="selected" type="boolean" alwaysnotify="true" />
+    <field id="reset" type="boolean" alwaysnotify="true" onChange="onReset" />
     <field id="timezoneShift" type="int" value="0" />
-    <field id="channelCellWidth" type="int" value="200" onChange="onChangeTimeline" />
 
     <field id="timelineStartTime" type="int" value="0" alwaysnotify="true" onChange="setupTimelineStartTime" />
     <field id="visibleHours" type="int" value="4" />
@@ -17,7 +16,7 @@
     <field id="numRows" type="int" value="5" />
     <field id="focusRow" type="int" value="2" />
     <field id="focusedRow" type="int" value="0" />
-    <field id="focusedCell" type="int" value="0" />
+    <field id="focusedCell" type="int" value="0" onChange="onProgramFocusMove" />
     <field id="width" type="float" value="1280" onChange="onSizeChanged" />
     <field id="height" type="float" value="980" onChange="onSizeChanged" />
     <field id="rowHeight" type="float" value="80" />

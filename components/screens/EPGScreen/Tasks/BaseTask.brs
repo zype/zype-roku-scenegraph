@@ -18,10 +18,10 @@ sub epgRequest()
   date = CreateObject("roDatetime")
   'date.toLocalTime()
   now = date.asSeconds()
-  guideDate = convertTimestampToYyyyMmDd(m.top.params.timelineStartTime - 86400)
-  guideEndDate = convertTimestampToYyyyMmDd(m.top.params.timelineStartTime + 86400)
-  m.startTime = m.top.params.timelineStartTime - m.top.params.visibleHours * 2 * 3600
-  m.endTime = m.top.params.timelineStartTime + m.top.params.visibleHours * 2 * 3600
+  guideDate = convertTimestampToYyyyMmDd(m.top.params.timelineStartTime - 43200)
+  guideEndDate = convertTimestampToYyyyMmDd(m.top.params.timelineStartTime + 43200)
+  m.startTime = m.top.params.timelineStartTime - m.top.params.visibleHours * 3 * 3600
+  m.endTime = m.top.params.timelineStartTime + m.top.params.visibleHours * 3 * 3600
   for each guide in guides
     events = []
     m.eventids = []

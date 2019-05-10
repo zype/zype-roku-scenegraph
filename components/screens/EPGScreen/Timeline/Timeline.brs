@@ -52,7 +52,7 @@ function setupTimeline() as object
   for i = 0 to m.segments - 1
     m["timelabel" + (i + 1).toStr()].text = secondsToTime(m.hourStart + m.segmentTime * i)
   end for
-  m.currenttimemark.visible = (initialShift >= 0) and (initialShift < 3)
+  m.currenttimemark.visible = (initialShift >= 0) and (initialShift < m.segments - 1)
   tiktak()
 end function
 

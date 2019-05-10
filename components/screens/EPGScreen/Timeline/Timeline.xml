@@ -28,7 +28,7 @@
       <Rectangle id="currenttimemark" color="0x455ad1" width="8" height="44" translation="[2300, 0]" opacity="0.5" />
       <Label id="currenttimelabel" font="font:SmallBoldSystemFont" vertAlign="center" horizAlign="center" height="44" color="0xd6d6d6" />
     </Group>
-    <Label id="clocklabel" font="font:SmallestBoldSystemFont" horizAlign="right" width="1200" translation="[0,20]" />
+    <Label id="clocklabel" font="font:SmallestBoldSystemFont" horizAlign="right" width="1200" translation="[0,22]" />
 
     <Timer id="TikTakTimer" repeat="true" duration="60" />
   </children>

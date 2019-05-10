@@ -17,7 +17,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     screen = CreateObject("roSGScreen")
 
     m.app = GetAppConfigs()
-
     m.global = screen.getGlobalNode()
 
     m.current_user = CurrentUser()
@@ -140,21 +139,17 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     'm.scene.gridContent = ParseContent(GetContent()) ' Uses featured categories (depreciated)
     m.gridContent = ParseContent(GetPlaylistsAsRows(m.app.featured_playlist_id))
-
     m.gridScreen = m.scene.findNode("GridScreen")
     rowlist = m.gridScreen.findNode("RowList")
     rowlist.rowItemSize = m.playlistsRowItemSizes
     rowlist.rowSpacings = m.playlistRowsSpacings
 
-<<<<<<< HEAD
-=======
     if LoadHeroCarousels()<>invalid
         m.gridScreen.heroCarouselShow=true
         m.scene.heroCarouselData = LoadHeroCarousels()
     else
         m.gridScreen.heroCarouselShow=false
     end if
->>>>>>> 084d74cfdab6cc622ee30032a1b4120be0e74bab
     m.scene.gridContent = m.gridContent
 
     if m.contentID = invalid
@@ -190,6 +185,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.detailsScreen.dataArray = m.playlistRows
 
     m.scene.videoliststack = [m.videosList]
+    m.scene.ObserveField("carouselSelectData",m.port)
     m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 
@@ -344,8 +340,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
               m.akamai_service.setPlayStartedOnce(true)
               playRegularVideo(m.detailsScreen)
-<<<<<<< HEAD
-=======
             else if msg.getField()="carouselSelectData"
                 if msg.GetData()<>invalid
                     if msg.GetData().videoid<>invalid
@@ -387,7 +381,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                         m.loadingIndicator.control = "stop"
                     end if
                 end if
->>>>>>> 084d74cfdab6cc622ee30032a1b4120be0e74bab
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
                 m.loadingIndicator.control = "start"
                 m.gridScreen.playlistItemSelected = false

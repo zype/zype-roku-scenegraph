@@ -5,6 +5,8 @@ Function Init()
   m.isEpgRequested = false
   m.requestedTimelines = []
   m.requestedDates = []
+  m.optionsIcon = m.top.findNode("OptionsIcon")
+  m.optionsIcon.blendColor = m.global.brand_color
 
   ' Set theme
   m.AppBackground = m.top.findNode("AppBackground")
@@ -24,14 +26,20 @@ sub onFocusChanged()
   Dbg("EPGScreen hasFocus", m.top.hasFocus())
   if m.top.hasFocus()
     if isEmpty(m.fullGuideGrid.channels)
-      date = CreateObject("roDatetime")
-      date.toLocalTime()
-      m.top.timelineStartTime = date.asSeconds()
+      updateTimelineWithCurrentTime()
       m.top.getScene().loadingIndicator.control = "start"
     else
       m.fullGuideGrid.setFocus(true)
+      m.fullGuideGrid.reset = true
     end if
   end if
+end sub
+
+
+sub updateTimelineWithCurrentTime()
+  date = CreateObject("roDatetime")
+  date.toLocalTime()
+  m.top.timelineStartTime = date.asSeconds()
 end sub
 
 
@@ -59,8 +67,8 @@ sub onEpgRequest(event)
 end sub
 
 
-sub appendProgramsToFullGuide(ci, programsUpdate)
-  programs = m.fullGuideGrid.programs[ci]
+sub appendProgramsToFullGuide(cid, programsUpdate)
+  programs = m.fullGuideGrid.programs[cid]
   if programsUpdate[0].utcStart < programs[0].utcStart
     for i = programsUpdate.count() - 1 to 0 step -1
       if isProgramNotInGuide(programs, programsUpdate[i].id) then programs.unshift(programsUpdate[i])
@@ -70,7 +78,8 @@ sub appendProgramsToFullGuide(ci, programsUpdate)
       if isProgramNotInGuide(programs, programsUpdate[i].id) then programs.push(programsUpdate[i])
     end for
   end if
-  m.tempPrograms[ci] = programs
+  programs.sortBy("utcStart")
+  m.tempPrograms[cid] = programs
 end sub
 
 
@@ -128,6 +137,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     else if key="up"
       result = true
     else if key = "options"
+      m.fullGuideGrid.reset = true
       result = true
     else if key = "back"
     end if
