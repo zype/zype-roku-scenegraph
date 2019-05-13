@@ -80,6 +80,16 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
+    if m.app.theme = "dark"
+       theme=DarkTheme()
+    else if m.app.theme = "light"
+      theme=LightTheme()
+    else if m.app.theme = "custom"
+      theme=CustomTheme() 
+    end if
+
+    m.scene.backgroundColor=theme.background_color
+
     screen.SetMessagePort(m.port)
     screen.Show()
 
@@ -137,6 +147,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     if LoadHeroCarousels()<>invalid
         m.gridScreen.heroCarouselShow=true
         m.scene.heroCarouselData = LoadHeroCarousels()
+    else
+        m.gridScreen.heroCarouselShow=false
     end if
     m.scene.gridContent = m.gridContent
 
@@ -349,11 +361,11 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                         content = m.gridScreen.focusedContent
 
                         ' Get Playlist object from the platform
+                        
                         playlistObject = GetPlaylists({ id: msg.GetData().playlistid })
                         playlistThumbnailLayout = playlistObject[0].thumbnail_layout
                         m.gridScreen.content = ParseContent(GetPlaylistsAsRows(msg.GetData().playlistid, playlistThumbnailLayout))
                         m.gridContent = m.gridScreen.content
-
                         rowlist = m.gridScreen.findNode("RowList")
                         rowlist.rowItemSize = m.playlistsRowItemSizes
                         rowlist.rowSpacings = m.playlistRowsSpacings

@@ -1,6 +1,6 @@
 Function DarkTheme() as Object
     theme = {
-        background_color:           "#1d1f29",
+        background_color:           "#000000",
         primary_text_color:         "#f5f5f5",
         secondary_text_color:       "#a8a8a8",
         plan_button_color:          "#464646",

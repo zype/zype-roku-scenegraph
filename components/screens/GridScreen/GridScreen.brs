@@ -12,6 +12,8 @@ Function Init()
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
     m.carouselShow=m.top.findNode("carouselShow")
+    m.sliderButton=m.top.findNode("sliderButton")
+    m.sliderGroup=m.top.findNode("sliderGroup")
     ' Set theme
     m.rowList.focusBitmapUri = m.global.theme.focus_grid_uri
     m.rowList.rowLabelColor = m.global.theme.primary_text_color
@@ -41,7 +43,7 @@ End Sub
 ' set proper focus to RowList in case if return from Details Screen
 Sub onVisibleChange()
     if m.top.visible = true then
-        if m.top.heroCarouselData.count()>0 AND m.top.heroCarouselShow=true
+        if m.top.heroCarouselShow=true
             m.carouselShow.visible=false
             m.sliderGroup.visible=true
             m.sliderButton.setFocus(true)
@@ -58,7 +60,7 @@ End Sub
 ' set proper focus to RowList in case if return from Details Screen
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.rowList.hasFocus()  then
-        if m.top.heroCarouselData.count()>0 AND m.top.heroCarouselShow=true
+        if m.top.heroCarouselShow=true
             m.sliderButton.setFocus(true)
             m.sliderGroup.visible=true
             m.carouselShow.visible=false
@@ -79,18 +81,17 @@ Sub showHeroCarousel()
     m.index=0
     m.sliderValuesHome={}
     m.sliderValuesHome.height=380
-    m.sliderValuesHome.width=1150
-    m.sliderValuesHome.translation1=[-1100,0]
-    m.sliderValuesHome.translation2=[65,0]
-    m.sliderValuesHome.translation3=[1230,0]
+    m.sliderValuesHome.width=923
+    m.sliderValuesHome.translation1=[-794.5,0]
+    m.sliderValuesHome.translation2=[178.5,0]
+    m.sliderValuesHome.translation3=[1151.5,0]
 
     m.sliderFocusValuesHome={}
     m.sliderFocusValuesHome.height=390
-    m.sliderFocusValuesHome.width=1160
-    m.sliderFocusValuesHome.translation=[60,-6]
+    m.sliderFocusValuesHome.width=933
+    m.sliderFocusValuesHome.translation=[173.5,-6]
 
-    m.sliderButton=m.top.findNode("sliderButton")
-    m.sliderGroup=m.top.findNode("sliderGroup")
+
     m.sliderGroup.translation=[0,5]
 
     m.slider1=m.top.findNode("slider1")
@@ -125,7 +126,7 @@ Sub showHeroCarousel()
     m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
     m.sliderFocus=m.top.findNode("sliderFocus")
-    m.sliderFocus.color="#ffffff"
+    m.sliderFocus.color=m.global.brand_color
     m.sliderFocus.height=m.sliderFocusValuesHome.height
     m.sliderFocus.width=m.sliderFocusValuesHome.width
     m.sliderFocus.translation=m.sliderFocusValuesHome.translation
@@ -138,7 +139,6 @@ Sub showHeroCarousel()
 End Sub
 
 Sub selectSlider()
-
     ?m.top.heroCarouselData[m.valueSelection]
     m.top.carouselSelectData=m.top.heroCarouselData[m.valueSelection]
 End SUb
@@ -182,7 +182,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 result=true
             end if
         else if key="up"
-            if m.rowList.hasFocus() AND m.top.heroCarouselData.Count()>0 AND m.top.heroCarouselShow=true
+            if m.rowList.hasFocus() AND m.top.heroCarouselShow=true
                 m.carouselShow.visible=false
                 m.sliderGroup.visible=true
                 m.sliderButton.setFocus(true)
@@ -213,7 +213,6 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
                 m.value=m.index
 
-                ?m.top.heroCarouselData[m.index]
                 result=true
           
             end if
@@ -238,7 +237,8 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                     m.index=m.top.heroCarouselData.Count()-1
                 end if
                 m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
-                 m.value=m.index
+                m.value=m.index
+
                 result=true
             
             end if

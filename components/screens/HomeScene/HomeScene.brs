@@ -6,7 +6,7 @@ Function Init()
     ' listen on port 8089
     ? "[HomeScene] Init"
     m.top.backgroundURI=""
-    m.top.backgroundColor="#000000"
+    'm.top.backgroundColor="#000000"
 
     ' GridScreen node with RowList
     m.gridScreen = m.top.findNode("GridScreen")
@@ -152,7 +152,6 @@ Function OnChangeContent()
 End Function
 
 Sub carouselSelectDataSelected()
-    ?"m.top.carouselSelectData->"m.top.carouselSelectData
     if m.top.carouselSelectData<>invalid
         if m.top.carouselSelectData.playlistid<>invalid
             m.playListFromHeroSlider=true
@@ -176,6 +175,7 @@ Function OnRowItemSelected()
     ' On select any item on home scene, show Details node and hide Grid
     if m.gridScreen.focusedContent.contentType = 2 then
         ? "[HomeScene] Playlist Selected"
+        m.gridScreen.heroCarouselShow=false
 
         AddCurrentPositionToTracker()
         AddPosterPlaylists()
@@ -347,6 +347,7 @@ Function OnKeyEvent(key, press) as Boolean
             ? "isSpecialScreen(): "; isSpecialScreen()
 
             if isSpecialScreen()
+                    m.gridScreen.heroCarouselShow=false
                 if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
                     ? "1"
                     ' if detailsScreen is open and video is stopped, details is lastScreen
@@ -373,7 +374,7 @@ Function OnKeyEvent(key, press) as Boolean
                     m.detailsScreen.videoPlayer.control = "stop"
                     m.detailsScreen.videoPlayer.visible = false
                     m.detailsScreen.videoPlayer.setFocus(false)
-
+                    
                     m.detailsScreen.visible = true
                     m.detailsScreen.setFocus(true)
                     result = true
@@ -441,13 +442,13 @@ Function OnKeyEvent(key, press) as Boolean
                     ' if the screen is visible - it must be the last element
                     screen = m.screenStack.pop()
                     screen.visible = false
-
+                   
                     ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                     ' open last screen before it and focus it
                     m.screenStack.peek().visible = true
                     m.screenStack.peek().setFocus(true)
                     result = true
-              
+
                 end if
             end if
         end if
@@ -456,7 +457,12 @@ Function OnKeyEvent(key, press) as Boolean
     ' Dialog boxes handler
     ' press = false when key event happens to component inside children
     if press = false then
+       
         print "Dialog: "; m.top.dialog
+
+        if key = "back" AND m.top.dialog = invalid AND not isSpecialScreen()
+            m.gridScreen.heroCarouselShow=true
+        end if
 
         if(m.top.dialog <> invalid)
             buttonIndex = m.top.dialog.buttonSelected
