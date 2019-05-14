@@ -171,8 +171,7 @@ Sub changeSliderImage()
     if m.top.heroCarouselData[m.index]=invalid
         m.index=0
     end if
-    m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
-    
+    m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url    
 ENd SUb
 
 function onKeyEvent(key as String, press as Boolean) as Boolean
@@ -195,7 +194,6 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         else if key="right"
             if m.sliderGroup.visible=true
                 m.index=m.value
-
                 m.index+=1
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=0
@@ -203,22 +201,17 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url   
                 m.valueSelection=m.index
                 m.value=m.index
-
                 m.index+=1
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=0
                 end if
                 m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
-
                 m.index+=1
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=0
                 end if
-                m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
-                
-
-                result=true
-          
+                m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url           
+                result=true          
             end if
         else if key="left"
             if m.sliderGroup.visible=true
@@ -236,7 +229,6 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                     m.index=m.top.heroCarouselData.Count()-1
                 end if
                 m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
-
                 m.index-=1
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=m.top.heroCarouselData.Count()-1
@@ -247,4 +239,18 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         end if
     end if
     return result
-end function
+end function        
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
