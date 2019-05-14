@@ -246,6 +246,8 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
 
                 result=true
             
+
+
             end if
         end if
     end if
