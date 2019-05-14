@@ -214,8 +214,11 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=0
                 end if
-                m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url       
-                result=true          
+                m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
+                
+
+                result=true
+          
             end if
         else if key="left"
             if m.sliderGroup.visible=true
@@ -240,6 +243,14 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 end if
                 m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
                 result=true
+            
+
+
+
+
+
+            'm.value=m.index
+
             end if
         end if
     end if
