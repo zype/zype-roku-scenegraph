@@ -151,24 +151,28 @@ SUb moveFocusToheroCarousel()
 End Sub
 
 Sub changeSliderImage()
+    ?"the value is==>"m.value
+    m.index=m.value
     m.index+=1
     if m.top.heroCarouselData[m.index]=invalid
         m.index=0
     end if
-    m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
-
-    m.index+=1
-    if m.top.heroCarouselData[m.index]=invalid
-        m.index=0
-    end if
-    m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
+    m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url   
     m.valueSelection=m.index
+    m.value=m.index
 
     m.index+=1
     if m.top.heroCarouselData[m.index]=invalid
         m.index=0
     end if
     m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
+
+    m.index+=1
+    if m.top.heroCarouselData[m.index]=invalid
+        m.index=0
+    end if
+    m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
+    
 ENd SUb
 
 function onKeyEvent(key as String, press as Boolean) as Boolean
@@ -190,16 +194,16 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
             end if
         else if key="right"
             if m.sliderGroup.visible=true
-                m.value=m.value+1
-                
-
                 m.index=m.value
+
+                m.index+=1
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=0
                 end if
                 m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url   
                 m.valueSelection=m.index
-                
+                m.value=m.index
+
                 m.index+=1
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=0
@@ -211,20 +215,21 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                     m.index=0
                 end if
                 m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
-                m.value=m.index
+                
 
                 result=true
           
             end if
         else if key="left"
             if m.sliderGroup.visible=true
-                m.value=m.value-1
                 m.index=m.value
+                m.index-=1
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=m.top.heroCarouselData.Count()-1
                 end if
                 m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
                 m.valueSelection=m.index
+                m.value=m.index
 
                 m.index-=1
                 if m.top.heroCarouselData[m.index]=invalid
@@ -237,7 +242,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                     m.index=m.top.heroCarouselData.Count()-1
                 end if
                 m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
-                m.value=m.index
+
 
                 result=true
             
