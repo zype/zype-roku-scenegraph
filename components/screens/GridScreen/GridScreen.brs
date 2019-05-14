@@ -229,28 +229,28 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                     m.index=m.top.heroCarouselData.Count()-1
                 end if
                 m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
-                m.index-=1
-                if m.top.heroCarouselData[m.index]=invalid
-                    m.index=m.top.heroCarouselData.Count()-1
-                end if
-                m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
-                result=true
+            m.index-=1
+            if m.top.heroCarouselData[m.index]=invalid
+                m.index=m.top.heroCarouselData.Count()-1
+            end if
+            m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
+            result=true
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
             end if
         end if
     end if
     return result
-end function        
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
+end function
