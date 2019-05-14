@@ -237,7 +237,11 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                     m.index=m.top.heroCarouselData.Count()-1
                 end if
                 m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
+         
                
+
+                'm.value=m.index
+
 
                 result=true
             
