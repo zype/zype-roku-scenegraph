@@ -244,7 +244,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
                 result=true
             
-
+                'm.value=m.index
 
 
 
