@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="FullGuideGrid" extends="BaseGroup" >
+  <interface>
+    <field id="program" type="assocarray" />
+    <field id="channel" type="assocarray" />
+    <field id="moveCellFocus" type="int" alwaysnotify="true" />
+    <field id="gridHasFocus" type="boolean" alwaysnotify="true" value="false" onChange="onGridFocusChanged" />
+    <field id="reset" type="boolean" alwaysnotify="true" onChange="onReset" />
+    <field id="itemSelected" type="boolean" alwaysnotify="true" />
+    <field id="timezoneShift" type="int" value="0" />
+
+    <field id="timelineStartTime" type="int" value="0" alwaysnotify="true" onChange="setupTimelineStartTime" />
+    <field id="visibleHours" type="int" value="4" />
+    <field id="programs" type="assocarray" onChange="onProgramsUpdate" />
+    <field id="channels" type="array" />
+    <field id="hourWidth" type="int" value="270" />
+    <field id="numRows" type="int" value="5" />
+    <field id="focusRow" type="int" value="2" />
+    <field id="focusedRow" type="int" value="0" />
+    <field id="focusedCell" type="int" value="0" onChange="onProgramFocusMove" />
+    <field id="width" type="float" value="1280" onChange="onSizeChanged" />
+    <field id="height" type="float" value="980" onChange="onSizeChanged" />
+    <field id="rowHeight" type="float" value="80" />
+    <field id="leftOffset" type="int" value="200" onChange="onSizeChanged" />
+  </interface>
+    
+  <script type="text/brightscript" uri="FullGuideGrid.brs" />
+    
+  <children>
+    <LayoutGroup id="grid" layoutDirection="horiz" vertAlignment="top" horizAlignment="left" itemSpacings="0" >
+      <LayoutGroup id="channelList" layoutDirection="vert" vertAlignment="top" horizAlignment="left" itemSpacings="[0]" />
+      <Group id="showListArea" >
+        <LayoutGroup id="showList" layoutDirection="vert" vertAlignment="top" horizAlignment="left" itemSpacings="[0]" />
+      </Group>
+    </LayoutGroup>
+    <Rectangle id="borderBottom" color="0x606060" height="1" width="1280" translation="[0, 979]" />
+  </children>
+</component>

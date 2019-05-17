@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name = "BaseTask" extends = "Task" >
+  <interface>
+    <field id = "params" type="assocarray" />
+    <field id = "responseNode" type="node" alwaysNotify="true" />
+    <field id = "responseAA" type="assocarray" alwaysNotify="true" />
+  </interface>
+  <script type="text/brightscript" uri="BaseTask.brs" />
+  <script type="text/brightscript" uri="pkg:/source/zype_api.brs" />
+</component>
