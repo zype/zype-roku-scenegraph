@@ -398,6 +398,17 @@ Function GetProgramGuide(id as String, urlParams = {} As Object) As Object
 End Function
 
 
+Function ViewProgramGuide(id as String, urlParams = {} As Object) As Object
+  data = {response: {}}
+  url = GetApiConfigs().endpoint + "program_guides/" + id
+  response = MakeRequest(url, AppendAppKeyToParams(urlParams))
+  if response <> invalid and response.response <> invalid
+    data = response
+  end if
+  return data
+End Function
+
+
 function MakeGetRequest(src, params) as object
     resp = {}
 

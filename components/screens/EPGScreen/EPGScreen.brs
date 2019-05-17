@@ -12,7 +12,43 @@ Function Init()
   m.AppBackground = m.top.findNode("AppBackground")
   m.AppBackground.color = m.global.theme.background_color
   m.top.observeField("focusedChild", "onFocusChanged")
+  m.fullGuideGrid.observeField("itemSelected", "onProgramSelected")
+
+  initializeVideoPlayer()
+  m.top.videoPlayer.visible = false
 End Function
+
+
+Function initializeVideoPlayer()
+  m.top.videoPlayer = m.top.createChild("Video")
+  m.top.videoPlayer.translation = [0,0]
+  m.top.videoPlayer.width = 0
+  m.top.videoPlayer.height = 0
+  
+  ' Event listener for video player state. Needed to handle video player errors and completion
+  m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+End Function
+
+
+Function ReinitializeVideoPlayer()
+  if m.top.RemakeVideoPlayer = true
+    m.top.videoPlayer.unobserveField("state")
+    m.top.removeChild(m.top.videoPlayer)
+    initializeVideoPlayer()
+  end if
+End Function
+
+' event handler of Video player msg
+Sub OnVideoPlayerStateChange()
+  if m.top.videoPlayer.state = "error"
+    ' error handling
+    m.top.videoPlayer.visible = false
+    m.fullGuideGrid.setFocus(true)
+  else if m.top.videoPlayer.state = "finished"
+    m.top.videoPlayer.visible = false
+    m.fullGuideGrid.setFocus(true)
+  end if
+End Sub
 
 
 Sub OnTopVisibilityChange()
@@ -32,6 +68,10 @@ sub onFocusChanged()
       m.fullGuideGrid.setFocus(true)
       m.fullGuideGrid.reset = true
     end if
+  else if not m.top.isInFocusChain()
+    Dbg("EPGScreen turns off", m.top.isInFocusChain())
+    m.top.videoPlayer.visible = false
+    m.top.videoPlayer.control = "stop"
   end if
 end sub
 
@@ -104,6 +144,26 @@ sub setupTimelineStartTime()
 end sub
 
 
+sub onProgramSelected()
+  if m.fullGuideGrid.itemSelected and m.fullGuideGrid.program <> invalid
+    params = {}
+    params.append(m.fullGuideGrid.program)
+    now = CreateObject("roDatetime").asSeconds()
+    if params.utcStart <= now
+      if params.utcStart + params.duration > now then params.start_time = ""
+      m.top.getScene().loadingIndicator.control = "start"
+      m.epgRequest = runTask("epgProgramInfo", params, {responseAA: "onEpgProgramInfoRequest"})
+    end if
+  end if
+end sub
+
+
+sub onEpgProgramInfoRequest(event)
+  responseAA = event.getData()
+  if responseAA <> invalid then m.top.startStream = responseAA
+end sub
+
+
 function isEpgRequestRequired()
   if isEmpty(m.fullGuideGrid.channels) then return true
 '  guideDate = convertTimestampToYyyyMmDd(m.top.timelineStartTime)
@@ -127,11 +187,17 @@ function convertTimestampToYyyyMmDd(timestamp)
 end function
 
 
+sub stopVideoPlayer()
+  m.top.videoPlayer.control = "stop"
+  m.top.videoPlayer.visible = false
+  m.fullGuideGrid.setFocus(true)
+end sub
+
+
 function onKeyEvent(key as String, press as Boolean) as Boolean
-  ? ">>> EPGScreen >> onKeyEvent"
   result = false
   if press
-    ? "key == ";  key
+    ? ">>> EPGScreen >> onKeyEvent >> key " key
     if key="down"
       result = true
     else if key="up"
@@ -140,10 +206,10 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
       m.fullGuideGrid.reset = true
       result = true
     else if key = "back"
-    end if
-  else
-    ? "press: "; press
-    if key = "back"
+      if m.top.videoPlayer.visible
+        stopVideoPlayer()
+        result = true
+      end if
     end if
   end if
   return result

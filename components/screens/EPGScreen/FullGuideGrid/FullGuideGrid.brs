@@ -250,6 +250,7 @@ Function OnKeyEvent(key, press) as Boolean
           result = true
         end if
       else if key = "OK"
+          m.top.itemSelected = true
           result = true
 '      else if key = "play"
 '        if result

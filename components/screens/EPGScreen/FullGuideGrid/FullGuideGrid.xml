@@ -6,6 +6,7 @@
     <field id="moveCellFocus" type="int" alwaysnotify="true" />
     <field id="gridHasFocus" type="boolean" alwaysnotify="true" value="false" onChange="onGridFocusChanged" />
     <field id="reset" type="boolean" alwaysnotify="true" onChange="onReset" />
+    <field id="itemSelected" type="boolean" alwaysnotify="true" />
     <field id="timezoneShift" type="int" value="0" />
 
     <field id="timelineStartTime" type="int" value="0" alwaysnotify="true" onChange="setupTimelineStartTime" />

@@ -2,6 +2,11 @@
 <component name="EPGScreen" extends="BaseGroup" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
   <interface>
     <field id="timelineStartTime" alias="fullGuideGrid.timelineStartTime" onChange="setupTimelineStartTime" />
+
+    <!-- Video Player referencible by HomeScene -->
+    <field id="VideoPlayer" type="node" />
+    <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
+    <field id="startStream" type="assocarray" alwaysNotify="true" />
   </interface>
   <script type="text/brightscript" uri="EPGScreen.brs" />
   <children>

@@ -4,6 +4,18 @@ sub init()
 end sub
 
 
+sub epgProgramInfo()
+  responseAA = invalid
+  if m.top.params <> invalid and m.top.params.program_guide_id <> invalid
+    response = ViewProgramGuide(m.top.params.program_guide_id).response
+    if response.video_ids <> invalid and response.video_ids[0] <> invalid
+      responseAA = { id: response.video_ids[0], start: m.top.params.start_time, end: m.top.params.end_time }
+    end if
+  end if
+  m.top.responseAA = responseAA
+end sub
+
+
 sub epgRequest()
   channels = []
   if m.top.params.channels = invalid
