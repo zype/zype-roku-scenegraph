@@ -167,9 +167,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.infoScreenText = m.infoScreen.findNode("Info")
     m.infoScreenText.text = m.app.about_page
 
-    m.epgScreen = m.scene.findNode("EPGScreen")
-    m.epgScreen.observeField("startStream", m.port)
-
     m.search = m.scene.findNode("Search")
     m.searchDetailsScreen = m.search.findNode("SearchDetailsScreen")
     m.searchDetailsScreen.observeField("itemSelected", m.port)
@@ -500,13 +497,6 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 SearchQuery(m.scene.SearchString)
                 m.loadingIndicator.control = "stop"
-            else if msg.getField() = "startStream"
-                RemakeVideoPlayer(m.epgScreen)
-                m.VideoPlayer = m.epgScreen.VideoPlayer
-                m.akamai_service.setPlayStartedOnce(true)
-                content = createObject("RoSGNode","VideoNode")
-                content.setFields(msg.getData())
-                playLiveStream(m.epgScreen, content)
             else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
@@ -747,30 +737,32 @@ end function
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
     StartLoader()
-    playVideo(screen, getAuth(screen.content), m.app.avod)
+    di = CreateObject("roDeviceInfo")
+    consumer = m.current_user.getInfo()
+
+    if consumer._id <> invalid and consumer._id <> ""
+        oauth = m.current_user.getOAuth()
+
+        if IsEntitled(screen.content.id, {access_token: oauth.access_token})
+          auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
+        else
+          auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
+        end if
+    else
+        auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
+    end if
+    playVideo(screen, auth, m.app.avod)
 end sub
 
 
 sub playTrailerVideo(screen as Object, content = invalid)
   print "PLAY TRAILER VIDEO"
   StartLoader()
-  playVideo(screen, getAuth(content), false, content)
-end sub
-
-
-sub playLiveStream(screen as Object, content = invalid)
-  print "PLAY LIVE"
-  StartLoader()
-  playVideo(screen, getAuth(content), false, content)
-end sub
-
-
-function getAuth(content)
   di = CreateObject("roDeviceInfo")
   consumer = m.current_user.getInfo()
   if consumer._id <> invalid and consumer._id <> ""
     oauth = m.current_user.getOAuth()
-    if content <> invalid and IsEntitled(content.id, {access_token: oauth.access_token})
+    if IsEntitled(content.id, {access_token: oauth.access_token})
       auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
     else
       auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
@@ -778,8 +770,8 @@ function getAuth(content)
   else
     auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
   end if
-  return auth
-end function
+  playVideo(screen, auth, false, content)
+end sub
 
 
 sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = invalid)
@@ -809,27 +801,22 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
 
   content.stream = playerInfo.stream
   content.streamFormat = playerInfo.streamFormat
-  if content.start = "" or content["end"] = ""
-    urlSuffix = ""
-  else
-    urlSuffix = "&start=" + content.start + "&end=" + content["end"]
-  end if
-  content.url = playerInfo.url + urlSuffix
+  content.url = playerInfo.url
 
   video_service = VideoService()
 
   ' If video source is not available
   if(playerInfo.statusCode <> 200 or content.streamFormat = "(null)")
-    CloseVideoPlayer(screen)
+    CloseVideoPlayer()
     CreateVideoUnavailableDialog(playerInfo.errorMessage)
   else
-    PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo, content)
+    PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo)
     playContent = true
 
     m.VideoPlayer = screen.VideoPlayer
     m.VideoPlayer.observeField("position", m.port)
 
-    if(content.onAir <> true) and urlSuffix <> ""
+    if(content.onAir <> true)
       m.VideoPlayer.observeField("state", m.port)
     end if
 
@@ -882,7 +869,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       end if
 
     else
-      CloseVideoPlayer(screen)
+      CloseVideoPlayer()
       m.currentVideoInfo = invalid
     end if ' end of if playContent
   end if
@@ -945,17 +932,17 @@ sub handleMidrollAd()
 	end if
 end sub
 
-sub CloseVideoPlayer(screen=m.detailsScreen)
-  screen.videoPlayer.visible = false
-  screen.videoPlayer.setFocus(false)
-  screen.videoPlayerVisible = false
+sub CloseVideoPlayer()
+  m.detailsScreen.videoPlayer.visible = false
+  m.detailsScreen.videoPlayer.setFocus(false)
+  m.detailsScreen.videoPlayerVisible = false
 
   if m.LoadingScreen.visible = true
     EndLoader()
   end if
 
-  screen.visible = true
-  screen.setFocus(true)
+  m.detailsScreen.visible = true
+  m.detailsScreen.setFocus(true)
 end sub
 
 sub CreateVideoUnavailableDialog(errorMessage as String)
@@ -1950,7 +1937,6 @@ function SetFeatures() as void
   m.global.addFields({
     autoplay: m.app.autoplay,
     swaf: m.app.subscribe_to_watch_ad_free,
-    enable_epg: configs.enable_epg,
     enable_lock_icons: m.app.enable_lock_icons,
     native_to_universal_subscription: m.app.native_to_universal_subscription,
     native_tvod: configs.native_tvod,

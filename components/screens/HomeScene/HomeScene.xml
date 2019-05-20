@@ -10,7 +10,6 @@
         <!-- Content for RowList in GridScreen on Home Scene -->
         <field id="gridContent" type="node" alias="GridScreen.content" onChange="OnChangeContent" alwaysNotify="true"/>
 
-        <field id="loadingIndicator" type="node" />
         <!--Content for HeroCarousel on Home Scene-->
         <field id="heroCarouselData" type="array" alias="GridScreen.heroCarouselData" alwaysNotify="true"/>
 
@@ -99,8 +98,6 @@
         <Search
             id="Search"
             visible="false"/>
-
-        <EPGScreen id="EPGScreen" visible="false" />
 
         <!--Search screen.-->
         <Favorites

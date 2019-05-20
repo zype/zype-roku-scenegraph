@@ -14,8 +14,12 @@ Function Init()
 
     m.buttons           =   m.top.findNode("Buttons")
 
-    initializeVideoPlayer()
+    m.top.videoPlayer = m.top.createChild("Video")
     m.top.videoPlayer.visible = false
+    m.top.videoPlayer.translation = [0,0]
+    m.top.videoPlayer.width = 1280
+    m.top.videoPlayer.height = 720
+    m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
 
     m.description       =   m.top.findNode("Description")
     m.background        =   m.top.findNode("Background")
@@ -47,22 +51,17 @@ Function Init()
     m.optionsIcon.blendColor = m.global.brand_color
 End Function
 
-
-Function initializeVideoPlayer()
-  m.top.videoPlayer = m.top.createChild("Video")
-  m.top.videoPlayer.translation = [0,0]
-  m.top.videoPlayer.width = 0
-  m.top.videoPlayer.height = 0
-  
-  ' Event listener for video player state. Needed to handle video player errors and completion
-  m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
-End Function
-
-
 Function ReinitializeVideoPlayer()
   if m.top.RemakeVideoPlayer = true
       m.top.removeChild(m.top.videoPlayer)
-      initializeVideoPlayer()
+
+      m.top.videoPlayer = m.top.createChild("Video")
+      m.top.videoPlayer.translation = [0,0]
+      m.top.videoPlayer.width = 1280
+      m.top.videoPlayer.height = 720
+
+    ' Event listener for video player state. Needed to handle video player errors and completion
+      m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
   end if
 End Function
 

@@ -9,9 +9,6 @@
     <field id="posterThumbnail" type="string" />
     <field id="usePoster" type="boolean" />
 
-    <field id="start" type="string" />
-    <field id="end" type="string" />
-
     <field id="subscriptionRequired" type="boolean" />
     <field id="purchaseRequired" type="boolean" />
     <field id="rentalRequired" type="boolean" />
