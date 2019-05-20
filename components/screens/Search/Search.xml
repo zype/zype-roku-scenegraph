@@ -85,11 +85,11 @@
         <!-- Overhang logo -->
         <Poster
             id="PosterOverhang"
-            translation="[100, 30]"
+            translation="[80, 5]"
             loadDisplayMode="scaleToFit"
-            loadwidth="500"
-            loadheight="100"
-            uri="pkg:/images/overhangLogo.png" />
+            width="307"
+            height="120"
+            uri="pkg:/images/logo.png" />
 
         <Poster
             id="BackgroundDown"

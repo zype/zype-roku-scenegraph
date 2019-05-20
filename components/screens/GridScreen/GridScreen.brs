@@ -61,10 +61,12 @@ End Sub
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.rowList.hasFocus()  then
         if m.top.heroCarouselShow=true
+            m.rowList.translation=[-60,560]
             m.sliderButton.setFocus(true)
             m.sliderGroup.visible=true
             m.carouselShow.visible=false
         else
+            m.rowList.translation=[-60,410]
             m.carouselShow.visible=true
             m.sliderGroup.visible=false
             m.rowList.setFocus(true)
@@ -82,14 +84,14 @@ Sub showHeroCarousel()
     m.sliderValuesHome={}
     m.sliderValuesHome.height=380
     m.sliderValuesHome.width=923
-    m.sliderValuesHome.translation1=[-794.5,0]
-    m.sliderValuesHome.translation2=[178.5,0]
-    m.sliderValuesHome.translation3=[1151.5,0]
+    m.sliderValuesHome.translation1=[-794.5,150]
+    m.sliderValuesHome.translation2=[178.5,150]
+    m.sliderValuesHome.translation3=[1151.5,150]
 
     m.sliderFocusValuesHome={}
     m.sliderFocusValuesHome.height=390
     m.sliderFocusValuesHome.width=933
-    m.sliderFocusValuesHome.translation=[173.5,-6]
+    m.sliderFocusValuesHome.translation=[173.5,144]
 
 
     m.sliderGroup.translation=[0,5]
@@ -180,6 +182,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
            if m.sliderButton.hasFocus()
                 m.carouselShow.visible=true
                 m.sliderGroup.visible=false
+                m.rowList.translation=[-60,410]
                 m.rowList.setFocus(true)
                 result=true
             end if
@@ -187,6 +190,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
             if m.rowList.hasFocus() AND m.top.heroCarouselShow=true
                 m.carouselShow.visible=false
                 m.sliderGroup.visible=true
+                m.rowList.translation=[-60,560]
                 m.sliderButton.setFocus(true)
                 result=true
             end if

@@ -54,11 +54,8 @@
             <Group id="Overhang">
                 <Poster
                     id="PosterOverhang"
-                    translation="[100, 30]"
-                    loadDisplayMode="scaleToFit"
-                    loadwidth="500"
-                    loadheight="100"
-                    uri="pkg:/images/overhangLogo.png" />
+                    height="120" width="308" translation="[80,5]"
+                    uri="pkg:/images/logo.png" />
 
                 <Label
                     id="OptionsLabel"
@@ -93,6 +90,8 @@
         </Group>
 
         <Group id="sliderGroup">
+            <Poster id="Logo" height="120" width="308" translation="[80,5]" uri="pkg:/images/logo.png"/>
+
             <button id="sliderButton"
             focusBitmapUri="pkg:/images/tra.png"
             iconUri="pkg:/images/tra.png"
@@ -115,7 +114,7 @@
             id="RowList"
             itemComponentName="GridScreenItem"
             focusBitmapUri="pkg:/images/focus_grid_light.9.png"
-            translation="[-60, 410]"
+            translation="[-60, 560]"
             itemSize="[1327, 262]"
             numRows="2"
             itemSpacing="[0,0]"
