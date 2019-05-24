@@ -151,6 +151,7 @@ SUb moveFocusToheroCarousel()
 End Sub
 
 Sub changeSliderImage()
+  if m.top.visible
     ?"the sliderchange=>"m.index
     m.value=m.value+1              
     m.index=m.value
@@ -171,6 +172,7 @@ Sub changeSliderImage()
         m.index=0
     end if
     m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
+  end if
 ENd SUb
 
 function onKeyEvent(key as String, press as Boolean) as Boolean

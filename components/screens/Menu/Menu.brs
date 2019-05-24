@@ -27,8 +27,8 @@ Function InitSidebarButtons()
         { title: m.global.labels.menu_info_button, role: "transition", target: "InfoScreen" }
     ]
 
+    if m.global.enable_epg = true then menuButtons.push( { title: m.global.labels.menu_my_tv_button, role: "transition", target: "EPGScreen" } )
     if(m.global.device_linking = true)
-        if m.global.enable_epg = true then menuButtons.push( { title: m.global.labels.menu_my_tv_button, role: "transition", target: "EPGScreen" } )
         menuButtons.push( { title: m.global.labels.menu_account_button, role: "transition", target: "AccountScreen" } )
     end if
 

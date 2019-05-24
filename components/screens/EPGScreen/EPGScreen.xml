@@ -7,6 +7,7 @@
     <field id="VideoPlayer" type="node" />
     <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
     <field id="startStream" type="assocarray" alwaysNotify="true" />
+    <field id="reset" alias="fullGuideGrid.reset" />
   </interface>
   <script type="text/brightscript" uri="EPGScreen.brs" />
   <children>
