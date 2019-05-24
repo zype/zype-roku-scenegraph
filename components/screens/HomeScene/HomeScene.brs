@@ -290,6 +290,7 @@ Function OnMenuButtonSelected()
       m.top.ResultsText = ""
       m.top.transitionTo = "Search"
     else if button_role = "transition" and button_target = "EPGScreen"
+'      m.top.findNode("EPGScreen").reset = true
       m.top.transitionTo = "EPGScreen"
     else if button_role = "transition" and button_target = "InfoScreen"
       m.top.transitionTo = "InfoScreen"

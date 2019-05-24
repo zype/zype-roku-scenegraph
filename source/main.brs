@@ -826,10 +826,10 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
     PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo, content)
     playContent = true
 
-    m.VideoPlayer = screen.VideoPlayer
-    m.VideoPlayer.observeField("position", m.port)
+'    m.VideoPlayer = screen.VideoPlayer
+'    m.VideoPlayer.observeField("position", m.port)
 
-    if(content.onAir <> true) and urlSuffix <> ""
+    if screen.id = m.detailsScreen.id  '(content.onAir <> true) or urlSuffix <> ""
       m.VideoPlayer.observeField("state", m.port)
     end if
 
@@ -865,10 +865,10 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       end if
 
       m.videoPlayer.visible = true
-      screen.videoPlayerVisible = true
+      if screen.hasField("videoPlayerVisible") then screen.videoPlayerVisible = true
 
       if m.LoadingScreen.visible = true
-        EndLoader()
+        EndLoader(screen)
       end if
 
       m.currentVideoInfo = playerInfo.video
@@ -905,8 +905,6 @@ sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo, content
 	else
 	  m.videoPlayer.content.subtitleTracks = []
 	end if
-
-	m.VideoPlayer.seek = m.VideoPlayer.seek
 end sub
 
 sub handleMidrollAd()
@@ -1844,11 +1842,11 @@ Function StartLoader()
     m.loadingIndicator1.control = "start"
 End Function
 
-Function EndLoader()
-    m.loadingIndicator1.control = "stop"
-    m.LoadingScreen.show = false
-    m.LoadingScreen.setFocus(false)
-    m.detailsScreen.setFocus(true)
+Function EndLoader(screen=m.detailsScreen)
+  m.loadingIndicator1.control = "stop"
+  m.LoadingScreen.show = false
+  m.LoadingScreen.setFocus(false)
+  screen.setFocus(true)
 End Function
 
 Function markFavoriteButton(lclScreen)
