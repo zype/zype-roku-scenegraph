@@ -98,7 +98,7 @@
             iconUri="pkg:/images/tra.png"
             focusedIconUri="pkg:/images/tra.png"/>
 
-            <Rectangle id="sliderFocus"/>
+            <Poster id="sliderFocus"/>
             <Poster id="slider1"/>
             <Poster id="slider2"/>
             <Poster id="slider3"/>
