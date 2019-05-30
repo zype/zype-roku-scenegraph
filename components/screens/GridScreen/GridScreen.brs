@@ -126,7 +126,7 @@ Sub showHeroCarousel()
     m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
     m.sliderFocus=m.top.findNode("sliderFocus")
-    m.sliderFocus.color=m.global.brand_color
+    m.sliderFocus.uri=m.global.theme.slider_focus
     m.sliderFocus.height=m.sliderFocusValuesHome.height
     m.sliderFocus.width=m.sliderFocusValuesHome.width
     m.sliderFocus.translation=m.sliderFocusValuesHome.translation

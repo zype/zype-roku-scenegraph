@@ -10,6 +10,7 @@ Function DarkTheme() as Object
         button_focus_uri:           "pkg:/images/button-focus-light.png",
         button_filledin_uri:        "pkg:/images/button-filledin-light.png"
         paginate_button:            "pkg:/images/paginate_light.png"
+        slider_focus:               "pkg://images/roku_white_highlight_thicker.png"
     }
     return theme
 End Function
@@ -26,6 +27,7 @@ Function LightTheme() as Object
         button_focus_uri:           "pkg:/images/button-focus-dark.png",
         button_filledin_uri:        "pkg:/images/button-filledin-dark.png"
         paginate_button:            "pkg:/images/paginate_dark.png"
+        slider_focus:               "pkg://images/roku_black_highlight_thicker.png"
     }
     return theme
 End Function
