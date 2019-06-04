@@ -174,6 +174,7 @@ end sub
 function isEpgRequestRequired()
   if not m.top.visible then return false
   if isEmpty(m.fullGuideGrid.channels) then return true
+  if m.fullGuideGrid.focusedCell > 0 then return false
 '  guideDate = convertTimestampToYyyyMmDd(m.top.timelineStartTime)
 '  for each timeStamp in m.requestedDates
 '    if timeStamp = guideDate return false

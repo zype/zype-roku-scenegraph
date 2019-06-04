@@ -29,6 +29,27 @@ Function getHourStart(secs = 0)
 end function
 
 
+Function getLimits()
+  if m.global.epg_limit_days <> invalid
+    return [m.global.epg_limit_days[0] * 86400, m.global.epg_limit_days[1] * 86400]
+  end if
+  return [-86400, 86400]
+end function
+
+
+Function checkLimits(secs = 0)
+  date = CreateObject("roDateTime")
+  date.toLocalTime()
+  now = date.asSeconds()
+  limits = getLimits()
+  minTime = now + limits[0]
+  maxTime = now + limits[1]
+  if secs < minTime then secs = minTime
+  if secs > maxTime then secs = maxTime
+  return secs
+end function
+
+
 sub epgRequest()
   channels = []
   if m.top.params.channels = invalid
@@ -40,17 +61,20 @@ sub epgRequest()
     end for
   end if
   fullGuide = {}
-'  date = CreateObject("roDatetime")
-'  utcNow = date.asSeconds()
+  date = CreateObject("roDatetime")
+  utcNow = date.asSeconds()
 '  date.toLocalTime()
 '  now = date.asSeconds()
 '  timeShift = utcNow - now
   
-  utcTimelineStartTime = localToUtc(m.top.params.timelineStartTime)
-  guideDate = convertTimestampToYyyyMmDd(utcTimelineStartTime - 43200)
-  guideEndDate = convertTimestampToYyyyMmDd(utcTimelineStartTime + 43200)
-  m.startTime = utcTimelineStartTime - m.top.params.visibleHours * 2 * 3600
-  m.endTime = utcTimelineStartTime + m.top.params.visibleHours * 2 * 3600
+  m.utcTimelineStartTime = localToUtc(m.top.params.timelineStartTime)
+  limits = getLimits()
+'  guideDate = convertTimestampToYyyyMmDd(m.utcTimelineStartTime-43200)' + limits[0])
+'  guideEndDate = convertTimestampToYyyyMmDd(m.utcTimelineStartTime+43200)' + limits[1])
+  guideDate = convertTimestampToYyyyMmDd(utcNow + limits[0])
+  guideEndDate = convertTimestampToYyyyMmDd(utcNow + limits[1])
+  m.startTime = checkLimits()  'm.utcTimelineStartTime - m.top.params.visibleHours * 4 * 3600)
+  m.endTime = checkLimits(m.utcTimelineStartTime + m.top.params.visibleHours * 4 * 3600)
   for each guide in guides
     events = []
     m.eventids = []
@@ -66,16 +90,18 @@ sub epgRequest()
     end while 
     if programs.count() > 0
       programs.SortBy("utcStart")
-'      for i = 0 to programs.count() - 2
-'        programs[i].duration = programs[i+1].utcStart - programs[i].utcStart
-'      end for
+      programs = fillWithFakePrograms(programs, guide)
+      p = programs[programs.count() - 1]
+      if p.utcStart + p.duration < getHourStart(m.utcTimelineStartTime)
+        programs.push(createFakeProgram(guide._id))
+      end if
       fullGuide[guide._id] = programs
       if m.top.params.channels = invalid then channels.push({id: guide._id, title: guide.name})
     end if
   end for
   if channels.count() = 0 and m.top.params.channels = invalid
-    m.startTime = 0
-    m.endTime = utcTimelineStartTime + 30 * 86400
+    m.startTime = checkLimits()
+    m.endTime = checkLimits(m.utcTimelineStartTime + 30 * 86400)
     for each guide in guides
       events = []
       m.eventids = []
@@ -86,9 +112,10 @@ sub epgRequest()
         programs.SortBy("utcStart")
         p = programs[programs.count() - 1]
         programs = []
-        if p.utcStart + p.duration < utcTimelineStartTime
+        if p.utcStart + p.duration < m.utcTimelineStartTime
           programs.Push(p)
           programs.push(createFakeProgram(guide._id))
+          programs = fillWithFakePrograms(programs, guide)
         else
           programs.push(createFakeProgram(guide._id))
           programs.Push(p)
@@ -123,6 +150,26 @@ end function
 
 function createFakeProgram(program_guide_id, utcStart=getHourStart(localToUtc(m.top.params.timelineStartTime)), duration=m.top.params.visibleHours * 3600)
   return {id: (rnd(1000)*rnd(1000)).toStr(), title: m.global.labels.program_is_not_available, utcStart: utcStart, duration: duration, program_guide_id: program_guide_id}
+end function
+
+
+function fillWithFakePrograms(programs, guide)
+  fullPrograms = [programs[0]]
+  if programs.count() > 1
+    for i = 1 to programs.count() - 1
+      if programs[i].utcStart > programs[i-1].utcStart + programs[i-1].duration
+        fakeStart = programs[i-1].utcStart + programs[i-1].duration
+        fakeDuration = programs[i].utcStart - fakeStart
+        if fakeDuration > 600
+          fullPrograms.push(createFakeProgram(guide._id, fakeStart, fakeDuration))
+        else
+          programs[i-1].duration = programs[i-1].duration + fakeDuration
+        end if
+      end if
+      fullPrograms.push(programs[i])
+    end for
+  end if
+  return fullPrograms
 end function
 
 

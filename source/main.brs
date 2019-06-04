@@ -1949,6 +1949,7 @@ function SetFeatures() as void
     autoplay: m.app.autoplay,
     swaf: m.app.subscribe_to_watch_ad_free,
     enable_epg: configs.enable_epg,
+    epg_limit_days: configs.epg_limit_days,
     enable_lock_icons: m.app.enable_lock_icons,
     native_to_universal_subscription: m.app.native_to_universal_subscription,
     native_tvod: configs.native_tvod,

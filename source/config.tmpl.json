@@ -16,6 +16,7 @@
   "git_description" : "<GIT_DESCRIPTION>",
 
   "enable_epg": false,
+  "epg_limit_days": [-3,1],
   "enable_lock_icons": false,
   "subscribe_to_watch_ad_free": false,
   "test_info_screen": false,

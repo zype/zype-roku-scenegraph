@@ -106,9 +106,9 @@ function getFirstItemIndex(i, alignEnd = true)
     iMiddle% = iStart + (iEnd - iStart) / 2
     p = programs[iMiddle%]
     if utcToLocal(p.utcStart + p.duration) <= m.timelineStart
-      iEnd = iMiddle%
-    else if utcToLocal(p.utcStart) >= m.timelineStart
       iStart = iMiddle%
+    else if utcToLocal(p.utcStart) >= m.timelineStart + m.top.visibleHours * 3600
+      iEnd = iMiddle%
     end if
     infinityCounter% -= 1
     if infinityCounter% < 0
