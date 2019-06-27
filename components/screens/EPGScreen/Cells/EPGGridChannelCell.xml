@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="EPGGridChannelCell" extends="BaseGroup">
+ 
+  <interface> 
+    <field id="itemContent" type="assocarray" onChange="itemContentChanged"/>
+    <field id="width" alias="backgroundColor.width" onChange="updateLayout" />
+    <field id="height" alias="backgroundColor.height" onChange="updateLayout" />
+    <field id="rowHasFocus" type = "bool" value = "false" onChange = "showfocus" />
+    <field id="gridHasFocus" type = "bool" value = "false" onChange = "showfocus" />
+  </interface>
+ 
+  <script type="text/brightscript" >
+  <![CDATA[ 
+    function init() 
+      m.backgroundColor = m.top.findNode("backgroundColor")
+      m.itemText = m.top.findNode("itemText")
+      m.contentGroup = m.top.findNode("contentGroup")
+      m.channelLogo = m.top.findNode("channelLogo")
+    end function
+  
+    function itemContentChanged()
+      updateLayout()
+      m.itemText.text = m.top.itemContent.title
+      'm.channelNumber.text = ""  'm.top.itemContent.channelNumber
+      'm.channelLogo.uri = m.top.itemContent.logo
+    end function
+  
+    function updateLayout()
+      if m.top.itemContent <> invalid and m.top.width > 0 and m.top.height > 0
+        m.itemText.width = m.top.width - 12
+        'm.itemText.height = m.top.height
+        m.channelLogo.height = m.top.height - 36
+        m.channelLogo.width = int(m.top.height * 108 / 69)
+        'm.channelNumber.height = m.top.height
+        'm.channelNumber.width = int(m.top.width / 4)
+        m.contentGroup.translation = [m.top.width / 2, 0]
+        m.top.findNode("borderTop").width = m.top.width
+        m.top.findNode("borderLeft").height = m.top.height
+        m.top.findNode("borderBottom").width = m.top.width
+        m.top.findNode("borderBottom").translation = [0, m.top.height - 1]
+        m.top.findNode("borderRight").height = m.top.height
+        m.top.findNode("borderRight").translation = [m.top.width - 1, 0]
+        showfocus()
+      end if
+    end function
+  
+    function showfocus()
+      if m.top.gridHasFocus and m.top.rowHasFocus
+        focusOn()
+      else
+        focusOff()
+      end if
+    end function
+      
+      function focusOn()
+        m.backgroundColor.color = m.global.theme.plan_button_color
+        m.itemText.color = m.global.theme.primary_text_color
+      end function
+      
+      function focusOff()
+        m.backgroundColor.color = m.global.theme.plan_button_color
+        m.itemText.color = m.global.theme.primary_text_color
+      end function
+  
+  ]]>
+  </script>
+  
+  <children> 
+    <Rectangle id="backgroundColor" color="0x121E2A" >
+      <LayoutGroup id="contentGroup" layoutDirection="vert" vertAlignment="top" horizAlignment="center" itemSpacings="6" >
+        <Poster id="channelLogo" loadDisplayMode="scaleToFit" />
+        <Label id="itemText" horizAlign="center" vertAlign="center" color="0xff0000" >
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="16" />
+        </Label>
+      </LayoutGroup>
+      <Rectangle id="borderTop" color="0x606060" height="1" />
+      <Rectangle id="borderLeft" color="0x606060" width="1" />
+      <Rectangle id="borderBottom" color="0x80808000" height="1" />
+      <Rectangle id="borderRight" color="0x606060" width="1" />
+    </Rectangle>
+  </children>
+</component>

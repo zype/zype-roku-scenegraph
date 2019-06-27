@@ -5,6 +5,8 @@
 Function Init()
     ' listen on port 8089
     ? "[HomeScene] Init"
+    m.top.backgroundURI=""
+    'm.top.backgroundColor="#000000"
 
     ' GridScreen node with RowList
     m.gridScreen = m.top.findNode("GridScreen")
@@ -61,13 +63,13 @@ Function Init()
     m.screenStack.push(m.gridScreen)
 
     ' loading indicator starts at initializatio of channel
-    m.loadingIndicator = m.top.findNode("loadingIndicator")
+    m.top.loadingIndicator = m.top.findNode("loadingIndicator")
 
     m.TestInfoScreen = m.top.findNode("TestInfoScreen")
 
     ' Set theme
-    m.loadingIndicator.backgroundColor = m.global.theme.background_color
-    m.loadingIndicator.imageUri = m.global.theme.loader_uri
+    m.top.loadingIndicator.backgroundColor = m.global.theme.background_color
+    m.top.loadingIndicator.imageUri = m.global.theme.loader_uri
 
     ' For tracking position bwtn playlist levels
     m.IndexTracker = {}
@@ -75,7 +77,7 @@ Function Init()
     ' For tracking thumbnail sizes and row spacing bwtn levels
     m.rowItemSizes = {}
     m.rowSpacings  = {}
-
+    m.playListFromHeroSlider=false
     m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
 End Function
 
@@ -145,15 +147,34 @@ End Function
 ' if content set, focus on GridScreen and remove loading indicator
 Function OnChangeContent()
     m.gridScreen.setFocus(true)
-    m.loadingIndicator.control = "stop"
+    m.top.loadingIndicator.control = "stop"
 End Function
+
+Sub carouselSelectDataSelected()
+    if m.top.carouselSelectData<>invalid
+        if m.top.carouselSelectData.playlistid<>invalid
+            m.playListFromHeroSlider=true
+            m.gridScreen.heroCarouselShow=false
+            m.contentStack.push(m.gridScreen.content)
+        end if
+    end if
+End SUb
+
+Sub CarouselDeepLinkToDetailPage()
+    m.gridScreen.visible = "false"
+    m.detailsScreen.autoplay = false
+    m.detailsScreen.content = m.top.DeepLinkToDetailPage
+    m.detailsScreen.setFocus(true)
+    m.detailsScreen.visible = "true"
+    m.screenStack.push(m.detailsScreen)
+ENd SUb
 
 ' Row item selected handler
 Function OnRowItemSelected()
     ' On select any item on home scene, show Details node and hide Grid
-    ? m.gridScreen.focusedContent.contenttype
     if m.gridScreen.focusedContent.contentType = 2 then
         ? "[HomeScene] Playlist Selected"
+        m.gridScreen.heroCarouselShow=false
 
         AddCurrentPositionToTracker()
         AddPosterPlaylists()
@@ -273,6 +294,9 @@ Function OnMenuButtonSelected()
       m.top.SearchString = ""
       m.top.ResultsText = ""
       m.top.transitionTo = "Search"
+    else if button_role = "transition" and button_target = "EPGScreen"
+'      m.top.findNode("EPGScreen").reset = true
+      m.top.transitionTo = "EPGScreen"
     else if button_role = "transition" and button_target = "InfoScreen"
       m.top.transitionTo = "InfoScreen"
     else if button_role = "transition" and button_target = "Favorites"
@@ -329,11 +353,13 @@ Function OnKeyEvent(key, press) as Boolean
             ? "isSpecialScreen(): "; isSpecialScreen()
 
             if isSpecialScreen()
+                    m.gridScreen.heroCarouselShow=false
                 if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
                     ? "1"
                     ' if detailsScreen is open and video is stopped, details is lastScreen
                     details = m.screenStack.pop()
                     details.visible = false
+                    ?"m.screenStack==>"m.screenStack
                     m.screenStack.peek().visible = true
                     m.screenStack.peek().setFocus(true)
 
@@ -354,10 +380,28 @@ Function OnKeyEvent(key, press) as Boolean
                     m.detailsScreen.videoPlayer.control = "stop"
                     m.detailsScreen.videoPlayer.visible = false
                     m.detailsScreen.videoPlayer.setFocus(false)
-
+                    
                     m.detailsScreen.visible = true
                     m.detailsScreen.setFocus(true)
                     result = true
+               else if  m.playListFromHeroSlider=true then
+                    ?m.contentStack
+                    previousContent = m.contentStack[0]
+                    m.gridScreen.content = previousContent
+                    lastPosition = GetLastPositionFromTracker()
+                    lastRowItemSizes = GetLastRowItemSizes()
+                    lastRowSpacings = GetLastRowSpacings()
+
+                    video_list_stack =  m.top.videoliststack
+                    video_list_stack.pop()
+                    m.top.videoliststack = video_list_stack
+
+                    m.detailsScreen.videosTree = m.top.videoliststack.peek()
+                    result = true
+                    m.gridscreen.visible=true
+                    m.gridScreen.heroCarouselShow=true
+                    m.gridScreen.moveFocusToheroCarousel=true
+                    m.playListFromHeroSlider=false
                 else if m.contentStack.count() > 0 and m.gridScreen.visible = true then
                     previousContent = m.contentStack.pop()
 
@@ -404,12 +448,13 @@ Function OnKeyEvent(key, press) as Boolean
                     ' if the screen is visible - it must be the last element
                     screen = m.screenStack.pop()
                     screen.visible = false
-
+                   
                     ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                     ' open last screen before it and focus it
                     m.screenStack.peek().visible = true
                     m.screenStack.peek().setFocus(true)
                     result = true
+
                 end if
             end if
         end if
@@ -418,7 +463,12 @@ Function OnKeyEvent(key, press) as Boolean
     ' Dialog boxes handler
     ' press = false when key event happens to component inside children
     if press = false then
+       
         print "Dialog: "; m.top.dialog
+
+        if key = "back" AND m.top.dialog = invalid AND not isSpecialScreen()
+            m.gridScreen.heroCarouselShow=true
+        end if
 
         if(m.top.dialog <> invalid)
             buttonIndex = m.top.dialog.buttonSelected

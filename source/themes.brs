@@ -1,6 +1,6 @@
 Function DarkTheme() as Object
     theme = {
-        background_color:           "#1d1f29",
+        background_color:           "#000000",
         primary_text_color:         "#f5f5f5",
         secondary_text_color:       "#a8a8a8",
         plan_button_color:          "#464646",
@@ -10,6 +10,7 @@ Function DarkTheme() as Object
         button_focus_uri:           "pkg:/images/button-focus-light.png",
         button_filledin_uri:        "pkg:/images/button-filledin-light.png"
         paginate_button:            "pkg:/images/paginate_light.png"
+        slider_focus:               "pkg://images/roku_white_highlight_thicker.png"
     }
     return theme
 End Function
@@ -26,6 +27,7 @@ Function LightTheme() as Object
         button_focus_uri:           "pkg:/images/button-focus-dark.png",
         button_filledin_uri:        "pkg:/images/button-filledin-dark.png"
         paginate_button:            "pkg:/images/paginate_dark.png"
+        slider_focus:               "pkg://images/roku_black_highlight_thicker.png"
     }
     return theme
 End Function

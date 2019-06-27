@@ -6,6 +6,7 @@
   "menu_account_button": "Account",
   "menu_favorites_button": "Favorites",
   "menu_my_library_button": "My Library",
+  "menu_my_tv_button": "Guide",
 
   "link_device_button": "Link Device",
   "unlink_device_button": "Unlink Device",
@@ -31,6 +32,7 @@
   "create_account_submit_button": "Create Account",
   "sign_up_to_watch_submit_button": "Sign Up to Watch",
   "custom_plan_purchase_message": "",
+  "program_is_not_available": "Program data is not available",
 
   "subscribe_button": "Subscribe",
   "swaf_button": "Watch Ad Free",

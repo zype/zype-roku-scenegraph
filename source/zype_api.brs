@@ -54,7 +54,6 @@ Function MakeRequest(src As String, params As Object) As Object
   port = CreateObject("roMessagePort")
   request.setMessagePort(port)
   url = AppendParamsToUrl(src, params)
-
   if url.InStr(0, "https") = 0
     request.SetCertificatesFile("common:/certs/ca-bundle.crt")
     request.AddHeader("X-Roku-Reserved-Dev-Id", "")
@@ -63,12 +62,13 @@ Function MakeRequest(src As String, params As Object) As Object
 
   ' print url ' uncomment to debug
   request.SetUrl(url)
-
+?"the url is ==>"url
   if request.AsyncGetToString()
     while true
       msg = wait(0, port)
       if type(msg) = "roUrlEvent"
         code = msg.GetResponseCode()
+        ?"the code is=>"code
         if code = 200
           response = ParseJson(msg.GetString())
           return response
@@ -285,11 +285,10 @@ End Function
 '******************************************************
 Function GetAppConfigs(urlParams = {} As Object) As Object
   data = {}
-
+  
   url = GetApiConfigs().endpoint + "app/"
   params = AppendAppKeyToParams(urlParams)
   response = MakeRequest(url, params)
-
   if response <> invalid
     data = response.response
   end if
@@ -370,6 +369,45 @@ Function GetCategory(id as String, urlParams = {} As Object) As Object
 
   return data
 End Function
+
+
+'******************************************************
+'Get EPG
+'******************************************************
+Function GetProgramGuides(urlParams = {} As Object) As Object
+  data = []
+  url = GetApiConfigs().endpoint + "program_guides/"
+  params = AppendAppKeyToParams(urlParams)
+  response = MakeRequest(url, params)
+  if response <> invalid and response.response <> invalid
+    data = response.response
+  end if
+  return data
+End Function
+
+
+Function GetProgramGuide(id as String, urlParams = {} As Object) As Object
+  data = {response: []}
+  url = GetApiConfigs().endpoint + "program_guides/" + id + "/entries"
+  params = AppendAppKeyToParams(urlParams)
+  response = MakeRequest(url, params)
+  if response <> invalid and response.response <> invalid
+    data = response  '.response
+  end if
+  return data
+End Function
+
+
+Function ViewProgramGuide(id as String, urlParams = {} As Object) As Object
+  data = {response: {}}
+  url = GetApiConfigs().endpoint + "program_guides/" + id
+  response = MakeRequest(url, AppendAppKeyToParams(urlParams))
+  if response <> invalid and response.response <> invalid
+    data = response
+  end if
+  return data
+End Function
+
 
 function MakeGetRequest(src, params) as object
     resp = {}

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="EPGGridCell" extends="BaseGroup">
+ 
+<interface> 
+  <field id="itemContent"  type="assocarray" onChange="itemContentChanged"/>
+  <field id="width" alias="backgroundColor.width" onChange="updateLayout" />
+  <field id="height" alias="backgroundColor.height" onChange="updateLayout" />
+  <field id="indexInRow"   type="int" onChange="updateLayout" />
+  <field id="cellHasFocus" type="bool" value="false" onChange="showfocus" />
+  <field id="rowHasFocus"  type="bool" value="false" onChange="showfocus" />
+  <field id="gridHasFocus" type="bool" value="false" onChange="showfocus" />
+</interface>
+
+<script type="text/brightscript" >
+<![CDATA[ 
+  function init()
+    m.top.focusable = true
+    m.backgroundColor = m.top.findNode("backgroundColor")
+    m.itemText = m.top.findNode("itemText")
+  end function
+
+  function itemContentChanged()
+    updateLayout()
+    m.itemText.text = m.top.itemContent.title
+  end function
+
+
+  function updateLayout()
+    if m.top.width > 0 and m.top.height > 0
+      'm.top.width = evalInteger(m.top.itemContent.hourwidth)/60 * int(evalInteger(m.top.itemContent.showlength) / 60)
+      m.top.findNode("borderTop").width = m.top.width
+      m.top.findNode("borderLeft").height = m.top.height
+      m.top.findNode("borderBottom").width = m.top.width
+      m.top.findNode("borderBottom").translation = [0, m.top.height - 1]
+      m.top.findNode("borderRight").height = m.top.height
+      m.top.findNode("borderRight").translation = [m.top.width - 1, 0]
+      m.itemText.width=m.top.width - 25
+      m.itemText.height=m.top.height
+      showfocus()
+    end if
+  end function
+    
+  function showfocus()
+    if m.top.gridHasFocus
+      if m.top.cellHasFocus and m.top.rowHasFocus
+        m.backgroundColor.color = m.global.brand_color
+        m.itemText.color = m.global.theme.primary_text_color
+      else if m.top.rowHasFocus
+        m.backgroundColor.color = m.global.theme.plan_button_color
+        m.itemText.color = m.global.theme.primary_text_color
+      else
+        m.backgroundColor.color = "0x455ad100"
+        m.itemText.color = m.global.theme.primary_text_color
+      end if
+      if m.top.indexInRow = 0 and m.top.rowHasFocus
+        'm.itemText.translation=[18,0]
+      else
+        'm.itemText.translation=[14,0]
+      end if
+    else
+      'm.itemText.translation = [14, 0]
+      m.backgroundColor.color = "0x455ad100"
+      m.itemText.color = m.global.theme.primary_text_color
+    end if
+  end function
+]]>
+</script>
+
+<children> 
+  <Rectangle id="backgroundColor" />
+  <Label id="itemText" vertAlign="center" color="0xFFFFFFFF" translation="[14,0]" wrap="true" maxlines="2" >
+    <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="16" />
+  </Label>
+  <Rectangle id="borderTop" color="0x606060" height="1" />
+  <Rectangle id="borderLeft" color="0x88888800" width="1" />
+  <Rectangle id="borderBottom" color="0x80808000" height="1" />
+  <Rectangle id="borderRight" color="0x606060" width="1" />
+</children>
+
+</component>
