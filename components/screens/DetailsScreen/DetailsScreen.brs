@@ -358,13 +358,18 @@ Sub AddActionButtons() ' trigger monetization
       if m.top.content.subscriptionrequired
         btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" })
       end if
-
+      
       if m.top.content.purchaseRequired and m.global.native_tvod
         if m.top.content.storeProduct <> invalid and m.top.content.storeProduct.cost <> invalid
           purchaseButtonText = "Purchase video - " + m.top.content.storeProduct.cost
         else
           purchaseButtonText = "Purchase video"
         end if
+
+        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
+      else if m.top.rowTVODInitiateContent.description<>""
+        purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
+ 
 
         btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
       end if
@@ -379,11 +384,11 @@ Sub AddTVODActionButtons()
 
   
 
-          purchaseButtonText = "BUY ALL "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" videos $"+m.top.rowTVODInitiateContent.description
+          purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
  
 
-        btns.push({ title: Ucase(purchaseButtonText), role: "transition", target: "PurchaseScreen" })
-  
+        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
+      addWatchTrailerButton(btns)
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
   end if
 

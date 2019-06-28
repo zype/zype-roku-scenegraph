@@ -202,7 +202,7 @@ Function OnRowItemSelected()
 
         m.detailsScreen.autoplay = m.global.autoplay
         rowContent=m.gridScreen.content.getChild(m.gridScreen.rowItemSelected[0])
-        ?"the rowContent is=>"rowContent
+        
         if rowContent.DESCRIPTION<>invalid 
             m.detailsScreen.rowTVODInitiateContent=rowContent
         end if
