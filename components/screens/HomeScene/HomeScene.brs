@@ -479,8 +479,17 @@ Function OnKeyEvent(key, press) as Boolean
             else if((buttonIndex = 0 and key = "OK" AND m.top.dialog.title <> "Closed caption/audio configuration") OR (buttonIndex = 1 and key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation"))
                 m.top.dialog.close = true
                 m.top.dialog = invalid
+                
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+               
             end if
             print "buttonIndex: "; buttonIndex; " buttonKey: "; key
+        else
+            if key = "back" AND m.top.dialog = invalid
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+            end if
         end if
 
         if key = "OK" then
