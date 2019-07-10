@@ -205,14 +205,18 @@ Function MakePostRequest(src As String, params As Object) As Object
 
   ' print url ' uncomment to debug
   request.SetUrl(url)
+  ?"the url is ==>"url
+  ?"the bodyData is ==>"bodyData
 
   if request.AsyncPostFromString(bodyData)
     while true
       msg = wait(0, port)
       if type(msg) = "roUrlEvent"
         code = msg.GetResponseCode()
+        ?"the code is ==>"code
         if code = 200 or code = 201
           response = ParseJson(msg.GetString())
+          ?"the response is ==>"response
           return response
         end if
         exit while
