@@ -12,6 +12,9 @@
     <field id="start" type="string" />
     <field id="end" type="string" />
 
+
+
+
     <field id="subscriptionRequired" type="boolean" />
     <field id="purchaseRequired" type="boolean" />
     <field id="rentalRequired" type="boolean" />
@@ -25,5 +28,6 @@
     <!-- for pagination -->
     <field id="isPaginator" type="boolean" />
     <field id="nextPage" type="integer" />
+
   </interface>
 </component>

@@ -26,6 +26,7 @@ Function CreatePlaylistObject(attrs As Object) As Object
     isPoster = false
   end if
 
+
   playlist = {
     id: properties._id,
     title: properties.title,
@@ -35,6 +36,7 @@ Function CreatePlaylistObject(attrs As Object) As Object
     contenttype: "series",
     releasedate: " ",
     poster: isPoster
+
   }
 
   return playlist

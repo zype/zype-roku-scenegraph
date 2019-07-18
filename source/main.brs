@@ -390,6 +390,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 ' Get Playlist object from the platform
                 playlistObject = GetPlaylists({ id: content.id })
                 playlistThumbnailLayout = playlistObject[0].thumbnail_layout
+
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
                 m.gridContent = m.gridScreen.content
 
@@ -1091,7 +1092,6 @@ function GetMyLibraryContent(is_linked as boolean, page = 1 as integer)
 
     if is_linked
         oauth = m.current_user.getOAuth()
-
         video_entitlements = GetEntitledVideos({
             access_token: oauth.access_token,
             per_page: 20,
@@ -1140,7 +1140,6 @@ Function ParseContent(list As Object)
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
         row.Title = rowAA.Title
-
         if rowAA.purchase_price<>invalid
             consumables = m.roku_store_service.getConsumables()
             purchaseItem = consumables[0]
@@ -1220,6 +1219,13 @@ function GetPlaylistContent(playlist_id as String)
         list = []
         row = {}
         row.title = pl.title
+        if pl.purchase_required<>invalid
+            if pl.purchase_required=true
+                row.playlist_item_count=pl.playlist_item_count
+                row.purchase_price=pl.purchase_price
+                row.playListID=pl._id
+            end if
+        end if
         videos = []
         video_index = 0
         for each video in GetPlaylistVideos(pl._id, {"dpt": "true", "per_page": m.app.per_page})

@@ -107,10 +107,7 @@ sub refreshButtons() as void
         m.top.canWatchVideo = false
         AddActionButtons()
       end if
-    else if m.top.rowTVODInitiateContent.description<>""
-      AddTVODActionButtons()
     else if m.top.content.purchaseRequired and m.global.native_tvod ' TVOD
-
       if userIsEntitled
         m.top.canWatchVideo = true
         AddButtons()
@@ -118,7 +115,14 @@ sub refreshButtons() as void
         m.top.canWatchVideo = false
         AddActionButtons()
       end if
-
+    else if m.global.native_tvod and m.top.rowTVODInitiateContent.description<>""
+      if userIsEntitled
+        m.top.canWatchVideo = true
+        AddButtons()
+      else
+        m.top.canWatchVideo = false
+        AddActionButtons()
+      end if
 
     else if m.top.content.registrationRequired
       if userIsLoggedIn
@@ -323,7 +327,7 @@ Sub AddButtons() ' user has access
       ]
     end if
 
-    if m.global.favorites_via_api = false or (m.global.device_linking and m.global.auth.isLoggedIn)
+    if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
       if m.top.content.inFavorites = true
         btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
       else
@@ -358,8 +362,8 @@ Sub AddActionButtons() ' trigger monetization
       if m.top.content.subscriptionrequired
         btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" })
       end if
-      
-      if m.top.content.purchaseRequired and m.global.native_tvod
+      '?"m.top.rowTVODInitiateContent==>"m.top.rowTVODInitiateContent
+      if m.top.content.purchaseRequired and m.global.native_tvod and m.top.rowTVODInitiateContent.description=""
         if m.top.content.storeProduct <> invalid and m.top.content.storeProduct.cost <> invalid
           purchaseButtonText = "Purchase video - " + m.top.content.storeProduct.cost
         else
@@ -367,13 +371,23 @@ Sub AddActionButtons() ' trigger monetization
         end if
 
         btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
-      else if m.top.rowTVODInitiateContent.description<>""
+      else if m.global.native_tvod and m.top.rowTVODInitiateContent.description<>""
         purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
  
 
         btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
       end if
+      
       addWatchTrailerButton(btns)
+
+      if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
+        if m.top.content.inFavorites = true
+          btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
+        else
+          btns.push({title: m.global.labels.favorite_button, role: "favorite"})
+        end if
+      end if
+
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
@@ -384,8 +398,14 @@ Sub AddTVODActionButtons()
 
   
 
-          purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
- 
+      purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
+      if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
+        if m.top.content.inFavorites = true
+          btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
+        else
+          btns.push({title: m.global.labels.favorite_button, role: "favorite"})
+        end if
+      end if
 
         btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
       addWatchTrailerButton(btns)
