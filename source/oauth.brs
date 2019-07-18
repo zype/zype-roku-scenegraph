@@ -172,13 +172,14 @@ Function RequestPost(url As String, data As dynamic)
     roUrlTransfer.AddHeader("Content-Type", "application/json")
     roUrlTransfer.AddHeader("Accept", "application/json")
     json = FormatJson(data)
-    ' print "Posting to "  roUrlTransfer.GetUrl()  ": "  json
-
+    print "Posting to "  roUrlTransfer.GetUrl()  ": "  json
+    ?"the url is ==>"url
     if(roUrlTransfer.AsyncPostFromString(json))
       while(true)
         msg = wait(0, port)
         if(type(msg) = "roUrlEvent")
           code = msg.GetResponseCode()
+          ?"the code is ==>"code
           if(code = 200)
             res = ParseJSON(msg.GetString())
             ' print "result: "; res

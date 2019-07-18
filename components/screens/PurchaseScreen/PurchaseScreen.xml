@@ -19,6 +19,10 @@
     <field id="purchaseItem" type="assocarray" onChange="onPurchaseItemChanged" />
     <field id="itemName" type="string" onChange="onItemNameChanged" />
     <field id="videoId" type="string" />
+    <field id="isPlayList" type="bool" value="false"/>
+    <field id="playListVideoCount" type="int" value="false"/>
+
+
   </interface>
 
   <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />

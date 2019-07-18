@@ -201,6 +201,11 @@ Function OnRowItemSelected()
         m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
 
         m.detailsScreen.autoplay = m.global.autoplay
+        rowContent=m.gridScreen.content.getChild(m.gridScreen.rowItemSelected[0])
+        
+        if rowContent.DESCRIPTION<>invalid 
+            m.detailsScreen.rowTVODInitiateContent=rowContent
+        end if
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = true
@@ -474,8 +479,17 @@ Function OnKeyEvent(key, press) as Boolean
             else if((buttonIndex = 0 and key = "OK" AND m.top.dialog.title <> "Closed caption/audio configuration") OR (buttonIndex = 1 and key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation"))
                 m.top.dialog.close = true
                 m.top.dialog = invalid
+                
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+               
             end if
             print "buttonIndex: "; buttonIndex; " buttonKey: "; key
+        else
+            if key = "back" AND m.top.dialog = invalid
+                m.screenStack.peek().visible = true
+                m.screenStack.peek().setFocus(true)
+            end if
         end if
 
         if key = "OK" then

@@ -91,9 +91,8 @@ sub refreshButtons() as void
 
   userIsLoggedIn = (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
 
-  videoRequiresEntitlement = (m.top.content.subscriptionRequired or m.top.content.purchaseRequired or m.top.content.rentalRequired)
+  videoRequiresEntitlement = (m.top.content.subscriptionRequired or m.top.content.purchaseRequired or m.top.content.rentalRequired or m.top.rowTVODInitiateContent.description<>"")
   videoRequiresEntitlement = (videoRequiresEntitlement or m.top.content.passRequired or m.top.content.registrationRequired)
-
   if videoRequiresEntitlement
     userIsEntitled = false
     if m.global.auth.entitlements <> invalid
@@ -108,9 +107,7 @@ sub refreshButtons() as void
         m.top.canWatchVideo = false
         AddActionButtons()
       end if
-
     else if m.top.content.purchaseRequired and m.global.native_tvod ' TVOD
-
       if userIsEntitled
         m.top.canWatchVideo = true
         AddButtons()
@@ -118,7 +115,14 @@ sub refreshButtons() as void
         m.top.canWatchVideo = false
         AddActionButtons()
       end if
-
+    else if m.global.native_tvod and m.top.rowTVODInitiateContent.description<>""
+      if userIsEntitled
+        m.top.canWatchVideo = true
+        AddButtons()
+      else
+        m.top.canWatchVideo = false
+        AddActionButtons()
+      end if
 
     else if m.top.content.registrationRequired
       if userIsLoggedIn
@@ -323,7 +327,7 @@ Sub AddButtons() ' user has access
       ]
     end if
 
-    if m.global.favorites_via_api = false or (m.global.device_linking and m.global.auth.isLoggedIn)
+    if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
       if m.top.content.inFavorites = true
         btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
       else
@@ -358,8 +362,8 @@ Sub AddActionButtons() ' trigger monetization
       if m.top.content.subscriptionrequired
         btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" })
       end if
-
-      if m.top.content.purchaseRequired and m.global.native_tvod
+      '?"m.top.rowTVODInitiateContent==>"m.top.rowTVODInitiateContent
+      if m.top.content.purchaseRequired and m.global.native_tvod and m.top.rowTVODInitiateContent.description=""
         if m.top.content.storeProduct <> invalid and m.top.content.storeProduct.cost <> invalid
           purchaseButtonText = "Purchase video - " + m.top.content.storeProduct.cost
         else
@@ -367,11 +371,48 @@ Sub AddActionButtons() ' trigger monetization
         end if
 
         btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
+      else if m.global.native_tvod and m.top.rowTVODInitiateContent.description<>""
+        purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
+ 
+
+        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
       end if
+      
       addWatchTrailerButton(btns)
+
+      if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
+        if m.top.content.inFavorites = true
+          btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
+        else
+          btns.push({title: m.global.labels.favorite_button, role: "favorite"})
+        end if
+      end if
+
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
     end if
 End Sub
+
+Sub AddTVODActionButtons()
+  if m.top.content <> invalid then
+      btns = []
+
+  
+
+      purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
+      if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
+        if m.top.content.inFavorites = true
+          btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
+        else
+          btns.push({title: m.global.labels.favorite_button, role: "favorite"})
+        end if
+      end if
+
+        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
+      addWatchTrailerButton(btns)
+      m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
+  end if
+
+ENd SUb
 
 sub AddSigninButton() ' sign in only
     if m.top.content <> invalid

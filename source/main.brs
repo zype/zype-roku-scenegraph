@@ -96,7 +96,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.TestInfoScreen = m.scene.findNode("TestInfoScreen")
 
     m.store = CreateObject("roChannelStore")
-    ' m.store.FakeServer(true)
+    '' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
     m.productsCatalog = []
@@ -390,6 +390,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 ' Get Playlist object from the platform
                 playlistObject = GetPlaylists({ id: content.id })
                 playlistThumbnailLayout = playlistObject[0].thumbnail_layout
+
                 m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
                 m.gridContent = m.gridScreen.content
 
@@ -1091,7 +1092,6 @@ function GetMyLibraryContent(is_linked as boolean, page = 1 as integer)
 
     if is_linked
         oauth = m.current_user.getOAuth()
-
         video_entitlements = GetEntitledVideos({
             access_token: oauth.access_token,
             per_page: 20,
@@ -1140,6 +1140,14 @@ Function ParseContent(list As Object)
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
         row.Title = rowAA.Title
+        if rowAA.purchase_price<>invalid
+            consumables = m.roku_store_service.getConsumables()
+            purchaseItem = consumables[0]
+            row.NumEpisodes=rowAA.playlist_item_count
+            row.Description=rowAA.purchase_price
+            row.id=rowAA.playListID
+            row.shortDescriptionLine1=FormatJSON(purchaseItem)
+        end if
 
         for each itemAA in rowAA.ContentList
             item = createObject("RoSGNode","VideoNode")
@@ -1211,6 +1219,13 @@ function GetPlaylistContent(playlist_id as String)
         list = []
         row = {}
         row.title = pl.title
+        if pl.purchase_required<>invalid
+            if pl.purchase_required=true
+                row.playlist_item_count=pl.playlist_item_count
+                row.purchase_price=pl.purchase_price
+                row.playListID=pl._id
+            end if
+        end if
         videos = []
         video_index = 0
         for each video in GetPlaylistVideos(pl._id, {"dpt": "true", "per_page": m.app.per_page})
@@ -1293,8 +1308,17 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
 
     list = []
     for each item in rawPlaylists
+
         row = {}
         row.title = item.title
+        if item.purchase_required<>invalid
+            if item.purchase_required=true
+                row.playlist_item_count=item.playlist_item_count
+                row.purchase_price=item.purchase_price
+                row.playListID=item._id
+            end if
+        end if
+
         row.ContentList = []
         if item.playlist_item_count > 0
             row.ContentList = []
@@ -1623,9 +1647,20 @@ function handleButtonEvents(index, screen)
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
     else if button_role = "transition" and button_target = "PurchaseScreen"
-      m.PurchaseScreen.purchaseItem = screen.content.storeProduct
-      m.PurchaseScreen.itemName = screen.content.title
-      m.PurchaseScreen.videoId = screen.content.id
+      if screen.content.storeProduct<>invalid
+
+          m.PurchaseScreen.purchaseItem = screen.content.storeProduct
+          m.PurchaseScreen.itemName = screen.content.title
+          m.PurchaseScreen.videoId = screen.content.id
+
+      else if screen.rowTVODInitiateContent.DESCRIPTION<>""
+        m.PurchaseScreen.isPlayList=true
+        m.PurchaseScreen.playListVideoCount = screen.rowTVODInitiateContent.NUMEPISODES.toStr()
+        m.PurchaseScreen.purchaseItem = parseJSON(screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1)
+        m.PurchaseScreen.itemName = screen.rowTVODInitiateContent.title
+        m.PurchaseScreen.videoId = screen.rowTVODInitiateContent.id
+
+      end if
 
       m.scene.transitionTo = "PurchaseScreen"
 

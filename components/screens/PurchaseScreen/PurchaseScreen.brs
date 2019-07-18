@@ -51,10 +51,18 @@ function onVisibleChange() as void
 end function
 
 function onPurchaseItemChanged() as void
-  btns = [
-    { title: "Purchase Video - " + m.top.purchaseItem.cost, role: "confirm_purchase" },
-    { title: "Cancel", role: "cancel" }
-  ]
+  if m.top.isPlayList=false
+    btns = [
+      { title: "Purchase Video - " + m.top.purchaseItem.cost, role: "confirm_purchase" },
+      { title: "Cancel", role: "cancel" }
+    ]
+  else
+    m.top.isPlayList=false
+    btns = [
+      { title: "Buy all "+m.top.playListVideoCount.toStr()+" Videos - " + m.top.purchaseItem.cost, role: "confirm_purchase" },
+      { title: "Cancel", role: "cancel" }
+    ]
+  end if
   m.purchaseButtons.content = m.contentHelpers.oneDimList2ContentNode(btns, "ButtonNode")
 end function
 
