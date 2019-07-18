@@ -1142,7 +1142,11 @@ Function ParseContent(list As Object)
         row.Title = rowAA.Title
         if rowAA.purchase_price<>invalid
             consumables = m.roku_store_service.getConsumables()
-            purchaseItem = consumables[0]
+            for each item in consumables
+                if item.code = rowAA.marketplace_id
+                    purchaseItem = item
+                end if
+            end for
             row.NumEpisodes=rowAA.playlist_item_count
             row.Description=rowAA.purchase_price
             row.id=rowAA.playListID
@@ -1224,6 +1228,7 @@ function GetPlaylistContent(playlist_id as String)
                 row.playlist_item_count=pl.playlist_item_count
                 row.purchase_price=pl.purchase_price
                 row.playListID=pl._id
+                row.marketPlace_id=pl.marketplace_ids.roku
             end if
         end if
         videos = []
@@ -1316,6 +1321,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
                 row.playlist_item_count=item.playlist_item_count
                 row.purchase_price=item.purchase_price
                 row.playListID=item._id
+                row.marketPlace_id=item.marketplace_ids.roku
             end if
         end if
 
