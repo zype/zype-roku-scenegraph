@@ -582,10 +582,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     AddVideoIdTimeSaveForResumeToReg(m.videoPlayer.content.id,startDate.asSeconds().ToStr())
                 end if
 
-                ' If midroll ads exist, watch for midroll ads
-                if m.midroll_ads <> invalid and m.midroll_ads.count() > 0
+	            ' If midroll ads exist, watch for midroll ads
+	            if m.midroll_ads <> invalid and m.midroll_ads.count() > 0
                     handleMidrollAd()
-                end if ' end of midroll ad if statement
+	            end if ' end of midroll ad if statement
             else if msg.getNode() = "DeviceLinking" and msg.getField() = "show" and msg.GetData() = true then
                 m.scene.transitionTo = "DeviceLinking"
                 goIntoDeviceLinkingFlow()
@@ -891,57 +891,57 @@ end sub
 
 sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo, content = invalid)
   if content = invalid then content = screen.content
-    ' show loading indicator before requesting ad and playing video
-    m.loadingIndicator.control = "start"
-    m.on_air = content.onAir
+	' show loading indicator before requesting ad and playing video
+	m.loadingIndicator.control = "start"
+	m.on_air = content.onAir
 
-    m.VideoPlayer = screen.VideoPlayer
-    m.VideoPlayer.observeField("position", m.port)
-    m.videoPlayer.content = content
+	m.VideoPlayer = screen.VideoPlayer
+	m.VideoPlayer.observeField("position", m.port)
+	m.videoPlayer.content = content
 
   video_service = VideoService()
 
-    if subtitleEnabled
-      m.videoPlayer.content.subtitleTracks = video_service.GetSubtitles(playerInfo)
-    else
-      m.videoPlayer.content.subtitleTracks = []
-    end if
+	if subtitleEnabled
+	  m.videoPlayer.content.subtitleTracks = video_service.GetSubtitles(playerInfo)
+	else
+	  m.videoPlayer.content.subtitleTracks = []
+	end if
 end sub
 
 sub handleMidrollAd()
-    currPos = m.videoPlayer.position
+	currPos = m.videoPlayer.position
 
-    timeDiff = Abs(m.midroll_ads[0].offset - currPos)
-    print "Next midroll ad: "; m.midroll_ads[0].offset
-    print "Time until next midroll ad: "; timeDiff
+	timeDiff = Abs(m.midroll_ads[0].offset - currPos)
+	print "Next midroll ad: "; m.midroll_ads[0].offset
+	print "Time until next midroll ad: "; timeDiff
 
-    ' Within half second of next midroll ad timing
-    if timeDiff <= 0.500
-      m.videoPlayer.control = "stop"
+	' Within half second of next midroll ad timing
+	if timeDiff <= 0.500
+	  m.videoPlayer.control = "stop"
 
-      finished_ad = m.raf_service.playAds(m.currentVideoInfo, m.midroll_ads[0].url)
+	  finished_ad = m.raf_service.playAds(m.currentVideoInfo, m.midroll_ads[0].url)
 
-      if finished_ad = false then CloseVideoPlayer()
+	  if finished_ad = false then CloseVideoPlayer()
 
-      ' Remove midroll ad from array
-      m.midroll_ads.shift()
+	  ' Remove midroll ad from array
+	  m.midroll_ads.shift()
 
-      ' Start playing video at back from currPos just before midroll ad started
-      m.videoPlayer.seek = currPos
-      m.akamai_service.setPlayStartedOnce(true)
-      m.videoPlayer.control = "play"
+	  ' Start playing video at back from currPos just before midroll ad started
+	  m.videoPlayer.seek = currPos
+	  m.akamai_service.setPlayStartedOnce(true)
+	  m.videoPlayer.control = "play"
 
-    ' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
-    ' Keep removing the first midroll ad in array until no midroll ads before current position
-    else if m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
-      while m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
-        m.midroll_ads.shift()
-      end while
-    else if m.videoPlayer.visible = false
-      m.videoPlayer.control = "none"
-      m.midroll_ads = invalid
-      m.currentVideoInfo = invalid
-    end if
+	' In case they fast forwarded or resumed watching, remove unnecessary midroll ads
+	' Keep removing the first midroll ad in array until no midroll ads before current position
+	else if m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
+	  while m.midroll_ads.count() > 0 and currPos > m.midroll_ads[0].offset
+		m.midroll_ads.shift()
+	  end while
+	else if m.videoPlayer.visible = false
+	  m.videoPlayer.control = "none"
+	  m.midroll_ads = invalid
+	  m.currentVideoInfo = invalid
+	end if
 end sub
 
 sub CloseVideoPlayer(screen=m.detailsScreen)
@@ -1142,11 +1142,7 @@ Function ParseContent(list As Object)
         row.Title = rowAA.Title
         if rowAA.purchase_price<>invalid
             consumables = m.roku_store_service.getConsumables()
-            for each item in consumables
-                if item.code = rowAA.marketplace_id
-                    purchaseItem = item
-                end if
-            end for
+            purchaseItem = consumables[0]
             row.NumEpisodes=rowAA.playlist_item_count
             row.Description=rowAA.purchase_price
             row.id=rowAA.playListID
@@ -1228,7 +1224,6 @@ function GetPlaylistContent(playlist_id as String)
                 row.playlist_item_count=pl.playlist_item_count
                 row.purchase_price=pl.purchase_price
                 row.playListID=pl._id
-                row.marketPlace_id=pl.marketplace_ids.roku
             end if
         end if
         videos = []
@@ -1321,7 +1316,6 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
                 row.playlist_item_count=item.playlist_item_count
                 row.purchase_price=item.purchase_price
                 row.playListID=item._id
-                row.marketPlace_id=item.marketplace_ids.roku
             end if
         end if
 
@@ -1367,7 +1361,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
         end if
         list.push(row)
     end for
-    m.playlistRows = list
+  	m.playlistRows = list
     return list
 end function
 
