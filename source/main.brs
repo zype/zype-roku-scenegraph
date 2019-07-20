@@ -1142,6 +1142,7 @@ Function ParseContent(list As Object)
         row.Title = rowAA.Title
         if rowAA.purchase_price<>invalid
             consumables = m.roku_store_service.getConsumables()
+            purchaseItem=""
             for each item in consumables
                 if item.code = rowAA.marketplace_id
                     purchaseItem = item
