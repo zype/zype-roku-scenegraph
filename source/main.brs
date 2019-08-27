@@ -1135,13 +1135,16 @@ end function
 
 Function ParseContent(list As Object)
 
+	' Get consumables from ROKU Store'
+	consumables = m.roku_store_service.getConsumables()
+
     RowItems = createObject("RoSGNode","ContentNode")
 
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
         row.Title = rowAA.Title
         if rowAA.purchase_price<>invalid
-            consumables = m.roku_store_service.getConsumables()
+            'consumables = m.roku_store_service.getConsumables()
             purchaseItem = consumables[0]
             row.NumEpisodes=rowAA.playlist_item_count
             row.Description=rowAA.purchase_price
@@ -1161,7 +1164,7 @@ Function ParseContent(list As Object)
               ' TODO: Add logic for finding matching sku
 
               ' use hard coded sku for now
-              consumables = m.roku_store_service.getConsumables()
+              'consumables = m.roku_store_service.getConsumables()
               purchaseItem = consumables[0]
 
               item.storeProduct = purchaseItem
