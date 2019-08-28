@@ -238,7 +238,7 @@ sub startAnimation()
     first = Left(m.model, 1).trim()
     if first <> invalid and first.Len() = 1
         firstAsInt = val(first, 10)
-        if (firstAsInt) > 3
+        if (firstAsInt) > 0
             m.rotationAnimation.control = "start"
             m.top.state = "running"
         end if
