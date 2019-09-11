@@ -873,9 +873,13 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       end if
 
       m.currentVideoInfo = playerInfo.video
-
-      m.videoPlayer.setFocus(true)
+      if m.videoPlayer.seek<>invalid
+        if m.videoPlayer.seek>0
+            m.videoPlayer.seek=m.videoPlayer.seek
+        end if
+      end if
       m.videoPlayer.control = "play"
+      m.videoPlayer.setFocus(true)
 
       if playerInfo.onAir <> invalid and playerInfo.onAir = true
         print "seeking live time"
