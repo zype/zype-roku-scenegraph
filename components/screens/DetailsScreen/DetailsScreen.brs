@@ -53,7 +53,7 @@ Function initializeVideoPlayer()
   m.top.videoPlayer.translation = [0,0]
   m.top.videoPlayer.width = 0
   m.top.videoPlayer.height = 0
-  
+
   ' Event listener for video player state. Needed to handle video player errors and completion
   m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
 End Function
@@ -195,6 +195,11 @@ Sub OnVideoPlayerStateChange()
         print "Current Type: "; type(m.top.content)
         print "m.top.CurrentVideoIndex: "; m.top.CurrentVideoIndex
 
+        ' Fix for autoplay, we need to update content before any further processing as internally at some place it uses that and crashes'
+        if m.top.autoplay = true and m.top.itemSelectedRole <> "trailer"
+           UpdateContent()
+        end if
+
         m.top.ResumeVideo = m.top.createChild("ResumeVideo")
         m.top.ResumeVideo.id = "ResumeVideo"
         m.top.ResumeVideo.DeleteVideoIdTimer =  m.top.content.id  ' Delete video id and time from reg.
@@ -223,6 +228,14 @@ Sub OnVideoPlayerStateChange()
     else if m.top.videoPlayer.state = "finished" and live = true
         m.top.videoPlayer.control = "play"
     end if
+End Sub
+
+Sub UpdateContent()
+  if (m.top.content <> invalid)
+    currentTitle = m.top.content.Title
+    m.top.content.Title = ""
+    m.top.content.Title = currentTitle
+  end if
 End Sub
 
 Function PrepareVideoPlayer()
@@ -373,11 +386,11 @@ Sub AddActionButtons() ' trigger monetization
         btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
       else if m.global.native_tvod and m.top.rowTVODInitiateContent.description<>""
         purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
- 
+
 
         btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
       end if
-      
+
       addWatchTrailerButton(btns)
 
       if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
@@ -396,7 +409,7 @@ Sub AddTVODActionButtons()
   if m.top.content <> invalid then
       btns = []
 
-  
+
 
       purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
       if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
