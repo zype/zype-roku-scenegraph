@@ -47,12 +47,34 @@ Function Init()
     m.optionsIcon.blendColor = m.global.brand_color
 End Function
 
+sub StartScaleUpAnimation()
+    print "StartScaleUpAnimation----------"
+    m.AudioThumbnailPoster.scale = [1, 1]
+end sub
+
+sub StartScaleDownAnimation()
+    print "StartScaleDownAnimation----------"
+    m.AudioThumbnailPoster.scale = [0.5, 0.5]
+end sub
 
 Function initializeVideoPlayer()
   m.top.videoPlayer = m.top.createChild("Video")
   m.top.videoPlayer.translation = [0,0]
   m.top.videoPlayer.width = 0
   m.top.videoPlayer.height = 0
+
+  old = m.top.findNode("AudioThumbnailPoster")
+  if (old <> invalid)
+    m.top.removeChild(m.top.findNode("AudioThumbnailPoster"))
+  end if
+  m.AudioThumbnailPoster = m.top.createChild("Poster")
+  m.AudioThumbnailPoster.id="AudioThumbnailPoster"
+  m.AudioThumbnailPoster.height=720
+  m.AudioThumbnailPoster.width=1280
+  m.AudioThumbnailPoster.scaleRotateCenter = [ 1280/2, 720/2 ]
+  m.AudioThumbnailPoster.translation=[0,0]
+  m.AudioThumbnailPoster.loadDisplayMode="scaleToZoom"
+  m.AudioThumbnailPoster.visible = false
 
   ' Event listener for video player state. Needed to handle video player errors and completion
   m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
@@ -62,6 +84,7 @@ End Function
 Function ReinitializeVideoPlayer()
   if m.top.RemakeVideoPlayer = true
       m.top.removeChild(m.top.videoPlayer)
+      m.top.removeChild(m.top.findNode("AudioThumbnailPoster"))
       initializeVideoPlayer()
   end if
 End Function
@@ -180,6 +203,22 @@ End Sub
 Sub OnVideoPlayerStateChange()
     live = (m.top.videoPlayer.content <> invalid and m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
 
+    print "m.top.videoPlayer.streamInfo : " m.top.videoPlayer.streamInfo
+    print "m.top.videoPlayer.videoFormat : " m.top.videoPlayer.videoFormat
+    print "m.top.videoPlayer.audioFormat : " m.top.videoPlayer.audioFormat
+    print "m.top.videoPlayer.state : " m.top.videoPlayer.state
+
+    if (m.top.videoPlayer.videoFormat = "none")
+        m.AudioThumbnailPoster.visible = true
+        if (m.top.videoPlayer.state = "playing")
+            StartScaleUpAnimation()
+        else if (m.top.videoPlayer.state = "paused")
+            StartScaleDownAnimation()
+        end if
+    else
+        m.AudioThumbnailPoster.visible = false
+    end if
+
     ' Only close video player if error and VOD (not live stream)
     if m.top.videoPlayer.state = "error" and live = false
         ' error handling
@@ -253,7 +292,7 @@ Function PrepareVideoPlayer()
         m.top.content.HDPOSTERURL = nextVideoObject.hdposterurl
         m.top.content.inFavorites = nextVideoObject.infavorites
         m.top.content.LENGTH = nextVideoObject.length
-        m.top.content.onAir = nextVideoObject.onair
+        m.top.content.on_Air = nextVideoObject.on_Air
         m.top.content.RELEASEDATE = nextVideoObject.releasedate
         m.top.content.STREAMFORMAT = nextVideoObject.streamformat
         m.top.content.TITLE = nextVideoObject.title
@@ -297,6 +336,7 @@ Sub OnContentChange()
     m.description.Description.height = "250"
     m.top.videoPlayer.content   = m.top.content
     m.background.uri        = m.top.content.hdBackgroundImageUrl
+    m.AudioThumbnailPoster.uri = m.top.content.hdBackgroundImageUrl
   end if
 End Sub
 

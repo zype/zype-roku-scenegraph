@@ -85,7 +85,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     else if m.app.theme = "light"
       theme=LightTheme()
     else if m.app.theme = "custom"
-      theme=CustomTheme() 
+      theme=CustomTheme()
     end if
 
     m.scene.backgroundColor=theme.background_color
@@ -360,7 +360,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                         content = m.gridScreen.focusedContent
 
                         ' Get Playlist object from the platform
-                        
+
                         playlistObject = GetPlaylists({ id: msg.GetData().playlistid })
                         playlistThumbnailLayout = playlistObject[0].thumbnail_layout
                         m.gridScreen.content = ParseContent(GetPlaylistsAsRows(msg.GetData().playlistid, playlistThumbnailLayout))
@@ -577,7 +577,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
             else if msg.getField() = "position"
                 m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position
                 print m.videoPlayer.position
-                if(m.videoPlayer.position >= 30 and m.videoPlayer.content.onAir = false)
+                if(m.videoPlayer.position >= 30 and m.videoPlayer.content.on_Air = false)
                     AddVideoIdForResumeToReg(m.videoPlayer.content.id,m.videoPlayer.position.ToStr())
                     AddVideoIdTimeSaveForResumeToReg(m.videoPlayer.content.id,startDate.asSeconds().ToStr())
                 end if
@@ -789,7 +789,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
   if playerInfo.video.duration <> invalid then content.length = playerInfo.video.duration
   if playerInfo.video.title <> invalid then content.title = playerInfo.video.title
 
-  if(playerInfo.onAir <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
+  if(playerInfo.on_Air <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
     print "PlayerInfo.analytics: "; playerInfo.analytics
 
     if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
@@ -830,7 +830,8 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
 '    m.VideoPlayer = screen.VideoPlayer
 '    m.VideoPlayer.observeField("position", m.port)
 
-    if screen.id = m.detailsScreen.id  '(content.onAir <> true) or urlSuffix <> ""
+    'if screen.id = m.detailsScreen.id  '(content.on_Air <> true) or urlSuffix <> ""
+    if screen.id = m.detailsScreen.id AND (playerInfo.on_Air <> true) '' or urlSuffix <> ""
       m.VideoPlayer.observeField("state", m.port)
     end if
 
@@ -841,7 +842,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       no_ads = (m.global.swaf and is_subscribed)
       ads = video_service.PrepareAds(playerInfo, no_ads)
 
-      if playerInfo.onAir = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
+      if playerInfo.on_Air = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
       m.loadingIndicator.control = "stop"
 
       ' preroll ad
@@ -857,7 +858,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
 
       ' if live stream, set position at end of stream
       ' roku video player does not automatically detect if live stream
-      if playerInfo.onAir = true
+      if playerInfo.on_Air = true
         m.videoPlayer.content.live = true
         m.videoPlayer.content.playStart = 100000000000
         m.videoPlayer.enableTrickPlay = false
@@ -877,7 +878,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       m.videoPlayer.setFocus(true)
       m.videoPlayer.control = "play"
 
-      if playerInfo.onAir <> invalid and playerInfo.onAir = true
+      if playerInfo.on_Air <> invalid and playerInfo.on_Air = true
         print "seeking live time"
         m.videoPlayer.seek = 100000000000
       end if
@@ -893,7 +894,7 @@ sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo, content
   if content = invalid then content = screen.content
 	' show loading indicator before requesting ad and playing video
 	m.loadingIndicator.control = "start"
-	m.on_air = content.onAir
+	m.on_air = content.on_Air
 
 	m.VideoPlayer = screen.VideoPlayer
 	m.VideoPlayer.observeField("position", m.port)
@@ -1519,7 +1520,7 @@ function handleButtonEvents(index, screen)
           m.scene.goBackToNonAuth = true
 
           ' Add logic to determine if subscribing or purchasing
-          
+
           if m.detailsScreen.itemSelectedRole = "transition"
             if m.detailsScreen.itemSelectedTarget = "AuthSelection" ' SVOD
               handleNativeToUniversal()
@@ -1573,7 +1574,7 @@ function handleButtonEvents(index, screen)
             m.detailsScreen.content = m.detailsScreen.content
             m.scene.goBackToNonAuth = true
             EndLoader()
-  
+
             sleep(500)
             CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
           else
