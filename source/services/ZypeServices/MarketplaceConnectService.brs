@@ -20,18 +20,27 @@ Function MarketplaceConnectService() as object
   ' 
   ' Parameters
   '   rokuPlans - array of Roku products
+  '   local_subscription_plan_ids  - array of Local Plans from config.json
   '
   ' Return
   '   array of Roku subscription products that have a Zype subscription plan with matching Marketplace Connect ID
-  this.getSubscriptionPlans = function(rokuPlans as object) as object
+  this.getSubscriptionPlans = function(rokuPlans as object, local_subscription_plan_ids as object) as object
     filteredPlans = []
 
+    ' Get all zype plans'
     zypePlans = GetPlans()
+
+    ' Filter zype plans by local config zype plan ids'
+    zypeFilteredPlans = GetLocalFilteredZypePlans(zypePlans, local_subscription_plan_ids)
+
     for each rokuPlan in rokuPlans
-      for each zypePlan in zypePlans
-        ' TODO: Update to look for roku marketplace id when implemented on platform
-        if zypePlan.marketplace_ids <> invalid and zypePlan.marketplace_ids.itunes <> invalid
-          if zypePlan.marketplace_ids.itunes = rokuPlan.code
+      for each zypePlan in zypeFilteredPlans
+        print "=====================> Roku Plan : " rokuPlan
+        print "Zype Plan : " zypePlan
+        print "Zype Plan marketplace_ids : " zypePlan.marketplace_ids
+        if zypePlan.marketplace_ids <> invalid and zypePlan.marketplace_ids.roku <> invalid
+          print "Zype Plan roku : " zypePlan.marketplace_ids.roku
+          if zypePlan.marketplace_ids.roku = rokuPlan.code
             rokuPlan.zypePlanId = zypePlan._id
             filteredPlans.push(rokuPlan)
             exit for ' exit zypePlans for loop
@@ -40,6 +49,7 @@ Function MarketplaceConnectService() as object
       end for
     end for
 
+    print "Final Plans for Display =============================> " filteredPlans
     return filteredPlans
   end function
 
@@ -92,3 +102,21 @@ Function MarketplaceConnectService() as object
 
   return this
 End Function
+
+function GetLocalFilteredZypePlans(zypePlans as object, localPlans as object)
+    localFilteredPlans = []
+
+    for each zypePlan in zypePlans
+      for each localPlan in localPlans
+          'print "zypePlan._id : " zypePlan._id
+          if localPlan = zypePlan._id
+            'print "localPlan ===> " localPlan
+            localFilteredPlans.push(zypePlan)
+            exit for ' exit localPlans for loop
+         end if
+      end for
+    end for
+
+    'print "localFilteredPlans =========FINAL Zype Plans====================> " localFilteredPlans
+    return localFilteredPlans
+end function
