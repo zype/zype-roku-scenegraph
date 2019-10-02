@@ -86,9 +86,9 @@
         <Poster
             id="PosterOverhang"
             translation="[100, 30]"
-            loadDisplayMode="scaleToFit"
             loadwidth="500"
             loadheight="100"
+            loadDisplayMode="scaleToFit"
             uri="pkg:/images/overhangLogo.png" />
 
         <Poster

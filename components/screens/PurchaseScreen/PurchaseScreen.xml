@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <component name="PurchaseScreen" extends="Group" initialFocus="PurchaseButtons" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
   <interface>
-    <field id="itemSelected" 
+    <field id="itemSelected"
       type="integer"
       alias="OAuthButton.itemSelected"
       alwaysNotify="true"
@@ -10,10 +10,10 @@
     <field id="itemSelectedRole" type="string" />
     <field id="itemSelectedTarget" type="string" />
 
-    <field id="purchaseButtonSelected" 
-      type="integer" 
-      alias="PurchaseButtons.itemSelected" 
-      alwaysNotify="true" 
+    <field id="purchaseButtonSelected"
+      type="integer"
+      alias="PurchaseButtons.itemSelected"
+      alwaysNotify="true"
       onChange="onPurchaseButtonSelected" />
 
     <field id="purchaseItem" type="assocarray" onChange="onPurchaseItemChanged" />
@@ -41,11 +41,11 @@
     <Group id="TextContainer" translation="[200,0]">
       <Poster
         id="Logo"
-        uri="pkg:/images/overhangLogo.png"
-        loadDisplayMode="scaleToFit"
         width="150"
         height="112.5"
-        translation="[350,30]" />
+        loadDisplayMode="scaleToFit"
+        translation="[350,30]"
+        uri="pkg:/images/overhangLogo.png"/>
 
        <Label
         id="Header"

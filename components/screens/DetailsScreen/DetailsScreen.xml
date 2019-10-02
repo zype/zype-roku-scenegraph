@@ -41,7 +41,7 @@
         <!-- Video Player referencible by HomeScene -->
         <field id="VideoPlayer" type="node" />
         <field id="rowTVODInitiateContent" type="node" />
-        
+
         <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
 
         <field id="PlaylistRowIndex" type="integer" />
@@ -127,9 +127,9 @@
             <Poster
                id="PosterOverhang"
                translation="[100, 30]"
-               loadDisplayMode="scaleToFit"
                loadwidth="500"
                loadheight="100"
+               loadDisplayMode="scaleToFit"
                uri="pkg:/images/overhangLogo.png" />
            <Group
                id="Optionslabel">
