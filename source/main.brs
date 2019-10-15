@@ -197,7 +197,18 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     ' filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans)
     ' m.AuthSelection.plans = filteredPlans
 
-    m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
+    print "marketplace_connect_svod----------------> " m.global.marketplace_connect_svod
+    print "subscription_plan_ids----------------> " m.global.subscription_plan_ids
+
+    if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
+      rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans()
+      print "rokuPlans : " rokuPlans
+      filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
+      m.AuthSelection.plans = filteredPlans
+    else
+      m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
+    end if
+
     m.AuthSelection.observeField("itemSelected", m.port)
     m.AuthSelection.observeField("planSelected", m.port)
 
@@ -550,9 +561,12 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               if already_purchased
                 CreateDialog(m.scene, "Already purchased", already_purchased_message, ["Close"])
               else
-                if m.global.auth.isLoggedIn or m.global.native_to_universal_subscription = false then handleNativeToUniversal() else m.scene.transitionTo = "SignUpScreen"
+                if m.global.auth.isLoggedIn or (m.global.native_to_universal_subscription = false AND m.global.marketplace_connect_svod <> true) then
+                    handleNativeToUniversal()
+                else
+                    m.scene.transitionTo = "SignUpScreen"
+                end if
               end if
-
             else if msg.getNode() = "PurchaseScreen" and msg.getField() = "purchaseButtonSelected" then
               buttonRole = m.PurchaseScreen.itemSelectedRole
               buttonTarget = m.PurchaseScreen.itemSelectedTarget
@@ -874,9 +888,13 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       end if
 
       m.currentVideoInfo = playerInfo.video
-
-      m.videoPlayer.setFocus(true)
+      if m.videoPlayer.seek<>invalid
+        if m.videoPlayer.seek>0
+            m.videoPlayer.seek=m.videoPlayer.seek
+        end if
+      end if
       m.videoPlayer.control = "play"
+      m.videoPlayer.setFocus(true)
 
       if playerInfo.on_Air <> invalid and playerInfo.on_Air = true
         print "seeking live time"
@@ -1519,9 +1537,8 @@ function handleButtonEvents(index, screen)
           m.SignUpScreen.reset = true
           m.scene.goBackToNonAuth = true
 
-          ' Add logic to determine if subscribing or purchasing
-
           if m.detailsScreen.itemSelectedRole = "transition"
+            print "m.detailsScreen.itemSelectedTarget===> " m.detailsScreen.itemSelectedTarget
             if m.detailsScreen.itemSelectedTarget = "AuthSelection" ' SVOD
               handleNativeToUniversal()
             else if m.detailsScreen.itemSelectedTarget = "PurchaseScreen" ' TVOD
@@ -1575,8 +1592,13 @@ function handleButtonEvents(index, screen)
             m.scene.goBackToNonAuth = true
             EndLoader()
 
-            sleep(500)
-            CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+            ' HB : MarketPlaceConnect With RegistrationScreen'
+            if m.detailsScreen.itemSelectedRole = "transition" AND m.detailsScreen.itemSelectedTarget = "RegistrationScreen" AND m.global.marketplace_connect_svod = true
+                m.scene.transitionTo = "AuthSelection"
+            else
+            	sleep(500)
+            	CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+            end if
           else
             EndLoader()
             m.RegistrationScreen.setFocus(true)
@@ -1650,6 +1672,8 @@ function handleButtonEvents(index, screen)
 
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
+    else if button_role = "transition" and button_target = "SignUpScreen"
+      m.scene.transitionTo = "SignUpScreen"
     else if button_role = "transition" and button_target = "PurchaseScreen"
       if screen.content.storeProduct<>invalid
 
@@ -1688,6 +1712,8 @@ function handleNativeToUniversal() as void
   user_info = m.current_user.getInfo()
   m.auth_state_service.updateAuthWithUserInfo(user_info)
 
+  print "user_info : " user_info
+
   plan = m.AuthSelection.currentPlanSelected
 
   order = [{
@@ -1695,8 +1721,11 @@ function handleNativeToUniversal() as void
     qty: 1
   }]
 
+  print "makePurchase-C--For Plan-> " plan.code
   ' Make nsvod purchase
   purchase_subscription = m.roku_store_service.makePurchase(order)
+
+  print "makePurchase--R--> "  purchase_subscription
   EndLoader()
   m.AuthSelection.visible = true
   m.AuthSelection.setFocus(true)
@@ -1704,28 +1733,64 @@ function handleNativeToUniversal() as void
   if purchase_subscription.success
       m.auth_state_service.incrementNativeSubCount()
 
-      if m.global.native_to_universal_subscription = true
+      isCheckMarketPlaceConnectSVOD = false
+
+      if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
+          isCheckMarketPlaceConnectSVOD = true
+      end if
+
+      if m.global.native_to_universal_subscription = true OR isCheckMarketPlaceConnectSVOD = true
+
         ' Store email used for purchase. For sync subscription later
-        m.native_email_storage.DeleteEmail()
-        m.native_email_storage.WriteEmail(user_info.email)
+        if (user_info.email <> invalid AND user_info.email <> "")
+        	m.native_email_storage.DeleteEmail()
+        	m.native_email_storage.WriteEmail(user_info.email)
+        end if
 
         ' Get recent purchase
         recent_purchase = purchase_subscription.receipt
 
-        third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
+        print "recent_purchase====================> " recent_purchase
 
-        ' TODO: Replace call with Marketplace Connect call when available
-        ' marketplaceParams = {
-        '   access_token: m.current_user.getOAuth().access_token,
-        '   consumer_id: m.current_user.getInfo()._id,
-        '   transaction_id: purchase_subscription.receipt.purchaseId,
-        '   plan_id: plan.zypePlanId,
-        '   app_id: m.app._id,
-        '   site_id: m.app.site_id
-        ' }
+        ' Check if MarketPlaceConnect SVOD or NOT'
+        if (isCheckMarketPlaceConnectSVOD)
+              print "isCheck MarketPlaceConnectSVOD================================================================================>"
+              print "m.current_user : " m.current_user
+              print "m.current_user.getOAuth() : " m.current_user.getOAuth()
+              print "m.current_user.getInfo() : " m.current_user.getInfo()
 
-        ' successfulVerification = m.marketplaceConnect.verifyMarketplaceSubscription(marketplaceParams)
+              access_token = ""
+              if (m.current_user.getOAuth() <> invalid AND m.current_user.getOAuth().access_token <> invalid)
+                access_token = m.current_user.getOAuth().access_token
+              else
+                access_token = ""
+              end if
 
+              consumer_id = m.current_user.getInfo()._id
+
+              print "access_token : " access_token
+              print "consumer_id : " consumer_id
+              print "purchase_subscription.receipt-----> " purchase_subscription.receipt
+              print "purchase_subscription.receipt.purchaseId : " purchase_subscription.receipt.purchaseId
+              print "plan.zypePlanId : " plan.zypePlanId
+              print "m.app._id : " m.app._id
+              print "m.app.site_id : " m.app.site_id
+
+              marketplaceParams = {
+                access_token: access_token,
+                consumer_id: consumer_id,
+                transaction_id: purchase_subscription.receipt.purchaseId,
+                plan_id: plan.zypePlanId,
+                app_id: m.app._id,
+                site_id: m.app.site_id
+              }
+              marketPlaceConnectSVODVerificationStatus = m.marketplaceConnect.verifyMarketplaceSubscription(marketplaceParams)
+              print "======> marketPlaceConnectSVODVerificationStatus : ===> " marketPlaceConnectSVODVerificationStatus
+        else
+            print "isCheck bifrost================================================================================>"
+
+            ' We will call Biforst like previously it was calling'
+            third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
         bifrost_params = {
           app_key: GetApiConfigs().app_key,
           consumer_id: user_info._id,
@@ -1734,11 +1799,21 @@ function handleNativeToUniversal() as void
           transaction_id: UCase(recent_purchase.purchaseId),
           device_type: "roku"
         }
-
         ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
         native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
+        end if
 
+        isReceiptValidated = false
+        if (isCheckMarketPlaceConnectSVOD)
+            isReceiptValidated = marketPlaceConnectSVODVerificationStatus
+        else
         if native_sub_status <> invalid and native_sub_status.is_valid <> invalid and native_sub_status.is_valid
+                print "-----BiFrost---------------Success Validation"
+                isReceiptValidated = true
+            end if
+        end if
+
+        if isReceiptValidated = true
             user_info = m.current_user.getInfo()
 
             ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
@@ -1759,10 +1834,12 @@ function handleNativeToUniversal() as void
             EndLoader()
 
             sleep(500)
+            if (user_info.email <> invalid AND user_info.email <> "")
             CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
-
-        ' Bifrost verification failed
         else
+                CreateDialog(m.scene, "Welcome", "Hi, Thanks for signing up.", ["Close"])
+            end if
+        else ' Receipt verification failed
             EndLoader()
             sleep(500)
             CreateDialog(m.scene, "Error", "Could not verify your purchase with Roku. You can cancel your subscription on the Roku website.", ["Close"])
@@ -1995,7 +2072,9 @@ function SetFeatures() as void
     universal_tvod: m.app.universal_tvod,
     confirm_signup: configs.confirm_signup,
     enable_device_linking: configs.enable_device_linking,
-    test_info_screen: configs.test_info_screen
+    test_info_screen: configs.test_info_screen,
+    marketplace_connect_svod: configs.marketplace_connect_svod,
+    subscription_plan_ids: configs.subscription_plan_ids
   })
 end function
 

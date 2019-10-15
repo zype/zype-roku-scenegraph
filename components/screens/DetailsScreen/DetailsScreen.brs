@@ -413,8 +413,16 @@ Sub AddActionButtons() ' trigger monetization
       btns = []
 
       if m.top.content.subscriptionrequired
-        btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" })
+
+        ' HB : MarketPlaceConnect With RegistrationScreen / SignUpScreen'
+        if (not m.global.auth.isLoggedIn AND m.global.marketplace_connect_svod = true) then
+            btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "RegistrationScreen" })
+            'btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "SignUpScreen" })
+        else
+        	btns.push({ title: m.global.labels.subscribe_button, role: "transition", target: "AuthSelection" })
+      	end if
       end if
+
       '?"m.top.rowTVODInitiateContent==>"m.top.rowTVODInitiateContent
       if m.top.content.purchaseRequired and m.global.native_tvod and m.top.rowTVODInitiateContent.description=""
         if m.top.content.storeProduct <> invalid and m.top.content.storeProduct.cost <> invalid
