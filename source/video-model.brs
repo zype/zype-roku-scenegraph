@@ -33,7 +33,7 @@ Function CreateVideoObject(attrs As Object) As Object
     contenttype: "episode",
     releasedate: FormateDate(properties.created_at),
     inFavorites: properties.inFavorites,
-    onAir: properties.on_air,
+    on_Air: properties.on_air,
     subscriptionRequired: properties.subscription_required,
     purchaseRequired: properties.purchase_required,
     registrationRequired: properties.registration_required,
