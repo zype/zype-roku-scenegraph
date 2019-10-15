@@ -406,26 +406,29 @@ Function OnKeyEvent(key, press) as Boolean
                     previousContent = m.contentStack.pop()
 
                     lastPosition = GetLastPositionFromTracker()
-                    lastRowItemSizes = GetLastRowItemSizes()
-                    lastRowSpacings = GetLastRowSpacings()
-
-                    m.gridScreen.content = previousContent
-
-                    video_list_stack =  m.top.videoliststack
-                    video_list_stack.pop()
-                    m.top.videoliststack = video_list_stack
-
-                    m.detailsScreen.videosTree = m.top.videoliststack.peek()
-
-                    DeleteLastPositionFromTracker()
-                    DeleteLastPosterPlaylists()
-
-                    result = true
-
-                    rowList = m.gridScreen.findNode("RowList")
-                    rowList.rowItemSize = lastRowItemSizes
-                    rowList.rowSpacings = lastRowSpacings
-                    rowList.jumpToRowItem = [lastPosition.row, lastPosition.col]
+                    if (lastPosition <> invalid)
+	                    lastRowItemSizes = GetLastRowItemSizes()
+	                    lastRowSpacings = GetLastRowSpacings()
+	                    m.gridScreen.content = previousContent
+	
+	                    video_list_stack =  m.top.videoliststack
+	                    video_list_stack.pop()
+	                    m.top.videoliststack = video_list_stack
+	
+	                    m.detailsScreen.videosTree = m.top.videoliststack.peek()
+	
+	                    DeleteLastPositionFromTracker()
+	                    DeleteLastPosterPlaylists()
+		
+	
+	                    rowList = m.gridScreen.findNode("RowList")
+	                    rowList.rowItemSize = lastRowItemSizes
+	                    rowList.rowSpacings = lastRowSpacings
+	                    rowList.jumpToRowItem = [lastPosition.row, lastPosition.col]
+                      	result = true
+                    else
+                      	result = false
+                    end if
                 else if m.deviceLinking.visible = true
                     ' If link device was launched from detail screen, do not run the following two lines.
                     if (m.detailsScreen.visible = false)
