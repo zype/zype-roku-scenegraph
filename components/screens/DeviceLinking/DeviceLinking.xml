@@ -40,9 +40,9 @@
     <Poster
         id="Logo"
         translation="[450,50]"
-        loadDisplayMode="scaleToFit"
         width="375"
         height="200"
+        loadDisplayMode="scaleToFit"
         uri="pkg:/images/overhangLogo.png" />
 
     <!-- Link Text 1 -->

@@ -34,11 +34,11 @@
       <Group id="TextContainer" translation="[200,0]">
         <Poster
           id="Logo"
-          uri="pkg:/images/overhangLogo.png"
-          loadDisplayMode="scaleToFit"
           width="150"
           height="112.5"
-          translation="[350,30]" />
+          translation="[350,30]"
+          loadDisplayMode="scaleToFit"
+          uri="pkg:/images/overhangLogo.png"/>
 
         <Label
           id="Header"
