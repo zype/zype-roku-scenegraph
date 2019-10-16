@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+
+<component name="SearchScreenItem" extends="Group">
+  <interface>
+    <field id="itemContent" type="node" onChange="itemContentChanged" alwaysNotify="true"/>
+  </interface>
+
+  <script type="text/brightscript" uri="pkg:/components/screens/GridScreen/GridScreenItem/SearchScreenItem.brs" />
+
+  <children>
+      <LayoutGroup layoutDirection="vert" vertAlignment="top" horizAlignment="custom" translation="[0,0]" >
+          <Group>
+            <Poster id="itemImage" translation="[0,0]" loadWidth="262" loadHeight="147" loadDisplayMode="scaleToFit" />
+            <Label id="itemText" horizAlign="left" translation="[0,155]" width="255" wrap="true" maxlines="2" linespacing="0">
+              <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="16"/>
+            </Label>
+          </Group>
+      </LayoutGroup>
+  </children>
+</component>

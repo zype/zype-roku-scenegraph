@@ -8,6 +8,15 @@ Function Init()
     m.keyboard = m.top.findNode("Keyboard")
     m.gridScreen = m.top.findNode("Grid")
 
+    m.videoTitle = m.top.findNode("VideoTitle")
+    m.videoTitle.text = ""
+
+    if (m.global.inline_title_text_display = true)
+        m.gridScreen.itemComponentName = "SearchScreenItem"
+        m.gridScreen.itemSize=[1327, 262]
+        m.videoTitle.visible = false
+    end if
+
     m.gridScreen.content = invalid
 
     m.detailsScreen = m.top.findNode("SearchDetailsScreen")
@@ -16,10 +25,6 @@ Function Init()
     m.keyboard.textEditBox.textColor = "0x777777"
     m.top.observeField("visible", "OnTopVisibilityChange")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
-
-    m.videoTitle = m.top.findNode("VideoTitle")
-    m.videoTitle.text = ""
-
 
     ' Set theme
     m.AppBackground = m.top.findNode("AppBackground")

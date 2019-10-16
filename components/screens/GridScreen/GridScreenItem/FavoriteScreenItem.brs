@@ -23,7 +23,11 @@ function itemContentChanged() as void
       m.itemImage.loadHeight = 147
       m.itemImage.uri = itemData.HDPOSTERURL
     end if
-    m.itemText.text=itemData.title
+
+    if (m.global.inline_title_text_display = true AND itemData.TITLE <> invalid)
+        m.itemText.text = itemData.TITLE
+    end if
+    
     ' Lock icons
     offset = m.itemImage.loadwidth - 32 - 5
     if m.statusImage <> invalid

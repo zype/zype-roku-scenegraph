@@ -2066,6 +2066,7 @@ function SetFeatures() as void
     swaf: m.app.subscribe_to_watch_ad_free,
     enable_epg: configs.enable_epg,
     enable_lock_icons: m.app.enable_lock_icons,
+    inline_title_text_display: configs.inline_title_text_display,
     native_to_universal_subscription: m.app.native_to_universal_subscription,
     native_tvod: configs.native_tvod,
     favorites_via_api: m.app.favorites_via_api,

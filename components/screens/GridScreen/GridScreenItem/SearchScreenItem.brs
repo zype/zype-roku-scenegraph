@@ -1,13 +1,10 @@
 function init() as void
   m.itemImage = m.top.findNode("itemImage")
-  m.itemText = m.top.findNode("itemText")
-  m.statusImage = m.top.findNode("statusImage")
+  m.itemText=m.top.findNode("itemText")
 end function
 
 function itemContentChanged() as void
   itemData = m.top.itemContent
-
-  print "itemData : " itemData
   if m.itemImage <> invalid
     m.itemImage.loadDisplayMode = "scaleToFit"
 
@@ -26,25 +23,8 @@ function itemContentChanged() as void
       m.itemImage.uri = itemData.HDPOSTERURL
     end if
 
-    ' Lock icons
-    offset = m.itemImage.loadwidth - 32 - 5
-    if m.statusImage <> invalid
-      m.statusImage.translation = [offset, 5]
-      m.statusImage.visible = false
-    end if
-
     if (m.global.inline_title_text_display = true AND itemData.TITLE <> invalid)
         m.itemText.text = itemData.TITLE
-    end if
-
-    if(m.statusImage <> invalid AND itemData.ContentType = 4 AND itemData.SubscriptionRequired = true AND m.global.enable_lock_icons = true)
-      m.statusImage.visible = true
-
-      if m.global.auth.nativeSubCount > 0 OR m.global.auth.universalSubCount > 0
-        m.statusImage.uri = "pkg:/images/iconUnlocked.png"
-      else
-        m.statusImage.uri = "pkg:/images/iconLocked.png"
-      end if
     end if
   end if
 end function
