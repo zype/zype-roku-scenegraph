@@ -29,13 +29,45 @@ End Sub
 ' If background changes, start animation and populate fields
 Sub OnBackgroundUriChange()
     oldUrl = m.background.uri
-    m.background.uri = m.top.uri
+
+    if (m.global.image_caching_support = "1" or m.global.image_caching_support = "2")
+        uriToSet = m.top.uri
+
+        sha1OfImageUrl = GetEncryptedUrlString(uriToSet)
+        pathObj = CheckAndGetImagePathIfAvailable(sha1OfImageUrl)
+        if (pathObj.foundPath = invalid OR pathObj.foundPath = "")
+            m.background.uri = uriToSet
+            DownloadImage(uriToSet, pathObj.newCachePath, pathObj.newTempPath)
+        else
+            print "background---> found in local"
+            m.background.uri = pathObj.foundPath
+        end if
+    else
+        m.background.uri = m.top.uri
+    end if
+
     if oldUrl <> "" then
         m.oldBackground.uri = oldUrl
         m.oldbackgroundInterpolator = [m.background.opacity, 0]
         m.fadeoutAnimation.control = "start"
     end if
 End Sub
+
+Function DownloadImage(imageUrl as String, newCachePath as String, newTempPath as String)
+  downloadImageTask = createObject("roSGNode", "DownloadImageTask")
+  downloadImageTask.bAPIStatus = "None"
+  downloadImageTask.imageUrl = imageUrl
+  downloadImageTask.newCachePath = newCachePath
+  downloadImageTask.newTempPath = newTempPath
+  downloadImageTask.observeField("bAPIStatus", "DownloadImageTaskCompleted")
+  downloadImageTask.control = "RUN"
+end Function
+
+Function DownloadImageTaskCompleted(event as Object)
+  task = event.GetRoSGNode()
+  print "FadingBackground : DownloadImageTaskCompleted....................................." task.bAPIStatus
+  task = invalid
+end Function
 
 ' If Size changed, change parameters to childrens
 Sub OnSizeChange()

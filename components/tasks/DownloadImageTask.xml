@@ -1,0 +1,11 @@
+<?xml version = "1.0" encoding = "utf-8" ?>
+<!-- Copyright 2016 Roku Corp.  All Rights Reserved. -->
+<component name = "DownloadImageTask" extends = "Task">
+  <interface>
+    <field id = "imageUrl" type = "string" />
+    <field id = "newCachePath" type = "string" />
+    <field id = "newTempPath" type = "string" />
+    <field id = "bAPIStatus" type = "string" />
+  </interface>
+  <script type="text/brightscript" uri="DownloadImageTask.brs"/>
+</component>

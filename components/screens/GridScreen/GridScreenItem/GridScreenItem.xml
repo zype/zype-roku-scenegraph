@@ -9,6 +9,7 @@
 </interface>
 
 <script type="text/brightscript" uri="pkg:/components/screens/GridScreen/GridScreenItem/GridScreenItem.brs" />
+<script type="text/brightscript" uri="pkg:/source/helpers.brs" />
 
 <children>
     <LayoutGroup layoutDirection="vert" vertAlignment="top" horizAlignment="custom" translation="[0,0]" >
