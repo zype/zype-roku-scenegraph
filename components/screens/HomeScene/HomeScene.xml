@@ -65,6 +65,7 @@
 
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/HomeScene/HomeScene.brs" />
+    <script type="text/brightscript" uri="pkg:/source/helpers.brs" />
 
     <children>
         <!-- Grid Screen with RowList on Home Scene -->
@@ -118,7 +119,7 @@
           visible="false" />
 
         <!-- Purchase Screen - Confirm purchase + signup or oauth -->
-        <PurchaseScreen 
+        <PurchaseScreen
           id="PurchaseScreen"
           visible="false" />
 

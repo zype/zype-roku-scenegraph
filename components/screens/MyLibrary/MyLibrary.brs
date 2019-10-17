@@ -6,11 +6,17 @@ Function Init()
     m.gridScreen.content = invalid
     m.detailsScreen = m.top.findNode("MyLibraryDetailsScreen")
 
-    m.top.observeField("visible", "OnTopVisibilityChange")
-    m.top.observeField("rowItemSelected", "OnRowItemSelected")
-
     m.videoTitle = m.top.findNode("VideoTitle")
     m.videoTitle.text = ""
+
+    if (m.global.inline_title_text_display = true)
+        m.gridScreen.itemComponentName = "MyLibraryItem"
+        m.gridScreen.itemSize=[1327, 262]
+        m.videoTitle.visible = false
+    end if
+
+    m.top.observeField("visible", "OnTopVisibilityChange")
+    m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
     ' Set theme
     m.AppBackground = m.top.findNode("AppBackground")

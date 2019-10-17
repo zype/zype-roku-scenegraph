@@ -24,5 +24,7 @@
   "favorites_via_api": false,
   "universal_tvod": false,
   "confirm_signup": false,
-  "enable_device_linking": true
+  "enable_device_linking": false,
+  "inline_title_text_display": false,
+  "image_caching_support":"1"
 }

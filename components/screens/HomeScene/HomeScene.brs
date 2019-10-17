@@ -79,6 +79,11 @@ Function Init()
     m.rowSpacings  = {}
     m.playListFromHeroSlider=false
     m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
+
+    print "m.global.image_caching_support ============================> " m.global.image_caching_support
+    if (m.global.image_caching_support = "1" OR m.global.image_caching_support = "2")
+      CheckAndCreateCacheAndTempDirectories()
+    end if
 End Function
 
 ' Add positions based on index starting from 0
@@ -202,8 +207,8 @@ Function OnRowItemSelected()
 
         m.detailsScreen.autoplay = m.global.autoplay
         rowContent=m.gridScreen.content.getChild(m.gridScreen.rowItemSelected[0])
-        
-        if rowContent.DESCRIPTION<>invalid 
+
+        if rowContent.DESCRIPTION<>invalid
             m.detailsScreen.rowTVODInitiateContent=rowContent
         end if
         m.detailsScreen.content = m.gridScreen.focusedContent
@@ -380,7 +385,7 @@ Function OnKeyEvent(key, press) as Boolean
                     m.detailsScreen.videoPlayer.control = "stop"
                     m.detailsScreen.videoPlayer.visible = false
                     m.detailsScreen.videoPlayer.setFocus(false)
-                    
+
                     m.detailsScreen.visible = true
                     m.detailsScreen.setFocus(true)
                     result = true
@@ -410,17 +415,17 @@ Function OnKeyEvent(key, press) as Boolean
 	                    lastRowItemSizes = GetLastRowItemSizes()
 	                    lastRowSpacings = GetLastRowSpacings()
 	                    m.gridScreen.content = previousContent
-	
+
 	                    video_list_stack =  m.top.videoliststack
 	                    video_list_stack.pop()
 	                    m.top.videoliststack = video_list_stack
-	
+
 	                    m.detailsScreen.videosTree = m.top.videoliststack.peek()
-	
+
 	                    DeleteLastPositionFromTracker()
 	                    DeleteLastPosterPlaylists()
-		
-	
+
+
 	                    rowList = m.gridScreen.findNode("RowList")
 	                    rowList.rowItemSize = lastRowItemSizes
 	                    rowList.rowSpacings = lastRowSpacings
@@ -451,7 +456,7 @@ Function OnKeyEvent(key, press) as Boolean
                     ' if the screen is visible - it must be the last element
                     screen = m.screenStack.pop()
                     screen.visible = false
-                   
+
                     ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                     ' open last screen before it and focus it
                     m.screenStack.peek().visible = true
@@ -466,7 +471,7 @@ Function OnKeyEvent(key, press) as Boolean
     ' Dialog boxes handler
     ' press = false when key event happens to component inside children
     if press = false then
-       
+
         print "Dialog: "; m.top.dialog
 
         if key = "back" AND m.top.dialog = invalid AND not isSpecialScreen()
@@ -482,10 +487,10 @@ Function OnKeyEvent(key, press) as Boolean
             else if((buttonIndex = 0 and key = "OK" AND m.top.dialog.title <> "Closed caption/audio configuration") OR (buttonIndex = 1 and key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation"))
                 m.top.dialog.close = true
                 m.top.dialog = invalid
-                
+
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)
-               
+
             end if
             print "buttonIndex: "; buttonIndex; " buttonKey: "; key
         else

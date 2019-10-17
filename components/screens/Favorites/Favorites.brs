@@ -25,6 +25,10 @@ Function Init()
     m.videoTitle = m.top.findNode("VideoTitle")
     m.videoTitle.color = m.global.theme.secondary_text_color
 
+    if (m.global.inline_title_text_display = true)
+        m.videoTitle.visible = false
+    end if
+
     m.resultsString = m.top.findNode("ResultsString")
     m.resultsString.color = m.global.theme.secondary_text_color
 End Function

@@ -16,6 +16,7 @@ FadingBackground - Background for all nodes. It is basically poster that gets pi
 
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/FadingBackground/FadingBackground.brs" />
+    <script type="text/brightscript" uri="pkg:/source/helpers.brs" />
 
     <children>
         <Rectangle
@@ -28,14 +29,14 @@ FadingBackground - Background for all nodes. It is basically poster that gets pi
             id="backgroundColor"/>
         <Poster
             id="oldBackground"
-            width="775"
-            height="435"
-            translation="[555,0]" />
+            width="680"
+            height="381" loadWidth="680" loadHeight="381" loadDisplayMode="scaleToFit"
+            translation="[600,0]" />
         <Poster
             id="background"
-            width="775"
-            height="435"
-            translation="[555,0]" />
+            width="680"
+            height="381" loadWidth="680" loadHeight="381" loadDisplayMode="scaleToFit"
+            translation="[600,0]" />
         <Rectangle
             id="shade"
             color="0x151515"
