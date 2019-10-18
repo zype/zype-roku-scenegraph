@@ -2,6 +2,7 @@ function init() as void
   m.itemImage = m.top.findNode("itemImage")
   m.itemImage.observeField("bitmapWidth", "OnItemImageLoaded")
   m.itemText = m.top.findNode("itemText")
+  m.itemText.color = m.global.theme.primary_text_color
   m.statusImage = m.top.findNode("statusImage")
 end function
 

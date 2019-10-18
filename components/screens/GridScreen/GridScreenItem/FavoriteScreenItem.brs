@@ -2,6 +2,7 @@ function init() as void
   m.itemImage = m.top.findNode("itemImage")
   m.statusImage = m.top.findNode("statusImage")
   m.itemText=m.top.findNode("itemText")
+  m.itemText.color = m.global.theme.primary_text_color
 end function
 
 function itemContentChanged() as void
@@ -27,7 +28,7 @@ function itemContentChanged() as void
     if (m.global.inline_title_text_display = true AND itemData.TITLE <> invalid)
         m.itemText.text = itemData.TITLE
     end if
-    
+
     ' Lock icons
     offset = m.itemImage.loadwidth - 32 - 5
     if m.statusImage <> invalid
