@@ -123,6 +123,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.loadingIndicator = m.scene.findNode("loadingIndicator")
     m.loadingIndicator1 = m.scene.findNode("loadingIndicator1")
 
+    ' HB: sending app launch trigger from here
+    m.scene.sentLaunchCompleteEvent = true
+    print "1=============================================================================================================================>"
 
     m.playlistsRowItemSizes = []
     m.playlistRowsSpacings = []
@@ -336,7 +339,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       m.loadingIndicator.control = "stop"
     end if
 
-    print "App done loading"
+    print "App done loading=============================================================================================================================>"
+    ' HB: Actually we have finished all loading here
+    ' m.scene.sentLaunchCompleteEvent = true
 
     while(true)
         msg = wait(0, m.port)
