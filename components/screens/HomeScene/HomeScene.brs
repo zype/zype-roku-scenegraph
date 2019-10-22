@@ -84,6 +84,8 @@ Function Init()
     if (m.global.image_caching_support = "1" OR m.global.image_caching_support = "2")
       CheckAndCreateCacheAndTempDirectories()
     end if
+    
+    m.appLaunchCompleteBeaconSent = false
 End Function
 
 ' Add positions based on index starting from 0
@@ -173,6 +175,14 @@ Sub CarouselDeepLinkToDetailPage()
     m.detailsScreen.visible = "true"
     m.screenStack.push(m.detailsScreen)
 ENd SUb
+
+sub sendAppLaunchCompleteBeacon()
+	if (m.appLaunchCompleteBeaconSent = false)
+			print "Sending AppLaunchComplete.................................................................."
+			m.top.signalBeacon("AppLaunchComplete")
+			m.appLaunchCompleteBeaconSent = true
+	end if
+end sub
 
 ' Row item selected handler
 Function OnRowItemSelected()
