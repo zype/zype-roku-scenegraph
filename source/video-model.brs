@@ -36,6 +36,7 @@ Function CreateVideoObject(attrs As Object) As Object
     on_Air: properties.on_air,
     subscriptionRequired: properties.subscription_required,
     purchaseRequired: properties.purchase_required,
+    marketplace_ids: properties.marketplace_ids,
     registrationRequired: properties.registration_required,
     rentalRequired: properties.rental_required,
     passRequired: properties.pass_required,
