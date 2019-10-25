@@ -1169,7 +1169,23 @@ Function ParseContent(list As Object)
         row.Title = rowAA.Title
         if rowAA.purchase_price<>invalid
             'consumables = m.roku_store_service.getConsumables()
-            purchaseItem = consumables[0]
+            isConsumableFound = false
+            if (rowAA.marketplace_ids <> invalid AND rowAA.marketplace_ids.roku <> invalid)
+              print "Playlist => rowAA.marketplace_ids.roku : " rowAA.marketplace_ids.roku
+              print "Playlist => title : " rowAA.title
+              for each rokuItem in consumables
+                  if (rokuItem.code = rowAA.marketplace_ids.roku)
+                    purchaseItem = rokuItem
+                    isConsumableFound = true
+                    exit for
+                  end if
+              end for
+            end if
+
+            if (isConsumableFound = false)
+	            purchaseItem = consumables[0]
+            end if
+
             row.NumEpisodes=rowAA.playlist_item_count
             row.Description=rowAA.purchase_price
             row.id=rowAA.playListID
@@ -1185,11 +1201,23 @@ Function ParseContent(list As Object)
             end for
 
             if item.purchaseRequired
-              ' TODO: Add logic for finding matching sku
+              isConsumableFound = false
 
-              ' use hard coded sku for now
-              'consumables = m.roku_store_service.getConsumables()
-              purchaseItem = consumables[0]
+              if (item.marketplace_ids <> invalid AND item.marketplace_ids.roku <> invalid)
+                'print "marketplace_ids ==> item : " item.marketplace_ids.roku
+                'print "title : " item.title
+                for each rokuItem in consumables
+                    if (rokuItem.code = item.marketplace_ids.roku)
+                      purchaseItem = rokuItem
+                      isConsumableFound = true
+                      exit for
+                    end if
+                end for
+              end if
+
+              if (isConsumableFound = false)
+	              purchaseItem = consumables[0]
+              end if
 
               item.storeProduct = purchaseItem
             else
@@ -1201,6 +1229,10 @@ Function ParseContent(list As Object)
 
         RowItems.appendChild(row)
     end for
+
+    print "consumables[0] ==> " consumables[0]
+    print "consumables[1] ==> " consumables[1]
+    print "consumables=====================> " consumables
 
     return RowItems
 End Function
@@ -1249,6 +1281,7 @@ function GetPlaylistContent(playlist_id as String)
         if pl.purchase_required<>invalid
             if pl.purchase_required=true
                 row.playlist_item_count=pl.playlist_item_count
+                row.marketplace_ids=pl.marketplace_ids ' TODO : Verify this'
                 row.purchase_price=pl.purchase_price
                 row.playListID=pl._id
             end if
@@ -1342,6 +1375,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
             if item.purchase_required=true
                 row.playlist_item_count=item.playlist_item_count
                 row.purchase_price=item.purchase_price
+                row.marketplace_ids=item.marketplace_ids
                 row.playListID=item._id
             end if
         end if

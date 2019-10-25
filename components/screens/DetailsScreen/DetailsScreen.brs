@@ -424,7 +424,7 @@ Sub AddActionButtons() ' trigger monetization
       end if
 
       '?"m.top.rowTVODInitiateContent==>"m.top.rowTVODInitiateContent
-      if m.top.content.purchaseRequired and m.global.native_tvod and (m.top.rowTVODInitiateContent <> invalid AND m.top.rowTVODInitiateContent.description<>"")
+      if m.top.content.purchaseRequired and m.global.native_tvod and (m.top.rowTVODInitiateContent <> invalid AND m.top.rowTVODInitiateContent.description="")
         if m.top.content.storeProduct <> invalid and m.top.content.storeProduct.cost <> invalid
           purchaseButtonText = "Purchase video - " + m.top.content.storeProduct.cost
         else
