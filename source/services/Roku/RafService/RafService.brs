@@ -19,7 +19,8 @@ function RafService() as object
   ' RAF configuration
   this.raf.setAdPrefs(true, 2)
   this.raf.setDebugOutput(true)
-  this.raf.enableNielsenDAR(true)
+  'this.raf.enableNielsenDAR(true)
+  this.raf.enableAdMeasurements(true)
 
   ' ********************************************
   ' Parameters:
@@ -60,6 +61,15 @@ function RafService() as object
     m.raf.setNielsenProgramId(video_player_info.title)
     m.raf.setContentLength(video_player_info.duration)
     m.raf.setNielsenGenre("GV")
+
+    print "===============RAF=================="
+    print "===============video_player_info.title ==================> " video_player_info.title
+    print "===============video_player_info.video_content_genre ==================> " video_player_info.video_content_genre
+    print "===============video_player_info.video_id ==================> " video_player_info.video_id
+    print "===============video_player_info.duration ==================> " video_player_info.duration
+
+    m.raf.setContentGenre(video_player_info.video_content_genre)
+    m.raf.setContentId(video_player_info.video_id)
 
     ads = m.raf.getAds()
 

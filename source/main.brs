@@ -808,6 +808,11 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
   if playerInfo.video.duration <> invalid then content.length = playerInfo.video.duration
   if playerInfo.video.title <> invalid then content.title = playerInfo.video.title
 
+  playerInfo.video.video_content_genre = ""
+  if (m.global.video_content_genre <> invalid)
+      playerInfo.video.video_content_genre = m.global.video_content_genre
+  end if
+
   if(playerInfo.on_Air <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
     print "PlayerInfo.analytics: "; playerInfo.analytics
 
@@ -2113,6 +2118,7 @@ function SetFeatures() as void
     universal_tvod: m.app.universal_tvod,
     confirm_signup: configs.confirm_signup,
     enable_device_linking: configs.enable_device_linking,
+    video_content_genre: configs.video_content_genre,
     test_info_screen: configs.test_info_screen,
     marketplace_connect_svod: configs.marketplace_connect_svod,
     subscription_plan_ids: configs.subscription_plan_ids

@@ -26,5 +26,6 @@
   "confirm_signup": false,
   "enable_device_linking": false,
   "inline_title_text_display": false,
-  "image_caching_support":"1"
+  "image_caching_support":"1",
+  "video_content_genre": "Special"
 }
