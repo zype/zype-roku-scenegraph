@@ -289,7 +289,7 @@ End Function
 '******************************************************
 Function GetAppConfigs(urlParams = {} As Object) As Object
   data = {}
-  
+
   url = GetApiConfigs().endpoint + "app/"
   params = AppendAppKeyToParams(urlParams)
   response = MakeRequest(url, params)
@@ -578,6 +578,9 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
       if video.DoesExist("duration")
         info.video.duration = video.duration
       end if
+
+      ' Set VideoID'
+      info.video.video_id = videoid
     end if ' end of if video
 
   else
