@@ -64,6 +64,7 @@
         <function name="AddCurrentPositionToTracker" />
         <function name="PushScreenIntoScreenStack" />
         <function name="PushContentIntoContentStack" />
+        <function name="CreateDialog" />
     </interface>
 
     <!-- main handler -->

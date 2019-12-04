@@ -84,7 +84,7 @@ Function Init()
     if (m.global.image_caching_support = "1" OR m.global.image_caching_support = "2")
       CheckAndCreateCacheAndTempDirectories()
     end if
-    
+
     m.appLaunchCompleteBeaconSent = false
 End Function
 
@@ -546,3 +546,25 @@ Function isSpecialScreen()
         return false
     end if
 End Function
+
+
+' Takes screen and creates dialog for it
+function CreateDialog(screen, title, message, buttons)
+  m.top.dialog = invalid
+
+  dialog = createObject("roSGNode", "Dialog")
+  dialog.title = title
+  dialog.message = message
+  dialog.optionsDialog = false
+  dialog.buttons = buttons
+  dialog.observeField("buttonSelected", "DialogButtonSelected")
+
+  m.top.dialog = dialog
+end function
+
+sub DialogButtonSelected()
+    if (m.top.dialog <> invalid) then
+        m.top.dialog.close = true
+        m.top.dialog = invalid
+    end if
+end sub
