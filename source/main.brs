@@ -147,12 +147,14 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     rowlist.rowItemSize = m.playlistsRowItemSizes
     rowlist.rowSpacings = m.playlistRowsSpacings
 
-    if LoadHeroCarousels()<>invalid
+    heroCarousels = LoadHeroCarousels()
+    if heroCarousels <>invalid
         m.gridScreen.heroCarouselShow=true
-        m.scene.heroCarouselData = LoadHeroCarousels()
+        m.scene.heroCarouselData = heroCarousels
     else
         m.gridScreen.heroCarouselShow=false
     end if
+
     m.scene.gridContent = m.gridContent
 
     if m.contentID = invalid
@@ -564,7 +566,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               already_purchased_message = "It appears you have already purchased this plan before. If you cancelled your subscription, please renew your subscription on the Roku website. " + chr(10) + chr(10) + "Then you can sign in with your " + app_info.getTitle() + " account."
 
               if already_purchased
-                CreateDialog(m.scene, "Already purchased", already_purchased_message, ["Close"])
+                m.scene.callFunc("CreateDialog",m.scene, "Already purchased", already_purchased_message, ["Close"])
               else
                 if m.global.auth.isLoggedIn or (m.global.native_to_universal_subscription = false AND m.global.marketplace_connect_svod <> true) then
                     handleNativeToUniversal()
@@ -703,7 +705,7 @@ function goIntoDeviceLinkingFlow() as void
 
         data = store.GetChannelCred()
 
-        CreateDialog(m.scene, "Success", "Your device is linked", ["Continue"])
+        m.scene.callFunc("CreateDialog",m.scene, "Success", "Your device is linked", ["Continue"])
         exit while
       end if
     end if
@@ -1497,15 +1499,15 @@ function handleButtonEvents(index, screen)
       m.detailsScreen.content = m.detailsScreen.content
 
       sleep(500)
-      CreateDialog(m.scene, "Success", "You have been signed out.", ["Close"])
+      m.scene.callFunc("CreateDialog",m.scene, "Success", "You have been signed out.", ["Close"])
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
 
       if screen.email = ""
         sleep(500)
-        CreateDialog(m.scene, "Error", "Email is empty", ["Close"])
+        m.scene.callFunc("CreateDialog",m.scene, "Error", "Email is empty", ["Close"])
       else if screen.password = ""
         sleep(500)
-        CreateDialog(m.scene, "Error", "Password is empty", ["Close"])
+        m.scene.callFunc("CreateDialog",m.scene, "Error", "Password is empty", ["Close"])
       else
 
         if screen.email <> "" and screen.password <> ""
@@ -1540,10 +1542,10 @@ function handleButtonEvents(index, screen)
           m.detailsScreen.content = m.detailsScreen.content
 
           sleep(500)
-          CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+          m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
         else
           sleep(500)
-          CreateDialog(m.scene, "Error", "Could not find user with that email and password.", ["Close"])
+          m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not find user with that email and password.", ["Close"])
         end if
 
       end if ' end of email/password validation
@@ -1552,11 +1554,11 @@ function handleButtonEvents(index, screen)
       signUpChecked = screen.callFunc("isSignupChecked")
 
       if screen.email = ""
-        CreateDialog(m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
+        m.scene.callFunc("CreateDialog",m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
       else if screen.password = ""
-        CreateDialog(m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
+        m.scene.callFunc("CreateDialog",m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
       else if signUpChecked = false
-        CreateDialog(m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
+        m.scene.callFunc("CreateDialog",m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
       else
         StartLoader()
         create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
@@ -1594,7 +1596,7 @@ function handleButtonEvents(index, screen)
           m.SignUpScreen.setFocus(true)
           m.SignUpScreen.findNode("SubmitButton").setFocus(true)
 
-          CreateDialog(m.scene, "Error", "It appears that email was taken.", ["Close"])
+          m.scene.callFunc("CreateDialog",m.scene, "Error", "It appears that email was taken.", ["Close"])
         end if
 
       end if
@@ -1603,13 +1605,13 @@ function handleButtonEvents(index, screen)
       signUpChecked = screen.callFunc("isSignupChecked")
       if screen.email = ""
         sleep(500)
-        CreateDialog(m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
+        m.scene.callFunc("CreateDialog",m.scene, "Error", "Email is empty. Cannot create account", ["Close"])
       else if screen.password = ""
         sleep(500)
-        CreateDialog(m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
+        m.scene.callFunc("CreateDialog",m.scene, "Error", "Password is empty. Cannot create account", ["Close"])
       else if signUpChecked = false
         sleep(500)
-        CreateDialog(m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
+        m.scene.callFunc("CreateDialog",m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
       else
         StartLoader()
         if not m.RegistrationScreen.isSignin
@@ -1641,21 +1643,21 @@ function handleButtonEvents(index, screen)
                 m.scene.transitionTo = "AuthSelection"
             else
             	sleep(500)
-            	CreateDialog(m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+            	m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
             end if
           else
             EndLoader()
             m.RegistrationScreen.setFocus(true)
             m.RegistrationScreen.findNode("SubmitButton").setFocus(true)
             sleep(500)
-            CreateDialog(m.scene, "Error", "Could not find user with that email and password.", ["Close"])
+            m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not find user with that email and password.", ["Close"])
           end if
         else
           EndLoader()
           m.RegistrationScreen.setFocus(true)
           m.RegistrationScreen.findNode("SubmitButton").setFocus(true)
           sleep(500)
-          CreateDialog(m.scene, "Error", "It appears that email was taken.", ["Close"])
+          m.scene.callFunc("CreateDialog",m.scene, "Error", "It appears that email was taken.", ["Close"])
         end if
       end if
     else if button_role = "syncNative"
@@ -1696,7 +1698,7 @@ function handleButtonEvents(index, screen)
           m.native_email_storage.WriteEmail(updated_user_info.email)
 
           sleep(500)
-          CreateDialog(m.scene, "Success", "Was able to validate subscription.", ["Close"])
+          m.scene.callFunc("CreateDialog",m.scene, "Success", "Was able to validate subscription.", ["Close"])
 
         ' subscription count = 0
         else
@@ -1705,12 +1707,12 @@ function handleButtonEvents(index, screen)
           if stored_email = "" or stored_email = invalid then message = "Please sign in with the correct email to sync your subscription." else message = "Please sign in as " + stored_email + " to sync your subscription."
 
           sleep(500)
-          CreateDialog(m.scene, "Error", message, ["Close"])
+          m.scene.callFunc("CreateDialog",m.scene, "Error", message, ["Close"])
         end if
 
       else
         sleep(500)
-        CreateDialog(m.scene, "Error", "There was an error validating your subscription.", ["Close"])
+        m.scene.callFunc("CreateDialog",m.scene, "Error", "There was an error validating your subscription.", ["Close"])
       end if
 
 
@@ -1879,14 +1881,14 @@ function handleNativeToUniversal() as void
 
             sleep(500)
             if (user_info.email <> invalid AND user_info.email <> "")
-            CreateDialog(m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
+            m.scene.callFunc("CreateDialog",m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
         else
-                CreateDialog(m.scene, "Welcome", "Hi, Thanks for signing up.", ["Close"])
+                m.scene.callFunc("CreateDialog",m.scene, "Welcome", "Hi, Thanks for signing up.", ["Close"])
             end if
         else ' Receipt verification failed
             EndLoader()
             sleep(500)
-            CreateDialog(m.scene, "Error", "Could not verify your purchase with Roku. You can cancel your subscription on the Roku website.", ["Close"])
+            m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not verify your purchase with Roku. You can cancel your subscription on the Roku website.", ["Close"])
         end if ' native_sub_status.valid
 
       ' regular nsvod
@@ -1904,13 +1906,13 @@ function handleNativeToUniversal() as void
         m.detailsScreen.content = m.detailsScreen.content
 
         sleep(500)
-        CreateDialog(m.scene, "Success", "Thank you for purchasing the subscription.", ["Dismiss"])
+        m.scene.callFunc("CreateDialog",m.scene, "Success", "Thank you for purchasing the subscription.", ["Dismiss"])
       end if ' end if global.native_to_universal_subscription
 
   ' User cancelled purchase or error from Roku store
   else
     m.AuthSelection.findNode("Plans").setFocus(true)
-    CreateDialog(m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
+    m.scene.callFunc("CreateDialog",m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
   end if
 end function
 
@@ -1968,7 +1970,7 @@ function handleNativePurchase() as void
 
       EndLoader()
       sleep(500)
-      CreateDialog(m.scene, "Success", "Thank you for purchasing the video.", ["Dismiss"])
+      m.scene.callFunc("CreateDialog",m.scene, "Success", "Thank you for purchasing the video.", ["Dismiss"])
 
     else ' failed
       ' Refresh lock icons with grid screen content callback
@@ -1981,11 +1983,11 @@ function handleNativePurchase() as void
 
       EndLoader()
       sleep(500)
-      CreateDialog(m.scene, "Error", "Could not verify your purchase with Roku marketplace. Please try again later.", ["Close"])
+      m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not verify your purchase with Roku marketplace. Please try again later.", ["Close"])
     end if
   else
     m.PurchaseScreen.findNode("PurchaseButtons").setFocus(true)
-    CreateDialog(m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
+    m.scene.callFunc("CreateDialog",m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
   end if
 end function
 
