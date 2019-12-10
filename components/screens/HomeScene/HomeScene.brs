@@ -80,6 +80,9 @@ Function Init()
     m.playListFromHeroSlider=false
     m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
 
+    'timer for autoplay
+    m.autoplayMessageTimer = m.top.findNode("autoplayMessageTimer")
+
     print "m.global.image_caching_support ============================> " m.global.image_caching_support
     if (m.global.image_caching_support = "1" OR m.global.image_caching_support = "2")
       CheckAndCreateCacheAndTempDirectories()
@@ -566,5 +569,22 @@ sub DialogButtonSelected()
     if (m.top.dialog <> invalid) then
         m.top.dialog.close = true
         m.top.dialog = invalid
+    end if
+end sub
+
+sub SetAutoPlayTimer()
+    print "m.top.autoplaytimer >> " m.top.autoplaytimer
+    if m.top.autoplaytimer = 1
+        m.autoplayMessageTimer.control = "start"
+        m.autoplayMessageTimer.observeField("fire", "hideAutoplayMessage")
+    else if m.top.autoplaytimer = 2
+        hideAutoplayMessage()
+    end if
+end sub
+
+sub hideAutoplayMessage()
+    msg = m.top.findNode("autoplayMessage")
+    if msg <> invalid
+        msg.visible = false
     end if
 end sub

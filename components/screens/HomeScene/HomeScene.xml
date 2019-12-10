@@ -56,6 +56,8 @@
 
         <field id="videoliststack" type="array"  />
 
+        <field id="autoplaytimer" type="integer" alwaysnotify="true" onChange="SetAutoPlayTimer" />
+
         <!-- Name of screen to transition to -->
         <field id="transitionTo" type="string" alwaysNotify="true" onChange="transitionToScreen" />
 
@@ -184,5 +186,8 @@
           font="dictionary:loadingIndicatorFont"
           backgroundColor="0x151515"
           backgroundOpacity="0"/>
+
+        <!-- Timer to hide autoplay message -->
+        <Timer id="autoplayMessageTimer" repeat="false" duration="5" />
     </children>
 </component>

@@ -341,6 +341,46 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       m.loadingIndicator.control = "stop"
     end if
 
+    autoPlayHero = LoadAutoPlayHero()
+    'print "autoPlayHero :: " autoPlayHero[0]
+    for each item in autoPlayHero
+        if item.active and item.zobject_type_title = "autoplay_hero"
+
+
+            'append message
+            appInfo = CreateObject("roAppInfo")
+            appTitle = appInfo.GetTitle()
+
+            autoplayMessage           = createObject("RoSGNode", "Label")
+            autoplayMessage.id        = "autoplayMessage"
+            autoplayMessage.color     = m.global.theme.primary_text_color
+            autoplayMessage.wrap      = true
+            autoplayMessage.text      = m.global.labels.autoplay_message.Replace("<app title>",appTitle)
+            autoplayMessage.width     = 1280
+            autoplayMessage.maxLines  = 2
+            autoplayMessage.lineSpacing = "0"
+            autoplayMessage.font = CreateObject("roSGNode", "Font")
+            autoplayMessage.font.uri = "pkg:/fonts/Roboto-Regular.ttf"
+            autoplayMessage.font.size = 22
+            autoplayMessage.translation = [0, 670]
+            autoplayMessage.horizAlign = "center"
+
+            m.scene.appendChild(autoplayMessage)
+            m.scene.autoplaytimer = 1
+
+            StartLoader()
+            linkedVideoObject=CreateVideoObject(GetVideo(item.videoid))
+            auth1 = getAuth(linkedVideoObject)
+
+            content = createObject("RoSGNode","VideoNode")
+            content.setFields(linkedVideoObject)
+            playVideo(m.gridScreen, auth1, m.app.avod, content)
+            m.loadingIndicator.control = "stop"
+
+            exit for
+        end if
+    end for
+
     print "App done loading=============================================================================================================================>"
     ' HB: Actually we have finished all loading here
     ' m.scene.sentLaunchCompleteEvent = true
@@ -786,6 +826,11 @@ sub playLiveStream(screen as Object, content = invalid)
   playVideo(screen, getAuth(content), false, content)
 end sub
 
+sub playAutoPlayHero(screen as Object, content = invalid)
+  print "PLAY Autoplay Hero"
+  StartLoader()
+  playVideo(screen, getAuth(content), false, content)
+end sub
 
 function getAuth(content)
   di = CreateObject("roDeviceInfo")
