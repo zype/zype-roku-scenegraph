@@ -44,12 +44,14 @@ End Function
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
     live = (m.top.videoPlayer.content <> invalid and m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
-
     ' Only close video player if error and VOD (not live stream)
     if m.top.videoPlayer.state = "error" and live = false
         ' error handling
         m.top.videoPlayer.visible = false
     else if m.top.videoPlayer.state = "playing"
+        if m.top.getScene().autoplaytimer <> 2
+            m.top.getScene().autoplaytimer = 1
+        end if
         ' playback handling
         if(m.top.autoplay = true)
             m.top.triggerPlay = false
@@ -225,6 +227,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     result = false
     if press then
         if key="back"
+          m.top.getScene().autoplaytimer = 2
           if (m.top.videoPlayer.visible = true)
             m.top.videoPlayer.control = "stop"
             m.top.videoPlayer.visible = false

@@ -157,7 +157,15 @@ End Function
 ' if content set, focus on GridScreen and remove loading indicator
 Function OnChangeContent()
     m.gridScreen.setFocus(true)
-    m.top.loadingIndicator.control = "stop"
+    if m.top.IsShowAutoPlayBackground = false
+        m.top.loadingIndicator.control = "stop"
+    end if
+End Function
+
+Function onAutoPlayBgChange()
+  if m.top.IsShowAutoPlayBackground = false
+      m.top.loadingIndicator.control = "stop"
+  end if
 End Function
 
 Sub carouselSelectDataSelected()
@@ -575,6 +583,8 @@ end sub
 sub SetAutoPlayTimer()
     print "m.top.autoplaytimer >> " m.top.autoplaytimer
     if m.top.autoplaytimer = 1
+        msg = m.top.findNode("autoplayMessage")
+        msg.visible = true
         m.autoplayMessageTimer.control = "start"
         m.autoplayMessageTimer.observeField("fire", "hideAutoplayMessage")
     else if m.top.autoplaytimer = 2

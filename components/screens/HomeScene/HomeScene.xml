@@ -16,6 +16,7 @@
         <field id="loadingIndicator" type="node" />
         <!--Content for HeroCarousel on Home Scene-->
         <field id="heroCarouselData" type="array" alias="GridScreen.heroCarouselData" alwaysNotify="true"/>
+        <field id="IsShowAutoPlayBackground" type="boolean" alias="autoPlayBackground.visible" alwaysNotify="true" onChange="onAutoPlayBgChange"/>
 
         <!-- Content for RowList in Search -->
         <field id="searchContent" type="node" alias="Search.content"/>
@@ -169,6 +170,13 @@
             <Font id="loadingIndicatorFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="16"/>
         </Label>
 
+        <rectangle
+          id="autoPlayBackground"
+          width="1280"
+          height="720"
+          color="#FFFFFF"
+          visible="false"
+          />
         <LoadingIndicator
           id="loadingIndicator"
           imageUri="pkg:/components/screens/LoadingIndicator/lightLoader.png"

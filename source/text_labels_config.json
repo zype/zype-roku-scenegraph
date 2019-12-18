@@ -55,5 +55,5 @@
   "my_library_catalog_message": "My Library",
   "empty_my_library_catalog_message": "You haven’t purchased any videos. Any videos you purchase will automatically appear in your library.",
   "paginate_button_text": "See More",
-  "autoplay_message": "You can press the back button in order to return to the <app title> home screen"
+  "autoplay_message": "Press the Back button to exit and return to the Home screen."
 }

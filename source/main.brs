@@ -147,6 +147,15 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     rowlist.rowItemSize = m.playlistsRowItemSizes
     rowlist.rowSpacings = m.playlistRowsSpacings
 
+    autoPlayHero = LoadAutoPlayHero()
+    'print "autoPlayHero :: " autoPlayHero[0]
+    for each item in autoPlayHero
+        if item.active and item.zobject_type_title = "autoplay_hero"
+          m.scene.IsShowAutoPlayBackground = true
+          exit for
+        end if
+    end for
+
     heroCarousels = LoadHeroCarousels()
     if heroCarousels <>invalid
         m.gridScreen.heroCarouselShow=true
@@ -341,32 +350,32 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       m.loadingIndicator.control = "stop"
     end if
 
-    autoPlayHero = LoadAutoPlayHero()
+    'autoPlayHero = LoadAutoPlayHero()
     'print "autoPlayHero :: " autoPlayHero[0]
     for each item in autoPlayHero
         if item.active and item.zobject_type_title = "autoplay_hero"
 
-
             'append message
             appInfo = CreateObject("roAppInfo")
-            appTitle = appInfo.GetTitle()
+            'appTitle = appInfo.GetTitle()
 
             autoplayMessage           = createObject("RoSGNode", "Label")
             autoplayMessage.id        = "autoplayMessage"
             autoplayMessage.color     = m.global.theme.primary_text_color
             autoplayMessage.wrap      = true
-            autoplayMessage.text      = m.global.labels.autoplay_message.Replace("<app title>",appTitle)
+            autoplayMessage.text      = m.global.labels.autoplay_message '.Replace("<app title>",appTitle)
             autoplayMessage.width     = 1280
             autoplayMessage.maxLines  = 2
             autoplayMessage.lineSpacing = "0"
             autoplayMessage.font = CreateObject("roSGNode", "Font")
             autoplayMessage.font.uri = "pkg:/fonts/Roboto-Regular.ttf"
             autoplayMessage.font.size = 22
-            autoplayMessage.translation = [0, 670]
+            autoplayMessage.translation = [0, 620]
             autoplayMessage.horizAlign = "center"
+            autoplayMessage.visible = false
 
             m.scene.appendChild(autoplayMessage)
-            m.scene.autoplaytimer = 1
+            'm.scene.autoplaytimer = 1
 
             StartLoader()
             linkedVideoObject=CreateVideoObject(GetVideo(item.videoid))
@@ -374,6 +383,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
             content = createObject("RoSGNode","VideoNode")
             content.setFields(linkedVideoObject)
+            m.scene.IsShowAutoPlayBackground = false
             playVideo(m.gridScreen, auth1, m.app.avod, content)
             m.loadingIndicator.control = "stop"
 
