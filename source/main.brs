@@ -361,7 +361,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
             autoplayMessage           = createObject("RoSGNode", "Label")
             autoplayMessage.id        = "autoplayMessage"
-            autoplayMessage.color     = m.global.theme.primary_text_color
+            autoplayMessage.color     = "#FFFFFF"
             autoplayMessage.wrap      = true
             autoplayMessage.text      = m.global.labels.autoplay_message '.Replace("<app title>",appTitle)
             autoplayMessage.width     = 1280
