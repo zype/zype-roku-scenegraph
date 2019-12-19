@@ -10,6 +10,12 @@
         <!-- Grid Content Node -->
         <field id="content" type="node" alias="RowList.content" onChange="onContentChange"/>
 
+        <!-- Item Selected -->
+        <!-- <field id="itemSelected" type="integer" alwaysnotify="true" alias="sliderButton.itemSelected" onChange="onItemSelected" /> -->
+
+        <field id="itemSelectedRole" type="string" />
+        <field id="itemSelectedTarget" type="string" />
+
         <!-- herCarousel Content Data -->
         <field id="heroCarouselData" type="array" onChange="showHeroCarousel"/>
 
@@ -31,7 +37,17 @@
         <!--Interface to handle heroCarousel selection-->
         <field id="carouselSelectData" type="assocArray"  />
 
+        <!-- True value will immediately play the video loaded into the screen -->
+        <field id="triggerPlay" type="bool" />
+        <field id="canWatchVideo" type="bool" />
 
+        <!-- Gets populated by app configuration returned from zype API -->
+        <field id="autoplay" type="bool" />
+
+        <!-- Video Player referencible by HomeScene -->
+        <field id="VideoPlayer" type="node" />
+
+        <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
     </interface>
 
     <!-- main handler -->

@@ -17,6 +17,14 @@ function LoadHeroCarousels()
     return invalid
 end function
 
+function LoadAutoPlayHero()
+    rawData = GetZObjects({"zobject_type": "autoplay_hero"})
+    if rawData <> invalid AND rawData.Count()>0
+      return rawData
+    end if
+    return invalid
+end function
+
 function GetLimitStreamObject() as Object
     if m.limitStream <> invalid then
         return m.limitStream

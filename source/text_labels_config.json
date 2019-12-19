@@ -54,5 +54,6 @@
   "my_library_signin_message": "To view your library, please sign in",
   "my_library_catalog_message": "My Library",
   "empty_my_library_catalog_message": "You haven’t purchased any videos. Any videos you purchase will automatically appear in your library.",
-  "paginate_button_text": "See More"
+  "paginate_button_text": "See More",
+  "autoplay_message": "Press the Back button to exit and return to the Home screen."
 }

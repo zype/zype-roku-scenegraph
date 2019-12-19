@@ -24,6 +24,54 @@ Function Init()
 
     m.optionsIcon = m.top.findNode("OptionsIcon")
     m.optionsIcon.blendColor = m.global.brand_color
+
+    initializeVideoPlayer()
+    m.top.videoPlayer.visible = false
+End Function
+
+Function initializeVideoPlayer()
+  print "initializeVideoPlayer"
+  m.top.videoPlayer = m.top.createChild("Video")
+  m.top.videoPlayer.translation = [0,0]
+  m.top.videoPlayer.width = 0
+  m.top.videoPlayer.height = 0
+
+  ' Event listener for video player state. Needed to handle video player errors and completion
+  m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+  print "initializeVideoPlayer2222"
+End Function
+
+' event handler of Video player msg
+Sub OnVideoPlayerStateChange()
+    live = (m.top.videoPlayer.content <> invalid and m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
+    ' Only close video player if error and VOD (not live stream)
+    if m.top.videoPlayer.state = "error" and live = false
+        ' error handling
+        m.top.videoPlayer.visible = false
+    else if m.top.videoPlayer.state = "playing"
+        if m.top.getScene().autoplaytimer <> 2
+            m.top.getScene().autoplaytimer = 1
+        end if
+        ' playback handling
+        if(m.top.autoplay = true)
+            m.top.triggerPlay = false
+        end if
+    else if m.top.videoPlayer.state = "finished" and live = false
+
+    ' Try playing live stream again instead of closing by default.
+    ' Video player tries to close at first sign of missing manifest chunks
+    else if m.top.videoPlayer.state = "finished" and live = true
+        m.top.videoPlayer.control = "play"
+    end if
+End Sub
+
+Function ReinitializeVideoPlayer()
+  print "m.top.RemakeVideoPlayer : " m.top.RemakeVideoPlayer
+  print "m.top.videoPlayer : " m.top.videoPlayer
+  if m.top.RemakeVideoPlayer = true
+      m.top.removeChild(m.top.videoPlayer)
+      initializeVideoPlayer()
+  end if
 End Function
 
 ' handler of focused item in RowList
@@ -153,12 +201,12 @@ End Sub
 Sub changeSliderImage()
   if m.top.visible
     ?"the sliderchange=>"m.index
-    m.value=m.value+1              
+    m.value=m.value+1
     m.index=m.value
     if m.top.heroCarouselData[m.index]=invalid
         m.index=0
     end if
-    m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url   
+    m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
     m.valueSelection=m.index
     m.value=m.index
     m.index+=1
@@ -178,7 +226,19 @@ ENd SUb
 function onKeyEvent(key as String, press as Boolean) as Boolean
     result = false
     if press then
-        if key="down"
+        if key="back"
+          m.top.getScene().autoplaytimer = 2
+          if (m.top.videoPlayer.visible = true)
+            m.top.videoPlayer.control = "stop"
+            m.top.videoPlayer.visible = false
+            if m.top.heroCarouselShow=true
+                m.sliderButton.setFocus(true)
+            else
+                m.rowList.setFocus(true)
+            end if
+            result=true
+          end if
+        else if key="down"
            if m.sliderButton.hasFocus()
                 m.carouselShow.visible=true
                 m.sliderGroup.visible=false
@@ -194,12 +254,12 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
             end if
         else if key="right"
             if m.sliderGroup.visible=true
-                m.value=m.value+1              
+                m.value=m.value+1
                 m.index=m.value
                 if m.top.heroCarouselData[m.index]=invalid
                     m.index=0
                 end if
-                m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url   
+                m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
                 m.valueSelection=m.index
                 m.value=m.index
                 m.index+=1
@@ -214,7 +274,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 end if
                 m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
-                result=true          
+                result=true
 
             end if
         else if key="left"
@@ -238,10 +298,17 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 end if
                 m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
-                result=true            
+                result=true
 
             end if
         end if
     end if
     return result
 end function
+
+' Content change handler
+Sub OnContentChange()
+    if m.top.content <> invalid
+      m.top.videoPlayer.content   = m.top.content
+    end if
+End Sub
