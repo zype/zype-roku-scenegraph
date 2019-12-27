@@ -130,6 +130,11 @@
           id="PurchaseScreen"
           visible="false" />
 
+        <PurchaseScreen
+          id="PurchaseScreenPlaylist"
+          visible="false" />
+
+
         <!-- OAuth selection - choose signin / device link -->
         <UniversalAuthSelection
           id="UniversalAuthSelection"

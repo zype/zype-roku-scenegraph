@@ -36,6 +36,7 @@ Function Init()
 
     ' Purchase Screen - Confirm purchase + sign up or sign in
     m.PurchaseScreen = m.top.findNode("PurchaseScreen")
+    m.PurchaseScreenPlaylist = m.top.findNode("PurchaseScreenPlaylist")
 
     ' Universal Auth Selection (OAuth - signin / device link)
     m.UniversalAuthSelection = m.top.findNode("UniversalAuthSelection")
@@ -290,7 +291,8 @@ function isAuthScreen(screen_id as string) as boolean
     "SignInScreen",
     "SignUpScreen",
     "RegistrationScreen",
-    "PurchaseScreen"
+    "PurchaseScreen",
+    "PurchaseScreenPlaylist"
   ]
 
   for each auth_id in auth_screen_ids
