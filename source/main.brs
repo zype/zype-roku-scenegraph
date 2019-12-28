@@ -1257,7 +1257,7 @@ Function ParseContent(list As Object)
               end for
             end if
 
-            if (isConsumableFound = false)
+            if (isConsumableFound = false and consumables[0] <> invalid)
 	            purchaseItem = consumables[0]
             end if
 
@@ -1799,7 +1799,7 @@ function handleButtonEvents(index, screen)
           m.PurchaseScreenPlaylist.isPlayList=true
           m.PurchaseScreenPlaylist.playListVideoCount = screen.rowTVODInitiateContent.NUMEPISODES.toStr()
           purchaseItem = parseJSON(screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1)
-          if screen.rowTVODInitiateContent.DESCRIPTION <> invalid
+          if screen.rowTVODInitiateContent.DESCRIPTION <> invalid and purchaseItem <> invalid
               purchaseItem.cost = "$" + screen.rowTVODInitiateContent.DESCRIPTION
           end if
           m.PurchaseScreenPlaylist.purchaseItem = purchaseItem
