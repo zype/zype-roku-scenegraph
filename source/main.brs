@@ -1238,6 +1238,7 @@ Function ParseContent(list As Object)
 	consumables = m.roku_store_service.getConsumables()
 
     RowItems = createObject("RoSGNode","ContentNode")
+    purchaseItem = invalid
 
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
@@ -1252,19 +1253,25 @@ Function ParseContent(list As Object)
                   if (rokuItem.code = rowAA.marketplace_ids.roku)
                     purchaseItem = rokuItem
                     isConsumableFound = true
+                    print "isConsumableFound true- purchaseItem :" purchaseItem
                     exit for
                   end if
               end for
             end if
 
             if (isConsumableFound = false and consumables[0] <> invalid)
-	            purchaseItem = consumables[0]
+                print "isConsumableFound false - consumables[0] :" consumables[0]
+                purchaseItem = consumables[0]
             end if
 
             row.NumEpisodes=rowAA.playlist_item_count
             row.Description=rowAA.purchase_price
             row.id=rowAA.playListID
-            row.shortDescriptionLine1=FormatJSON(purchaseItem)
+            if purchaseItem <> invalid
+                row.shortDescriptionLine1=FormatJSON(purchaseItem)
+            else
+               row.shortDescriptionLine1 = invalid
+            end if
         end if
 
         for each itemAA in rowAA.ContentList
@@ -1798,7 +1805,10 @@ function handleButtonEvents(index, screen)
       else if screen.rowTVODInitiateContent.DESCRIPTION<>"" and button_target = "PurchaseScreenPlaylist"
           m.PurchaseScreenPlaylist.isPlayList=true
           m.PurchaseScreenPlaylist.playListVideoCount = screen.rowTVODInitiateContent.NUMEPISODES.toStr()
-          purchaseItem = parseJSON(screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1)
+          purchaseItem = invalid
+          if screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1 <> invalid
+              purchaseItem = parseJSON(screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1)
+          end if
           if screen.rowTVODInitiateContent.DESCRIPTION <> invalid and purchaseItem <> invalid
               purchaseItem.cost = "$" + screen.rowTVODInitiateContent.DESCRIPTION
           end if
