@@ -28,7 +28,7 @@ Function InitSidebarButtons()
     ]
 
     if m.global.enable_epg = true then menuButtons.push( { title: m.global.labels.menu_my_tv_button, role: "transition", target: "EPGScreen" } )
-    
+
     if(m.global.device_linking = true )
         menuButtons.push( { title: m.global.labels.menu_account_button, role: "transition", target: "AccountScreen" } )
     end if
@@ -39,10 +39,7 @@ Function InitSidebarButtons()
         end if
     end if
 
-    if m.global.favorites_via_api = true or (m.global.device_linking = true and m.global.favorites_via_api = true)
-        menuButtons.push({ title: m.global.labels.menu_favorites_button, role: "transition", target: "Favorites" })
-    end if
-
+    menuButtons.push({ title: m.global.labels.menu_favorites_button, role: "transition", target: "Favorites" })
 
     if m.global.universal_tvod
         menuButtons.push({ title: m.global.labels.menu_my_library_button, role: "transition", target: "MyLibrary" })
