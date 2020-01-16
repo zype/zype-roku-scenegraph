@@ -380,12 +380,10 @@ Sub AddButtons() ' user has access
       ]
     end if
 
-    if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
-      if m.top.content.inFavorites = true
-        btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
-      else
-        btns.push({title: m.global.labels.favorite_button, role: "favorite"})
-      end if
+    if m.top.content.inFavorites = true
+      btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
+    else
+      btns.push({title: m.global.labels.favorite_button, role: "favorite"})
     end if
 
     if m.global.in_app_purchase or m.global.device_linking then svod_enabled = true else svod_enabled = false
@@ -439,12 +437,10 @@ Sub AddActionButtons() ' trigger monetization
 
       addWatchTrailerButton(btns)
 
-      if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
-        if m.top.content.inFavorites = true
-          btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
-        else
-          btns.push({title: m.global.labels.favorite_button, role: "favorite"})
-        end if
+      if m.top.content.inFavorites = true
+        btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
+      else
+        btns.push({title: m.global.labels.favorite_button, role: "favorite"})
       end if
 
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
@@ -459,15 +455,14 @@ Sub AddTVODActionButtons()
           desc = m.top.rowTVODInitiateContent.description
       end if
       purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $" + desc
-      if m.global.favorites_via_api = true or (m.global.device_linking and m.global.auth.isLoggedIn)
-        if m.top.content.inFavorites = true
-          btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
-        else
-          btns.push({title: m.global.labels.favorite_button, role: "favorite"})
-        end if
+
+      if m.top.content.inFavorites = true
+        btns.push({title: m.global.labels.unfavorite_button, role: "favorite"})
+      else
+        btns.push({title: m.global.labels.favorite_button, role: "favorite"})
       end if
 
-        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
+      btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
       addWatchTrailerButton(btns)
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
   end if

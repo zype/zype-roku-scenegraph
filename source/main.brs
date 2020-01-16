@@ -69,14 +69,14 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
       end if
     end if
 
+    m.favorites_storage_service = FavoritesStorageService()
+    m.favorites_management_service = FavoritesManagementService()
+
     SetTheme()
     SetFeatures()
     SetMonetizationSettings()
     SetVersion()
     SetTextLabels()
-
-    m.favorites_storage_service = FavoritesStorageService()
-    m.favorites_management_service = FavoritesManagementService()
 
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
@@ -484,7 +484,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 favorites_content = GetFavoritesContent()
                 m.scene.favoritesContent = ParseContent(favorites_content)
 
-                if favorites_content.count() = 0 then m.Favorites.VideoTitleText = m.global.labels.no_favorites_message
+                if favorites_content.count() = 0 then m.Favorites.VideoTitleText = m.global.labels.no_favorites_message.replace("{{chr(10)}}", chr(10))
 
                 m.loadingIndicator.control = "stop"
 
@@ -2089,12 +2089,7 @@ Function markFavoriteButton(lclScreen)
 
         ' Not authenicated. Trying to favorite when favorites_via_api is on
         else
-            dialog = createObject("roSGNode", "Dialog")
-            dialog.title = "Link Your Device"
-            dialog.optionsDialog = true
-            dialog.message = "Please link your device in order to add this video to favorites."
-            dialog.buttons = ["OK"]
-            m.scene.dialog = dialog
+            m.scene.callFunc("CreateDialog",m.scene, "Sign In to Favorite", "Please sign in to your account or sign up to add this video to favorites.", ["OK"])
         end if
 
     ' local favorites
@@ -2171,7 +2166,7 @@ function SetFeatures() as void
     image_caching_support: configs.image_caching_support,
     native_to_universal_subscription: m.app.native_to_universal_subscription,
     native_tvod: configs.native_tvod,
-    favorites_via_api: m.app.favorites_via_api,
+    favorites_via_api: configs.favorites_via_api,
     universal_tvod: m.app.universal_tvod,
     confirm_signup: configs.confirm_signup,
     enable_device_linking: configs.enable_device_linking,
@@ -2180,6 +2175,12 @@ function SetFeatures() as void
     marketplace_connect_svod: configs.marketplace_connect_svod,
     subscription_plan_ids: configs.subscription_plan_ids
   })
+
+  if (configs.favorites_via_api = true)
+      ' Clear local favorites
+      m.favorites_storage_service.ClearFavorites()
+      m.favorites_management_service.SetFavoriteIds({})
+  end if
 end function
 
 ' Called at startup. Sets up m.global.auth

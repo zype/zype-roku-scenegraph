@@ -49,7 +49,7 @@
   "device_linking_label_2": "Enter Pin:",
 
   "favorite_screen_label": "Favorites",
-  "no_favorites_message": "You don't currently have any favorites. Click the \"favorite\" button next to an episode to make it a favorite.",
+  "no_favorites_message": "It looks like you haven't added any videos to Favorites yet.{{chr(10)}}You can save your favorite videos by clicking on the Favorite button while browsing videos.",
 
   "my_library_signin_message": "To view your library, please sign in",
   "my_library_catalog_message": "My Library",
