@@ -6,7 +6,11 @@
     -->
 <component name="HomeScene" extends="Scene" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
 
+    <!-- Segment Analytics Connector path -->
+    <script type="text/brightscript" uri="pkg:/source/analytics/SegmentAnalyticsConnector.brs" />
+
     <interface>
+
         <!--Interface to handle app launch complete event for sending beacon to Roku-->
         <field id="sentLaunchCompleteEvent" type="boolean" alwaysNotify="true" onChange="sendAppLaunchCompleteBeacon" />
 
@@ -75,6 +79,10 @@
     <script type="text/brightscript" uri="pkg:/source/helpers.brs" />
 
     <children>
+
+        <!-- Segment Analytics Task -->
+        <SegmentAnalyticsTask id="libraryTask"/>
+
         <!-- Grid Screen with RowList on Home Scene -->
         <GridScreen
             id="GridScreen"

@@ -2173,7 +2173,9 @@ function SetFeatures() as void
     video_content_genre: configs.video_content_genre,
     test_info_screen: configs.test_info_screen,
     marketplace_connect_svod: configs.marketplace_connect_svod,
-    subscription_plan_ids: configs.subscription_plan_ids
+    subscription_plan_ids: configs.subscription_plan_ids,
+    enable_segment_analytics: configs.enable_segment_analytics,
+    segment_analytics_account_id: configs.segment_analytics_account_id
   })
 
   if (configs.favorites_via_api = true)

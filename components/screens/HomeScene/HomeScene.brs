@@ -8,6 +8,27 @@ Function Init()
     m.top.backgroundURI=""
     'm.top.backgroundColor="#000000"
 
+    if (m.global.enable_segment_analytics = true)
+        if (m.global.segment_analytics_account_id <> invalid AND m.global.segment_analytics_account_id <> "")
+            print "[HomeScene] INFO : SEGMENT ANALYTICS ENABLED..."
+            task = m.top.findNode("libraryTask")
+            m.library = SegmentAnalyticsConnector(task)
+
+            config = {
+              writeKey: m.global.segment_analytics_account_id
+              debug: true
+              queueSize: 1
+              retryLimit: 1
+            }
+
+            m.library.init(config)
+        else
+            print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_analytics_account_id' in config.json"
+        end if
+    else
+        print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."
+    end if
+
     ' GridScreen node with RowList
     m.gridScreen = m.top.findNode("GridScreen")
 
