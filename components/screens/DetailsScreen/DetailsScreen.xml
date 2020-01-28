@@ -57,6 +57,8 @@
     <script type="text/brightscript" uri="pkg:/components/screens/DetailsScreen/DetailsScreen.brs" />
 
     <children>
+        <Timer id="tVideoHeartBeatTimer" repeat="true"/>
+
         <!-- Main Background -->
         <Rectangle
             id="AppBackground"

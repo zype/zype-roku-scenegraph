@@ -92,6 +92,9 @@ Function Init()
     m.top.loadingIndicator.backgroundColor = m.global.theme.background_color
     m.top.loadingIndicator.imageUri = m.global.theme.loader_uri
 
+    m.autoPlayBackground = m.top.findNode("autoPlayBackground")
+    m.autoPlayBackground.color = m.global.theme.background_color
+
     ' For tracking position bwtn playlist levels
     m.IndexTracker = {}
 
@@ -111,6 +114,30 @@ Function Init()
 
     m.appLaunchCompleteBeaconSent = false
 End Function
+
+Sub onSegmentEventChanged()
+    if m.top.segmentEvent<>invalid
+        segmentEventInfo = m.top.segmentEvent
+        segmentEventAction = segmentEventInfo.action
+        segmentEventString = segmentEventInfo.event
+
+        if (m.global.enable_segment_analytics = true)
+            if (m.global.segment_analytics_account_id <> invalid AND m.global.segment_analytics_account_id <> "")
+                if (segmentEventAction = "track")
+                    options = {
+                      ' TODO: Finalize this as it required atleast one item to fill in options'
+                      "anonymousId": "anonymousId"
+                    }
+                    m.library.track(segmentEventString, segmentEventInfo.properties, options)
+                end if
+            else
+                print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_analytics_account_id' in config.json"
+            end if
+        else
+           print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."
+        end if
+    end if
+End SUb
 
 ' Add positions based on index starting from 0
 ' If you add 2 positions: [1,3] and [2,4]

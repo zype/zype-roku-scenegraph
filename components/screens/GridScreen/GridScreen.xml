@@ -55,7 +55,7 @@
 
 
     <children>
-
+        <Timer id="tVideoHeartBeatTimer" repeat="true"/>
 
 
         <!-- Overhang logo -->

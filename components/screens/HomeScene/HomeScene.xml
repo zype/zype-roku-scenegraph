@@ -72,6 +72,7 @@
         <function name="PushScreenIntoScreenStack" />
         <function name="PushContentIntoContentStack" />
         <function name="CreateDialog" />
+        <field id="segmentEvent" type="assocArray" onChange="onSegmentEventChanged"/>
     </interface>
 
     <!-- main handler -->
