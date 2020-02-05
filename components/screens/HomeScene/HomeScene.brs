@@ -8,10 +8,8 @@ Function Init()
     m.top.backgroundURI=""
     'm.top.backgroundColor="#000000"
 
-    deviceInfo = CreateObject("roDeviceInfo")
     currentTime = CreateObject("roDateTime")
-
-    m.top.uniqueSessionID = deviceInfo.GetChannelClientId() + "-" + currentTime.asSeconds().toStr()
+    m.top.uniqueSessionID = getAdsAppID() + "-" + currentTime.asSeconds().toStr()
 
     print "m.top.uniqueSessionID > " m.top.uniqueSessionID
 

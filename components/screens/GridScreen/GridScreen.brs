@@ -126,22 +126,31 @@ function GetSegmentVideoEventInfo(state as dynamic) as dynamic
     ' if (m.top.videoPlayer.position <> 0 and m.top.videoPlayer.content.LENGTH <> 0) then
     '     percent = m.top.videoPlayer.position/m.top.videoPlayer.content.LENGTH
     ' end if
+    print "m.top.content ::: " m.top.content
 
     print "----------2--------season-------------->" m.top.content.seasonNumber
-    print "----------2--------episode-------------->" m.top.content.episodeNumber
+    print "----------2--------episode-------------->" type(m.top.content.episodeNumber)
 
     episodeNumber = ""
-    if (m.top.content.episodeNumber = invalid or m.top.content.episodeNumber = 0)
+    if (type(m.top.content.episodeNumber) = "roString" AND (m.top.content.episodeNumber = "" OR m.top.content.episodeNumber = "0"))
         episodeNumber = ""
+    else if (type(m.top.content.episodeNumber) <> "roString")
+        if (m.top.content.episodeNumber <> 0)
+          episodeNumber = m.top.content.episodeNumber.tostr()
+        end if
     else
-        episodeNumber = m.top.content.episodeNumber.toStr()
+        episodeNumber = m.top.content.episodeNumber
     end if
 
     seasonNumber = ""
-    if (m.top.content.seasonNumber = invalid or m.top.content.seasonNumber = 0)
+    if (type(m.top.content.seasonNumber) = "roString" AND (m.top.content.seasonNumber = "" OR m.top.content.seasonNumber = "0"))
         seasonNumber = ""
+    else if (type(m.top.content.seasonNumber) <> "roString")
+        if (m.top.content.seasonNumber <> 0)
+          seasonNumber = m.top.content.seasonNumber.tostr()
+        end if
     else
-        seasonNumber = m.top.content.seasonNumber.toStr()
+        seasonNumber = m.top.content.seasonNumber
     end if
 
     trackObj = {
