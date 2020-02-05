@@ -8,6 +8,13 @@ Function Init()
     m.top.backgroundURI=""
     'm.top.backgroundColor="#000000"
 
+    deviceInfo = CreateObject("roDeviceInfo")
+    currentTime = CreateObject("roDateTime")
+
+    m.top.uniqueSessionID = deviceInfo.GetChannelClientId() + "-" + currentTime.asSeconds().toStr()
+
+    print "m.top.uniqueSessionID > " m.top.uniqueSessionID
+
     if (m.global.enable_segment_analytics = true)
         if (m.global.segment_analytics_account_id <> invalid AND m.global.segment_analytics_account_id <> "")
             print "[HomeScene] INFO : SEGMENT ANALYTICS ENABLED..."

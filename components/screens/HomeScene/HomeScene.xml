@@ -13,6 +13,8 @@
         <field id="myVideosArray" type="assocArray"  />
         <field id="allDataReceived" type="boolean" alwaysNotify="true" value="false"/>
 
+        <field id="uniqueSessionID" type="string" alwaysnotify="true"/>
+
 
         <!--Interface to handle app launch complete event for sending beacon to Roku-->
         <field id="sentLaunchCompleteEvent" type="boolean" alwaysNotify="true" onChange="sendAppLaunchCompleteBeacon" />
