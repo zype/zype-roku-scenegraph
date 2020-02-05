@@ -10,9 +10,13 @@
     <script type="text/brightscript" uri="pkg:/source/analytics/SegmentAnalyticsConnector.brs" />
 
     <interface>
+        <field id="myVideosArray" type="assocArray"  />
+        <field id="allDataReceived" type="boolean" alwaysNotify="true" value="false"/>
+
 
         <!--Interface to handle app launch complete event for sending beacon to Roku-->
         <field id="sentLaunchCompleteEvent" type="boolean" alwaysNotify="true" onChange="sendAppLaunchCompleteBeacon" />
+
 
         <!-- Content for RowList in GridScreen on Home Scene -->
         <field id="gridContent" type="node" alias="GridScreen.content" onChange="OnChangeContent" alwaysNotify="true"/>
@@ -67,6 +71,8 @@
         <field id="transitionTo" type="string" alwaysNotify="true" onChange="transitionToScreen" />
 
         <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
+
+        <function name="GetPlaylistVideosFunc" />
 
         <function name="AddCurrentPositionToTracker" />
         <function name="PushScreenIntoScreenStack" />

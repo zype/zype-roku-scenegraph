@@ -1401,6 +1401,7 @@ end function
 function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     m.videosList = []
 
+    print "GetPlaylistsAsRows.................1"
     ' parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
@@ -1428,9 +1429,23 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
       return GetPlaylistContent(parent_id)
     end if
 
+    ' Call function which internally creates all tasks in parallel to get data to speedup things'
+    m.scene.callFunc("GetPlaylistVideosFunc",rawPlaylists,m.app.per_page)
+
+    while true
+        if (m.scene.allDataReceived = true)
+          exit while
+        end if
+
+        Sleep(200)' as Void
+    end while
+
+    print "All data trigger back to main thread"
+
+    myVideosArray = m.scene.myVideosArray
+
     list = []
     for each item in rawPlaylists
-
         row = {}
         row.title = item.title
         if item.purchase_required<>invalid
@@ -1456,7 +1471,8 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
             end if
 
             video_index = 0
-            for each video in GetPlaylistVideos(item._id, {"per_page": m.app.per_page})
+
+            for each video in myVideosArray[item._id]
                 if item.thumbnail_layout = "poster"
                   video.usePoster = true
                 else
@@ -1473,6 +1489,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
             row.ContentList = videos
             m.videosList.push(videos)
         else
+            print "---------------------------else----------------------------------------------------------"
             m.playlistsRowItemSizes.push( [ 262, 147 ] )
             m.playlistrowsSpacings.push( 0 )
 
@@ -1487,6 +1504,8 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
   	m.playlistRows = list
     return list
 end function
+
+
 
 '///////////////////////////////////
 ' LabelList click handlers go here

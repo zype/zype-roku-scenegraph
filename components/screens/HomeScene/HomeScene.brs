@@ -646,3 +646,40 @@ sub hideAutoplayMessage()
         msg.visible = false
     end if
 end sub
+
+
+Function GetPlaylistVideosFunc(data, perPage) as Void
+    if (data <> invalid)
+        m.myTaskCount = 0
+        m.myCurrentFinishedTaskCount = 0
+        m.myVideoList = {}
+        for each item in data
+            if item.playlist_item_count > 0
+                print "Getting data for : " item.title
+                m.myTaskCount ++
+                GetPlaylistVideosThroughTask(item._id, perPage)
+            end if
+        end for
+    end if
+End Function
+
+function GetPlaylistVideosThroughTask(idVal as string, perPage as integer)
+      getPlaylistVideosTask = createObject("roSGNode", "GetVideoListTask")
+      getPlaylistVideosTask.idVal = idVal
+      getPlaylistVideosTask.perPage = perPage
+      getPlaylistVideosTask.observeField("videoResult", "GetVideoListTaskCompleted")
+      getPlaylistVideosTask.control = "RUN"
+end function
+
+Function GetVideoListTaskCompleted(event as Object)
+    task = event.GetRoSGNode()
+    m.myVideoList[task.idVal] = task.videoResult
+
+    m.myCurrentFinishedTaskCount++
+    print "m.myCurrentFinishedTaskCount : " m.myCurrentFinishedTaskCount
+    if (m.myCurrentFinishedTaskCount >= m.myTaskCount)
+        print "All async task responses received......................................................... "
+        m.top.myVideosArray = m.myVideoList
+        m.top.allDataReceived = true
+    end if
+end Function
