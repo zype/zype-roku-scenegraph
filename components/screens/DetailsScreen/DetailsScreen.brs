@@ -336,6 +336,23 @@ function GetSegmentVideoEventInfo(state as dynamic)
     '     percent = m.top.videoPlayer.position/m.top.videoPlayer.content.LENGTH
     ' end if
 
+    print "----------1--------season-------------->" m.top.content.seasonNumber
+    print "----------1--------episode-------------->" m.top.content.episodeNumber
+
+    episodeNumber = ""
+    if (m.top.content.episodeNumber = invalid or m.top.content.episodeNumber = 0)
+        episodeNumber = ""
+    else
+        episodeNumber = m.top.content.episodeNumber.toStr()
+    end if
+
+    seasonNumber = ""
+    if (m.top.content.seasonNumber = invalid or m.top.content.seasonNumber = 0)
+        seasonNumber = ""
+    else
+        seasonNumber = m.top.content.seasonNumber.toStr()
+    end if
+
     trackObj = {
         "action": "track",
         "event": eventStr,
@@ -345,8 +362,8 @@ function GetSegmentVideoEventInfo(state as dynamic)
             "asset_id":     m.top.videoPlayer.content.id,
             "title":        m.top.videoPlayer.content.TITLE,
             "description":  m.top.content.DESCRIPTION, 'String (Zype video_description, if available)
-            "season":       "String (Zype video_season, if available)"
-            "episode":      "String (Zype video_episode, if available)"
+            "season":       seasonNumber
+            "episode":      episodeNumber
             "publisher":    app_info.GetTitle() ' "String (App name)"
             "position":     m.top.videoPlayer.position 'Integer (current playhead position)
             "total_length": m.top.videoPlayer.content.LENGTH, 'Integer (total duration of video in seconds)
@@ -407,6 +424,8 @@ Function PrepareVideoPlayer()
         m.top.content.URL = nextVideoObject.url
         m.top.content.POSTERTHUMBNAIL = nextVideoObject.posterThumbnail
         m.top.content.storeProduct = nextVideoObject.storeProduct
+        m.top.content.episodeNumber = nextVideoObject.episodeNumber
+        m.top.content.seasonNumber = nextVideoObject.seasonNumber
 
         print "nextVideoObject: "; nextVideoObject
         print "New: "; m.top.content
@@ -442,6 +461,7 @@ Sub OnContentChange()
     refreshButtons()
     m.description.content   = m.top.content
     m.description.Description.height = "250"
+
     m.top.videoPlayer.content   = m.top.content
     m.background.uri        = m.top.content.hdBackgroundImageUrl
     m.AudioThumbnailPoster.uri = m.top.content.hdBackgroundImageUrl

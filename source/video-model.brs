@@ -19,6 +19,8 @@ REM
 Function CreateVideoObject(attrs As Object) As Object
   properties = attrs
 
+
+  print "properties : " properties
   video = {
     stream: {url: ""},
     streamformat: "str",
@@ -43,7 +45,9 @@ Function CreateVideoObject(attrs As Object) As Object
     trailers: properties.preview_ids,
     contentId: properties._id,
     mediaType: "movie",
-    usePoster: properties.usePoster
+    usePoster: properties.usePoster,
+    episodeNumber: properties.episode,
+    seasonNumber: properties.season
   }
 
   return video

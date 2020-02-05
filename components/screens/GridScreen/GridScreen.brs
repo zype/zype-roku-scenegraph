@@ -127,6 +127,23 @@ function GetSegmentVideoEventInfo(state as dynamic) as dynamic
     '     percent = m.top.videoPlayer.position/m.top.videoPlayer.content.LENGTH
     ' end if
 
+    print "----------2--------season-------------->" m.top.content.seasonNumber
+    print "----------2--------episode-------------->" m.top.content.episodeNumber
+
+    episodeNumber = ""
+    if (m.top.content.episodeNumber = invalid or m.top.content.episodeNumber = 0)
+        episodeNumber = ""
+    else
+        episodeNumber = m.top.content.episodeNumber.toStr()
+    end if
+
+    seasonNumber = ""
+    if (m.top.content.seasonNumber = invalid or m.top.content.seasonNumber = 0)
+        seasonNumber = ""
+    else
+        seasonNumber = m.top.content.seasonNumber.toStr()
+    end if
+
     trackObj = {
         "action": "track",
         "event": eventStr,
@@ -136,8 +153,8 @@ function GetSegmentVideoEventInfo(state as dynamic) as dynamic
             "asset_id":     m.top.videoPlayer.content.id,
             "title":        m.top.videoPlayer.content.TITLE,
             "description":  m.top.content.DESCRIPTION, 'String (Zype video_description, if available)
-            "season":       "TODO : Zype video_season, if available"
-            "episode":      "TODO : Zype video_episode, if available"
+            "season":       seasonNumber
+            "episode":      episodeNumber
             "publisher":    app_info.GetTitle() ' "String (App name)"
             "position":     m.top.videoPlayer.position 'Integer (current playhead position)
             "total_length": m.top.videoPlayer.content.LENGTH, 'Integer (total duration of video in seconds)

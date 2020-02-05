@@ -661,6 +661,7 @@ Function GetPlaylistVideosFunc(data, perPage) as Void
         m.myCurrentFinishedTaskCount = 0
         m.myVideoList = {}
         for each item in data
+            print "item.playlist_item_count------------- " item.playlist_item_count
             if item.playlist_item_count > 0
                 print "Getting data for : " item.title
                 m.myTaskCount ++
