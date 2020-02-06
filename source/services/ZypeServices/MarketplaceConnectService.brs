@@ -14,10 +14,10 @@
 Function MarketplaceConnectService() as object
   this = {}
 
-  ' getSubscriptionPlans() 
+  ' getSubscriptionPlans()
   ' - filters array of Roku subscription products by ids from Zype plans
   ' - relies on GetPlans() in zype_api.brs
-  ' 
+  '
   ' Parameters
   '   rokuPlans - array of Roku products
   '   local_subscription_plan_ids  - array of Local Plans from config.json
@@ -62,16 +62,25 @@ Function MarketplaceConnectService() as object
   ' Return
   '   Boolean for Marketplace Connect verification
   this.verifyMarketplaceSubscription = function(marketplaceParams = {} as object) as boolean
-    marketplaceConnectEndpoint = GetApiConfigs().marketplace_connect_endpoint + "transactions"
+    marketplaceConnectEndpoint = GetApiConfigs().marketplace_connect_endpoint
     verifiedSubscription = false
 
     response = MakePostRequestWithStatus(marketplaceConnectEndpoint, marketplaceParams)
-    if response <> invalid
 
+    print "verifyMarketplaceSubscription : response--------------------> " response
+    if response <> invalid
+        if response.status <> invalid
+          if response.status = 200
+            return true
+          else
+            return false
+          end if
+        end if
     end if
 
-    return true ' hardcoded for now
+    return false
   end function
+
 
   ' verifyMarketplacePurchase()
   ' - calls Zype Marketplace Connect to verify native purchase (consumable)

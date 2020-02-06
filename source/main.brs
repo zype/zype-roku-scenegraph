@@ -1908,20 +1908,20 @@ function handleNativeToUniversal() as void
               marketPlaceConnectSVODVerificationStatus = m.marketplaceConnect.verifyMarketplaceSubscription(marketplaceParams)
               print "======> marketPlaceConnectSVODVerificationStatus : ===> " marketPlaceConnectSVODVerificationStatus
         else
-            print "isCheck bifrost================================================================================>"
+              print "isCheck bifrost================================================================================>"
 
-            ' We will call Biforst like previously it was calling'
-            third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
-        bifrost_params = {
-          app_key: GetApiConfigs().app_key,
-          consumer_id: user_info._id,
-          third_party_id: third_party_id,
-          roku_api_key: GetApiConfigs().roku_api_key,
-          transaction_id: UCase(recent_purchase.purchaseId),
-          device_type: "roku"
-        }
-        ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
-        native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
+              ' We will call Biforst like previously it was calling'
+              third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
+              bifrost_params = {
+                app_key: GetApiConfigs().app_key,
+                consumer_id: user_info._id,
+                third_party_id: third_party_id,
+                roku_api_key: GetApiConfigs().roku_api_key,
+                transaction_id: UCase(recent_purchase.purchaseId),
+                device_type: "roku"
+              }
+              ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
+              native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
         end if
 
         isReceiptValidated = false
