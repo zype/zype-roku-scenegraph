@@ -57,12 +57,12 @@ sub OnVideoHeartBeatEventFired()
     ' For Segment Analytics'
     if m.top.videoPlayer.state = "playing"
         if (m.global.enable_segment_analytics = true)
-            if (m.global.segment_analytics_account_id <> invalid AND m.global.segment_analytics_account_id <> "")
+            if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
                 if (m.top.videoPlayer.state = "playing" AND m.firstTimeVideo = false)
                     isSendEvent = true
                 end if
             else
-                print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_analytics_account_id' in config.json"
+                print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_source_write_key' in config.json"
             end if
         else
            print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."
@@ -255,7 +255,7 @@ Sub OnVideoPlayerStateChange()
     ' For Segment Analytics'
     if m.top.videoPlayer.state = "playing" or m.top.videoPlayer.state = "finished"
         if (m.global.enable_segment_analytics = true)
-          	if (m.global.segment_analytics_account_id <> invalid AND m.global.segment_analytics_account_id <> "")
+          	if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
                 if (m.top.videoPlayer.state = "playing" AND m.firstTimeVideo = true)
                     isSendEvent = true
                     m.firstTimeVideo = false
@@ -265,7 +265,7 @@ Sub OnVideoPlayerStateChange()
                     isSendEvent = true
                 end if
           	else
-          		  print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_analytics_account_id' in config.json"
+          		  print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_source_write_key' in config.json"
           	end if
         else
         	 print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."

@@ -29,5 +29,5 @@
   "image_caching_support":"1",
   "video_content_genre": "Special",
   "enable_segment_analytics": false,
-  "segment_analytics_account_id": "<ADD_YOUR_KEY_HERE>"
+  "segment_source_write_key": "<ADD_YOUR_KEY_HERE>"
 }

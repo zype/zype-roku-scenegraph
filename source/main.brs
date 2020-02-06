@@ -1221,8 +1221,8 @@ end function
 
 Function ParseContent(list As Object)
 
-	' Get consumables from ROKU Store'
-	consumables = m.roku_store_service.getConsumables()
+  	' Get consumables from ROKU Store'
+  	consumables = m.roku_store_service.getConsumables()
 
     RowItems = createObject("RoSGNode","ContentNode")
 
@@ -1437,7 +1437,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
           exit while
         end if
 
-        Sleep(200)' as Void
+        Sleep(1000)' as Void
     end while
 
     print "All data trigger back to main thread"
@@ -1472,6 +1472,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
 
             video_index = 0
 
+            'for each video in GetPlaylistVideos(item._id, {"per_page": m.app.per_page})
             for each video in myVideosArray[item._id]
                 if item.thumbnail_layout = "poster"
                   video.usePoster = true
@@ -2194,7 +2195,7 @@ function SetFeatures() as void
     marketplace_connect_svod: configs.marketplace_connect_svod,
     subscription_plan_ids: configs.subscription_plan_ids,
     enable_segment_analytics: configs.enable_segment_analytics,
-    segment_analytics_account_id: configs.segment_analytics_account_id
+    segment_source_write_key: configs.segment_source_write_key
   })
 
   if (configs.favorites_via_api = true)

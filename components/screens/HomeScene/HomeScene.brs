@@ -14,13 +14,13 @@ Function Init()
     print "m.top.uniqueSessionID > " m.top.uniqueSessionID
 
     if (m.global.enable_segment_analytics = true)
-        if (m.global.segment_analytics_account_id <> invalid AND m.global.segment_analytics_account_id <> "")
+        if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
             print "[HomeScene] INFO : SEGMENT ANALYTICS ENABLED..."
             task = m.top.findNode("libraryTask")
             m.library = SegmentAnalyticsConnector(task)
 
             config = {
-              writeKey: m.global.segment_analytics_account_id
+              writeKey: m.global.segment_source_write_key
               debug: true
               queueSize: 1
               retryLimit: 1
@@ -28,7 +28,7 @@ Function Init()
 
             m.library.init(config)
         else
-            print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_analytics_account_id' in config.json"
+            print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_source_write_key' in config.json"
         end if
     else
         print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."
@@ -127,7 +127,7 @@ Sub onSegmentEventChanged()
         segmentEventString = segmentEventInfo.event
 
         if (m.global.enable_segment_analytics = true)
-            if (m.global.segment_analytics_account_id <> invalid AND m.global.segment_analytics_account_id <> "")
+            if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
                 if (segmentEventAction = "track")
                     options = {
                       ' TODO: Finalize this as it required atleast one item to fill in options'
@@ -136,7 +136,7 @@ Sub onSegmentEventChanged()
                     m.library.track(segmentEventString, segmentEventInfo.properties, options)
                 end if
             else
-                print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_analytics_account_id' in config.json"
+                print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_source_write_key' in config.json"
             end if
         else
            print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."

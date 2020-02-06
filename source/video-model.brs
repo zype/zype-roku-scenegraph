@@ -19,8 +19,6 @@ REM
 Function CreateVideoObject(attrs As Object) As Object
   properties = attrs
 
-
-  print "properties : " properties
   video = {
     stream: {url: ""},
     streamformat: "str",
