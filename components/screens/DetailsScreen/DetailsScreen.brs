@@ -5,6 +5,7 @@
 Function Init()
     ? "[DetailsScreen] init"
 
+    m.scene = m.top.getScene()
     m.content_helpers = ContentHelpers()
 
     m.top.observeField("visible", "onVisibleChange")
@@ -45,7 +46,34 @@ Function Init()
 
     m.optionsIcon = m.top.findNode("OptionsIcon")
     m.optionsIcon.blendColor = m.global.brand_color
+
+    m.tVideoHeartBeatTimer = m.top.FindNode("tVideoHeartBeatTimer")
+    m.tVideoHeartBeatTimer.observeField("fire", "OnVideoHeartBeatEventFired")
+    m.tVideoHeartBeatTimer.duration = 5
 End Function
+
+sub OnVideoHeartBeatEventFired()
+    isSendEvent = false
+    ' For Segment Analytics'
+    if m.top.videoPlayer.state = "playing"
+        if (m.global.enable_segment_analytics = true)
+            if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
+                if (m.top.videoPlayer.state = "playing" AND m.firstTimeVideo = false)
+                    isSendEvent = true
+                end if
+            else
+                print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_source_write_key' in config.json"
+            end if
+        else
+           print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."
+        end if
+    end if
+
+    if (isSendEvent = true)
+        scene = m.top.getScene()
+        scene.segmentEvent = GetSegmentVideoEventInfo("playingHeartBeat")
+    end if
+end sub
 
 sub StartScaleUpAnimation()
     print "StartScaleUpAnimation----------"
@@ -76,6 +104,7 @@ Function initializeVideoPlayer()
   m.AudioThumbnailPoster.loadDisplayMode="scaleToZoom"
   m.AudioThumbnailPoster.visible = false
 
+  m.firstTimeVideo = true
   ' Event listener for video player state. Needed to handle video player errors and completion
   m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
 End Function
@@ -104,6 +133,7 @@ Sub onVisibleChange()
     else
         m.top.videoPlayer.visible = false
         m.top.videoPlayer.control = "stop"
+        m.tVideoHeartBeatTimer.control = "stop"
     end if
 End Sub
 
@@ -191,10 +221,12 @@ Sub onVideoVisibleChange()
         AddButtons()
         m.buttons.setFocus(true)
         m.top.videoPlayer.control = "stop"
+        m.tVideoHeartBeatTimer.control = "stop"
       else
         AddActionButtons()
         m.buttons.setFocus(true)
         m.top.videoPlayer.control = "stop"
+        m.tVideoHeartBeatTimer.control = "stop"
       end if
     end if
 End Sub
@@ -217,6 +249,32 @@ Sub OnVideoPlayerStateChange()
         end if
     else
         m.AudioThumbnailPoster.visible = false
+    end if
+
+    isSendEvent = false
+    ' For Segment Analytics'
+    if m.top.videoPlayer.state = "playing" or m.top.videoPlayer.state = "finished"
+        if (m.global.enable_segment_analytics = true)
+          	if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
+                if (m.top.videoPlayer.state = "playing" AND m.firstTimeVideo = true)
+                    isSendEvent = true
+                    m.firstTimeVideo = false
+                    ' Start Timer for sending event periodically'
+                    m.tVideoHeartBeatTimer.control = "start"
+                else if (m.top.videoPlayer.state = "finished")
+                    isSendEvent = true
+                end if
+          	else
+          		  print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_source_write_key' in config.json"
+          	end if
+        else
+        	 print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."
+        end if
+    end if
+
+    if (isSendEvent = true)
+        scene = m.top.getScene()
+        scene.segmentEvent = GetSegmentVideoEventInfo(m.top.videoPlayer.state)
     end if
 
     ' Only close video player if error and VOD (not live stream)
@@ -255,6 +313,7 @@ Sub OnVideoPlayerStateChange()
             PrepareVideoPlayer()
         else
             m.top.videoPlayer.control = "stop"
+            m.tVideoHeartBeatTimer.control = "stop"
             m.top.videoPlayer.visible = false
             m.top.videoPlayer.setFocus(false)
             m.top.videoPlayerVisible = false
@@ -268,6 +327,80 @@ Sub OnVideoPlayerStateChange()
         m.top.videoPlayer.control = "play"
     end if
 End Sub
+
+function GetSegmentVideoEventInfo(state as dynamic)
+    eventStr = GetSegmentVideoStateEventString(state)
+    app_info = CreateObject("roAppInfo")
+    ' percent = 0
+    ' if (m.top.videoPlayer.position <> 0 and m.top.videoPlayer.content.LENGTH <> 0) then
+    '     percent = m.top.videoPlayer.position/m.top.videoPlayer.content.LENGTH
+    ' end if
+
+    print "----------1--------season-------------->" m.top.content.seasonNumber
+    print "----------1--------episode-------------->" m.top.content.episodeNumber
+
+    episodeNumber = ""
+    if (type(m.top.content.episodeNumber) = "roString" AND (m.top.content.episodeNumber = "" OR m.top.content.episodeNumber = "0"))
+        episodeNumber = ""
+    else if (type(m.top.content.episodeNumber) <> "roString")
+        if (m.top.content.episodeNumber <> 0)
+          episodeNumber = m.top.content.episodeNumber.tostr()
+        end if
+    else
+        episodeNumber = m.top.content.episodeNumber
+    end if
+
+    seasonNumber = ""
+    if (type(m.top.content.seasonNumber) = "roString" AND (m.top.content.seasonNumber = "" OR m.top.content.seasonNumber = "0"))
+        seasonNumber = ""
+    else if (type(m.top.content.seasonNumber) <> "roString")
+        if (m.top.content.seasonNumber <> 0)
+          seasonNumber = m.top.content.seasonNumber.tostr()
+        end if
+    else
+        seasonNumber = m.top.content.seasonNumber
+    end if
+
+    trackObj = {
+        "action": "track",
+        "event": eventStr,
+        "userId": "",
+        "properties": {
+            "session_id":   m.scene.uniqueSessionID 'String (autogenerated for the user's session)
+            "asset_id":     m.top.videoPlayer.content.id,
+            "title":        m.top.videoPlayer.content.TITLE,
+            "description":  m.top.content.DESCRIPTION, 'String (Zype video_description, if available)
+            "season":       seasonNumber
+            "episode":      episodeNumber
+            "publisher":    app_info.GetTitle() ' "String (App name)"
+            "position":     m.top.videoPlayer.position 'Integer (current playhead position)
+            "total_length": m.top.videoPlayer.content.LENGTH, 'Integer (total duration of video in seconds)
+            "channel":      app_info.GetTitle() ' "String (App name)"
+            "livestream":   m.top.videoPlayer.content.on_Air 'Boolean (true if on_air = true)
+            "airdate":      m.top.videoPlayer.content.RELEASEDATE  'ISO 8601 Date String (Zype published_at date)
+            ' "bitrate":      Integer (The current kbps, if available)
+            ' "framerate":    Float (The average fps, if available)
+            }
+    }
+
+    print "DetailsScreen3 trackObj : " trackObj
+    return trackObj
+end function
+
+function GetSegmentVideoStateEventString(state as dynamic) as string
+    eventStr = ""
+    if (state = "playing")
+        eventStr = "Video Content Started"
+    else if (state = "playingHeartBeat")
+        eventStr = "Video Content Playing"
+    else if (state = "finished")
+        eventStr = "Video Content Completed"
+    end if
+
+    return eventStr
+end function
+
+
 
 Sub UpdateContent()
   if (m.top.content <> invalid)
@@ -299,6 +432,8 @@ Function PrepareVideoPlayer()
         m.top.content.URL = nextVideoObject.url
         m.top.content.POSTERTHUMBNAIL = nextVideoObject.posterThumbnail
         m.top.content.storeProduct = nextVideoObject.storeProduct
+        m.top.content.episodeNumber = nextVideoObject.episodeNumber
+        m.top.content.seasonNumber = nextVideoObject.seasonNumber
 
         print "nextVideoObject: "; nextVideoObject
         print "New: "; m.top.content
@@ -334,6 +469,7 @@ Sub OnContentChange()
     refreshButtons()
     m.description.content   = m.top.content
     m.description.Description.height = "250"
+
     m.top.videoPlayer.content   = m.top.content
     m.background.uri        = m.top.content.hdBackgroundImageUrl
     m.AudioThumbnailPoster.uri = m.top.content.hdBackgroundImageUrl

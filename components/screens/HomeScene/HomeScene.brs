@@ -8,6 +8,32 @@ Function Init()
     m.top.backgroundURI=""
     'm.top.backgroundColor="#000000"
 
+    currentTime = CreateObject("roDateTime")
+    m.top.uniqueSessionID = getAdsAppID() + "-" + currentTime.asSeconds().toStr()
+
+    print "m.top.uniqueSessionID > " m.top.uniqueSessionID
+
+    if (m.global.enable_segment_analytics = true)
+        if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
+            print "[HomeScene] INFO : SEGMENT ANALYTICS ENABLED..."
+            task = m.top.findNode("libraryTask")
+            m.library = SegmentAnalyticsConnector(task)
+
+            config = {
+              writeKey: m.global.segment_source_write_key
+              debug: false
+              queueSize: 1
+              retryLimit: 1
+            }
+
+            m.library.init(config)
+        else
+            print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_source_write_key' in config.json"
+        end if
+    else
+        print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."
+    end if
+
     ' GridScreen node with RowList
     m.gridScreen = m.top.findNode("GridScreen")
 
@@ -71,6 +97,9 @@ Function Init()
     m.top.loadingIndicator.backgroundColor = m.global.theme.background_color
     m.top.loadingIndicator.imageUri = m.global.theme.loader_uri
 
+    m.autoPlayBackground = m.top.findNode("autoPlayBackground")
+    m.autoPlayBackground.color = m.global.theme.background_color
+
     ' For tracking position bwtn playlist levels
     m.IndexTracker = {}
 
@@ -90,6 +119,30 @@ Function Init()
 
     m.appLaunchCompleteBeaconSent = false
 End Function
+
+Sub onSegmentEventChanged()
+    if m.top.segmentEvent<>invalid
+        segmentEventInfo = m.top.segmentEvent
+        segmentEventAction = segmentEventInfo.action
+        segmentEventString = segmentEventInfo.event
+
+        if (m.global.enable_segment_analytics = true)
+            if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
+                if (segmentEventAction = "track")
+                    options = {
+                      ' TODO: Finalize this as it required atleast one item to fill in options'
+                      "anonymousId": "anonymousId"
+                    }
+                    m.library.track(segmentEventString, segmentEventInfo.properties, options)
+                end if
+            else
+                print "[HomeScene] ERROR : SEGMENT ANALYTICS > Missing Account ID. Please set 'segment_source_write_key' in config.json"
+            end if
+        else
+           print "[HomeScene] INFO : SEGMENT ANALYTICS IS NOT ENABLED..."
+        end if
+    end if
+End SUb
 
 ' Add positions based on index starting from 0
 ' If you add 2 positions: [1,3] and [2,4]
@@ -598,3 +651,41 @@ sub hideAutoplayMessage()
         msg.visible = false
     end if
 end sub
+
+
+Function GetPlaylistVideosFunc(data, perPage) as Void
+    if (data <> invalid)
+        m.myTaskCount = 0
+        m.myCurrentFinishedTaskCount = 0
+        m.myVideoList = {}
+        for each item in data
+            print "item.playlist_item_count------------- " item.playlist_item_count
+            if item.playlist_item_count > 0
+                print "Getting data for : " item.title
+                m.myTaskCount ++
+                GetPlaylistVideosThroughTask(item._id, perPage)
+            end if
+        end for
+    end if
+End Function
+
+function GetPlaylistVideosThroughTask(idVal as string, perPage as integer)
+      getPlaylistVideosTask = createObject("roSGNode", "GetVideoListTask")
+      getPlaylistVideosTask.idVal = idVal
+      getPlaylistVideosTask.perPage = perPage
+      getPlaylistVideosTask.observeField("videoResult", "GetVideoListTaskCompleted")
+      getPlaylistVideosTask.control = "RUN"
+end function
+
+Function GetVideoListTaskCompleted(event as Object)
+    task = event.GetRoSGNode()
+    m.myVideoList[task.idVal] = task.videoResult
+
+    m.myCurrentFinishedTaskCount++
+    print "m.myCurrentFinishedTaskCount : " m.myCurrentFinishedTaskCount
+    if (m.myCurrentFinishedTaskCount >= m.myTaskCount)
+        print "All async task responses received......................................................... "
+        m.top.myVideosArray = m.myVideoList
+        m.top.allDataReceived = true
+    end if
+end Function

@@ -48,21 +48,6 @@ function IsPassedLimit(position as Integer, limit as Integer) as Boolean
     return position >= limit
 end function
 
-function readManifest()
-  result = {}
-
-  raw = ReadASCIIFile("pkg:/manifest")
-  lines = raw.Tokenize(Chr(10))
-  for each line in lines
-    bits = line.Tokenize("=")
-    if bits.Count() > 1
-      result.AddReplace(bits[0], bits[1])
-    end if
-  next
-
-  return result
-end function
-
 Function firmwareSupportsCachefs() as Boolean
     majorRequirement = 8
     minorRequirement = 0
@@ -145,4 +130,41 @@ Function CheckAndCreateCacheAndTempDirectories()
 
   ' Always create temp folder'
   CreateDirectory(tmpFileSys)
+End Function
+
+Function getAdID() as String
+    advertisingID = ""
+    dev_info = createObject("roDeviceInfo")
+    if not dev_info.IsRIDADisabled()
+        advertisingID = dev_info.GetRIDA()
+    end if
+    return advertisingID
+End Function
+
+Function getAdsAppID() as String
+    dev_info = createObject("roDeviceInfo")
+    return dev_info.GetChannelClientId()
+End Function
+
+Function getModel(isWithoutSpaces = false as boolean) as String
+    dev_info = createObject("roDeviceInfo")
+    devModel = dev_info.GetModel()
+    if (isWithoutSpaces = true)
+        devModel = devModel.replace(" ", "-")
+    end if
+    return devModel
+End Function
+
+Function getTitle(isWithoutSpaces = false as boolean) as String
+    appInfo = CreateObject("roAppInfo")
+    applicationName = appInfo.GetTitle()
+    if (isWithoutSpaces = true)
+        applicationName = applicationName.replace(" ", "")
+    end if
+    return applicationName
+End Function
+
+Function getApplicationID() as String
+    appInfo = CreateObject("roAppInfo")
+    return appInfo.GetID()
 End Function

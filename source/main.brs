@@ -1221,8 +1221,8 @@ end function
 
 Function ParseContent(list As Object)
 
-	' Get consumables from ROKU Store'
-	consumables = m.roku_store_service.getConsumables()
+  	' Get consumables from ROKU Store'
+  	consumables = m.roku_store_service.getConsumables()
 
     RowItems = createObject("RoSGNode","ContentNode")
 
@@ -1401,6 +1401,7 @@ end function
 function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     m.videosList = []
 
+    print "GetPlaylistsAsRows.................1"
     ' parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
@@ -1428,9 +1429,23 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
       return GetPlaylistContent(parent_id)
     end if
 
+    ' Call function which internally creates all tasks in parallel to get data to speedup things'
+    m.scene.callFunc("GetPlaylistVideosFunc",rawPlaylists,m.app.per_page)
+
+    while true
+        if (m.scene.allDataReceived = true)
+          exit while
+        end if
+
+        Sleep(1000)' as Void
+    end while
+
+    print "All data trigger back to main thread"
+
+    myVideosArray = m.scene.myVideosArray
+
     list = []
     for each item in rawPlaylists
-
         row = {}
         row.title = item.title
         if item.purchase_required<>invalid
@@ -1456,7 +1471,9 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
             end if
 
             video_index = 0
-            for each video in GetPlaylistVideos(item._id, {"per_page": m.app.per_page})
+
+            'for each video in GetPlaylistVideos(item._id, {"per_page": m.app.per_page})
+            for each video in myVideosArray[item._id]
                 if item.thumbnail_layout = "poster"
                   video.usePoster = true
                 else
@@ -1473,6 +1490,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
             row.ContentList = videos
             m.videosList.push(videos)
         else
+            print "---------------------------else----------------------------------------------------------"
             m.playlistsRowItemSizes.push( [ 262, 147 ] )
             m.playlistrowsSpacings.push( 0 )
 
@@ -1487,6 +1505,8 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
   	m.playlistRows = list
     return list
 end function
+
+
 
 '///////////////////////////////////
 ' LabelList click handlers go here
@@ -1888,20 +1908,20 @@ function handleNativeToUniversal() as void
               marketPlaceConnectSVODVerificationStatus = m.marketplaceConnect.verifyMarketplaceSubscription(marketplaceParams)
               print "======> marketPlaceConnectSVODVerificationStatus : ===> " marketPlaceConnectSVODVerificationStatus
         else
-            print "isCheck bifrost================================================================================>"
+              print "isCheck bifrost================================================================================>"
 
-            ' We will call Biforst like previously it was calling'
-            third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
-        bifrost_params = {
-          app_key: GetApiConfigs().app_key,
-          consumer_id: user_info._id,
-          third_party_id: third_party_id,
-          roku_api_key: GetApiConfigs().roku_api_key,
-          transaction_id: UCase(recent_purchase.purchaseId),
-          device_type: "roku"
-        }
-        ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
-        native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
+              ' We will call Biforst like previously it was calling'
+              third_party_id = GetPlan(recent_purchase.code, {}).third_party_id
+              bifrost_params = {
+                app_key: GetApiConfigs().app_key,
+                consumer_id: user_info._id,
+                third_party_id: third_party_id,
+                roku_api_key: GetApiConfigs().roku_api_key,
+                transaction_id: UCase(recent_purchase.purchaseId),
+                device_type: "roku"
+              }
+              ' Check is subscription went through with BiFrost. BiFrost should validate then create universal subscription
+              native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
         end if
 
         isReceiptValidated = false
@@ -2173,7 +2193,9 @@ function SetFeatures() as void
     video_content_genre: configs.video_content_genre,
     test_info_screen: configs.test_info_screen,
     marketplace_connect_svod: configs.marketplace_connect_svod,
-    subscription_plan_ids: configs.subscription_plan_ids
+    subscription_plan_ids: configs.subscription_plan_ids,
+    enable_segment_analytics: configs.enable_segment_analytics,
+    segment_source_write_key: configs.segment_source_write_key
   })
 
   if (configs.favorites_via_api = true)

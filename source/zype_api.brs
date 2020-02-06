@@ -513,6 +513,20 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
 
   url = GetApiConfigs().player_endpoint + "embed/" + videoid + "/"
   params = urlParams
+
+  params.uuid = getAdID() ''"ROKU_ADS_TRACKING_ID"
+  params.app_name =  getTitle(true)
+  params.app_bundle = getApplicationID()
+  params.device_type = "7"
+  params.device_make = "Roku"
+  params.device_model = getModel(true) ''"ROKU_ADS_DEVICE_MODEL"
+  params.device_ifa = getAdID() ''"ROKU_ADS_TRACKING_ID"
+  params.vpi = "ROKU"
+  params.app_id = getAdsAppID() ''"ROKU_ADS_APP_ID"<<GetChannelClientId
+
+  print "GetPlayerInfo url > " url
+  print "GetPlayerInfo params > " params
+
   response = MakeGetRequest(url, params)
 
   if response.status = 200

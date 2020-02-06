@@ -27,10 +27,9 @@ function RafService() as object
   '     url - ad tag url
   ' ********************************************
   this.replaceMacros = function(url)
-    manifest = readManifest()
-
     url = strReplace(url, "[uuid]", "ROKU_ADS_TRACKING_ID")
-    url = strReplace(url, "[app_name]", manifest.title)
+    url = strReplace(url, "[app_name]", getTitle(true))
+    url = strReplace(url, "[app_bundle]", getApplicationID())
     url = strReplace(url, "[device_type]", "7")
     url = strReplace(url, "[device_make]", "Roku")
     url = strReplace(url, "[device_model]", "ROKU_ADS_DEVICE_MODEL")

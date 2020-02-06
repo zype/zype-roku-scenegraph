@@ -1,0 +1,11 @@
+<?xml version = "1.0" encoding = "utf-8" ?>
+<!-- Copyright 2016 Roku Corp.  All Rights Reserved. -->
+<component name = "GetVideoListTask" extends = "Task">
+  <interface>
+    <field id = "idVal" type = "string" />
+    <field id = "perPage" type = "integer" />
+    <field id = "videoResult" type = "roarray" />
+  </interface>
+  <script type="text/brightscript" uri="GetVideoListTask.brs"/>
+  <script type="text/brightscript" uri="pkg:/source/zype_api.brs" />
+</component>

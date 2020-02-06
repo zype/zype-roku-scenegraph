@@ -21,6 +21,8 @@
     <field id="passRequired" type="boolean" />
     <field id="registrationRequired" type="boolean" />
     <field id="marketplace_ids" type="assocarray" />
+    <field id="episodeNumber" type="integer" />
+    <field id="seasonNumber" type="integer" />
     <field id="trailers" type="array" />
 
     <!-- Associated in-store product (if tvod) -->

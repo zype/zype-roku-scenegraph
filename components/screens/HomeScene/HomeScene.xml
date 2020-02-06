@@ -6,9 +6,19 @@
     -->
 <component name="HomeScene" extends="Scene" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
 
+    <!-- Segment Analytics Connector path -->
+    <script type="text/brightscript" uri="pkg:/source/analytics/SegmentAnalyticsConnector.brs" />
+
     <interface>
+        <field id="myVideosArray" type="assocArray"  />
+        <field id="allDataReceived" type="boolean" alwaysNotify="true" value="false"/>
+
+        <field id="uniqueSessionID" type="string" alwaysnotify="true"/>
+
+
         <!--Interface to handle app launch complete event for sending beacon to Roku-->
         <field id="sentLaunchCompleteEvent" type="boolean" alwaysNotify="true" onChange="sendAppLaunchCompleteBeacon" />
+
 
         <!-- Content for RowList in GridScreen on Home Scene -->
         <field id="gridContent" type="node" alias="GridScreen.content" onChange="OnChangeContent" alwaysNotify="true"/>
@@ -64,10 +74,13 @@
 
         <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
 
+        <function name="GetPlaylistVideosFunc" />
+
         <function name="AddCurrentPositionToTracker" />
         <function name="PushScreenIntoScreenStack" />
         <function name="PushContentIntoContentStack" />
         <function name="CreateDialog" />
+        <field id="segmentEvent" type="assocArray" onChange="onSegmentEventChanged"/>
     </interface>
 
     <!-- main handler -->
@@ -75,6 +88,10 @@
     <script type="text/brightscript" uri="pkg:/source/helpers.brs" />
 
     <children>
+
+        <!-- Segment Analytics Task -->
+        <SegmentAnalyticsTask id="libraryTask"/>
+
         <!-- Grid Screen with RowList on Home Scene -->
         <GridScreen
             id="GridScreen"
