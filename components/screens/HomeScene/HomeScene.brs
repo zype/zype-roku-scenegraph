@@ -21,7 +21,7 @@ Function Init()
 
             config = {
               writeKey: m.global.segment_source_write_key
-              debug: true
+              debug: false
               queueSize: 1
               retryLimit: 1
             }
