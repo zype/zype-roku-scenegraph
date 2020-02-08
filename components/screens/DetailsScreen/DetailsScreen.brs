@@ -361,6 +361,12 @@ function GetSegmentVideoEventInfo(state as dynamic)
         seasonNumber = m.top.content.seasonNumber
     end if
 
+    currentPosition = m.top.videoPlayer.position
+    if (m.top.videoPlayer.content.on_Air = true)
+        ' TODO : Check here DVR case'
+        currentPosition = 0
+    end if
+
     trackObj = {
         "action": "track",
         "event": eventStr,
@@ -373,7 +379,7 @@ function GetSegmentVideoEventInfo(state as dynamic)
             "season":       seasonNumber
             "episode":      episodeNumber
             "publisher":    app_info.GetTitle() ' "String (App name)"
-            "position":     m.top.videoPlayer.position 'Integer (current playhead position)
+            "position":     currentPosition 'Integer (current playhead position)
             "total_length": m.top.videoPlayer.content.LENGTH, 'Integer (total duration of video in seconds)
             "channel":      app_info.GetTitle() ' "String (App name)"
             "livestream":   m.top.videoPlayer.content.on_Air 'Boolean (true if on_air = true)
