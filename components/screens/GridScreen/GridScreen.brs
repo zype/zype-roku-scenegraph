@@ -245,6 +245,11 @@ Sub OnFocusedChildChange()
             m.sliderButton.setFocus(true)
             m.sliderGroup.visible=true
             m.carouselShow.visible=false
+
+            if (m.sliderTimer <> invalid)
+              m.sliderTimer.control="stop"
+              m.sliderTimer.control="start"
+            end if
         else
             m.carouselShow.visible=true
             m.sliderGroup.visible=false
@@ -410,6 +415,11 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
 
                 result=true
 
+                if (m.sliderTimer <> invalid)
+                  m.sliderTimer.control="stop"
+                  m.sliderTimer.control="start"
+                end if
+
             end if
         else if key="left"
             if m.sliderGroup.visible=true
@@ -433,6 +443,11 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
                 result=true
+
+                if (m.sliderTimer <> invalid)
+                  m.sliderTimer.control="stop"
+                  m.sliderTimer.control="start"
+                end if
 
             end if
         end if
