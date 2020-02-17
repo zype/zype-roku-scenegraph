@@ -597,6 +597,8 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
       info.video.video_id = videoid
     end if ' end of if video
 
+    ' print "Video Info : " info
+    ' print "Video Info video : " info.video
   else
     info.statusCode = response.status
     info.errorMessage = response.body.message

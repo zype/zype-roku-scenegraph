@@ -23,6 +23,12 @@
     <field id="marketplace_ids" type="assocarray" />
     <field id="episodeNumber" type="integer" />
     <field id="seasonNumber" type="integer" />
+
+    <field id="created_at" type="string" />
+    <field id="published_at" type="string" />
+    <field id="updated_at" type="string" />
+    <field id="keywords" type="array" />
+
     <field id="trailers" type="array" />
 
     <!-- Associated in-store product (if tvod) -->
