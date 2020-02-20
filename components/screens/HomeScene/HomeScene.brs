@@ -666,6 +666,10 @@ Function GetPlaylistVideosFunc(data, perPage) as Void
                 GetPlaylistVideosThroughTask(item._id, perPage)
             end if
         end for
+
+        if (m.myTaskCount = 0) then
+            m.top.allDataReceived = true
+        end if
     end if
 End Function
 
