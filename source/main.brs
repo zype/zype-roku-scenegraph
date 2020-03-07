@@ -1331,7 +1331,7 @@ Function GetContent()
     return list
 End Function
 
-function GetPlaylistContent(playlist_id as String)
+function GetPlaylistContent(playlist_id as String, thumbnail_layout as string)
     pl = GetPlaylists({"id": playlist_id})[0]
 
     favs = GetFavoritesIDs()
@@ -1371,11 +1371,11 @@ function GetPlaylistContent(playlist_id as String)
         m.videosList.push(videos)
         return list
     else
-        return GetContentPlaylists(pl._id)
+        return GetContentPlaylists(pl._id, thumbnail_layout)
     end if
 end function
 
-function GetContentPlaylists(parent_id as String)
+function GetContentPlaylists(parent_id as String, thumbnail_layout as string)
     ' parent_id = parent_id.tokenize(":")[0]
     if m.app.per_page <> invalid
       per_page = m.app.per_page
@@ -1390,7 +1390,7 @@ function GetContentPlaylists(parent_id as String)
     row.title = "Playlists"
     row.ContentList = []
     for each item in rawPlaylists
-        row.ContentList.push(CreatePlaylistObject(item))
+        row.ContentList.push(CreatePlaylistObject(item, thumbnail_layout))
     end for
 
     list.push(row)
@@ -1419,14 +1419,14 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     ' the case where the playlist does not have any more children. that means it is a video playlist
     if rawPlaylists.count() = 0
       if thumbnail_layout = "poster"
-        m.playlistsRowItemSizes.push( [ 147, 262 ] )
+        m.playlistsRowItemSizes.push( [ 147, 207 ] )
         m.playlistrowsSpacings.push( 50 )
       else
         m.playlistsRowItemSizes.push( [ 262, 147 ] )
         m.playlistrowsSpacings.push( 0 )
       end if
 
-      return GetPlaylistContent(parent_id)
+      return GetPlaylistContent(parent_id, thumbnail_layout)
     end if
 
     ' Call function which internally creates all tasks in parallel to get data to speedup things'
@@ -1463,7 +1463,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
             videos = []
 
             if item.thumbnail_layout = "poster"
-              m.playlistsRowItemSizes.push( [ 147, 262 ] )
+              m.playlistsRowItemSizes.push( [ 147, 207 ] )
               m.playlistrowsSpacings.push( 50 )
             else
               m.playlistsRowItemSizes.push( [ 262, 147 ] )
@@ -1491,12 +1491,17 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
             m.videosList.push(videos)
         else
             print "---------------------------else----------------------------------------------------------"
-            m.playlistsRowItemSizes.push( [ 262, 147 ] )
-            m.playlistrowsSpacings.push( 0 )
+            if item.thumbnail_layout = "poster"
+              m.playlistsRowItemSizes.push( [ 147, 207 ] )
+              m.playlistrowsSpacings.push( 20 )
+            else
+              m.playlistsRowItemSizes.push( [ 262, 147 ] )
+              m.playlistrowsSpacings.push( 0 )
+            end if
 
             pls = GetPlaylists({"parent_id": item._id, "dpt": "true", "sort": "priority", "order": "dsc", "per_page": per_page, "page": 1})
             for each pl in pls
-                row.ContentList.push(CreatePlaylistObject(pl))
+                row.ContentList.push(CreatePlaylistObject(pl, item.thumbnail_layout))
             end for
             m.videosList.push(row.ContentList)
         end if
