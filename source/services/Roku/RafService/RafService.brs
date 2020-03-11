@@ -28,6 +28,7 @@ function RafService() as object
   ' ********************************************
   this.replaceMacros = function(url)
     url = strReplace(url, "[uuid]", "ROKU_ADS_TRACKING_ID")
+    url = strReplace(url, "[lat]", "ROKU_ADS_LIMIT_TRACKING")
     url = strReplace(url, "[app_name]", getTitle(true))
     url = strReplace(url, "[app_bundle]", getApplicationID())
     url = strReplace(url, "[device_type]", "7")
