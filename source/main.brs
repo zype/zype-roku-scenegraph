@@ -1440,6 +1440,9 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
         Sleep(1000)' as Void
     end while
 
+    ' Refer this flas as it will used in recursive functions'
+    m.scene.allDataReceived = false
+
     print "All data trigger back to main thread"
 
     myVideosArray = m.scene.myVideosArray

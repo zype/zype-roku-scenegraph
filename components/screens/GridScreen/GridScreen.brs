@@ -322,7 +322,10 @@ End Sub
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.rowList.hasFocus()  then
         if m.top.heroCarouselShow=true
-            m.sliderButton.setFocus(true)
+            if m.scene.IsShowAutoPlayBackground = false AND m.top.VideoPlayer.visible = false
+              print "OnFocusedChildChange >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+              m.sliderButton.setFocus(true)
+            end if
             m.sliderGroup.visible=true
             m.carouselShow.visible=false
 
