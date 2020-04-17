@@ -21,6 +21,12 @@
   "test_info_screen": false,
   "native_to_universal_subscription": false,
   "native_tvod": false,
+
+  "native_tvod_playlist": true,
+  "custom_lock_color": "#ff0000",
+  "custom_unlock_color": "#0000FF",
+  "enable_unlock_transparent": false,
+
   "favorites_via_api": false,
   "universal_tvod": false,
   "confirm_signup": false,

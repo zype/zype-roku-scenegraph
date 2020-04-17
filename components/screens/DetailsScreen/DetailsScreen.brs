@@ -168,7 +168,7 @@ sub refreshButtons() as void
         m.top.canWatchVideo = false
         AddActionButtons()
       end if
-    else if m.global.native_tvod and (m.top.rowTVODInitiateContent <> invalid AND m.top.rowTVODInitiateContent.description<>"")
+    else if m.global.native_tvod and m.global.native_tvod_playlist = true and (m.top.rowTVODInitiateContent <> invalid AND m.top.rowTVODInitiateContent.description<>"")
       if userIsEntitled
         m.top.canWatchVideo = true
         AddButtons()
@@ -176,7 +176,6 @@ sub refreshButtons() as void
         m.top.canWatchVideo = false
         AddActionButtons()
       end if
-
     else if m.top.content.registrationRequired
       if userIsLoggedIn
         m.top.canWatchVideo = true
@@ -647,18 +646,18 @@ Sub AddActionButtons() ' trigger monetization
       	end if
       end if
 
-      '?"m.top.rowTVODInitiateContent==>"m.top.rowTVODInitiateContent
-      if m.top.content.purchaseRequired and m.global.native_tvod and (m.top.rowTVODInitiateContent <> invalid AND m.top.rowTVODInitiateContent.description="")
+      if m.top.content.purchaseRequired and m.global.native_tvod and (m.top.rowTVODInitiateContent <> invalid )
         if m.top.content.storeProduct <> invalid and m.top.content.storeProduct.cost <> invalid
-          purchaseButtonText = "Purchase video - " + m.top.content.storeProduct.cost
+          purchaseButtonText = "Buy Video - " + m.top.content.storeProduct.cost
         else
-          purchaseButtonText = "Purchase video"
+          purchaseButtonText = "Buy Video"
         end if
+        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
+      end if
 
-        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
-      else if m.global.native_tvod and (m.top.rowTVODInitiateContent <> invalid AND m.top.rowTVODInitiateContent.description<>"")
+      if m.global.native_tvod and m.global.native_tvod_playlist and (m.top.rowTVODInitiateContent <> invalid AND m.top.rowTVODInitiateContent.description<>"")
         purchaseButtonText = "Buy All "+m.top.rowTVODInitiateContent.NUMEPISODES.toStr()+" Videos - $"+m.top.rowTVODInitiateContent.description
-        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
+        btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreenPlaylist" })
       end if
 
       addWatchTrailerButton(btns)
@@ -688,7 +687,7 @@ Sub AddTVODActionButtons()
         btns.push({title: m.global.labels.favorite_button, role: "favorite"})
       end if
 
-      btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreen" })
+      btns.push({ title: purchaseButtonText, role: "transition", target: "PurchaseScreenPlaylist" })
       addWatchTrailerButton(btns)
       m.buttons.content = m.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
   end if

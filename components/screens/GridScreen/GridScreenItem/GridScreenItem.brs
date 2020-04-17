@@ -2,6 +2,8 @@ function init() as void
   m.itemImage = m.top.findNode("itemImage")
   m.itemImage.observeField("bitmapWidth", "OnItemImageLoaded")
   m.itemText = m.top.findNode("itemText")
+  m.statusImageGroup = m.top.findNode("statusImageGroup")
+  m.statusImageBG = m.top.findNode("statusImageBG")
   m.itemText.color = m.global.theme.primary_text_color
   m.statusImage = m.top.findNode("statusImage")
 end function
@@ -50,26 +52,49 @@ function itemContentChanged() as void
     end if
 
     ' Lock icons
-    offset = m.itemImage.loadwidth - 32 - 5
-    if m.statusImage <> invalid
-      m.statusImage.translation = [offset, 5]
-      m.statusImage.visible = false
+    offset = m.itemImage.loadwidth - 48 - 5
+    if m.statusImageGroup <> invalid
+      m.statusImageGroup.translation = [offset, 5]
+      m.statusImageGroup.visible = false
     end if
 
     if (m.global.inline_title_text_display = true AND itemData.TITLE <> invalid)
         m.itemText.text = itemData.TITLE
     end if
 
-    if(m.statusImage <> invalid AND itemData.ContentType = 4 AND itemData.SubscriptionRequired = true AND m.global.enable_lock_icons = true)
-      m.statusImage.visible = true
+    if (itemData.isLock = false) then
+      if(m.statusImageGroup <> invalid AND itemData.ContentType = 4 AND m.global.enable_lock_icons = true)
+          videoRequiresEntitlement = (itemData.SubscriptionRequired = true OR itemData.purchaseRequired = true)
+          if (videoRequiresEntitlement)
+              isSubscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
 
-      if m.global.auth.nativeSubCount > 0 OR m.global.auth.universalSubCount > 0
-        m.statusImage.uri = "pkg:/images/iconUnlocked.png"
+              userIsEntitled = false
+              if m.global.auth.entitlements <> invalid
+                if m.global.auth.entitlements.DoesExist(itemData.contentId) then userIsEntitled = true
+              end if
+
+              m.statusImageGroup.visible = true
+
+              if userIsEntitled or isSubscribed
+                if m.global.enable_unlock_transparent = false then
+                  m.statusImageBG.blendColor = m.global.custom_unlock_color
+                else
+                  m.statusImageGroup.visible = false
+                end if
+                m.statusImage.uri = "pkg:/images/iconUnlocked.png"
+              else
+                 m.statusImageBG.blendColor = m.global.custom_lock_color
+                m.statusImage.uri = "pkg:/images/iconLocked.png"
+              end if
+          end if
+        end if
       else
-        m.statusImage.uri = "pkg:/images/iconLocked.png"
+          m.statusImageGroup.visible = true
+          m.statusImageBG.blendColor = m.global.custom_lock_color
+          m.statusImage.uri = "pkg:/images/iconLocked.png"
       end if
-    end if
   end if
+
 end function
 
 Function DownloadImage(imageUrl as String, newCachePath as String, newTempPath as String)
