@@ -80,6 +80,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.scene = screen.CreateScene("HomeScene")
     m.port = CreateObject("roMessagePort")
+
+    print "m.app.theme::: " m.app.theme
     if m.app.theme = "dark"
        theme=DarkTheme()
     else if m.app.theme = "light"
@@ -411,42 +413,53 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
               playRegularVideo(m.detailsScreen)
             else if msg.getField()="carouselSelectData"
                 if msg.GetData()<>invalid
-                    if msg.GetData().videoid<>invalid
-                        m.loadingIndicator.control = "start"
-                        m.gridScreen.visible = "false"
-                        m.detailsScreen.autoplay = false
-                        linkedVideoNode = createObject("roSGNode", "VideoNode")
+                    if msg.GetData().autoplay=invalid or msg.GetData().autoplay=false
+                        if msg.GetData().videoid<>invalid
+                            m.loadingIndicator.control = "start"
+                            m.gridScreen.visible = "false"
+                            m.detailsScreen.autoplay = false
+                            linkedVideoNode = createObject("roSGNode", "VideoNode")
+                            linkedVideoObject=CreateVideoObject(GetVideo(msg.GetData().videoid))
+                            for each key in linkedVideoObject
+                                linkedVideoNode[key] = linkedVideoObject[key]
+                            end for
+                            m.scene.DeepLinkToDetailPage = linkedVideoNode
+                            m.loadingIndicator.control = "stop"
+                        else if msg.GetData().playlistid<>invalid
+                            m.loadingIndicator.control = "start"
+                            m.gridScreen.playlistItemSelected = false
+                            content = m.gridScreen.focusedContent
+
+                            ' Get Playlist object from the platform
+
+                            playlistObject = GetPlaylists({ id: msg.GetData().playlistid })
+                            playlistThumbnailLayout = playlistObject[0].thumbnail_layout
+                            m.gridScreen.content = ParseContent(GetPlaylistsAsRows(msg.GetData().playlistid, playlistThumbnailLayout))
+                            m.gridContent = m.gridScreen.content
+                            rowlist = m.gridScreen.findNode("RowList")
+                            rowlist.rowItemSize = m.playlistsRowItemSizes
+                            rowlist.rowSpacings = m.playlistRowsSpacings
+
+                            rowlist.jumpToRowItem = [0,0]
+
+                            m.scene.gridContent = m.gridContent
+
+                            current_video_list_stack = m.scene.videoliststack
+                            current_video_list_stack.push(m.videosList)
+                            m.scene.videoliststack = current_video_list_stack
+
+                            m.detailsScreen.videosTree = m.scene.videoliststack.peek()
+
+                            m.loadingIndicator.control = "stop"
+                        end if
+                    else
+                        StartLoader()
                         linkedVideoObject=CreateVideoObject(GetVideo(msg.GetData().videoid))
-                        for each key in linkedVideoObject
-                            linkedVideoNode[key] = linkedVideoObject[key]
-                        end for
-                        m.scene.DeepLinkToDetailPage = linkedVideoNode
-                        m.loadingIndicator.control = "stop"
-                    else if msg.GetData().playlistid<>invalid
-                        m.loadingIndicator.control = "start"
-                        m.gridScreen.playlistItemSelected = false
-                        content = m.gridScreen.focusedContent
+                        auth1 = getAuth(linkedVideoObject)
 
-                        ' Get Playlist object from the platform
-
-                        playlistObject = GetPlaylists({ id: msg.GetData().playlistid })
-                        playlistThumbnailLayout = playlistObject[0].thumbnail_layout
-                        m.gridScreen.content = ParseContent(GetPlaylistsAsRows(msg.GetData().playlistid, playlistThumbnailLayout))
-                        m.gridContent = m.gridScreen.content
-                        rowlist = m.gridScreen.findNode("RowList")
-                        rowlist.rowItemSize = m.playlistsRowItemSizes
-                        rowlist.rowSpacings = m.playlistRowsSpacings
-
-                        rowlist.jumpToRowItem = [0,0]
-
-                        m.scene.gridContent = m.gridContent
-
-                        current_video_list_stack = m.scene.videoliststack
-                        current_video_list_stack.push(m.videosList)
-                        m.scene.videoliststack = current_video_list_stack
-
-                        m.detailsScreen.videosTree = m.scene.videoliststack.peek()
-
+                        content = createObject("RoSGNode","VideoNode")
+                        content.setFields(linkedVideoObject)
+                        playVideo(m.gridScreen, auth1, m.app.avod, content)
                         m.loadingIndicator.control = "stop"
                     end if
                 end if
@@ -891,7 +904,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
 
   content.stream = playerInfo.stream
   content.streamFormat = playerInfo.streamFormat
-  if content.start = "" or content["end"] = ""
+  if content.start = invalid or content["end"] = invalid or content.start = "" or content["end"] = ""
     urlSuffix = ""
   else
     urlSuffix = "&start=" + content.start + "&end=" + content["end"]
