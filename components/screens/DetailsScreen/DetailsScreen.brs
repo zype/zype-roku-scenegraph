@@ -82,7 +82,14 @@ end sub
 
 sub StartScaleDownAnimation()
     print "StartScaleDownAnimation----------"
-    m.AudioThumbnailPoster.scale = [0.5, 0.5]
+    if (m.top.squareImageUrl <> "")
+        ' Dont downscale if image is already small'
+        if (m.top.squareImageWH > 350)
+          m.AudioThumbnailPoster.scale = [0.6, 0.6]
+        end if
+    else
+        m.AudioThumbnailPoster.scale = [0.5, 0.5]
+    end if
 end sub
 
 Function initializeVideoPlayer()
@@ -231,6 +238,36 @@ Sub onVideoVisibleChange()
     end if
 End Sub
 
+Sub SetSquareImageForAudioOnly()
+  print "m.top.videoPlayer.squareImageUrl : " m.top.squareImageUrl
+  print "m.top.videoPlayer.squareImageWH : " m.top.squareImageWH
+
+  m.top.squareImageWH = 350
+  AudioThumbnailPoster = m.top.findNode("AudioThumbnailPoster")
+  if (AudioThumbnailPoster <> invalid AND m.top.squareImageUrl <> "")
+      YSpacing = 72 * 2
+      FinalMaxH = 720 - YSpacing
+      XOffset = 0
+      YOffset = 0
+      FinalWH = m.top.squareImageWH
+      if (m.top.squareImageWH > FinalMaxH)
+        FinalWH = FinalMaxH
+        XOffset = (1280 - FinalMaxH) /2
+        YOffset = YSpacing / 2
+      else
+        XOffset = (1280 - FinalWH) /2
+        YOffset =  (720 - FinalWH) / 2
+      end if
+
+      AudioThumbnailPoster.height=FinalWH
+      AudioThumbnailPoster.width=FinalWH
+      AudioThumbnailPoster.translation=[XOffset,YOffset]
+      AudioThumbnailPoster.scaleRotateCenter = [ FinalWH/2, FinalWH/2 ]
+      AudioThumbnailPoster.loadDisplayMode="scaleToFit"
+      AudioThumbnailPoster.uri = m.top.squareImageUrl
+  end if
+end Sub
+
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
     live = (m.top.videoPlayer.content <> invalid and m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
@@ -241,6 +278,7 @@ Sub OnVideoPlayerStateChange()
     print "m.top.videoPlayer.state : " m.top.videoPlayer.state
 
     if (m.top.videoPlayer.videoFormat = "none")
+        SetSquareImageForAudioOnly()
         m.AudioThumbnailPoster.visible = true
         if (m.top.videoPlayer.state = "playing")
             StartScaleUpAnimation()
