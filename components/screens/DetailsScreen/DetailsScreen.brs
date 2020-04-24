@@ -108,13 +108,45 @@ Function initializeVideoPlayer()
   m.AudioThumbnailPoster.width=1280
   m.AudioThumbnailPoster.scaleRotateCenter = [ 1280/2, 720/2 ]
   m.AudioThumbnailPoster.translation=[0,0]
-  m.AudioThumbnailPoster.loadDisplayMode="scaleToZoom"
+  m.AudioThumbnailPoster.loadDisplayMode="scaleToFit"
   m.AudioThumbnailPoster.visible = false
 
   m.firstTimeVideo = true
   ' Event listener for video player state. Needed to handle video player errors and completion
   m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
 End Function
+
+Function OnSquareImageChanged()
+    uriToSet = m.top.squareImageUrl
+    if (uriToSet <> invalid AND uriToSet <> "")
+        sha1OfImageUrl = GetEncryptedUrlString(uriToSet)
+        pathObj = CheckAndGetImagePathIfAvailable(sha1OfImageUrl)
+        if (pathObj.foundPath = invalid OR pathObj.foundPath = "")
+            DownloadAudioPosterImage(uriToSet, pathObj.newCachePath, pathObj.newTempPath)
+        else
+            print "squareImageUrl---> found in local"
+            m.top.squareImageUrl = pathObj.foundPath
+        end if
+    end if
+End Function
+
+Function DownloadAudioPosterImage(imageUrl as String, newCachePath as String, newTempPath as String)
+
+  print "DownloadAudioPosterImage::::::::::::" imageUrl
+  downloadImageTask = createObject("roSGNode", "DownloadImageTask")
+  downloadImageTask.bAPIStatus = "None"
+  downloadImageTask.imageUrl = imageUrl
+  downloadImageTask.newCachePath = newCachePath
+  downloadImageTask.newTempPath = newTempPath
+  downloadImageTask.observeField("bAPIStatus", "DownloadAudioImageTaskCompleted")
+  downloadImageTask.control = "RUN"
+end Function
+
+Function DownloadAudioImageTaskCompleted(event as Object)
+  task = event.GetRoSGNode()
+  print "FadingBackground : DownloadImageTaskCompleted....................................." task.bAPIStatus
+  task = invalid
+end Function
 
 
 Function ReinitializeVideoPlayer()
@@ -239,7 +271,7 @@ Sub onVideoVisibleChange()
 End Sub
 
 Sub SetSquareImageForAudioOnly()
-  print "m.top.videoPlayer.squareImageUrl : " m.top.squareImageUrl
+  print "===============================================m.top.videoPlayer.squareImageUrl : " m.top.squareImageUrl
   print "m.top.videoPlayer.squareImageWH : " m.top.squareImageWH
 
   m.top.squareImageWH = 350

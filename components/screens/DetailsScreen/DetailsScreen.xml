@@ -6,7 +6,7 @@
     handles start of video playback
  -->
 <component name="DetailsScreen" extends="Group" initialFocus="Buttons" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
-
+    <script type="text/brightscript" uri="pkg:/source/helpers.brs" />
     <interface>
         <!-- Button press handler -->
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="Buttons.itemSelected" onChange="onItemSelected" />
@@ -16,7 +16,7 @@
 
         <!-- Playback flag -->
         <field id="videoPlayerVisible" type="bool" alwaysnotify="true" onChange="onVideoVisibleChange" />
-        <field id="squareImageUrl" type="string" alwaysnotify="true"/>
+        <field id="squareImageUrl" type="string" alwaysnotify="true" onChange="OnSquareImageChanged"/>
         <field id="squareImageWH" type="integer" alwaysnotify="true"/>
 
         <!-- Content fields -->
