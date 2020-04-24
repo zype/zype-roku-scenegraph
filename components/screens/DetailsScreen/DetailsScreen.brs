@@ -106,6 +106,8 @@ Function initializeVideoPlayer()
   m.AudioThumbnailPoster.id="AudioThumbnailPoster"
   m.AudioThumbnailPoster.height=720
   m.AudioThumbnailPoster.width=1280
+  m.AudioThumbnailPoster.loadheight=720
+  m.AudioThumbnailPoster.loadwidth=1280
   m.AudioThumbnailPoster.scaleRotateCenter = [ 1280/2, 720/2 ]
   m.AudioThumbnailPoster.translation=[0,0]
   m.AudioThumbnailPoster.loadDisplayMode="scaleToFit"
@@ -295,6 +297,8 @@ Sub SetSquareImageForAudioOnly()
 
       AudioThumbnailPoster.height=FinalWH
       AudioThumbnailPoster.width=FinalWH
+      AudioThumbnailPoster.loadheight=FinalWH
+      AudioThumbnailPoster.loadwidth=FinalWH
       AudioThumbnailPoster.translation=[XOffset,YOffset]
       AudioThumbnailPoster.scaleRotateCenter = [ FinalWH/2, FinalWH/2 ]
       AudioThumbnailPoster.loadDisplayMode="scaleToFit"
