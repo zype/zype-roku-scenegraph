@@ -117,16 +117,18 @@ Function initializeVideoPlayer()
 End Function
 
 Function OnSquareImageChanged()
-    uriToSet = m.top.squareImageUrl
-    if (uriToSet <> invalid AND uriToSet <> "")
-        sha1OfImageUrl = GetEncryptedUrlString(uriToSet)
-        pathObj = CheckAndGetImagePathIfAvailable(sha1OfImageUrl)
-        if (pathObj.foundPath = invalid OR pathObj.foundPath = "")
-            DownloadAudioPosterImage(uriToSet, pathObj.newCachePath, pathObj.newTempPath)
-        else
-            print "squareImageUrl---> found in local"
-            m.top.squareImageUrl = pathObj.foundPath
-        end if
+    if (m.top.squareImageUrl <> invalid and m.top.squareImageUrl <> "")
+      uriToSet = m.top.squareImageUrl
+      if (uriToSet <> invalid AND uriToSet <> "")
+          sha1OfImageUrl = GetEncryptedUrlString(uriToSet)
+          pathObj = CheckAndGetImagePathIfAvailable(sha1OfImageUrl)
+          if (pathObj.foundPath = invalid OR pathObj.foundPath = "")
+              DownloadAudioPosterImage(uriToSet, pathObj.newCachePath, pathObj.newTempPath)
+          else
+              print "squareImageUrl---> found in local"
+              m.top.squareImageUrl = pathObj.foundPath
+          end if
+      end if
     end if
 End Function
 
@@ -632,6 +634,7 @@ Sub OnContentChange()
     print "detailScreen OnContentChange ====> m.top.content : " m.top.content
     m.top.videoPlayer.content   = m.top.content
     m.background.uri        = m.top.content.hdBackgroundImageUrl
+    m.top.squareImageUrl = ""
     m.AudioThumbnailPoster.uri = m.top.content.hdBackgroundImageUrl
   end if
 End Sub
