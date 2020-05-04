@@ -437,6 +437,12 @@ Function OnKeyEvent(key, press) as Boolean
                     ? "1"
                     ' if detailsScreen is open and video is stopped, details is lastScreen
                     details = m.screenStack.pop()
+                    if (details.videoPlayer <> invalid)
+                      details.videoPlayer.control = "stop"
+                      details.videoPlayer.visible = false
+                      details.videoPlayer.setFocus(false)
+                    end if
+
                     details.visible = false
                     ?"m.screenStack==>"m.screenStack
                     m.screenStack.peek().visible = true
