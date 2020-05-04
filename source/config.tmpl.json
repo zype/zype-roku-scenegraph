@@ -29,5 +29,10 @@
   "image_caching_support":"1",
   "video_content_genre": "Special",
   "enable_segment_analytics": false,
-  "segment_source_write_key": "<ADD_YOUR_KEY_HERE>"
+  "segment_source_write_key": "<ADD_YOUR_KEY_HERE>",
+  "marketplace_connect_svod": false,
+  "subscription_plan_ids": [
+      "<ID1>",
+      "<ID2>"
+    ]
 }
