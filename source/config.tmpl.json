@@ -32,7 +32,7 @@
   "segment_source_write_key": "<ADD_YOUR_KEY_HERE>",
   "marketplace_connect_svod": false,
   "subscription_plan_ids": [
-      "<ID1>",
-      "<ID2>"
+      "<subscription_plan_id_1>",
+      "<subscription_plan_id_2>"
     ]
 }
