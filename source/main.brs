@@ -232,6 +232,10 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
     m.PurchaseScreen.observeField("itemSelected", m.port)
     m.PurchaseScreen.observeField("purchaseButtonSelected", m.port)
 
+    m.PurchaseScreenPlaylist = m.scene.findNode("PurchaseScreenPlaylist")
+    m.PurchaseScreenPlaylist.observeField("itemSelected", m.port)
+    m.PurchaseScreenPlaylist.observeField("purchaseButtonSelected", m.port)
+
     m.MyLibrary = m.scene.findNode("MyLibrary")
     m.MyLibrary.observeField("visible", m.port)
     m.MyLibrary.observeField("paginatorSelected", m.port)
@@ -589,7 +593,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 content = createObject("RoSGNode","VideoNode")
                 content.setFields(msg.getData())
                 playLiveStream(m.epgScreen, content)
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "PurchaseScreenPlaylist" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -614,6 +618,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.AccountScreen
                 else if msg.getNode() = "PurchaseScreen"
                     lclScreen = m.PurchaseScreen
+                else if msg.getNode() = "PurchaseScreenPlaylist"
+                    lclScreen = m.PurchaseScreenPlaylist
                 end if
 
                 index = msg.getData()
@@ -637,10 +643,17 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                     m.scene.transitionTo = "SignUpScreen"
                 end if
               end if
-            else if msg.getNode() = "PurchaseScreen" and msg.getField() = "purchaseButtonSelected" then
-              buttonRole = m.PurchaseScreen.itemSelectedRole
-              buttonTarget = m.PurchaseScreen.itemSelectedTarget
-               if buttonRole = "confirm_purchase"
+            else if (msg.getNode() = "PurchaseScreen" or msg.getNode() = "PurchaseScreenPlaylist") and msg.getField() = "purchaseButtonSelected" then
+
+              if msg.getNode() = "PurchaseScreen"
+                  buttonRole = m.PurchaseScreen.itemSelectedRole
+                  buttonTarget = m.PurchaseScreen.itemSelectedTarget
+              else
+                  buttonRole = m.PurchaseScreenPlaylist.itemSelectedRole
+                  buttonTarget = m.PurchaseScreenPlaylist.itemSelectedTarget
+              end if
+
+              if buttonRole = "confirm_purchase"
                 if m.global.auth.isLoggedIn or m.global.native_tvod = false then handleNativePurchase() else m.scene.transitionTo = "SignUpScreen"
               else if buttonRole = "cancel"
                 m.detailsScreen.content = m.detailsScreen.content
@@ -1273,21 +1286,27 @@ function GetMyLibraryContent(is_linked as boolean, page = 1 as integer)
 end function
 
 Function ParseContent(list As Object)
-
   	' Get consumables from ROKU Store'
   	consumables = m.roku_store_service.getConsumables()
+    ' for each rokuItem in consumables
+    '     print "Roku Store Consumable Category : " rokuItem
+    ' end for
 
+    print "Playlist Purchase Enabled : " m.global.native_tvod_playlist
     RowItems = createObject("RoSGNode","ContentNode")
+    purchaseItem = invalid
 
+    rowCounter = 0
     for each rowAA in list
         row = createObject("RoSGNode","ContentNode")
         row.Title = rowAA.Title
+
         if rowAA.purchase_price<>invalid
-            'consumables = m.roku_store_service.getConsumables()
+            print "Playlist Purchase Required : true"
             isConsumableFound = false
             if (rowAA.marketplace_ids <> invalid AND rowAA.marketplace_ids.roku <> invalid)
-              print "Playlist => rowAA.marketplace_ids.roku : " rowAA.marketplace_ids.roku
-              print "Playlist => title : " rowAA.title
+              print "Playlist Title : " rowAA.title
+              print "Playlist Roku Market Place Id : " rowAA.marketplace_ids.roku
               for each rokuItem in consumables
                   if (rokuItem.code = rowAA.marketplace_ids.roku)
                     purchaseItem = rokuItem
@@ -1297,14 +1316,21 @@ Function ParseContent(list As Object)
               end for
             end if
 
-            if (isConsumableFound = false)
-	            purchaseItem = consumables[0]
+            if (isConsumableFound = false and consumables[0] <> invalid)
+                ' print "isConsumableFound false - consumables[0] :" consumables[0]
+                purchaseItem = consumables[0]
             end if
 
             row.NumEpisodes=rowAA.playlist_item_count
             row.Description=rowAA.purchase_price
             row.id=rowAA.playListID
-            row.shortDescriptionLine1=FormatJSON(purchaseItem)
+            if purchaseItem <> invalid
+                row.shortDescriptionLine1=FormatJSON(purchaseItem)
+            else
+                row.shortDescriptionLine1 = invalid
+            end if
+        else
+            print "Playlist Purchase Required : false"
         end if
 
         for each itemAA in rowAA.ContentList
@@ -1315,39 +1341,59 @@ Function ParseContent(list As Object)
                 item[key] = itemAA[key]
             end for
 
+            print "Video Title : " item.title
+            print "Video Purchase Required : " item.purchaseRequired
+
+            userIsEntitled = false
             if item.purchaseRequired
-              isConsumableFound = false
-
-              if (item.marketplace_ids <> invalid AND item.marketplace_ids.roku <> invalid)
-                'print "marketplace_ids ==> item : " item.marketplace_ids.roku
-                'print "title : " item.title
-                for each rokuItem in consumables
-                    if (rokuItem.code = item.marketplace_ids.roku)
-                      purchaseItem = rokuItem
-                      isConsumableFound = true
-                      exit for
-                    end if
-                end for
+              if m.global.auth.entitlements <> invalid
+                if m.global.auth.entitlements.DoesExist(item.contentId) then userIsEntitled = true
               end if
+              print "Video userIsEntitled : " userIsEntitled
 
-              if (isConsumableFound = false)
-	              purchaseItem = consumables[0]
+              item.storeProduct = invalid
+              if (userIsEntitled = false)
+                  isConsumableFound = false
+                  if (item.marketplace_ids <> invalid AND item.marketplace_ids.roku <> invalid)
+                    for each rokuItem in consumables
+                        if (rokuItem.code = item.marketplace_ids.roku)
+                          purchaseItem = rokuItem
+                          isConsumableFound = true
+                          exit for
+                        end if
+                    end for
+                  end if
+
+                  ' TDDO HB : ASK as we MUST not assign default IAP if not found, better to show message to user item not available for purchase at the moment.'
+                  ' if (isConsumableFound = false)
+    	            '   purchaseItem = consumables[0]
+                  ' end if
+                  item.storeProduct = purchaseItem
               end if
-
-              item.storeProduct = purchaseItem
             else
               item.storeProduct = invalid
+              ' Check if playlist required purchase'
+              if m.global.native_tvod and m.global.native_tvod_playlist and (row.Description<>invalid and row.Description<>"")
+                  print "Row Title : " row.Title
+                  print "Row Purchase Required : true"
+                  if m.global.auth.entitlements <> invalid
+                    if m.global.auth.entitlements.DoesExist(item.contentId) then userIsEntitled = true
+                  end if
+                  print "Row userIsEntitled : " userIsEntitled
+              else
+                  userIsEntitled = true
+              end if
             end if
 
+            print "Finally UserIsEntitled : " userIsEntitled
+            print "Finally isLock : " not userIsEntitled
+            print
+            item.isLock = not userIsEntitled
             row.appendChild(item)
         end for
 
         RowItems.appendChild(row)
     end for
-
-    print "consumables[0] ==> " consumables[0]
-    print "consumables[1] ==> " consumables[1]
-    print "consumables=====================> " consumables
 
     return RowItems
 End Function
@@ -1504,6 +1550,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
     for each item in rawPlaylists
         row = {}
         row.title = item.title
+        print "Row Data : " ' item
         if item.purchase_required<>invalid
             if item.purchase_required=true
                 row.playlist_item_count=item.playlist_item_count
@@ -1515,6 +1562,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
 
         row.ContentList = []
         if item.playlist_item_count > 0
+            print "Playlist Item Count : " item.playlist_item_count
             row.ContentList = []
             videos = []
 
@@ -1546,7 +1594,7 @@ function GetPlaylistsAsRows(parent_id as String, thumbnail_layout = "")
             row.ContentList = videos
             m.videosList.push(videos)
         else
-            print "---------------------------else----------------------------------------------------------"
+            print "Playlist id : " item._id
             m.playlistsRowItemSizes.push( [ 262, 147 ] )
             m.playlistrowsSpacings.push( 0 )
 
@@ -1718,7 +1766,7 @@ function handleButtonEvents(index, screen)
             print "m.detailsScreen.itemSelectedTarget===> " m.detailsScreen.itemSelectedTarget
             if m.detailsScreen.itemSelectedTarget = "AuthSelection" ' SVOD
               handleNativeToUniversal()
-            else if m.detailsScreen.itemSelectedTarget = "PurchaseScreen" ' TVOD
+            else if (m.detailsScreen.itemSelectedTarget = "PurchaseScreen" or m.detailsScreen.itemSelectedTarget = "PurchaseScreenPlaylist") ' TVOD
               handleNativePurchase()
             end if
           end if
@@ -1851,23 +1899,28 @@ function handleButtonEvents(index, screen)
       m.scene.transitionTo = "AuthSelection"
     else if button_role = "transition" and button_target = "SignUpScreen"
       m.scene.transitionTo = "SignUpScreen"
-    else if button_role = "transition" and button_target = "PurchaseScreen"
-      if screen.content.storeProduct<>invalid
+    else if button_role = "transition" and (button_target = "PurchaseScreen" or button_target = "PurchaseScreenPlaylist")
 
+      if screen.content.storeProduct<>invalid and button_target = "PurchaseScreen"
           m.PurchaseScreen.purchaseItem = screen.content.storeProduct
           m.PurchaseScreen.itemName = screen.content.title
           m.PurchaseScreen.videoId = screen.content.id
-
-      else if screen.rowTVODInitiateContent.DESCRIPTION<>""
-        m.PurchaseScreen.isPlayList=true
-        m.PurchaseScreen.playListVideoCount = screen.rowTVODInitiateContent.NUMEPISODES.toStr()
-        m.PurchaseScreen.purchaseItem = parseJSON(screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1)
-        m.PurchaseScreen.itemName = screen.rowTVODInitiateContent.title
-        m.PurchaseScreen.videoId = screen.rowTVODInitiateContent.id
-
+          m.scene.transitionTo = "PurchaseScreen"
+      else if screen.rowTVODInitiateContent.DESCRIPTION<>"" and button_target = "PurchaseScreenPlaylist"
+          m.PurchaseScreenPlaylist.isPlayList=true
+          m.PurchaseScreenPlaylist.playListVideoCount = screen.rowTVODInitiateContent.NUMEPISODES.toStr()
+          purchaseItem = invalid
+          if screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1 <> invalid
+              purchaseItem = parseJSON(screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1)
+          end if
+          if screen.rowTVODInitiateContent.DESCRIPTION <> invalid and purchaseItem <> invalid
+              purchaseItem.cost = "$" + screen.rowTVODInitiateContent.DESCRIPTION
+          end if
+          m.PurchaseScreenPlaylist.purchaseItem = purchaseItem
+          m.PurchaseScreenPlaylist.itemName = screen.rowTVODInitiateContent.title
+          m.PurchaseScreenPlaylist.videoId = screen.rowTVODInitiateContent.id
+          m.scene.transitionTo = "PurchaseScreenPlaylist"
       end if
-
-      m.scene.transitionTo = "PurchaseScreen"
 
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
       if m.global.enable_device_linking = false then m.scene.transitionTo = "SignInScreen" else m.scene.transitionTo = "UniversalAuthSelection"
@@ -2048,7 +2101,16 @@ function handleNativeToUniversal() as void
 end function
 
 function handleNativePurchase() as void
-  m.PurchaseScreen.visible = false
+  code = ""
+  screen = "PurchaseScreen"
+  if m.PurchaseScreenPlaylist.visible
+      m.PurchaseScreenPlaylist.visible = false
+      code = m.PurchaseScreenPlaylist.purchaseItem.code
+      screen = "PurchaseScreenPlaylist"
+  else
+      m.PurchaseScreen.visible = false
+      code = m.PurchaseScreen.purchaseItem.code
+  end if
   StartLoader()
 
   ' Get updated user info
@@ -2056,7 +2118,7 @@ function handleNativePurchase() as void
   m.auth_state_service.updateAuthWithUserInfo(userInfo)
 
   order = [{
-    code: m.PurchaseScreen.purchaseItem.code,
+    code: code,
     qty: 1
   }]
 
@@ -2117,7 +2179,11 @@ function handleNativePurchase() as void
       m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not verify your purchase with Roku marketplace. Please try again later.", ["Close"])
     end if
   else
-    m.PurchaseScreen.findNode("PurchaseButtons").setFocus(true)
+    if screen = "PurchaseScreen"
+        m.PurchaseScreen.findNode("PurchaseButtons").setFocus(true)
+    else
+        m.PurchaseScreenPlaylist.findNode("PurchaseButtons").setFocus(true)
+    end if
     m.scene.callFunc("CreateDialog",m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
   end if
 end function
@@ -2242,11 +2308,15 @@ function SetFeatures() as void
     image_caching_support: configs.image_caching_support,
     native_to_universal_subscription: m.app.native_to_universal_subscription,
     native_tvod: configs.native_tvod,
+    native_tvod_playlist: configs.native_tvod_playlist,
     favorites_via_api: configs.favorites_via_api,
     universal_tvod: m.app.universal_tvod,
     confirm_signup: configs.confirm_signup,
     enable_device_linking: configs.enable_device_linking,
     video_content_genre: configs.video_content_genre,
+    custom_lock_color: configs.custom_lock_color,
+    custom_unlock_color: configs.custom_unlock_color,
+    enable_unlock_transparent: configs.enable_unlock_transparent,
     test_info_screen: configs.test_info_screen,
     marketplace_connect_svod: configs.marketplace_connect_svod,
     subscription_plan_ids: configs.subscription_plan_ids,

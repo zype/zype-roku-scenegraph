@@ -53,13 +53,13 @@ end function
 function onPurchaseItemChanged() as void
   if m.top.isPlayList=false
     btns = [
-      { title: "Purchase Video - " + m.top.purchaseItem.cost, role: "confirm_purchase" },
+      { title: "Buy Video - " + m.top.purchaseItem.cost, role: "confirm_purchase" },
       { title: "Cancel", role: "cancel" }
     ]
   else
     m.top.isPlayList=false
     btns = [
-      { title: "Buy all "+m.top.playListVideoCount.toStr()+" Videos - " + m.top.purchaseItem.cost, role: "confirm_purchase" },
+      { title: "Buy All "+m.top.playListVideoCount.toStr()+" Videos - " + m.top.purchaseItem.cost, role: "confirm_purchase" },
       { title: "Cancel", role: "cancel" }
     ]
   end if
