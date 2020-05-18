@@ -873,16 +873,26 @@ end function
 
 
 sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = invalid)
+
+  if screen.hasField("videoPlayerVisible") then screen.videoPlayerVisible = true
+
+  print "----------------------------------------------------------------------------0 : screen.videoPlayerVisible : " screen.videoPlayerVisible
+
   if content = invalid then content = screen.content
+
+  print "--------------------------------------------------------------------------1"
   playerInfo = GetPlayerInfo(content.id, auth)
+  print "--------------------------------------------------------------------------2"
   if playerInfo.video.duration <> invalid then content.length = playerInfo.video.duration
   if playerInfo.video.title <> invalid then content.title = playerInfo.video.title
 
+  print "--------------------------------------------------------------------------3"
   playerInfo.video.video_content_genre = ""
   if (m.global.video_content_genre <> invalid)
       playerInfo.video.video_content_genre = m.global.video_content_genre
   end if
 
+  print "--------------------------------------------------------------------------4"
   if(playerInfo.on_Air <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
     print "PlayerInfo.analytics: "; playerInfo.analytics
 
@@ -902,6 +912,8 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
     m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
   end if
 
+  print "--------------------------------------------------------------------------5"
+
   content.stream = playerInfo.stream
   content.streamFormat = playerInfo.streamFormat
   if content.start = invalid or content["end"] = invalid or content.start = "" or content["end"] = ""
@@ -911,13 +923,20 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
   end if
   content.url = playerInfo.url + urlSuffix
 
+  print "--------------------------------------------------------------------------6"
   video_service = VideoService()
+  print "--------------------------------------------------------------------------7"
 
   ' If video source is not available
   if(playerInfo.statusCode <> 200 or content.streamFormat = "(null)")
+        print "--------------------------------------------------------------------------8 - Closed"
     CloseVideoPlayer(screen)
+        if m.LoadingScreen.visible = true
+          EndLoader(screen)
+        end if
     CreateVideoUnavailableDialog(playerInfo.errorMessage)
   else
+        print "--------------------------------------------------------------------------9 - Play"
     PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo, content)
     playContent = true
 
@@ -931,23 +950,30 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
 
     m.videoPlayer.content = content
 
-    if(adsEnabled)
+        if(adsEnabled AND (not screen.videoPlayerVisible = false))
       is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
       no_ads = (m.global.swaf and is_subscribed)
+
+            print "--------------------------------------------------------------------------10"
       ads = video_service.PrepareAds(playerInfo, no_ads)
 
       if playerInfo.on_Air = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
       m.loadingIndicator.control = "stop"
 
+            print "--------------------------------------------------------------------------11"
+
       ' preroll ad
       if ads.preroll <> invalid
         playContent = m.raf_service.playAds(playerInfo.video, ads.preroll.url)
       end if
+            print "--------------------------------------------------------------------------12"
     end if
 
     ' Start playing video
-    if playContent then
+        if playContent AND (not screen.videoPlayerVisible = false) then
       m.loadingIndicator.control = "stop"
+
+            print "--------------------------------------------------------------------------13"
       print "[Main] Playing video"
 
       ' if live stream, set position at end of stream
@@ -961,7 +987,9 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       end if
 
       m.videoPlayer.visible = true
-      if screen.hasField("videoPlayerVisible") then screen.videoPlayerVisible = true
+
+            print "--------------------------------------------------------------------------14"
+            ' if screen.hasField("videoPlayerVisible") then screen.videoPlayerVisible = true
 
       if m.LoadingScreen.visible = true
         EndLoader(screen)
@@ -973,6 +1001,8 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
             m.videoPlayer.seek=m.videoPlayer.seek
         end if
       end if
+
+            print "--------------------------------------------------------------------------15"
       m.videoPlayer.control = "play"
       m.videoPlayer.setFocus(true)
 
@@ -980,12 +1010,22 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
         print "seeking live time"
         m.videoPlayer.seek = 100000000000
       end if
-
+            print "--------------------------------------------------------------------------16"
     else
+            print "--------------------------------------------------------------------------17 - Close"
       CloseVideoPlayer(screen)
+            if m.LoadingScreen.visible = true
+              EndLoader(screen)
+            end if
       m.currentVideoInfo = invalid
     end if ' end of if playContent
   end if
+  
+  if m.LoadingScreen.visible = true
+    EndLoader(screen)
+  end if
+  m.loadingIndicator.control = "stop"
+  print "------------------------------------LAST---------------------------------------- : screen.videoPlayerVisible : " screen.videoPlayerVisible
 end sub
 
 sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo, content = invalid)
