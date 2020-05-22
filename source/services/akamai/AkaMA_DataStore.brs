@@ -3,27 +3,27 @@
 ' can send beacons
 
 'Function       :   AkaMA_createDataStore
-'Params         :   dataStoreParams. initialization params which will initialize 
+'Params         :   dataStoreParams. initialization params which will initialize
 '                   mediaMetricConfig with key value pairs
-'Return         :   Returns newly created data store 
-'Description    :   creates and maintains key-value pairs of dimensions + metrics. 
+'Return         :   Returns newly created data store
+'Description    :   creates and maintains key-value pairs of dimensions + metrics.
 '                   Provides set of functions for operations on dataStore
 '
 function AkaMA_createDataStore()
 dataStore = {
     ' mediaMetrics is a key-value map which will be updated dynamically
     mediaMetrics : CreateObject("roAssociativeArray")
-    
+
     ' mediaMetricsConfig will hold key-value pairs from configuration xml
     mmConfig : CreateObject("roAssociativeArray")
 
     'custom dimensions
     custDimension : CreateObject("roAssociativeArray")
-    
+
 
     'Function       :   initializeConfigMediaMetrics
     'Params         :   XML as object. A parsed xml content (Nothing but roXMLElement)
-    'Return         :   none (UGT:todo -  shall we return error codes) 
+    'Return         :   none (UGT:todo -  shall we return error codes)
     'Description    :   Initialization of media metrics object with configuration xml
     '                   Setting logType, and other initializtion from configuration xml
     initializeConfigMediaMetrics: function(xml as object)
@@ -36,7 +36,10 @@ dataStore = {
             logTypeValue = "R"
         else if m.mmconfig.logTo["logType"] = "cumulative"
             logTypeValue = "C"
-        end if 
+        else
+          	logTypeValue = "R"
+          	print "Saved Crash.........................................AkaMA_DataStore.brs(42)........................"
+        end if
         print "logTypeValue is = ";logTypeValue
         updateParams = {
                         logType         :   logTypeValue
@@ -45,10 +48,10 @@ dataStore = {
                        }
          m.addUdpateMediaMetrics(updateParams)
     end function
-        
+
     'Function       :   addUdpateMediaMetrics
-    'Params         :   updatedValues. key-value pair(s) which needs to be added or updated to media metrics 
-    'Return         :   none (UGT:todo -  shall we return error codes) 
+    'Params         :   updatedValues. key-value pair(s) which needs to be added or updated to media metrics
+    'Return         :   none (UGT:todo -  shall we return error codes)
     'Description    :   adds / updates values in media metrics array. Iterates through supplied
     '                   key-value pairs and adds/updates them in media metrics
     '                   Note if key is already there it will be over-writen with new values
@@ -57,10 +60,10 @@ dataStore = {
             m.mediaMetrics.AddReplace(key, updatedValues[key])
         next
     end function
-    
+
     'Function       :   addUdpateCustomMetrics
-    'Params         :   updatedValues. key-value pair(s) which needs to be added or updated 
-    'Return         :   none (UGT:todo -  shall we return error codes) 
+    'Params         :   updatedValues. key-value pair(s) which needs to be added or updated
+    'Return         :   none (UGT:todo -  shall we return error codes)
     'Description    :   adds / updates values in custom media metrics array. Iterates through supplied
     '                   key-value pairs and adds/updates them in custom metrics
     addUdpateCustomMetrics: function(updatedValues)
@@ -70,8 +73,8 @@ dataStore = {
     end function
 
     'Function       :   deleteIfExist
-    'Params         :   key which needs to be deleted from media metrics 
-    'Return         :   none (UGT:todo -  shall we return error codes) 
+    'Params         :   key which needs to be deleted from media metrics
+    'Return         :   none (UGT:todo -  shall we return error codes)
     'Description    :   deletes values in media metrics array if it is exist
     deleteIfExist: function(key)
         if m.mediaMetrics.DoesExist(key)
@@ -133,8 +136,8 @@ dataStore = {
     'Function       :   getILinedataAsString
     'Params         :   None
     'Return         :   Returns I line data as a string. String should have encoded key-value pairs
-    '                   separated by a separator 
-    'Description    :   This function constructs string from dimensions and metrics wchich will be sent 
+    '                   separated by a separator
+    'Description    :   This function constructs string from dimensions and metrics wchich will be sent
     '                   as part of I line beacon
     getILinedataAsString : function() as string
         m.populateCustomeDimensions()
@@ -153,9 +156,9 @@ dataStore = {
                 iLineData = iLineData + "="
                 iLineData.ifstringops.AppendString(m.getEncodedString(m.mediaMetrics[key]), m.getEncodedString(m.mediaMetrics[key]).len())
                 iLineData = iLineData + "~"
-            endif 
+            endif
         next
-         
+
         isPresent = m.isHTTPPresent(m.mmconfig.logTo["host"])
         if isPresent = true
             iBeaconURL = box("")
@@ -164,20 +167,20 @@ dataStore = {
         endif
         iBeaconURL.ifstringops.AppendString(m.mmconfig.logTo["host"], m.mmconfig.logTo["host"].Len())
         iBeaconURL.ifstringops.AppendString(m.mmconfig.logTo["path"], m.mmconfig.logTo["path"].Len())
-        iBeaconURL = iBeaconURL + "?" + iLineData'm.getEncodedString(iLineData) 
+        iBeaconURL = iBeaconURL + "?" + iLineData'm.getEncodedString(iLineData)
         return iBeaconURL.Left(Len(iBeaconURL)-1)
     end function
-    
+
     'Function       :   getSLinedataAsString
     'Params         :   None
     'Return         :   Returns S line data as a string. String should have encoded key-value pairs
-    '                   separated by a separator 
-    'Description    :   This function constructs string from dimensions and metrics wchich will be sent 
+    '                   separated by a separator
+    'Description    :   This function constructs string from dimensions and metrics wchich will be sent
     '                   as part of S line beacon
     getSLinedataAsString : function() as string
         m.populateCustomeDimensions()
         sLineData = box("a=S~")
-        sLineData = sLineData + "b=" + m.mmconfig.beaconId + "~" + "az=" + m.mmconfig.beaconVersion + "~" 
+        sLineData = sLineData + "b=" + m.mmconfig.beaconId + "~" + "az=" + m.mmconfig.beaconVersion + "~"
         sLineData = sLineData + m.fillupCommonMetrics()
         for each key in m.mmconfig.mmBeaconMetric.playStartMetrics
         if m.mediaMetrics[key] <> invalid
@@ -186,7 +189,7 @@ dataStore = {
             sLineData = sLineData + "="
             sLineData.ifstringops.AppendString(m.getEncodedString(m.mediaMetrics[key]), m.getEncodedString(m.mediaMetrics[key]).len())
             sLineData = sLineData + "~"
-        Endif     
+        Endif
         next
         isPresent = m.isHTTPPresent(m.mmconfig.logTo["host"])
         if isPresent = true
@@ -194,18 +197,18 @@ dataStore = {
         else
             sBeaconURL = box("http://")
         endif
-       
+
         sBeaconURL.ifstringops.AppendString(m.mmconfig.logTo["host"], m.mmconfig.logTo["host"].Len())
         sBeaconURL.ifstringops.AppendString(m.mmconfig.logTo["path"], m.mmconfig.logTo["path"].Len())
-        sBeaconURL = sBeaconURL + "?" + sLineData 'm.getEncodedString(sLineData) 
+        sBeaconURL = sBeaconURL + "?" + sLineData 'm.getEncodedString(sLineData)
         return sBeaconURL.Left(Len(sBeaconURL)-1)
     end function
 
     'Function       :   getPLinedataAsString
     'Params         :   None
     'Return         :   Returns P line data as a string. String should have encoded key-value pairs
-    '                   separated by a separator 
-    'Description    :   This function constructs string from dimensions and metrics wchich will be sent 
+    '                   separated by a separator
+    'Description    :   This function constructs string from dimensions and metrics wchich will be sent
     '                   as part of P line beacon
     getPLinedataAsString : function() as string
         m.populateCustomeDimensions()
@@ -219,24 +222,24 @@ dataStore = {
                 pLineData = pLineData + "="
                 pLineData.ifstringops.AppendString(m.getEncodedString(m.mediaMetrics[key]), m.getEncodedString(m.mediaMetrics[key]).len())
                 pLineData = pLineData + "~"
-            endif  
+            endif
         next
-                
+
         isPresent = m.isHTTPPresent(m.mmconfig.logTo["host"])
         if isPresent = true
             pBeaconURL = m.mmconfig.logTo["host"] + m.mmconfig.logTo["path"] + "?" + pLineData'm.getEncodedString(pLineData)
         else
             pBeaconURL = "http://" + m.mmconfig.logTo["host"] + m.mmconfig.logTo["path"] + "?" + pLineData'm.getEncodedString(pLineData)
         endif
-        
+
         return pBeaconURL.Left(Len(pBeaconURL)-1)
     end function
 
     'Function       :   getCLinedataAsString
     'Params         :   None
     'Return         :   Returns C line data as a string. String should have encoded key-value pairs
-    '                   separated by a separator 
-    'Description    :   This function constructs string from dimensions and metrics wchich will be sent 
+    '                   separated by a separator
+    'Description    :   This function constructs string from dimensions and metrics wchich will be sent
     '                   as part of C line beacon
     getCLinedataAsString : function() as string
         m.populateCustomeDimensions()
@@ -250,11 +253,11 @@ dataStore = {
                 cLineData = cLineData + "="
                 cLineData.ifstringops.AppendString(m.getEncodedString(m.mediaMetrics[key]), m.getEncodedString(m.mediaMetrics[key]).len())
                 cLineData = cLineData + "~"
-            endif  
+            endif
         next
-        
+
         for each key in m.mmconfig.mmBeaconMetric.playingMetrics
-            if m.mmconfig.mmBeaconMetric.playbackCompletedMetrics.DoesExist(key) = false 
+            if m.mmconfig.mmBeaconMetric.playbackCompletedMetrics.DoesExist(key) = false
                 if m.mediaMetrics[key] <> invalid
                     keyForMetrics = m.getKeyForElement(m.mmconfig.mmBeaconMetric.playingMetrics, key)
                     cLineData.ifstringops.AppendString(keyForMetrics, keyForMetrics.Len())
@@ -262,24 +265,24 @@ dataStore = {
                     cLineData.ifstringops.AppendString(m.getEncodedString(m.mediaMetrics[key]), m.getEncodedString(m.mediaMetrics[key]).len())
                     cLineData = cLineData + "~"
                 endif
-            endif  
+            endif
         next
-        
+
         isPresent = m.isHTTPPresent(m.mmconfig.logTo["host"])
         if isPresent = true
             cBeaconURL = m.mmconfig.logTo["host"] + m.mmconfig.logTo["path"] + "?" + cLineData'm.getEncodedString(cLineData)
         else
             cBeaconURL = "http://" + m.mmconfig.logTo["host"] + m.mmconfig.logTo["path"] + "?" + cLineData 'm.getEncodedString(cLineData)
         endif
-        
+
         return cBeaconURL.Left(Len(cBeaconURL)-1)
     end function
 
     'Function       :   getELinedataAsString
     'Params         :   None
     'Return         :   Returns E line data as a string. String should have encoded key-value pairs
-    '                   separated by a separator 
-    'Description    :   This function constructs string from dimensions and metrics wchich will be sent 
+    '                   separated by a separator
+    'Description    :   This function constructs string from dimensions and metrics wchich will be sent
     '                   as part of E line beacon
     getELinedataAsString : function() as string
         m.populateCustomeDimensions()
@@ -293,24 +296,24 @@ dataStore = {
                 eLineData = eLineData + "="
                 eLineData.ifstringops.AppendString(m.getEncodedString(m.mediaMetrics[key]), m.getEncodedString(m.mediaMetrics[key]).len())
                 eLineData = eLineData + "~"
-            endif  
+            endif
         next
-        
+
         isPresent = m.isHTTPPresent(m.mmconfig.logTo["host"])
         if isPresent = true
             eBeaconURL = m.mmconfig.logTo["host"] + m.mmconfig.logTo["path"] + "?" + eLineData ' m.getEncodedString(eLineData)
         else
             eBeaconURL = "http://" + m.mmconfig.logTo["host"] + m.mmconfig.logTo["path"] + "?" + eLineData 'm.getEncodedString(eLineData)
         endif
-        
+
         return eBeaconURL.Left(Len(eBeaconURL)-1)
     end function
 
     'Function       :   getVLinedataAsString
     'Params         :   None
     'Return         :   Returns V line data as a string. String should have encoded key-value pairs
-    '                   separated by a separator 
-    'Description    :   This function constructs string from dimensions and metrics wchich will be sent 
+    '                   separated by a separator
+    'Description    :   This function constructs string from dimensions and metrics wchich will be sent
     '                   as part of V line beacon
     getVLinedataAsString : function() as string
         m.populateCustomeDimensions()
@@ -324,23 +327,23 @@ dataStore = {
                 vLineData = vLineData + "="
                 vLineData.ifstringops.AppendString(m.getEncodedString(m.mediaMetrics[key]), m.getEncodedString(m.mediaMetrics[key]).len())
                 vLineData = vLineData + "~"
-            endif  
+            endif
         next
-        
+
         isPresent = m.isHTTPPresent(m.mmconfig.logTo["host"])
         if isPresent = true
             vBeaconURL = m.mmconfig.logTo["host"] + m.mmconfig.logTo["path"] + "?" + vLineData 'm.getEncodedString(vLineData)
         else
             vBeaconURL = "http://" + m.mmconfig.logTo["host"] + m.mmconfig.logTo["path"] + "?" + vLineData 'm.getEncodedString(vLineData)
         endif
-        
+
         return vBeaconURL.Left(Len(vBeaconURL)-1)
     end function
-    
+
     'Function       :   fillupCommonMetrics
     'Params         :   None
     'Return         :   Retruns box (string) with common section of xml from common metrics
-    'Description    :   This function reads key-value from commonMetrics and puts it in the string  
+    'Description    :   This function reads key-value from commonMetrics and puts it in the string
     '                   for beacon request
     fillupCommonMetrics : function () as object
         commonData = box("")
@@ -351,59 +354,59 @@ dataStore = {
                 commonData = commonData + "="
                 commonData.ifstringops.AppendString(m.getEncodedString(m.mediaMetrics[key]), m.getEncodedString(m.mediaMetrics[key]).len())
                 commonData = commonData + "~"
-            endif  
+            endif
         next
         return commonData
     end function
-    
+
     'Function       :   populateCustomeDimensions
     'Params         :   None
-    'Return         :   None 
-    'Description    :   This function Populates custome dimensions from custDimenstion dictionary to mediaMetrics dictionary  
+    'Return         :   None
+    'Description    :   This function Populates custome dimensions from custDimenstion dictionary to mediaMetrics dictionary
     populateCustomeDimensions : function ()
         for each key in m.custDimension
             m.mediaMetrics.AddReplace(key, m.custDimension[key])
         next
-        
+
         if m.mediaMetrics.DoesExist("eventName") = false
             if m.mediaMetrics.DoesExist("streamName")
                 m.mediaMetrics.AddReplace("eventName",m.mediaMetrics["streamName"])
             endif
-        endif    
+        endif
         if m.mediaMetrics.DoesExist("title") = false
             if m.mediaMetrics.DoesExist("streamName")
                 m.mediaMetrics.AddReplace("title",m.mediaMetrics["streamName"])
             endif
         endif
     end function
-    
+
     'Function       :   getEncodedString
     'Params         :   inString a string object which needs to be encoded
     'Return         :   returns encoded string
-    'Description    :   This function encodes inString and returns encoded string  
+    'Description    :   This function encodes inString and returns encoded string
     ' getEncodedString:function(inString as string) as string
     getEncodedString:function(inString) as string
         'print "not encoded beacon data = "; inString
-        ue = CreateObject("roURLTransfer")        
+        ue = CreateObject("roURLTransfer")
         'encodedOutString = AkaMA_str8859toutf8(inString)
-        
+
         'Replace ~ with *@*
         replaceTilda = AkaMA_strReplace(inString, "~", "*@*")
         encodedOutString = ue.UrlEncode(replaceTilda)
-        
+
         'encodedOutString = ue.UrlEncode(inString)
         'print "encoded beacon request = "; encodedOutString
         'return AkaMA_strReplace(encodedOutString," ","%20")
         return encodedOutString
-        
+
 '        o = CreateObject("roUrlTransfer")
 '        'encodedOutString = o.UrlEncode(AkaMA_HttpEncode(inString))
 '        'encodedOutString = o.UrlEncode(inString)
 '        encodedOutString = AkaMA_HttpEncode(inString)
 '        'print "encoded beacon request = "; encodedOutString
         return encodedOutString
-    end function 
-   
+    end function
+
     'Function       :   isHTTPPresent
     'Params         :   baseString in which to find if "http://" tag present or absent
     'Return         :   returns true / false based on the presence of http
@@ -412,7 +415,7 @@ dataStore = {
     '                   Needs to be taken care by plugin
     isHTTPPresent:function(baseString as string) as Boolean
     position = instr(1, baseString, "http://")
-    if position = 1 
+    if position = 1
         return true
     else
         position = instr(1, baseString, "https://")
@@ -421,9 +424,9 @@ dataStore = {
         else
             return false
         endif
-    endif       
+    endif
    end function
-    
+
     'Function       :   getKeyForElement
     'Params         :   metrics a media metrics object
     '                   Key : a key for which to get element
@@ -437,7 +440,7 @@ dataStore = {
      else if m.mmconfig.useKey = 1
         return metrics[key].key
      endif
-   end function 
+   end function
 }
 
 return dataStore
@@ -445,10 +448,10 @@ end function
 
 
 'Function       :   mediaMetricsConfig
-'Params         :   configParams. initialization params which will initialize 
+'Params         :   configParams. initialization params which will initialize
 '                   from configuration xml with key value pairs
-'Return         :   Returns newly created configuration media meatrics 
-'Description    :   creates and maintains key-value pairs of configuration media metrics 
+'Return         :   Returns newly created configuration media meatrics
+'Description    :   creates and maintains key-value pairs of configuration media metrics
 '
 'UGT:Todo - do we need configParams and error  in this -- function mediaMetricsConfig(configParams, error)
 function mediaMetricsConfig()
@@ -469,13 +472,13 @@ mmConfig = {
         useKey                          :   0
         securityURLAuthInfo             :   invalid
         securityViewerDiagnosticsInfo   :   invalid
-                
+
         'initialize from configuration xml
         'Function       :   initMetricsWithXMLContents
-        'Params         :   xml parsed xml object 
+        'Params         :   xml parsed xml object
         'Return         :   returns success or error code
-        'Description    :   This function creates and fills up associative arrays from 
-        '                   config xml. This provides more structured representation 
+        'Description    :   This function creates and fills up associative arrays from
+        '                   config xml. This provides more structured representation
         '                   of xml contents and organizes for later use by the plugin
         initMetricsWithXMLContents : function(xml as object) as integer
             if xml = invalid
@@ -484,7 +487,7 @@ mmConfig = {
             AkaMA_createStorageManager().deleteExpiredData()
             m.beaconId = xml.beaconId.getText()
             m.beaconVersion =   xml.beaconVersion.getText()
-            
+
             'Populate logTo values
             element = xml.logTo
             m.logTo.addReplace("logInterval", element@logInterval)
@@ -495,7 +498,7 @@ mmConfig = {
             m.logTo.addReplace("encodedParamSeparator", element@encodedParamSeparator)
             m.logTo.addReplace("heartBeatInterval", element@heartBeatInterval)
             m.logTo.addReplace("visitTimeout", element@visitTimeout)
-            
+
             hostElement = xml.logTo.host
             'print " host = ";hostElement.GetText()
             m.logTo.addReplace("host", hostElement.GetText())
@@ -505,7 +508,7 @@ mmConfig = {
             AkaMA_logger().AkaMA_print("========= Printing logTo key / value ===== ")
             'AkaMA_PrintAnyAA(3, m.logTo)
             AkaMA_logger().AkaMA_print("============End==============")
-            
+
             'Populate key-valud pairs for URL authentication (Security tag)
             securityUrlAuthElement = xml.security.URLAuth1
             if securityUrlAuthElement <> invalid
@@ -516,20 +519,20 @@ mmConfig = {
                 print "========= Printing URL authentication key / value ===== "
                 AkaMA_PrintAnyAA(3, m.securityURLAuthInfo)
                 print "============End=============="
-             end if   
-            
+             end if
+
             'Populate key-valud pairs for viewerdiagnostics (Security tag)
-            securityViewerDiagInfo = xml.security.ViewerDiagnostics 
+            securityViewerDiagInfo = xml.security.ViewerDiagnostics
             if securityViewerDiagInfo <> invalid
-                m.securityViewerDiagnosticsInfo = CreateObject("roAssociativeArray") 
+                m.securityViewerDiagnosticsInfo = CreateObject("roAssociativeArray")
                 m.securityViewerDiagnosticsInfo.addReplace("version", securityViewerDiagInfo.salt@version)
                 m.securityViewerDiagnosticsInfo.addReplace("value", securityViewerDiagInfo.salt@value)
                 m.securityViewerDiagnosticsInfo.addReplace("iterations", securityViewerDiagInfo.salt@iterations)
                 m.securityViewerDiagnosticsInfo.addReplace("bytes", securityViewerDiagInfo.salt@bytes)
-                
+
                 if securityViewerDiagInfo.iterations@value <> invalid
                     m.securityViewerDiagnosticsInfo.addReplace("iterations", securityViewerDiagInfo.iterations@value)
-                end if   
+                end if
                 if securityViewerDiagInfo.bytes@value <> invalid
                     m.securityViewerDiagnosticsInfo.addReplace("bytes", securityViewerDiagInfo.bytes@value)
                 end if
@@ -545,14 +548,14 @@ mmConfig = {
             else if statsElement@useKey = "0"
                 m.useKey = 0
                 print"setting useKey to 0"
-            endif    
+            endif
             for each element in xml.statistics.common.dataMetrics.data
                 m.mmBeaconMetric.commonMetrics.AddReplace(element@name, {key:element@key, value:AkaMA_validstr(element@value)})
             next
             AkaMA_logger().AkaMA_print("========= Printing Common key / value ===== ")
             'AkaMA_PrintAnyAA(3, m.mmBeaconMetric.commonMetrics)
             AkaMA_logger().AkaMA_print("============End==============")
-            
+
             'Populate key-value pairs for init metrics
             m.mmBeaconMetric.initMetrics.AddReplace("eventCode", xml.statistics.init@eventCode)
             for each element in xml.statistics.init.dataMetrics.data
@@ -561,9 +564,9 @@ mmConfig = {
             AkaMA_logger().AkaMA_print("========= Printing init key / value ===== ")
             'AkaMA_PrintAnyAA(3, m.mmBeaconMetric.initMetrics)
             AkaMA_logger().AkaMA_print("============End==============")
-            
+
             'Populate key-value pairs for playStart metrics
-            for each element in xml.statistics.playStart.dataMetrics.data  
+            for each element in xml.statistics.playStart.dataMetrics.data
                 m.mmBeaconMetric.playStartMetrics.AddReplace(element@name, {key:element@key, value:AkaMA_validstr(element@value), expiry:AkaMA_validstr(element@expiry)})
             next
             AkaMA_logger().AkaMA_print("========= Printing Play start key / value ===== ")
@@ -587,7 +590,7 @@ mmConfig = {
             AkaMA_logger().AkaMA_print("========= Printing playback complete key / value ===== ")
             'AkaMA_PrintAnyAA(3, m.mmBeaconMetric.playbackCompletedMetrics)
             AkaMA_logger().AkaMA_print("============End==============")
-            
+
             'Populate key-value pairs for error metrics
             for each element in xml.statistics.error.dataMetrics.data
                 m.mmBeaconMetric.errorMetrics.AddReplace(element@name, {key:element@key, value:AkaMA_validstr(element@value)})
@@ -595,28 +598,28 @@ mmConfig = {
             AkaMA_logger().AkaMA_print("========= Printing error key / value ===== ")
             'AkaMA_PrintAnyAA(3, m.mmBeaconMetric.errorMetrics)
             AkaMA_logger().AkaMA_print("============End==============")
-            
+
             'Populate key-value pairs for visit metrics
             for each element in xml.statistics.visit.dataMetrics.data
                 m.mmBeaconMetric.visitMetrics.AddReplace(element@name, {key:element@key, value:AkaMA_validstr(element@value)})
             next
             AkaMA_logger().AkaMA_print("========= Printing visit key / value ===== ")
             'AkaMA_PrintAnyAA(3, m.mmBeaconMetric.visitMetrics)
-            AkaMA_logger().AkaMA_print("============End==============")    
-            
-            return AkaMAErrors().ERROR_CODES.AKAM_Success        
-        end function        
+            AkaMA_logger().AkaMA_print("============End==============")
+
+            return AkaMAErrors().ERROR_CODES.AKAM_Success
+        end function
 }
 return mmConfig
 end function
 
 
 'Function       :   customDimension
-'Params         :   custDimenstionParams. initialization params which will initialize 
+'Params         :   custDimenstionParams. initialization params which will initialize
 '                   custom dimenstions with key value pairs
 '                   This should be key-value pairs
-'Return         :   Returns newly created custome dimension 
-'Description    :   creates and maintains key-value pairs of custome dimensions 
+'Return         :   Returns newly created custome dimension
+'Description    :   creates and maintains key-value pairs of custome dimensions
 '
 function customDimension(custDimensionParams)
 return {

@@ -1160,21 +1160,24 @@ end function
 function GetFavoritesIDs()
     videoFavs = {}
 
-    if m.global.favorites_via_api = true and m.global.auth.isLoggedIn
+    if m.global.favorites_via_api = true and m.global.auth <> invalid and m.global.auth.isLoggedIn
         user_info = m.current_user.getInfo()
         oauth_info = m.current_user.getOAuth()
 
-        videoFavorites = GetVideoFavorites(user_info._id, {"access_token": oauth_info.access_token, "per_page": "100"})
+        if (user_info <> invalid AND oauth_info <> invalid)
+            videoFavorites = GetVideoFavorites(user_info._id, {"access_token": oauth_info.access_token, "per_page": "100"})
 
-        ' print videoFavorites
-        if videoFavorites <> invalid
-            if videoFavorites.count() > 0
-                for each fav in videoFavorites
-                    videoFavs.AddReplace(fav.video_id, fav._id)
-                end for
+            ' print videoFavorites
+            if videoFavorites <> invalid
+                if videoFavorites.count() > 0
+                    for each fav in videoFavorites
+                        videoFavs.AddReplace(fav.video_id, fav._id)
+                    end for
+                end if
             end if
+        else
+          print "Saved crash.......................--------------------------main.brs(1077)-----------------------------..."
         end if
-
     else
         favorite_ids = m.favorites_storage_service.GetFavoritesIDs()
 
@@ -1191,29 +1194,33 @@ function GetFavoritesContent()
 
     favs = GetFavoritesIDs()
 
-    if m.global.favorites_via_api = true and m.global.auth.isLoggedIn
+    if m.global.favorites_via_api = true and m.global.auth <> invalid and m.global.auth.isLoggedIn
         user_info = m.current_user.getInfo()
         oauth_info = m.current_user.getOAuth()
 
-        videoFavorites = GetVideoFavorites(user_info._id, {"access_token": oauth_info.access_token, "per_page": "100"})
+        if (user_info <> invalid AND oauth_info <> invalid)
+            videoFavorites = GetVideoFavorites(user_info._id, {"access_token": oauth_info.access_token, "per_page": "100"})
 
-        if videoFavorites <> invalid
-            if videoFavorites.count() > 0
-                row = {}
-                row.title = m.global.labels.favorite_screen_label
-                row.ContentList = []
-                video_index = 0
-                for each fav in videoFavorites
-                    vid = GetVideo(fav.video_id)
-                    if vid._id <> invalid and favs.DoesExist(vid._id)
-                        vid.inFavorites = favs.DoesExist(vid._id)
-                        vid.video_index = video_index
-                        row.ContentList.push(CreateVideoObject(vid))
-                        video_index = video_index + 1
-                    end if
-                end for
-                list.push(row)
+            if videoFavorites <> invalid
+                if videoFavorites.count() > 0
+                    row = {}
+                    row.title = m.global.labels.favorite_screen_label
+                    row.ContentList = []
+                    video_index = 0
+                    for each fav in videoFavorites
+                        vid = GetVideo(fav.video_id)
+                        if vid._id <> invalid and favs.DoesExist(vid._id)
+                            vid.inFavorites = favs.DoesExist(vid._id)
+                            vid.video_index = video_index
+                            row.ContentList.push(CreateVideoObject(vid))
+                            video_index = video_index + 1
+                        end if
+                    end for
+                    list.push(row)
+                end if
             end if
+        else
+            print "Saved crash.......................--------------------------main.brs(XXXX)-----------------------------..."
         end if
     else
         if favs.count() > 0
