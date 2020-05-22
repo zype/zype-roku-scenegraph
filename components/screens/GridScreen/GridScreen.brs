@@ -6,6 +6,11 @@ Function Init()
     ? "[GridScreen] Init"
 
     m.scene = m.top.getScene()
+
+    ' Initialize valus'
+    m.value = 0
+    m.index = 0
+    
     m.rowList       =   m.top.findNode("RowList")
     m.description   =   m.top.findNode("Description")
     m.background    =   m.top.findNode("Background")
