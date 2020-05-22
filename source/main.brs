@@ -13,10 +13,41 @@ Function Main (args as Dynamic) as Void
     end if
 End Function
 
-Sub SetHomeScene(contentID = invalid, mediaType = invalid)
+function SetHomeScene(contentID = invalid, mediaType = invalid)
     screen = CreateObject("roSGScreen")
 
     m.app = GetAppConfigs()
+
+    if (m.app <> invalid AND (m.app.count() = 0 OR m.app.theme = invalid OR m.app.theme = ""))
+      m.scene = screen.CreateScene("DummyScene")
+      m.port = CreateObject("roMessagePort")
+      screen.SetMessagePort(m.port)
+      screen.Show()
+      m.scene.observeField("outRequest", m.port)
+      while(true)
+          msg = wait(0, m.port)
+          msgType = type(msg)
+
+          if msgType = "roSGScreenEvent"
+              if msg.isScreenClosed() then return ""
+          else if msgType = "roSGNodeEvent"
+              print "msgType : " msgType
+              print "msg.GetField() : " msg.GetField()
+              ' When The AppManager want to send command back to Main
+              if (msg.GetField() = "outRequest")
+                  request = msg.GetData()
+                  if (request <> invalid)
+                    print "Request : " request
+                      if (request.DoesExist("ExitApp") AND (request.ExitApp = true))
+                          print "ExitApp :  Closing Screen."
+                          screen.close()
+                      end if
+                  end if
+              end if
+          end if
+      end while
+    end if
+
     m.global = screen.getGlobalNode()
 
     m.current_user = CurrentUser()
@@ -726,7 +757,8 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
         screen.Close()
         screen = invalid
     end if
-End Sub
+    return ""
+End function
 
 function goIntoDeviceLinkingFlow() as void
   pin = m.DeviceLinking.findNode("Pin")
