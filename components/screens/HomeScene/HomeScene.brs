@@ -589,7 +589,7 @@ Function OnKeyEvent(key, press) as Boolean
         if key = "OK" then
           ' Search open and RowList item was clicked
           '   - should copy over Search.content to DetailsScreen.content and refocus to DetailsScreen
-          if m.Search.visible = true and m.Search.focusedChild.id = "SearchDetailsScreen"
+          if m.Search.visible = true and m.Search.focusedChild <> invalid and m.Search.focusedChild.id = "SearchDetailsScreen"
             m.detailsScreen.content = m.Search.focusedContent
 
             ' Hide Search
