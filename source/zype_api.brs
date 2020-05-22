@@ -601,7 +601,13 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
     ' print "Video Info video : " info.video
   else
     info.statusCode = response.status
-    info.errorMessage = response.body.message
+    print "response.body-----------------------------------ERROR--------------------------------------------------------------------------------------------------" response.body
+    if (response.body <> invalid AND response.body.message <> invalid)
+	    info.errorMessage = response.body.message
+    else
+      info.errorMessage = "There is some error. Please try after sometime."
+      print "Saved crash.......................--------------------------zype_api.brs(604)-----------------------------..."
+    end if
   end if
 
   return info

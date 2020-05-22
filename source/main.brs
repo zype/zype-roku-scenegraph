@@ -401,11 +401,11 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
         msg = wait(0, m.port)
         msgType = type(msg)
 
-        print "msg.getField(): "; msg.getField()
-        print "msg.getData(): "; msg.getData()
-        print "msg.getNode(): "; msg.getNode()
-
         if msgType = "roSGNodeEvent"
+            print "msg.getField(): "; msg.getField()
+            print "msg.getData(): "; msg.getData()
+            print "msg.getNode(): "; msg.getNode()
+
             if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
               RemakeVideoPlayer(m.detailsScreen)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
@@ -432,23 +432,28 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
                             ' Get Playlist object from the platform
 
-                            playlistObject = GetPlaylists({ id: msg.GetData().playlistid })
-                            playlistThumbnailLayout = playlistObject[0].thumbnail_layout
-                            m.gridScreen.content = ParseContent(GetPlaylistsAsRows(msg.GetData().playlistid, playlistThumbnailLayout))
-                            m.gridContent = m.gridScreen.content
-                            rowlist = m.gridScreen.findNode("RowList")
-                            rowlist.rowItemSize = m.playlistsRowItemSizes
-                            rowlist.rowSpacings = m.playlistRowsSpacings
+                            playlists = GetPlaylists({ id: msg.GetData().playlistid })
+                            validPlaylist = (playlists.count() > 0 and playlists[0].active)
+                            if (validPlaylist = true)
+                                playlistThumbnailLayout = playlists[0].thumbnail_layout
+                                m.gridScreen.content = ParseContent(GetPlaylistsAsRows(msg.GetData().playlistid, playlistThumbnailLayout))
+                                m.gridContent = m.gridScreen.content
+                                rowlist = m.gridScreen.findNode("RowList")
+                                rowlist.rowItemSize = m.playlistsRowItemSizes
+                                rowlist.rowSpacings = m.playlistRowsSpacings
 
-                            rowlist.jumpToRowItem = [0,0]
+                                rowlist.jumpToRowItem = [0,0]
 
-                            m.scene.gridContent = m.gridContent
+                                m.scene.gridContent = m.gridContent
 
-                            current_video_list_stack = m.scene.videoliststack
-                            current_video_list_stack.push(m.videosList)
-                            m.scene.videoliststack = current_video_list_stack
+                                current_video_list_stack = m.scene.videoliststack
+                                current_video_list_stack.push(m.videosList)
+                                m.scene.videoliststack = current_video_list_stack
 
-                            m.detailsScreen.videosTree = m.scene.videoliststack.peek()
+                                m.detailsScreen.videosTree = m.scene.videoliststack.peek()
+                            else
+                                print "Saved crash.......................--------------------------main.brs(389)-----------------------------..."
+                            end if
 
                             m.loadingIndicator.control = "stop"
                         end if
@@ -469,26 +474,32 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                 content = m.gridScreen.focusedContent
 
                 ' Get Playlist object from the platform
-                playlistObject = GetPlaylists({ id: content.id })
-                playlistThumbnailLayout = playlistObject[0].thumbnail_layout
 
-                m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
-                m.gridContent = m.gridScreen.content
+                playlists = GetPlaylists({ id: content.id })
+                validPlaylist = (playlists.count() > 0 and playlists[0].active)
 
-                rowlist = m.gridScreen.findNode("RowList")
-                rowlist.rowItemSize = m.playlistsRowItemSizes
-                rowlist.rowSpacings = m.playlistRowsSpacings
+                if (validPlaylist = true)
+                    playlistThumbnailLayout = playlists[0].thumbnail_layout
 
-                rowlist.jumpToRowItem = [0,0]
+                    m.gridScreen.content = ParseContent(GetPlaylistsAsRows(content.id, playlistThumbnailLayout))
+                    m.gridContent = m.gridScreen.content
 
-                m.scene.gridContent = m.gridContent
+                    rowlist = m.gridScreen.findNode("RowList")
+                    rowlist.rowItemSize = m.playlistsRowItemSizes
+                    rowlist.rowSpacings = m.playlistRowsSpacings
 
-                current_video_list_stack = m.scene.videoliststack
-                current_video_list_stack.push(m.videosList)
-                m.scene.videoliststack = current_video_list_stack
+                    rowlist.jumpToRowItem = [0,0]
 
-                m.detailsScreen.videosTree = m.scene.videoliststack.peek()
+                    m.scene.gridContent = m.gridContent
 
+                    current_video_list_stack = m.scene.videoliststack
+                    current_video_list_stack.push(m.videosList)
+                    m.scene.videoliststack = current_video_list_stack
+
+                    m.detailsScreen.videosTree = m.scene.videoliststack.peek()
+                else
+                    print "Saved crash.......................--------------------------main.brs(426)-----------------------------..."
+                end if
                 m.loadingIndicator.control = "stop"
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
                 m.loadingIndicator.control = "start"
@@ -1020,7 +1031,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       m.currentVideoInfo = invalid
     end if ' end of if playContent
   end if
-  
+
   if m.LoadingScreen.visible = true
     EndLoader(screen)
   end if

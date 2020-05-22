@@ -273,7 +273,13 @@ Function OnRowItemSelected()
         rowItemSelected = m.gridScreen.findNode("RowList").rowItemSelected
         m.detailsScreen.PlaylistRowIndex = rowItemSelected[0]
         m.detailsScreen.CurrentVideoIndex = rowItemSelected[1]
-        m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
+
+        if (m.detailsScreen.videosTree[rowItemSelected[0]] <> invalid)
+	         m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
+        else
+            m.detailsScreen.totalVideosCount = 0
+            print "Saved crash.......................--------------------------HomeScene.brs(226)-----------------------------..."
+        end if
 
         m.gridScreen.focusedContent = m.nextVideoNode
 
