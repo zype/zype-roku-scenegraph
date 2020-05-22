@@ -1,7 +1,9 @@
 function init() as void
   m.itemImage = m.top.findNode("itemImage")
   m.itemText=m.top.findNode("itemText")
-  m.itemText.color = m.global.theme.primary_text_color
+  if (m.global.theme <> invalid)
+    m.itemText.color = m.global.theme.primary_text_color
+  end if
 end function
 
 function itemContentChanged() as void

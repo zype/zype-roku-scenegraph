@@ -1403,7 +1403,14 @@ Function GetContent()
 End Function
 
 function GetPlaylistContent(playlist_id as String)
-    pl = GetPlaylists({"id": playlist_id})[0]
+    playlists = GetPlaylists({"id": playlist_id})
+
+    if (playlists = invalid OR playlists.count() = 0)
+      print "Saved crash.......................--------------------------main.brs(1309)-----------------------------..."
+      return []
+    end if
+
+    pl = playlists[0]
 
     favs = GetFavoritesIDs()
 
