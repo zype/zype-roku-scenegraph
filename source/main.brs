@@ -92,6 +92,9 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.scene.backgroundColor=theme.background_color
 
+    inputObject = CreateObject("roInput")
+    inputObject.SetMessagePort(m.port)
+
     screen.SetMessagePort(m.port)
     screen.Show()
 
@@ -286,64 +289,7 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
 
     ' Deep Linking
     if (m.contentID <> invalid)
-
-        if mediaType = "episode" or mediaType = "season"
-          contentIds = DeepLinkingHelpers().parseContentId(m.contentID, "-")
-          ' contentIds should be ["playlistId", "videoId"]
-
-          if contentIds.count() >= 2
-            playlists = GetPlaylists({ id: contentIds[0] })
-            validPlaylist = (playlists.count() > 0 and playlists[0].active)
-
-            linkedVideo = GetVideo(contentIds[1])
-            validVideo = (linkedVideo.DoesExist("_id") and linkedVideo.active = true)
-
-            if validPlaylist
-              playlistVideos = GetPlaylistVideos(playlists[0]._id, {"dpt": "true", "per_page": m.app.per_page})
-
-              index = 0
-              for each video in playlistVideos
-                if video._id = linkedVideo._id
-                    exit for
-                end if
-                index = index + 1
-              end for
-
-              if index < playlistVideos.count() ' was able to find video in playlist videos
-                transitionToNestedPlaylist(contentIds[0], index)
-              else
-                transitionToNestedPlaylist(contentIds[0], 0)
-              end if
-
-              if validVideo and mediatype = "episode"
-                transitionToVideoPlayer(linkedVideo)
-              end if
-            end if
-          end if
-        else if mediaType = "series"
-          playlists = GetPlaylists({ id: m.contentID })
-          valid_playlist = (playlists.count() > 0 and playlists[0].active)
-
-          if valid_playlist
-            transitionToNestedPlaylist(m.contentID)
-          end if
-        else if mediaType <> invalid
-          linkedVideo = GetVideo(m.contentID)
-          ' If m.contentID is for active video
-          if linkedVideo.DoesExist("_id") and linkedVideo.active = true
-            transitionToVideoPlayer(linkedVideo)
-          end if
-        end if
-
-      ' Close loading screen if still visible
-      if m.LoadingScreen.visible = true
-        EndLoader()
-
-        ' Trigger grid screen refocus if visible
-        if m.gridScreen.visible = true
-          m.scene.gridContent = m.scene.gridContent
-        end if
-      end if
+        HandleDeeplinkEvent(m.contentID, mediaType, false)
     end if
 
     if m.contentID = invalid
@@ -401,11 +347,11 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
         msg = wait(0, m.port)
         msgType = type(msg)
 
-        print "msg.getField(): "; msg.getField()
-        print "msg.getData(): "; msg.getData()
-        print "msg.getNode(): "; msg.getNode()
-
         if msgType = "roSGNodeEvent"
+            print "msg.getField(): "; msg.getField()
+            print "msg.getData(): "; msg.getData()
+            print "msg.getNode(): "; msg.getNode()
+
             if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
               RemakeVideoPlayer(m.detailsScreen)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
@@ -705,8 +651,17 @@ Sub SetHomeScene(contentID = invalid, mediaType = invalid)
                   m.favorites_management_service.SetFavoriteIds({})
                 end if
             end if ' end of field checking
-
-        end if ' end of msgType = "roSGNodeEvent"
+            ' end of msgType = "roSGNodeEvent"
+        else if msgType = "roInputEvent" then
+            print "msg : " msg
+            if (msg.isInput() = true) then
+                messageInfo = msg.GetInfo()
+                print "messageInfo : " messageInfo
+                if (messageInfo.contentId <> invalid and messageInfo.mediaType <> invalid) then
+                    HandleDeeplinkEvent(messageInfo.contentId, messageInfo.mediaType, true)
+                end if
+            end if
+        end if
     end while
 
     print "You are exiting the app"
@@ -1020,7 +975,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       m.currentVideoInfo = invalid
     end if ' end of if playContent
   end if
-  
+
   if m.LoadingScreen.visible = true
     EndLoader(screen)
   end if
@@ -2329,5 +2284,79 @@ function SetTextLabels() as void
         end for
 
         m.global.addFields({ labels: labels })
+    end if
+end function
+
+function HandleDeeplinkEvent(contentId as Dynamic, mediaType as Dynamic, isInputEvent as boolean)
+    print "Handle DeeplinkEvent : " isInputEvent
+    m.contentID = contentId
+    mediaType = mediaType
+
+    if (m.contentID <> invalid)
+        if (isInputEvent) then
+            m.loadingIndicator.control = "start"
+        end if
+
+        if mediaType = "episode" or mediaType = "season"
+          contentIds = DeepLinkingHelpers().parseContentId(m.contentID, "-")
+          ' contentIds should be ["playlistId", "videoId"]
+
+          if contentIds.count() >= 2
+            playlists = GetPlaylists({ id: contentIds[0] })
+            validPlaylist = (playlists.count() > 0 and playlists[0].active)
+
+            linkedVideo = GetVideo(contentIds[1])
+            validVideo = (linkedVideo.DoesExist("_id") and linkedVideo.active = true)
+
+            if validPlaylist
+              playlistVideos = GetPlaylistVideos(playlists[0]._id, {"dpt": "true", "per_page": m.app.per_page})
+
+              index = 0
+              for each video in playlistVideos
+                if video._id = linkedVideo._id
+                    exit for
+                end if
+                index = index + 1
+              end for
+
+              if index < playlistVideos.count() ' was able to find video in playlist videos
+                transitionToNestedPlaylist(contentIds[0], index)
+              else
+                transitionToNestedPlaylist(contentIds[0], 0)
+              end if
+
+              if validVideo and mediatype = "episode"
+                transitionToVideoPlayer(linkedVideo)
+              end if
+            end if
+          end if
+        else if mediaType = "series"
+          playlists = GetPlaylists({ id: m.contentID })
+          valid_playlist = (playlists.count() > 0 and playlists[0].active)
+
+          if valid_playlist
+            transitionToNestedPlaylist(m.contentID)
+          end if
+        else if mediaType <> invalid
+          linkedVideo = GetVideo(m.contentID)
+          ' If m.contentID is for active video
+          if linkedVideo.DoesExist("_id") and linkedVideo.active = true
+            transitionToVideoPlayer(linkedVideo)
+          end if
+        end if
+
+      ' Close loading screen if still visible
+      if m.LoadingScreen.visible = true
+        EndLoader()
+
+        ' Trigger grid screen refocus if visible
+        if m.gridScreen.visible = true
+          m.scene.gridContent = m.scene.gridContent
+        end if
+      end if
+
+      if (isInputEvent) then
+          m.loadingIndicator.control = "stop"
+      end if
     end if
 end function
