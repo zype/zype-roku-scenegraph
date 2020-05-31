@@ -534,12 +534,17 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "stop"
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
                 m.loadingIndicator.control = "start"
-
-
                 favorites_content = GetFavoritesContent()
                 m.scene.favoritesContent = ParseContent(favorites_content)
+                hasNoContent = false
 
-                if favorites_content.count() = 0 then m.Favorites.VideoTitleText = m.global.labels.no_favorites_message.replace("{{chr(10)}}", chr(10))
+                print "favorites_content[0].contentlist :: " favorites_content[0].contentlist
+
+                if (favorites_content <> invalid AND favorites_content.count() > 0 and favorites_content[0].contentlist <> invalid and favorites_content[0].contentlist.count() = 0)
+                    hasNoContent = true
+                end if
+
+                if hasNoContent = true then m.Favorites.NoItemsText = m.global.labels.no_favorites_message.replace("{{chr(10)}}", chr(10))
 
                 m.loadingIndicator.control = "stop"
 

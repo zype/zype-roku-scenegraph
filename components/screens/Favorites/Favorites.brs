@@ -7,13 +7,16 @@ Function Init()
 
     m.gridScreen = m.top.findNode("Grid")
     m.gridScreen.content = invalid
+    m.gridScreen.visible = false
     m.detailsScreen = m.top.findNode("FavoritesDetailsScreen")
 
     m.top.observeField("visible", "OnTopVisibilityChange")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
     m.videoTitle = m.top.findNode("VideoTitle")
+    m.NoItems = m.top.findNode("NoItems")
     m.videoTitle.text = ""
+    m.NoItems.text = ""
 
     ' Set theme
     m.AppBackground = m.top.findNode("AppBackground")
@@ -22,8 +25,8 @@ Function Init()
     m.gridScreen.focusBitmapUri = m.global.theme.focus_grid_uri
     m.gridScreen.rowLabelColor = m.global.theme.primary_text_color
 
-    m.videoTitle = m.top.findNode("VideoTitle")
     m.videoTitle.color = m.global.theme.secondary_text_color
+    m.NoItems.color = m.global.theme.secondary_text_color
 
     if (m.global.inline_title_text_display = true)
         m.videoTitle.visible = false
@@ -47,7 +50,20 @@ End Function
 
 sub OnContentChange()
     ? "[Favorites] On Content Change"
-    m.gridScreen.setFocus(true)
+    if (m.top.content <> invalid AND m.top.content.getChild(0) <> invalid)
+
+      print "m.top.content.getChildcount : " m.top.content.getChild(0).getChildcount()
+
+      if (m.top.content.getChild(0).getChildcount() = 0)
+          m.gridScreen.visible = false
+          m.NoItems.setFocus(true)
+      else
+          m.NoItems.text = ""
+          m.gridScreen.visible = true
+          m.gridScreen.setFocus(true)
+      end if
+    end if
+
 end sub
 
 ' handler of focused item in RowList
@@ -72,7 +88,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
             result = true
         else if key = "back"
             ' if Details opened
-            if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false then
+            if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.NoItems.text = "" then
                 itemFocused = m.top.itemFocused
 
                 m.detailsScreen.visible = false
@@ -97,8 +113,12 @@ end function
 
 Sub OnTopVisibilityChange()
     if m.top.visible = true
-        m.gridScreen.visible = true
+        if (m.top.content <> invalid AND m.top.content.getChild(0) <> invalid)
+          if (m.top.content.getChild(0).getChildcount() > 0)
+              m.gridScreen.visible = true
+          end if
+       end if
     else
-        m.videoTitle.text = ""
+        m.NoItems.text = ""
     end if
 End Sub
