@@ -1716,8 +1716,6 @@ function handleButtonEvents(index, screen)
         end if
 
         if login_response <> invalid
-          m.SignInScreen.reset = true
-
           user_info = m.current_user.getInfo()
           m.auth_state_service.updateAuthWithUserInfo(user_info)
 
@@ -1731,6 +1729,12 @@ function handleButtonEvents(index, screen)
 
           sleep(500)
           m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+
+          print "Calling Reset------------------------------------------------"
+          m.SignInScreen.reset = true
+          m.RegistrationScreen.reset = true
+          m.RegistrationScreen.isRegister = true
+          m.SignUpScreen.reset = true
         else
           sleep(500)
           m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not find user with that email and password.", ["Close"])

@@ -71,6 +71,9 @@ function resetCallback() as void
       email: m.top.email,
       password: m.top.password
     })
+    m.inputs.setFocus(true)
+    m.inputs.jumpToRowItem = [1,0]
+    m.inputs.jumpToRowItem = [0,0]
   end if
 end function
 
