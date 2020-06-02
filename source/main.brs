@@ -536,12 +536,10 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.loadingIndicator.control = "start"
                 favorites_content = GetFavoritesContent()
                 m.scene.favoritesContent = ParseContent(favorites_content)
-                hasNoContent = false
+                hasNoContent = true
 
-                print "favorites_content[0].contentlist :: " favorites_content[0].contentlist
-
-                if (favorites_content <> invalid AND favorites_content.count() > 0 and favorites_content[0].contentlist <> invalid and favorites_content[0].contentlist.count() = 0)
-                    hasNoContent = true
+                if (favorites_content <> invalid AND favorites_content.count() > 0 and favorites_content[0].contentlist <> invalid and favorites_content[0].contentlist.count() > 0)
+                    hasNoContent = false
                 end if
 
                 if hasNoContent = true then m.Favorites.NoItemsText = m.global.labels.no_favorites_message.replace("{{chr(10)}}", chr(10))
