@@ -40,7 +40,7 @@ function onInputFocus() as void
 end function
 
 function setInputRules() as void
-  if m.top.name = "password" then m.input_box.secure = true
+  if m.top.name = "password" then m.input_box.secureMode = true
 end function
 
 function helpers() as object

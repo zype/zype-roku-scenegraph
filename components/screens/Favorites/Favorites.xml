@@ -26,6 +26,9 @@
         <!-- Alias to Results Video Title Text label -->
         <field id="VideoTitleText"  type="string" alias="VideoTitle.text"/>
 
+        <!-- Alias to Results Video Title Text label -->
+        <field id="NoItemsText"  type="string" alias="NoItems.text"/>
+
         <field id="isLoggedIn" type="bool" />
     </interface>
 
@@ -75,6 +78,17 @@
             translation="[20,460]">
             <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20" />
         </Label>
+
+        <Label
+            id="NoItems"
+            color="0xa8a8a8"
+            width="1240"
+            horizAlign="center"
+            text="" wrap="true" maxLines="2"
+            translation="[20,460]">
+            <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20" />
+        </Label>
+
 
         <!-- Overhang logo -->
         <Poster

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!--
+    main node which handles home screen children
+    -->
+<component name="DummyScene" extends="Scene" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+
+    <interface>
+          <field id="outRequest" type="AssocArray"/>
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/HomeScene/DummyScene.brs" />
+    <children>
+        <!-- Font for loading indicator -->
+        <Rectangle color="#000000" width="1920" height="1080">
+            <Poster
+               id="PosterOverhang"
+               translation="[0, 0]"
+               loadwidth="1920"
+               loadheight="1080"
+               loadDisplayMode="scaleToFit"
+               uri="pkg:/images/custom_splash_background.jpg" />
+
+            <Label text = "We’re sorry, but we’re having trouble communicating with the server. Please close the app and try again." horizAlign="center" translation="[240,300]" width="800" wrap="true" maxlines="2" linespacing="0">
+              <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="24"/>
+            </Label>
+
+            <Poster uri="pkg:/images/lock_background.9.png" width="90" height="48" translation="[595,400]">
+                <Label text = "OK" horizAlign="center" vertAlign="center" width="90" height="48" color="#000000">
+                  <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="24"/>
+                </Label>
+            </Poster>
+      </Rectangle>
+    </children>
+</component>
