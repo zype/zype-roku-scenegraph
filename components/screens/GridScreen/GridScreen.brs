@@ -10,7 +10,7 @@ Function Init()
     ' Initialize valus'
     m.value = 0
     m.index = 0
-    
+
     m.rowList       =   m.top.findNode("RowList")
     m.description   =   m.top.findNode("Description")
     m.background    =   m.top.findNode("Background")
@@ -121,6 +121,11 @@ Sub OnVideoPlayerStateChange()
     if (isSendEvent = true)
         scene = m.top.getScene()
         scene.segmentEvent = GetSegmentVideoEventInfo(m.top.videoPlayer.state)
+    end if
+
+    if ((m.top.videoPlayer.state = "finished" OR m.top.videoPlayer.state = "error") and live = false)
+        print "==========> Closing player : " m.top.videoPlayer.state
+        ClosePlayerAndFocusAvailableGrid()
     end if
 End Sub
 
@@ -449,21 +454,25 @@ Sub changeSliderImage()
   end if
 ENd SUb
 
+sub ClosePlayerAndFocusAvailableGrid()
+    m.top.videoPlayer.control = "stop"
+    m.tVideoHeartBeatTimer.control = "stop"
+    m.top.videoPlayer.visible = false
+    if m.top.heroCarouselShow=true
+        m.sliderButton.setFocus(true)
+    else
+        m.rowList.setFocus(true)
+    end if
+end sub
+
 function onKeyEvent(key as String, press as Boolean) as Boolean
     result = false
     if press then
         if key="back"
           m.top.getScene().autoplaytimer = 2
           if (m.top.videoPlayer.visible = true)
-            m.top.videoPlayer.control = "stop"
-            m.tVideoHeartBeatTimer.control = "stop"
-            m.top.videoPlayer.visible = false
-            if m.top.heroCarouselShow=true
-                m.sliderButton.setFocus(true)
-            else
-                m.rowList.setFocus(true)
-            end if
-            result=true
+              ClosePlayerAndFocusAvailableGrid()
+              result=true
           end if
         else if key="down"
            if m.sliderButton.hasFocus()
