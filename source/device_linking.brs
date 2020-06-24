@@ -1,7 +1,7 @@
 ' generate unique device id
 function GenerateUdid() as String
     di = CreateObject("roDeviceInfo")
-    return di.GetDeviceUniqueId() + di.GetRandomUUID()
+    return di.GetChannelClientid() + di.GetRandomUUID()
 end function
 
 ' has udid in the registry

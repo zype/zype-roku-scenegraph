@@ -862,13 +862,15 @@ function getAuth(content)
   if consumer._id <> invalid and consumer._id <> ""
     oauth = m.current_user.getOAuth()
     if content <> invalid and IsEntitled(content.id, {access_token: oauth.access_token})
-      auth = {"access_token": oauth.access_token, "uuid": di.GetDeviceUniqueId()}
+      auth = {"access_token": oauth.access_token, "uuid": di.GetChannelClientid()}
     else
-      auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
+      auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetChannelClientid()}
     end if
   else
-    auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetDeviceUniqueId()}
+    auth = {"app_key": GetApiConfigs().app_key, "uuid": di.GetChannelClientid()}
   end if
+
+  print "auth --------------------------------------> " auth
   return auth
 end function
 
