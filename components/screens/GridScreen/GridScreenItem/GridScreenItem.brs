@@ -24,6 +24,7 @@ function itemContentChanged() as void
     if itemData.usePoster
       m.itemImage.loadWidth = 147
       m.itemImage.loadHeight = 262
+      m.itemText.Width = 147
       if itemData.posterThumbnail <> invalid AND itemData.posterThumbnail <> ""
         uriToSet = itemData.posterThumbnail
       else
@@ -32,6 +33,7 @@ function itemContentChanged() as void
     else
       m.itemImage.loadWidth = 262
       m.itemImage.loadHeight = 147
+      m.itemText.Width = 262
       uriToSet = itemData.HDPOSTERURL
     end if
 
@@ -60,6 +62,12 @@ function itemContentChanged() as void
 
     if (m.global.inline_title_text_display = true AND itemData.TITLE <> invalid)
         m.itemText.text = itemData.TITLE
+    end if
+
+    if itemData.usePoster
+        m.itemText.translation = [0,216]
+    else
+        m.itemText.translation = [0,155]
     end if
 
     if(m.statusImage <> invalid AND itemData.ContentType = 4 AND itemData.SubscriptionRequired = true AND m.global.enable_lock_icons = true)

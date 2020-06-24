@@ -16,11 +16,11 @@ REM
 'Function returns:
 ' A playlist as an object
 '******************************************************
-Function CreatePlaylistObject(attrs As Object) As Object
+Function CreatePlaylistObject(attrs As Object, thumbnail_layout as string) As Object
   properties = attrs
   isPoster = false
 
-  if properties.thumbnail_layout = "poster"
+  if thumbnail_layout = "poster"
     isPoster = true
   else
     isPoster = false
@@ -30,13 +30,13 @@ Function CreatePlaylistObject(attrs As Object) As Object
   playlist = {
     id: properties._id,
     title: properties.title,
-    hdposterurl: GetPlaylistThumbnail(properties),
     description: properties.description,
-    hdbackgroundimageurl: GetPlaylistBackgroundImage(properties),
+    hdposterurl: GetVideoThumbnail(properties),
+    hdbackgroundimageurl: GetVideoBackgroundImage(properties),
+    posterThumbnail: GetPosterThumbnail(properties),
     contenttype: "series",
     releasedate: " ",
-    poster: isPoster
-
+    usePoster: isPoster
   }
 
   return playlist
