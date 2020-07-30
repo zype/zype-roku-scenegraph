@@ -59,7 +59,10 @@ function RafService() as object
     ' ***************************************************************************************
     m.raf.setNielsenAppId("P2871BBFF-1A28-44AA-AF68-C7DE4B148C32") ' Use Roku's Nielsen app id. You can swap this out if you have your own
     m.raf.setNielsenProgramId(video_player_info.title)
+
+    print "RAF :: video_player_info.duration :::::::::::::::::::::::::::::::::::::::::::::::::::::: " video_player_info.duration
     m.raf.setContentLength(video_player_info.duration)
+    
     m.raf.setNielsenGenre("GV")
 
     print "===============RAF=================="

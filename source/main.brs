@@ -954,23 +954,31 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
     m.videoPlayer.content = content
 
         if(adsEnabled AND (not screen.videoPlayerVisible = false))
-      is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
-      no_ads = (m.global.swaf and is_subscribed)
+            'As per client's requirement : Set 9999 for Live stream '
+            if (playerInfo.on_Air = true)
+                playerInfo.video.duration = 9999
+            end if
+
+            print "playerInfo.on_Air------------------------> " playerInfo.on_Air
+            print "playerInfo.video.duration ------------------------> " playerInfo.video.duration
+
+            is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
+            no_ads = (m.global.swaf and is_subscribed)
 
             print "--------------------------------------------------------------------------10"
-      ads = video_service.PrepareAds(playerInfo, no_ads)
+            ads = video_service.PrepareAds(playerInfo, no_ads)
 
-      if playerInfo.on_Air = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
-      m.loadingIndicator.control = "stop"
+            if playerInfo.on_Air = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
+            m.loadingIndicator.control = "stop"
 
             print "--------------------------------------------------------------------------11"
 
-      ' preroll ad
-      if ads.preroll <> invalid
-        playContent = m.raf_service.playAds(playerInfo.video, ads.preroll.url)
-      end if
+            ' preroll ad
+            if ads.preroll <> invalid
+              playContent = m.raf_service.playAds(playerInfo.video, ads.preroll.url)
+            end if
             print "--------------------------------------------------------------------------12"
-    end if
+        end if
 
     ' Start playing video
         if playContent AND (not screen.videoPlayerVisible = false) then
