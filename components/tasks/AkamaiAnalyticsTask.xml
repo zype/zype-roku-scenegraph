@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="AkamaiAnalyticsTask" extends="Task" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+
+<interface>
+  <field id="videoElement" type="node" />
+  <field id="beacon" type="string" />
+  <field id="customDimensions" type="assocArray" />
+</interface>
+
+<script type="text/brightscript" >
+<![CDATA[
+
+Function init()
+  m.top.functionName = "loadAnalytics"
+end Function
+
+Function loadAnalytics()
+  print "hello world"
+  akamaiLibrary = roku_malibrary(m.top.beacon)
+  akamaiLibrary.setMediaPlayer(m.top.videoElement, m.top.customDimensions, m.top.beacon)
+
+end Function
+
+]]>
+</script>
+  <script type="text/brightscript" uri="pkg:/source/services/akamai/roku_malibrary.brs"/>
+</component>
