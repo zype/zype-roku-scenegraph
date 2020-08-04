@@ -889,13 +889,6 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
   end if
 
   print "--------------------------------------------------------------------------4"
-  if(playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
-    print "PlayerInfo.analytics: "; playerInfo.analytics
-
-
-  end if
-
-  print "--------------------------------------------------------------------------5"
 
   content.stream = playerInfo.stream
   content.streamFormat = playerInfo.streamFormat
@@ -1007,6 +1000,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
             consumerId: consumer_id
           }
           print "Custom Dimensions: "; cd
+          print "PlayerInfo.analytics: "; playerInfo.analytics
           m.akamai_service.InitializeAkamaiLibrary(cd, playerInfo.analytics.beacon, m.videoPlayer)
           m.akamai_service.StartAkamaiEvents()
       end if

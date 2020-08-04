@@ -15,10 +15,8 @@ Function init()
 end Function
 
 Function loadAnalytics()
-  print "hello world"
   akamaiLibrary = roku_malibrary(m.top.beacon)
   akamaiLibrary.setMediaPlayer(m.top.videoElement, m.top.customDimensions, m.top.beacon)
-
 end Function
 
 ]]>
