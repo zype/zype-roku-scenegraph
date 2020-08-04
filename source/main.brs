@@ -56,49 +56,50 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     '   if m.current_user.isLinked() then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
     ' end if
 
-    store = CreateObject("roChannelStore")
-    storedCreds = store.GetChannelCred()
-    if storedCreds.channelID <> "dev"
-      if storedCreds.json <> invalid and storedCreds.json <> ""
-        data = ParseJSON(storedCreds.json)
-        if data <> invalid and data.channel_data <> invalid and data.channel_data <> ""
-          channelData = ParseJSON(data.channel_data)
-          refreshTokenParams = {
-            "client_id": GetApiConfigs().client_id,
-            "client_secret": GetApiConfigs().client_secret,
-            "refresh_token": channelData.refresh_token,
-            "grant_type": "refresh_token"
-          }
-
-          ' Refresh token and store new oauth tokens
-          refreshTokenResp = RefreshToken(refreshTokenParams)
-          if refreshTokenResp <> invalid
-            RegWriteAccessToken(refreshTokenResp)
-            newCreds = {
-              "access_token": refreshTokenResp.access_token
-              "refresh_token": refreshTokenResp.refresh_token
-            }
-
-            ' Save udid for unlinking device on logout
-            if channelData.udid <> invalid and channelData.udid <> "" and channelData.udid <> "Invalid"
-              newCreds["udid"] = channelData.udid
-              RemoveUdidFromReg()
-              AddUdidToReg(channelData.udid)
-            end if
-
-            store.StoreChannelCredData(FormatJson(newCreds))
-          end if
-        else
-          LogOut()
-          isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
-          if isDeviceLinked <> invalid and isDeviceLinked.linked = true
-            res = UnlinkDevice(isDeviceLinked.consumer_id, isDeviceLinked.pin, {})
-            RemoveUdidFromReg()
-          end if
-          store.StoreChannelCredData("") ' clear out Universal SSO data
-        end if
-      end if
-    end if
+    ' Disabled for now : in future we can enable this when fully supporting SSO'
+    ' store = CreateObject("roChannelStore")
+    ' storedCreds = store.GetChannelCred()
+    ' if storedCreds.channelID <> "dev"
+    '   if storedCreds.json <> invalid and storedCreds.json <> ""
+    '     data = ParseJSON(storedCreds.json)
+    '     if data <> invalid and data.channel_data <> invalid and data.channel_data <> ""
+    '       channelData = ParseJSON(data.channel_data)
+    '       refreshTokenParams = {
+    '         "client_id": GetApiConfigs().client_id,
+    '         "client_secret": GetApiConfigs().client_secret,
+    '         "refresh_token": channelData.refresh_token,
+    '         "grant_type": "refresh_token"
+    '       }
+    '
+    '       ' Refresh token and store new oauth tokens
+    '       refreshTokenResp = RefreshToken(refreshTokenParams)
+    '       if refreshTokenResp <> invalid
+    '         RegWriteAccessToken(refreshTokenResp)
+    '         newCreds = {
+    '           "access_token": refreshTokenResp.access_token
+    '           "refresh_token": refreshTokenResp.refresh_token
+    '         }
+    '
+    '         ' Save udid for unlinking device on logout
+    '         if channelData.udid <> invalid and channelData.udid <> "" and channelData.udid <> "Invalid"
+    '           newCreds["udid"] = channelData.udid
+    '           RemoveUdidFromReg()
+    '           AddUdidToReg(channelData.udid)
+    '         end if
+    '
+    '         store.StoreChannelCredData(FormatJson(newCreds))
+    '       end if
+    '     else
+    '       LogOut()
+    '       isDeviceLinked = IsLinked({"linked_device_id": GetUdidFromReg(), "type": "roku"})
+    '       if isDeviceLinked <> invalid and isDeviceLinked.linked = true
+    '         res = UnlinkDevice(isDeviceLinked.consumer_id, isDeviceLinked.pin, {})
+    '         RemoveUdidFromReg()
+    '       end if
+    '       store.StoreChannelCredData("") ' clear out Universal SSO data
+    '     end if
+    '   end if
+    ' end if
 
     m.favorites_storage_service = FavoritesStorageService()
     m.favorites_management_service = FavoritesManagementService()
