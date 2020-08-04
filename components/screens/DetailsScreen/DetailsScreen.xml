@@ -78,9 +78,12 @@
         <!-- Gradient Balck Overlay -->
         <Poster
             id="thumbOverlay-details"
-            uri="pkg:/images/blackOverlay.png"
             width="1280"
             height="720"
+            Loadwidth="1280"
+            Loadheight="720"
+            loadDisplayMode="scaleToZoom"
+            uri="pkg:/images/blackOverlay.png"
             translation="[0, 0]"
         />
 

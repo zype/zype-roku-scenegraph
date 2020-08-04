@@ -149,11 +149,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     m.native_email_storage =  NativeEmailStorageService()
 
     SetGlobalAuthObject()
-
-    m.AKaMAAnalyticsPlugin = AkaMA_plugin()
     m.akamai_service = AkamaiService()
-
-
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
     m.loadingIndicator = m.scene.findNode("loadingIndicator")
@@ -640,8 +636,6 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
             else if msg.getField() = "state"
                 state = msg.getData()
-                m.akamai_service.handleVideoEvents(state, m.AKaMAAnalyticsPlugin.pluginInstance, m.AKaMAAnalyticsPlugin.sessionTimer, m.AKaMAAnalyticsPlugin.lastHeadPosition)
-
                 if m.scene.focusedChild.id = "DetailsScreen"
                   ' autoplay
                   next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
@@ -650,7 +644,6 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                   end if
                 end if
             else if msg.getField() = "position"
-                m.AKaMAAnalyticsPlugin.lastHeadPosition = m.videoPlayer.position
                 print m.videoPlayer.position
                 if(m.videoPlayer.position >= 30 and m.videoPlayer.content.on_Air = false)
                     AddVideoIdForResumeToReg(m.videoPlayer.content.id,m.videoPlayer.position.ToStr())
@@ -896,26 +889,6 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
   end if
 
   print "--------------------------------------------------------------------------4"
-  if(playerInfo.on_Air <> true AND playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
-    print "PlayerInfo.analytics: "; playerInfo.analytics
-
-    if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
-    if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
-
-    cd = {
-      siteId: playerInfo.analytics.siteid,
-      videoId: playerInfo.analytics.videoid,
-      title: content.title,
-      deviceType: playerInfo.analytics.device,
-      playerId: playerInfo.analytics.playerId,
-      contentLength: content.length,
-      consumerId: consumer_id
-    }
-    print "Custom Dimensions: "; cd
-    m.AKaMAAnalyticsPlugin.pluginMain({configXML: playerInfo.analytics.beacon, customDimensions:cd})
-  end if
-
-  print "--------------------------------------------------------------------------5"
 
   content.stream = playerInfo.stream
   content.streamFormat = playerInfo.streamFormat
@@ -947,7 +920,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
 '    m.VideoPlayer.observeField("position", m.port)
 
     'if screen.id = m.detailsScreen.id  '(content.on_Air <> true) or urlSuffix <> ""
-    if screen.id = m.detailsScreen.id AND (playerInfo.on_Air <> true) '' or urlSuffix <> ""
+    if (screen.id = m.detailsScreen.id) '' or urlSuffix <> ""
       m.VideoPlayer.observeField("state", m.port)
     end if
 
@@ -1011,6 +984,25 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
         if m.videoPlayer.seek>0
             m.videoPlayer.seek=m.videoPlayer.seek
         end if
+      end if
+
+      if(playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
+          if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
+          if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
+
+          cd = {
+            siteId: playerInfo.analytics.siteid,
+            videoId: playerInfo.analytics.videoid,
+            title: content.title,
+            deviceType: playerInfo.analytics.device,
+            playerId: playerInfo.analytics.playerId,
+            contentLength: content.length,
+            consumerId: consumer_id
+          }
+          print "Custom Dimensions: "; cd
+          print "PlayerInfo.analytics: "; playerInfo.analytics
+          m.akamai_service.InitializeAkamaiLibrary(cd, playerInfo.analytics.beacon, m.videoPlayer)
+          m.akamai_service.StartAkamaiEvents()
       end if
 
             print "--------------------------------------------------------------------------15"

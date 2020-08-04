@@ -376,7 +376,10 @@ Sub showHeroCarousel()
     m.slider1=m.top.findNode("slider1")
     m.slider1.Height=m.sliderValuesHome.height
     m.slider1.Width=m.sliderValuesHome.width
-    'm.slider1.loadDisplayMode="scaleToFill"
+    m.slider1.LoadHeight=m.sliderValuesHome.height
+    m.slider1.LoadWidth=m.sliderValuesHome.width
+    m.slider1.loadDisplayMode="scaleToZoom"
+
     m.slider1.translation=m.sliderValuesHome.translation1
     m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
@@ -388,7 +391,9 @@ Sub showHeroCarousel()
     m.slider2=m.top.findNode("slider2")
     m.slider2.Height=m.sliderValuesHome.height
     m.slider2.Width=m.sliderValuesHome.width
-    'm.slider2.loadDisplayMode="scaleToFill"
+    m.slider2.LoadHeight=m.sliderValuesHome.height
+    m.slider2.LoadWidth=m.sliderValuesHome.width
+    m.slider2.loadDisplayMode="scaleToZoom"
     m.slider2.translation=m.sliderValuesHome.translation2
     m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
     m.valueSelection=m.index
@@ -400,7 +405,9 @@ Sub showHeroCarousel()
     m.slider3=m.top.findNode("slider3")
     m.slider3.Height=m.sliderValuesHome.height
     m.slider3.Width=m.sliderValuesHome.width
-   'm.slider3.loadDisplayMode="scaleToFill"
+    m.slider3.LoadHeight=m.sliderValuesHome.height
+    m.slider3.LoadWidth=m.sliderValuesHome.width
+    m.slider3.loadDisplayMode="scaleToZoom"
     m.slider3.translation=m.sliderValuesHome.translation3
     m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
