@@ -508,6 +508,8 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
   info.video = {}
   info.analytics = {}
   info.errorMessages = {}
+  info.squareImageUrl = ""
+  info.squareImageWH = 0
 
   info.statusCode = invalid
 
@@ -537,6 +539,8 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
     info.statusCode = 200
 
     if response.DoesExist("body")
+
+      print "response.body------------> " response.body
 
       if response.body.DoesExist("on_air")
           info.on_air = response.body.on_air
@@ -578,12 +582,26 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
           if output.name = "mp4"
             info.streamFormat = "mp4"
           end if
+
+          if output.name = "mp3"
+            info.streamFormat = "mp3"
+          end if
         end for
       end if
     end if ' end of if body
 
     if response.DoesExist("video")
       video = response.video
+
+      if video.DoesExist("images")
+        for each image in video.images
+          print "image::: " image
+          if (image.title = "square_thumbnail")
+              info.squareImageUrl = image.url
+              info.squareImageWH = image.width
+          end if
+        end for
+      end if
 
       if video.DoesExist("title")
         info.video.title = video.title
@@ -609,6 +627,9 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
       print "Saved crash.......................--------------------------zype_api.brs(604)-----------------------------..."
     end if
   end if
+
+  print "info.squareImageUrl >>>>>>>>>> " info.squareImageUrl
+  print "info.squareImageWH >>>>>>>>>> " info.squareImageWH
 
   return info
 end function

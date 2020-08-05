@@ -82,7 +82,14 @@ end sub
 
 sub StartScaleDownAnimation()
     print "StartScaleDownAnimation----------"
-    m.AudioThumbnailPoster.scale = [0.5, 0.5]
+    if (m.top.squareImageUrl <> "")
+        ' Dont downscale if image is already small'
+        if (m.top.squareImageWH > 350)
+          m.AudioThumbnailPoster.scale = [0.6, 0.6]
+        end if
+    else
+        m.AudioThumbnailPoster.scale = [0.5, 0.5]
+    end if
 end sub
 
 Function initializeVideoPlayer()
@@ -99,15 +106,51 @@ Function initializeVideoPlayer()
   m.AudioThumbnailPoster.id="AudioThumbnailPoster"
   m.AudioThumbnailPoster.height=720
   m.AudioThumbnailPoster.width=1280
+  m.AudioThumbnailPoster.loadheight=720
+  m.AudioThumbnailPoster.loadwidth=1280
   m.AudioThumbnailPoster.scaleRotateCenter = [ 1280/2, 720/2 ]
   m.AudioThumbnailPoster.translation=[0,0]
-  m.AudioThumbnailPoster.loadDisplayMode="scaleToZoom"
+  m.AudioThumbnailPoster.loadDisplayMode="scaleToFit"
   m.AudioThumbnailPoster.visible = false
 
   m.firstTimeVideo = true
   ' Event listener for video player state. Needed to handle video player errors and completion
   m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
 End Function
+
+Function OnSquareImageChanged()
+    if (m.top.squareImageUrl <> invalid and m.top.squareImageUrl <> "")
+      uriToSet = m.top.squareImageUrl
+      if (uriToSet <> invalid AND uriToSet <> "")
+          sha1OfImageUrl = GetEncryptedUrlString(uriToSet)
+          pathObj = CheckAndGetImagePathIfAvailable(sha1OfImageUrl)
+          if (pathObj.foundPath = invalid OR pathObj.foundPath = "")
+              DownloadAudioPosterImage(uriToSet, pathObj.newCachePath, pathObj.newTempPath)
+          else
+              print "squareImageUrl---> found in local"
+              m.top.squareImageUrl = pathObj.foundPath
+          end if
+      end if
+    end if
+End Function
+
+Function DownloadAudioPosterImage(imageUrl as String, newCachePath as String, newTempPath as String)
+
+  print "DownloadAudioPosterImage::::::::::::" imageUrl
+  downloadImageTask = createObject("roSGNode", "DownloadImageTask")
+  downloadImageTask.bAPIStatus = "None"
+  downloadImageTask.imageUrl = imageUrl
+  downloadImageTask.newCachePath = newCachePath
+  downloadImageTask.newTempPath = newTempPath
+  downloadImageTask.observeField("bAPIStatus", "DownloadAudioImageTaskCompleted")
+  downloadImageTask.control = "RUN"
+end Function
+
+Function DownloadAudioImageTaskCompleted(event as Object)
+  task = event.GetRoSGNode()
+  print "FadingBackground : DownloadImageTaskCompleted....................................." task.bAPIStatus
+  task = invalid
+end Function
 
 
 Function ReinitializeVideoPlayer()
@@ -231,6 +274,38 @@ Sub onVideoVisibleChange()
     end if
 End Sub
 
+Sub SetSquareImageForAudioOnly()
+  print "===============================================m.top.videoPlayer.squareImageUrl : " m.top.squareImageUrl
+  print "m.top.videoPlayer.squareImageWH : " m.top.squareImageWH
+
+  m.top.squareImageWH = 350
+  AudioThumbnailPoster = m.top.findNode("AudioThumbnailPoster")
+  if (AudioThumbnailPoster <> invalid AND m.top.squareImageUrl <> "")
+      YSpacing = 72 * 2
+      FinalMaxH = 720 - YSpacing
+      XOffset = 0
+      YOffset = 0
+      FinalWH = m.top.squareImageWH
+      if (m.top.squareImageWH > FinalMaxH)
+        FinalWH = FinalMaxH
+        XOffset = (1280 - FinalMaxH) /2
+        YOffset = YSpacing / 2
+      else
+        XOffset = (1280 - FinalWH) /2
+        YOffset =  (720 - FinalWH) / 2
+      end if
+
+      AudioThumbnailPoster.height=FinalWH
+      AudioThumbnailPoster.width=FinalWH
+      AudioThumbnailPoster.loadheight=FinalWH
+      AudioThumbnailPoster.loadwidth=FinalWH
+      AudioThumbnailPoster.translation=[XOffset,YOffset]
+      AudioThumbnailPoster.scaleRotateCenter = [ FinalWH/2, FinalWH/2 ]
+      AudioThumbnailPoster.loadDisplayMode="scaleToFit"
+      AudioThumbnailPoster.uri = m.top.squareImageUrl
+  end if
+end Sub
+
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
     live = (m.top.videoPlayer.content <> invalid and m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
@@ -241,6 +316,7 @@ Sub OnVideoPlayerStateChange()
     print "m.top.videoPlayer.state : " m.top.videoPlayer.state
 
     if (m.top.videoPlayer.videoFormat = "none")
+        SetSquareImageForAudioOnly()
         m.AudioThumbnailPoster.visible = true
         if (m.top.videoPlayer.state = "playing")
             StartScaleUpAnimation()
@@ -562,6 +638,7 @@ Sub OnContentChange()
     print "detailScreen OnContentChange ====> m.top.content : " m.top.content
     m.top.videoPlayer.content   = m.top.content
     m.background.uri        = m.top.content.hdBackgroundImageUrl
+    m.top.squareImageUrl = ""
     m.AudioThumbnailPoster.uri = m.top.content.hdBackgroundImageUrl
   end if
 End Sub

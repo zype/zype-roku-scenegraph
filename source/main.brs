@@ -925,6 +925,9 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       m.VideoPlayer.observeField("state", m.port)
     end if
 
+    if screen.hasField("squareImageUrl") then screen.squareImageUrl = playerInfo.squareImageUrl
+    if screen.hasField("squareImageWH") then screen.squareImageWH = playerInfo.squareImageWH
+
     m.videoPlayer.content = content
 
         if(adsEnabled AND (not screen.videoPlayerVisible = false))
