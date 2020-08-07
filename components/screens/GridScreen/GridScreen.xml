@@ -52,7 +52,7 @@
 
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/GridScreen/GridScreen.brs" />
-
+    <script type="text/brightscript" uri="pkg:/source/utils.brs" />
 
     <children>
         <Timer id="tVideoHeartBeatTimer" repeat="true"/>
