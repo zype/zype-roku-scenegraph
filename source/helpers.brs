@@ -146,6 +146,11 @@ Function getAdsAppID() as String
     return dev_info.GetChannelClientId()
 End Function
 
+Function getAppUniqueChannelID() as String
+    dev_info = createObject("roDeviceInfo")
+    return dev_info.GetChannelClientId()
+End Function
+
 Function getModel(isWithoutSpaces = false as boolean) as String
     dev_info = createObject("roDeviceInfo")
     devModel = dev_info.GetModel()

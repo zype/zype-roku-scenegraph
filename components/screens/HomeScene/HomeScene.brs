@@ -166,7 +166,7 @@ function GetSegmentAppOpenedOrInstalledEventInfo(isOpened as boolean)
         eventStr = GetSegmentVideoStateEventString("appOpened")
         properties = {
                 "from_background":   false,
-                "referring_application": "Roku" + " " + createObject("roDeviceInfo").getModel(),
+                "referring_application": "Roku" + " " + createObject("roDeviceInfo").getModel() + " - " + getAppUniqueChannelID(),
                 "url": ""
             }
     else
@@ -184,7 +184,7 @@ function GetSegmentAppOpenedOrInstalledEventInfo(isOpened as boolean)
     trackObj = {
         "action": "track",
         "event": eventStr,
-        "userId": "",
+        "userId": getAppUniqueChannelID(), ' for Now we are setting unique ID as we are not using UserID as per requirement'
     }
 
     trackObj.properties = properties
