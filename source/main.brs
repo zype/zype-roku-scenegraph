@@ -206,7 +206,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     end if
 
     m.Menu = m.scene.findNode("Menu")
-    m.Menu.isDeviceLinkingEnabled = m.app.device_linking
+    m.Menu.isRefreshMenu = m.global.marketplace_connect_svod or m.global.auth.isLoggedIn or m.app.device_linking
 
     print "[Main] Init"
 
@@ -1654,7 +1654,8 @@ function handleButtonEvents(index, screen)
 
       ' Reset details screen buttons
       m.detailsScreen.content = m.detailsScreen.content
-
+      m.RegistrationScreen.isSignin = false
+      m.RegistrationScreen.isRegister = true
       sleep(500)
       m.scene.callFunc("CreateDialog",m.scene, "Success", "You have been signed out.", ["Close"])
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
@@ -1800,12 +1801,15 @@ function handleButtonEvents(index, screen)
             EndLoader()
 
             ' HB : MarketPlaceConnect With RegistrationScreen'
-            if m.detailsScreen.itemSelectedRole = "transition" AND m.detailsScreen.itemSelectedTarget = "RegistrationScreen" AND m.global.marketplace_connect_svod = true
+            isSubscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
+            if isSubscribed = false and m.detailsScreen.itemSelectedRole = "transition" AND m.detailsScreen.itemSelectedTarget = "RegistrationScreen" AND m.global.marketplace_connect_svod = true
                 m.scene.transitionTo = "AuthSelection"
             else
             	sleep(500)
             	m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
             end if
+
+            m.Menu.isRefreshMenu = true
           else
             EndLoader()
             m.RegistrationScreen.setFocus(true)

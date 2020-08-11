@@ -21,7 +21,7 @@ End Sub
 Function InitSidebarButtons()
     result = []
     print "[Menu] InitSidebarButtons"
-    print "m.top.isDeviceLinkingEnabled: "; m.top.isDeviceLinkingEnabled
+    print "m.top.isRefreshMenu: "; m.top.isRefreshMenu
     menuButtons = [
         { title: m.global.labels.menu_search_button, role: "transition", target: "Search"},
         { title: m.global.labels.menu_info_button, role: "transition", target: "InfoScreen" }
@@ -31,10 +31,8 @@ Function InitSidebarButtons()
 
     if(m.global.device_linking = true )
         menuButtons.push( { title: m.global.labels.menu_account_button, role: "transition", target: "AccountScreen" } )
-    end if
-
-    if m.global.auth<>invalid
-        if (m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false)
+    else
+        if (m.global.marketplace_connect_svod or (m.global.auth<>invalid and m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false))
             menuButtons.push( { title: m.global.labels.menu_account_button, role: "transition", target: "AccountScreen" } )
         end if
     end if
