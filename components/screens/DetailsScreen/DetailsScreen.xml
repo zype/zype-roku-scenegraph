@@ -55,7 +55,6 @@
 
     <!-- helpers -->
     <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
-    <script type="text/brightscript" uri="pkg:/source/utils.brs" />
     <!-- main handler -->
     <script type="text/brightscript" uri="pkg:/components/screens/DetailsScreen/DetailsScreen.brs" />
 

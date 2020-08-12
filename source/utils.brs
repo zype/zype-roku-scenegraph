@@ -812,22 +812,3 @@ Function GetRandomBool()
         return false
     end if
 End Function
-
-function GetSegmentVideoStateEventString(state as dynamic) as string
-    print "GetSegmentVideoStateEventString ==========================> " state
-    eventStr = ""
-    if (state = "playing")
-        eventStr = "Video Content Started"
-    else if (state = "playingHeartBeat")
-        eventStr = "Video Content Playing"
-    else if (state = "finished")
-        eventStr = "Video Content Completed"
-    else if (state = "appOpened")
-        eventStr = "Application Opened"
-    else if (state = "appInstalled")
-        eventStr = "Application Installed"
-    end if
-
-    print "eventStr : " eventStr
-    return eventStr
-end function
