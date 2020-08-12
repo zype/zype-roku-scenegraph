@@ -97,7 +97,7 @@ FUNCTION roku_malibrary(beaconUrl) as object
     setViewerId:function(vId)
         ue = CreateObject("roURLTransfer")
         'encodedOutString = AkaMA_str8859toutf8(vId)
-        encodedOutString = ue.UrlEncode(vId)
+        encodedOutString = ue.Escape(vId)
         print "encoded viewerId = "; encodedOutString
         'm.viewerId = AkaMA_strReplace(encodedOutString," ","%20")
         m.viewerId = encodedOutString
@@ -106,7 +106,7 @@ FUNCTION roku_malibrary(beaconUrl) as object
     setViewerDiagnosticId:function(vdId)
         ue = CreateObject("roURLTransfer")
         'encodedOutString = AkaMA_str8859toutf8(vdId)
-        encodedOutString = ue.UrlEncode(vdId)
+        encodedOutString = ue.Escape(vdId)
         print "encoded viewerDiagnosticsId = "; encodedOutString
 
         'm.viewerDiagnosticsId = AkaMA_strReplace(encodedOutString," ","%20")
@@ -1985,7 +1985,7 @@ dataStore = {
 
         'Replace ~ with *@*
         replaceTilda = AkaMA_strReplace(inString, "~", "*@*")
-        encodedOutString = ue.UrlEncode(replaceTilda)
+        encodedOutString = ue.Escape(replaceTilda)
 
         'encodedOutString = ue.UrlEncode(inString)
         'print "encoded beacon request = "; encodedOutString
@@ -3952,11 +3952,11 @@ function AkaMA_GUID() as string
     minor = Mid(version, 5, 2)
     build = Mid(version, 8, 5)
     'id3 =  major + minor + build
-    print "Device unique id = ";di.GetDeviceUniqueId()
+    print "Device unique id = ";di.GetChannelClientId()
     print "Device model = "; di.GetModel()
     print "Device version = ";di.GetVersion()
     id3 = box("")
-    id3 = id3 + di.GetDeviceUniqueId() + di.GetModel() + di.GetVersion()
+    id3 = id3 + di.GetChannelClientId() + di.GetModel() + di.GetVersion()
 
     print"id1 = "; id1
     print"id2 = "; id2
@@ -3984,7 +3984,7 @@ end function
 function AkaMA_ClientID() as string
     di = CreateObject("roDeviceInfo")
     digestSrc = CreateObject("roByteArray")
-    digestSrc.FromAsciiString(di.GetDeviceUniqueId())
+    digestSrc.FromAsciiString(di.GetChannelClientId())
     print " digestSrc = "; digestSrc
 
     digest = CreateObject("roEVPDigest")
