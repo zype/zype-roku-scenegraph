@@ -550,19 +550,6 @@ function GetSegmentVideoEventInfo(state as dynamic)
     return trackObj
 end function
 
-function GetSegmentVideoStateEventString(state as dynamic) as string
-    eventStr = ""
-    if (state = "playing")
-        eventStr = "Video Content Started"
-    else if (state = "playingHeartBeat")
-        eventStr = "Video Content Playing"
-    else if (state = "finished")
-        eventStr = "Video Content Completed"
-    end if
-
-    return eventStr
-end function
-
 Sub UpdateContent()
   if (m.top.content <> invalid)
     currentTitle = m.top.content.Title
