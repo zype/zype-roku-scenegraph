@@ -140,10 +140,20 @@ Sub onSegmentEventChanged()
         if (m.global.enable_segment_analytics = true)
             if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
                 if (segmentEventAction = "track")
+                    ' Get ID'
+                    anonymousId = getAdID()
+                    if (anonymousId = "")
+                        ' Try get using channelID'
+                        anonymousId = getAdsAppID()
+                        if (anonymousId = "")
+                            ' Not able to find unique id - Should never occur but its error handling as Segment need atleast one options'
+                            anonymousId = "anonymousId"
+                        end if
+                    end if
                     options = {
-                      ' TODO: Finalize this as it required atleast one item to fill in options'
-                      "anonymousId": "anonymousId"
+                      "anonymousId": anonymousId
                     }
+                    print "options : " options
                     m.library.track(segmentEventString, segmentEventInfo.properties, options)
                 end if
             else
