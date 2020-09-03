@@ -173,6 +173,13 @@ function GetSegmentVideoEventInfo(state as dynamic)
         end if
     end if
 
+    series_id = "null"
+    if (m.top.content.series_id <> invalid)
+        if (type(m.top.content.series_id) = "roString")
+            series_id = m.top.content.series_id
+        end if
+    end if
+
     updated_at = "null"
     if (m.top.content.updated_at <> invalid)
         if (type(m.top.content.updated_at) = "roString")
@@ -231,8 +238,7 @@ function GetSegmentVideoEventInfo(state as dynamic)
             "videoCreatedAt": created_at,
             "videoPublishedAt": published_at,
             "videoUpdatedAt": updated_at,
-
-            "videoFranchise": "null",
+            "videoFranchise": series_id,
             "videoId": m.top.videoPlayer.content.id,
             "videoName": m.top.videoPlayer.content.TITLE,
             "videoSyndicate": "null",

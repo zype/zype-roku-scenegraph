@@ -24,6 +24,7 @@
     <field id="episodeNumber" type="integer" />
     <field id="seasonNumber" type="integer" />
 
+    <field id="series_id" type="string" />
     <field id="created_at" type="string" />
     <field id="published_at" type="string" />
     <field id="updated_at" type="string" />

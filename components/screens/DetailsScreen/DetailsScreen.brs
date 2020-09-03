@@ -455,6 +455,13 @@ function GetSegmentVideoEventInfo(state as dynamic)
         end if
     end if
 
+    series_id = "null"
+    if (m.top.content.series_id <> invalid)
+        if (type(m.top.content.series_id) = "roString")
+            series_id = m.top.content.series_id
+        end if
+    end if
+
     currentPosition = m.top.videoPlayer.position
     if (m.top.videoPlayer.content.on_Air = true)
         ' TODO : Check here DVR case'
@@ -506,8 +513,7 @@ function GetSegmentVideoEventInfo(state as dynamic)
             "videoCreatedAt": created_at,
             "videoPublishedAt": published_at,
             "videoUpdatedAt": updated_at,
-
-            "videoFranchise": "null",
+            "videoFranchise": series_id,
             "videoId": m.top.videoPlayer.content.id,
             "videoName": m.top.videoPlayer.content.TITLE,
             "videoSyndicate": "null",
@@ -582,6 +588,7 @@ Function PrepareVideoPlayer()
         m.top.content.storeProduct = nextVideoObject.storeProduct
         m.top.content.episodeNumber = nextVideoObject.episodeNumber
         m.top.content.seasonNumber = nextVideoObject.seasonNumber
+        m.top.content.series_id = nextVideoObject.series_id
 
         m.top.content.created_at = nextVideoObject.created_at
         m.top.content.published_at = nextVideoObject.published_at

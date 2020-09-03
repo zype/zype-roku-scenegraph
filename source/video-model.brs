@@ -18,7 +18,7 @@ REM
 '******************************************************
 Function CreateVideoObject(attrs As Object) As Object
   properties = attrs
-  ' print "CreateVideoObject : " ' properties
+  ' print "CreateVideoObject : " properties
   ' print "CreateVideoObject.keywords : " ' keywords
   video = {
     stream: {url: ""},
@@ -47,7 +47,7 @@ Function CreateVideoObject(attrs As Object) As Object
     usePoster: properties.usePoster,
     episodeNumber: properties.episode,
     seasonNumber: properties.season,
-
+    series_id: properties.series_id,
     created_at: properties.created_at,
     published_at: properties.published_at,
     updated_at: properties.updated_at,
