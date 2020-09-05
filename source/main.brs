@@ -180,6 +180,8 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     rowlist.rowItemSize = m.playlistsRowItemSizes
     rowlist.rowSpacings = m.playlistRowsSpacings
 
+    m.scene.InitialAutoPlay = false
+
     autoPlayHero = LoadAutoPlayHero()
     'print "autoPlayHero :: " autoPlayHero[0]
     for each item in autoPlayHero
@@ -360,6 +362,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
             content = createObject("RoSGNode","VideoNode")
             content.setFields(linkedVideoObject)
             m.scene.IsShowAutoPlayBackground = false
+            m.scene.InitialAutoPlay = true
             playVideo(m.gridScreen, auth1, m.app.avod, content)
             m.loadingIndicator.control = "stop"
 

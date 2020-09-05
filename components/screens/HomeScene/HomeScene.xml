@@ -68,6 +68,8 @@
 
         <field id="videoliststack" type="array"  />
 
+        <field id="InitialAutoPlay" type="bool"  value="false"/>
+
         <field id="autoplaytimer" type="integer" alwaysnotify="true" onChange="SetAutoPlayTimer" />
 
         <!-- Name of screen to transition to -->

@@ -826,6 +826,20 @@ function GetSegmentVideoStateEventString(state as dynamic) as string
         eventStr = "Application Opened"
     else if (state = "appInstalled")
         eventStr = "Application Installed"
+    else if (state = "paused")
+        eventStr = "Video Playback Paused"
+    else if (state = "resumed")
+        eventStr = "Video Playback Resumed"
+    else if (state = "25PercentPlaybackCompleted")
+        eventStr = "Video Content Completed 25 percent"
+    else if (state = "50PercentPlaybackCompleted")
+        eventStr = "Video Content Completed 50 percent"
+    else if (state = "75PercentPlaybackCompleted")
+        eventStr = "Video Content Completed 75 percent"
+    else if (state = "error")
+        eventStr = "Video Player Error"
+    else if (state = "AutoPlayExit")
+        eventStr = "Exiting Initial Stream to Homepage"
     end if
 
     print "eventStr : " eventStr

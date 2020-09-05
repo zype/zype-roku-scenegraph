@@ -116,6 +116,9 @@ Function initializeVideoPlayer()
   m.firstTimeVideo = true
   ' Event listener for video player state. Needed to handle video player errors and completion
   m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+  m.top.videoPlayer.observeField("position", "OnVideoPlayerPositionChange")
+
+  m.lastVideoPlayerState = "None"
 End Function
 
 Function OnSquareImageChanged()
@@ -306,6 +309,26 @@ Sub SetSquareImageForAudioOnly()
   end if
 end Sub
 
+sub OnVideoPlayerPositionChange()
+
+    twentyFivePercentOffset = (m.top.videoPlayer.content.LENGTH * 25) \ 100
+    fiftyPercentOffset = (m.top.videoPlayer.content.LENGTH * 50) \ 100
+    seventyFivePercentOffset = (m.top.videoPlayer.content.LENGTH * 75) \ 100
+
+    if int(m.top.videoPlayer.position) = twentyFivePercentOffset then
+        scene = m.top.getScene()
+        scene.segmentEvent = GetSegmentVideoEventInfo("25PercentPlaybackCompleted")
+    else if int(m.top.videoPlayer.position) = fiftyPercentOffset then
+        scene = m.top.getScene()
+        scene.segmentEvent = GetSegmentVideoEventInfo("50PercentPlaybackCompleted")
+    else if int(m.top.videoPlayer.position) = seventyFivePercentOffset then
+        scene = m.top.getScene()
+        scene.segmentEvent = GetSegmentVideoEventInfo("75PercentPlaybackCompleted")
+    end if
+
+
+end sub
+
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
     live = (m.top.videoPlayer.content <> invalid and m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
@@ -329,7 +352,7 @@ Sub OnVideoPlayerStateChange()
 
     isSendEvent = false
     ' For Segment Analytics'
-    if m.top.videoPlayer.state = "playing" or m.top.videoPlayer.state = "finished"
+    if m.top.videoPlayer.state = "playing" or m.top.videoPlayer.state = "finished" or m.top.videoPlayer.state = "paused" or m.top.videoPlayer.state = "error"
         if (m.global.enable_segment_analytics = true)
           	if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
                 if (m.top.videoPlayer.state = "playing" AND m.firstTimeVideo = true)
@@ -338,6 +361,13 @@ Sub OnVideoPlayerStateChange()
                     ' Start Timer for sending event periodically'
                     m.tVideoHeartBeatTimer.control = "start"
                 else if (m.top.videoPlayer.state = "finished")
+                    isSendEvent = true
+                else if (m.top.videoPlayer.state = "paused")
+                    m.lastVideoPlayerState = "paused"
+                    isSendEvent = true
+                else if m.top.videoPlayer.state = "playing" and m.lastVideoPlayerState = "paused"
+                    isSendEvent = true
+                else if m.top.videoPlayer.state = "error"
                     isSendEvent = true
                 end if
           	else
@@ -405,6 +435,12 @@ Sub OnVideoPlayerStateChange()
 End Sub
 
 function GetSegmentVideoEventInfo(state as dynamic)
+
+  if state = "playing" and m.lastVideoPlayerState = "paused" then
+      state = "resumed"
+      m.lastVideoPlayerState = "None"
+  end if
+
     eventStr = GetSegmentVideoStateEventString(state)
     app_info = CreateObject("roAppInfo")
     percent = 0
