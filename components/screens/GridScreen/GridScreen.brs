@@ -73,6 +73,7 @@ Function initializeVideoPlayer()
   m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
   m.top.videoPlayer.observeField("position", "OnVideoPlayerPositionChange")
   m.lastVideoPlayerState = "None"
+  m.lastVideoPositionWhenPaused = -1
   m.firstTimeVideo = true
 End Function
 
@@ -92,8 +93,6 @@ sub OnVideoPlayerPositionChange()
         scene = m.top.getScene()
         scene.segmentEvent = GetSegmentVideoEventInfo("75PercentPlaybackCompleted")
     end if
-
-
 end sub
 
 ' event handler of Video player msg
@@ -134,12 +133,13 @@ Sub OnVideoPlayerStateChange()
                     isSendEvent = true
                 else if (m.top.videoPlayer.state = "paused")
                     m.lastVideoPlayerState = "paused"
+                    m.lastVideoPositionWhenPaused = m.top.videoPlayer.position
                     isSendEvent = true
                 else if m.top.videoPlayer.state = "playing" and m.lastVideoPlayerState = "paused"
                     isSendEvent = true
                 else if m.top.videoPlayer.state = "error"
                     isSendEvent = true
-                else if m.top.videoPlayer.state = "stopped" and scene.InitialAutoPlay = true
+                else if m.top.videoPlayer.state = "stopped"
                     isSendEvent = true
                 end if
           	else
@@ -165,7 +165,12 @@ function GetSegmentVideoEventInfo(state as dynamic)
   scene = m.top.getScene()
 
   if state = "playing" and m.lastVideoPlayerState = "paused" then
-      state = "resumed"
+      currentPosition = m.top.videoPlayer.position
+      if m.lastVideoPositionWhenPaused <> -1 and Abs(currentPosition - m.lastVideoPositionWhenPaused) > 5 then
+          state = "SeekCompleted"
+      else
+          state = "resumed"
+      end if
       m.lastVideoPlayerState = "None"
   else if (state = "stopped" or state = "finished") and scene.InitialAutoPlay = true then
       state = "AutoPlayExit"

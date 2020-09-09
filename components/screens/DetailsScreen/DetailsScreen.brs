@@ -119,6 +119,7 @@ Function initializeVideoPlayer()
   m.top.videoPlayer.observeField("position", "OnVideoPlayerPositionChange")
 
   m.lastVideoPlayerState = "None"
+  m.lastVideoPositionWhenPaused = -1
 End Function
 
 Function OnSquareImageChanged()
@@ -352,7 +353,7 @@ Sub OnVideoPlayerStateChange()
 
     isSendEvent = false
     ' For Segment Analytics'
-    if m.top.videoPlayer.state = "playing" or m.top.videoPlayer.state = "finished" or m.top.videoPlayer.state = "paused" or m.top.videoPlayer.state = "error"
+    if m.top.videoPlayer.state = "playing" or m.top.videoPlayer.state = "stopped" or m.top.videoPlayer.state = "finished" or m.top.videoPlayer.state = "paused" or m.top.videoPlayer.state = "error"
         if (m.global.enable_segment_analytics = true)
           	if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
                 if (m.top.videoPlayer.state = "playing" AND m.firstTimeVideo = true)
@@ -364,10 +365,11 @@ Sub OnVideoPlayerStateChange()
                     isSendEvent = true
                 else if (m.top.videoPlayer.state = "paused")
                     m.lastVideoPlayerState = "paused"
+                    m.lastVideoPositionWhenPaused = m.top.videoPlayer.position
                     isSendEvent = true
                 else if m.top.videoPlayer.state = "playing" and m.lastVideoPlayerState = "paused"
                     isSendEvent = true
-                else if m.top.videoPlayer.state = "error"
+                else if m.top.videoPlayer.state = "error" OR m.top.videoPlayer.state = "stopped"
                     isSendEvent = true
                 end if
           	else
@@ -435,9 +437,16 @@ Sub OnVideoPlayerStateChange()
 End Sub
 
 function GetSegmentVideoEventInfo(state as dynamic)
-
+  if (m.top.content = invalid)
+    return invalid
+  end if
   if state = "playing" and m.lastVideoPlayerState = "paused" then
-      state = "resumed"
+      currentPosition = m.top.videoPlayer.position
+      if m.lastVideoPositionWhenPaused <> -1 and Abs(currentPosition - m.lastVideoPositionWhenPaused) > 5 then
+          state = "SeekCompleted"
+      else
+          state = "resumed"
+      end if
       m.lastVideoPlayerState = "None"
   end if
 

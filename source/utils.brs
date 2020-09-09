@@ -814,7 +814,7 @@ Function GetRandomBool()
 End Function
 
 function GetSegmentVideoStateEventString(state as dynamic) as string
-    print "GetSegmentVideoStateEventString ==========================> " state
+    print "GetSegmentVideoStateEventString ================================================================> " state
     eventStr = ""
     if (state = "playing")
         eventStr = "Video Content Started"
@@ -830,6 +830,8 @@ function GetSegmentVideoStateEventString(state as dynamic) as string
         eventStr = "Video Playback Paused"
     else if (state = "resumed")
         eventStr = "Video Playback Resumed"
+    else if (state = "stopped")
+        eventStr = "Video Playback Stopped"
     else if (state = "25PercentPlaybackCompleted")
         eventStr = "Video Content Completed 25 percent"
     else if (state = "50PercentPlaybackCompleted")
@@ -840,6 +842,8 @@ function GetSegmentVideoStateEventString(state as dynamic) as string
         eventStr = "Video Player Error"
     else if (state = "AutoPlayExit")
         eventStr = "Exiting Initial Stream to Homepage"
+    else if (state = "SeekCompleted")
+        eventStr = "Video Playback Seek Completed"
     end if
 
     print "eventStr : " eventStr
