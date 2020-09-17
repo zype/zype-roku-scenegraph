@@ -168,3 +168,8 @@ Function getApplicationID() as String
     appInfo = CreateObject("roAppInfo")
     return appInfo.GetID()
 End Function
+
+Function getAppUniqueChannelID() as String
+    dev_info = createObject("roDeviceInfo")
+    return dev_info.GetChannelClientId()
+End Function
