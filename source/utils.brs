@@ -846,6 +846,6 @@ function GetSegmentVideoStateEventString(state as dynamic) as string
         eventStr = "Video Playback Seek Completed"
     end if
 
-    print "eventStr : " eventStr
+    print "eventStr ====================================================================== : " eventStr
     return eventStr
 end function
