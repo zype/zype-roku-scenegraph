@@ -8,6 +8,7 @@
 
     <!-- Segment Analytics Connector path -->
     <script type="text/brightscript" uri="pkg:/source/analytics/SegmentAnalyticsConnector.brs" />
+    <script type="text/brightscript" uri="pkg:/source/utils.brs" />
 
     <interface>
         <field id="myVideosArray" type="assocArray"  />
@@ -66,6 +67,8 @@
         <field id="TriggerDeviceUnlink" type="bool" />
 
         <field id="videoliststack" type="array"  />
+
+        <field id="InitialAutoPlay" type="bool"  value="false"/>
 
         <field id="autoplaytimer" type="integer" alwaysnotify="true" onChange="SetAutoPlayTimer" />
 

@@ -116,6 +116,10 @@ Function initializeVideoPlayer()
   m.firstTimeVideo = true
   ' Event listener for video player state. Needed to handle video player errors and completion
   m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+  m.top.videoPlayer.observeField("position", "OnVideoPlayerPositionChange")
+
+  m.lastVideoPlayerState = "None"
+  m.lastVideoPositionWhenPaused = -1
 End Function
 
 Function OnSquareImageChanged()
@@ -306,6 +310,26 @@ Sub SetSquareImageForAudioOnly()
   end if
 end Sub
 
+sub OnVideoPlayerPositionChange()
+
+    twentyFivePercentOffset = (m.top.videoPlayer.content.LENGTH * 25) \ 100
+    fiftyPercentOffset = (m.top.videoPlayer.content.LENGTH * 50) \ 100
+    seventyFivePercentOffset = (m.top.videoPlayer.content.LENGTH * 75) \ 100
+
+    if int(m.top.videoPlayer.position) = twentyFivePercentOffset then
+        scene = m.top.getScene()
+        scene.segmentEvent = GetSegmentVideoEventInfo("25PercentPlaybackCompleted")
+    else if int(m.top.videoPlayer.position) = fiftyPercentOffset then
+        scene = m.top.getScene()
+        scene.segmentEvent = GetSegmentVideoEventInfo("50PercentPlaybackCompleted")
+    else if int(m.top.videoPlayer.position) = seventyFivePercentOffset then
+        scene = m.top.getScene()
+        scene.segmentEvent = GetSegmentVideoEventInfo("75PercentPlaybackCompleted")
+    end if
+
+
+end sub
+
 ' event handler of Video player msg
 Sub OnVideoPlayerStateChange()
     live = (m.top.videoPlayer.content <> invalid and m.top.videoPlayer.content.live <> invalid and m.top.videoPlayer.content.live = true)
@@ -329,7 +353,7 @@ Sub OnVideoPlayerStateChange()
 
     isSendEvent = false
     ' For Segment Analytics'
-    if m.top.videoPlayer.state = "playing" or m.top.videoPlayer.state = "finished"
+    if m.top.videoPlayer.state = "playing" or m.top.videoPlayer.state = "stopped" or m.top.videoPlayer.state = "finished" or m.top.videoPlayer.state = "paused" or m.top.videoPlayer.state = "error"
         if (m.global.enable_segment_analytics = true)
           	if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
                 if (m.top.videoPlayer.state = "playing" AND m.firstTimeVideo = true)
@@ -338,6 +362,14 @@ Sub OnVideoPlayerStateChange()
                     ' Start Timer for sending event periodically'
                     m.tVideoHeartBeatTimer.control = "start"
                 else if (m.top.videoPlayer.state = "finished")
+                    isSendEvent = true
+                else if (m.top.videoPlayer.state = "paused")
+                    m.lastVideoPlayerState = "paused"
+                    m.lastVideoPositionWhenPaused = m.top.videoPlayer.position
+                    isSendEvent = true
+                else if m.top.videoPlayer.state = "playing" and m.lastVideoPlayerState = "paused"
+                    isSendEvent = true
+                else if m.top.videoPlayer.state = "error" OR m.top.videoPlayer.state = "stopped"
                     isSendEvent = true
                 end if
           	else
@@ -405,6 +437,19 @@ Sub OnVideoPlayerStateChange()
 End Sub
 
 function GetSegmentVideoEventInfo(state as dynamic)
+  if (m.top.content = invalid)
+    return invalid
+  end if
+  if state = "playing" and m.lastVideoPlayerState = "paused" then
+      currentPosition = m.top.videoPlayer.position
+      if m.lastVideoPositionWhenPaused <> -1 and Abs(currentPosition - m.lastVideoPositionWhenPaused) > 5 then
+          state = "SeekCompleted"
+      else
+          state = "resumed"
+      end if
+      m.lastVideoPlayerState = "None"
+  end if
+
     eventStr = GetSegmentVideoStateEventString(state)
     app_info = CreateObject("roAppInfo")
     percent = 0
@@ -452,6 +497,13 @@ function GetSegmentVideoEventInfo(state as dynamic)
     if (m.top.content.updated_at <> invalid)
         if (type(m.top.content.updated_at) = "roString")
             updated_at = m.top.content.updated_at
+        end if
+    end if
+
+    series_id = "null"
+    if (m.top.content.series_id <> invalid)
+        if (type(m.top.content.series_id) = "roString")
+            series_id = m.top.content.series_id
         end if
     end if
 
@@ -506,8 +558,7 @@ function GetSegmentVideoEventInfo(state as dynamic)
             "videoCreatedAt": created_at,
             "videoPublishedAt": published_at,
             "videoUpdatedAt": updated_at,
-
-            "videoFranchise": "null",
+            "videoFranchise": series_id,
             "videoId": m.top.videoPlayer.content.id,
             "videoName": m.top.videoPlayer.content.TITLE,
             "videoSyndicate": "null",
@@ -550,19 +601,6 @@ function GetSegmentVideoEventInfo(state as dynamic)
     return trackObj
 end function
 
-function GetSegmentVideoStateEventString(state as dynamic) as string
-    eventStr = ""
-    if (state = "playing")
-        eventStr = "Video Content Started"
-    else if (state = "playingHeartBeat")
-        eventStr = "Video Content Playing"
-    else if (state = "finished")
-        eventStr = "Video Content Completed"
-    end if
-
-    return eventStr
-end function
-
 Sub UpdateContent()
   if (m.top.content <> invalid)
     currentTitle = m.top.content.Title
@@ -595,6 +633,7 @@ Function PrepareVideoPlayer()
         m.top.content.storeProduct = nextVideoObject.storeProduct
         m.top.content.episodeNumber = nextVideoObject.episodeNumber
         m.top.content.seasonNumber = nextVideoObject.seasonNumber
+        m.top.content.series_id = nextVideoObject.series_id
 
         m.top.content.created_at = nextVideoObject.created_at
         m.top.content.published_at = nextVideoObject.published_at
