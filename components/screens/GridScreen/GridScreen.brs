@@ -8,8 +8,8 @@ Function Init()
     m.scene = m.top.getScene()
 
     ' Initialize valus'
-    m.value = 0
-    m.index = 0
+    m.currentSliderImageIndex = 0
+    m.totalSliderImages = 0
 
     m.rowList       =   m.top.findNode("RowList")
     m.description   =   m.top.findNode("Description")
@@ -327,6 +327,19 @@ function GetSegmentVideoEventInfo(state as dynamic)
     return trackObj
 end function
 
+function GetSegmentVideoStateEventString(state as dynamic) as string
+    eventStr = ""
+    if (state = "playing")
+        eventStr = "Video Content Started"
+    else if (state = "playingHeartBeat")
+        eventStr = "Video Content Playing"
+    else if (state = "finished")
+        eventStr = "Video Content Completed"
+    end if
+
+    return eventStr
+end function
+
 Function ReinitializeVideoPlayer()
   print "m.top.RemakeVideoPlayer : " m.top.RemakeVideoPlayer
   print "m.top.videoPlayer : " m.top.videoPlayer
@@ -412,21 +425,18 @@ Sub showHeroCarousel()
 
     m.sliderGroup.translation=[0,5]
 
+    m.currentSliderImageIndex = 0
+    m.totalSliderImages = m.top.heroCarouselData.count()
+    print "============================== TotalSliderImages ==============================" m.totalSliderImages
+
     m.slider1=m.top.findNode("slider1")
     m.slider1.Height=m.sliderValuesHome.height
     m.slider1.Width=m.sliderValuesHome.width
     m.slider1.LoadHeight=m.sliderValuesHome.height
     m.slider1.LoadWidth=m.sliderValuesHome.width
     m.slider1.loadDisplayMode="scaleToZoom"
-
     m.slider1.translation=m.sliderValuesHome.translation1
-    m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
-    m.index+=1
-    m.value=m.index
-    if m.top.heroCarouselData[m.index]=invalid
-        m.index=0
-    end if
     m.slider2=m.top.findNode("slider2")
     m.slider2.Height=m.sliderValuesHome.height
     m.slider2.Width=m.sliderValuesHome.width
@@ -434,13 +444,7 @@ Sub showHeroCarousel()
     m.slider2.LoadWidth=m.sliderValuesHome.width
     m.slider2.loadDisplayMode="scaleToZoom"
     m.slider2.translation=m.sliderValuesHome.translation2
-    m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
-    m.valueSelection=m.index
 
-    m.index+=1
-    if m.top.heroCarouselData[m.index]=invalid
-        m.index=0
-    end if
     m.slider3=m.top.findNode("slider3")
     m.slider3.Height=m.sliderValuesHome.height
     m.slider3.Width=m.sliderValuesHome.width
@@ -448,7 +452,6 @@ Sub showHeroCarousel()
     m.slider3.LoadWidth=m.sliderValuesHome.width
     m.slider3.loadDisplayMode="scaleToZoom"
     m.slider3.translation=m.sliderValuesHome.translation3
-    m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
 
     m.sliderFocus=m.top.findNode("sliderFocus")
     m.sliderFocus.uri=m.global.theme.slider_focus
@@ -461,11 +464,55 @@ Sub showHeroCarousel()
     m.sliderTimer=m.top.findNode("sliderTimer")
     m.sliderTimer.control="start"
     m.sliderTimer.ObserveField("fire","changeSliderImage")
+
+    UpdateSliderImages()
 End Sub
 
+sub UpdateSliderImages()
+    if (m.totalSliderImages > 0)
+      print "Center Slider Index ::::::::::::::::::::::::::::::: " m.currentSliderImageIndex
+      if ((m.currentSliderImageIndex - 1) < 0)
+          m.slider1.uri=m.top.heroCarouselData[m.totalSliderImages-1].pictures[0].url
+      else
+          m.slider1.uri=m.top.heroCarouselData[m.currentSliderImageIndex-1].pictures[0].url
+      end if
+
+      m.slider2.uri=m.top.heroCarouselData[m.currentSliderImageIndex].pictures[0].url
+
+      if ((m.currentSliderImageIndex+1 >= m.totalSliderImages))
+          m.slider3.uri=m.top.heroCarouselData[0].pictures[0].url
+      else
+          m.slider3.uri=m.top.heroCarouselData[m.currentSliderImageIndex+1].pictures[0].url
+      end if
+    end if
+end sub
+
+sub ChangeSliderIndex(isRight = false as boolean)
+    if (m.totalSliderImages > 1)
+        if (isRight)
+            m.currentSliderImageIndex = m.currentSliderImageIndex + 1
+        else
+            m.currentSliderImageIndex = m.currentSliderImageIndex - 1
+        end if
+
+        if (m.currentSliderImageIndex >= m.totalSliderImages)
+            m.currentSliderImageIndex = 0
+        else if (m.currentSliderImageIndex < 0)
+            m.currentSliderImageIndex = m.totalSliderImages - 1
+        end if
+
+        UpdateSliderImages()
+
+        if (m.sliderTimer <> invalid)
+          m.sliderTimer.control="stop"
+          m.sliderTimer.control="start"
+        end if
+    end if
+end sub
+
 Sub selectSlider()
-    ?m.top.heroCarouselData[m.valueSelection]
-    m.top.carouselSelectData=m.top.heroCarouselData[m.valueSelection]
+    ? "selectSlider : " m.top.heroCarouselData[m.currentSliderImageIndex]
+    m.top.carouselSelectData=m.top.heroCarouselData[m.currentSliderImageIndex]
 End SUb
 
 SUb moveFocusToheroCarousel()
@@ -478,25 +525,8 @@ End Sub
 Sub changeSliderImage()
   if m.top.visible AND m.top.videoPlayer.visible = false
     print "============================================sliderchange==================================================>"m.index
-    m.value=m.value+1
-    m.index=m.value
-    if m.top.heroCarouselData[m.index]=invalid
-        m.index=0
-    end if
-    m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
-    m.valueSelection=m.index
-    m.value=m.index
-    m.index+=1
-    if m.top.heroCarouselData[m.index]=invalid
-        m.index=0
-    end if
-    m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
-
-    m.index+=1
-    if m.top.heroCarouselData[m.index]=invalid
-        m.index=0
-    end if
-    m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
+    ' Consider this as Right Press when auto timer expired'
+    ChangeSliderIndex(true)
   end if
 ENd SUb
 
@@ -536,62 +566,13 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
             end if
         else if key="right"
             if m.sliderGroup.visible=true
-                m.value=m.value+1
-                m.index=m.value
-                if m.top.heroCarouselData[m.index]=invalid
-                    m.index=0
-                end if
-                m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
-                m.valueSelection=m.index
-                m.value=m.index
-                m.index+=1
-                if m.top.heroCarouselData[m.index]=invalid
-                    m.index=0
-                end if
-                m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
-
-                m.index+=1
-                if m.top.heroCarouselData[m.index]=invalid
-                    m.index=0
-                end if
-                m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
-
+                ChangeSliderIndex(true)
                 result=true
-
-                if (m.sliderTimer <> invalid)
-                  m.sliderTimer.control="stop"
-                  m.sliderTimer.control="start"
-                end if
-
             end if
         else if key="left"
             if m.sliderGroup.visible=true
-                m.value=m.value-1
-                m.index=m.value
-                if m.top.heroCarouselData[m.index]=invalid
-                    m.index=m.top.heroCarouselData.Count()-1
-                end if
-                m.slider2.uri=m.top.heroCarouselData[m.index].pictures[0].url
-                m.valueSelection=m.index
-                m.value=m.index
-                m.index-=1
-                if m.top.heroCarouselData[m.index]=invalid
-                    m.index=m.top.heroCarouselData.Count()-1
-                end if
-                m.slider1.uri=m.top.heroCarouselData[m.index].pictures[0].url
-                m.index-=1
-                if m.top.heroCarouselData[m.index]=invalid
-                    m.index=m.top.heroCarouselData.Count()-1
-                end if
-                m.slider3.uri=m.top.heroCarouselData[m.index].pictures[0].url
-
+                ChangeSliderIndex(false)
                 result=true
-
-                if (m.sliderTimer <> invalid)
-                  m.sliderTimer.control="stop"
-                  m.sliderTimer.control="start"
-                end if
-
             end if
         end if
     end if

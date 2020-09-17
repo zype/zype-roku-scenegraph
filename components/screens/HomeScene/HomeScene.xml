@@ -8,7 +8,6 @@
 
     <!-- Segment Analytics Connector path -->
     <script type="text/brightscript" uri="pkg:/source/analytics/SegmentAnalyticsConnector.brs" />
-    <script type="text/brightscript" uri="pkg:/source/utils.brs" />
 
     <interface>
         <field id="myVideosArray" type="assocArray"  />
