@@ -12,7 +12,8 @@ end function
 function LoadHeroCarousels()
     rawData = GetZObjects({"zobject_type": "top_playlists"})
     if rawData <> invalid AND rawData.Count()>0
-      return rawData
+        rawData.sortby("priority")
+        return rawData
     end if
     return invalid
 end function
