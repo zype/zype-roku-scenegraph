@@ -892,6 +892,15 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       playerInfo.video.video_content_genre = m.global.video_content_genre
   end if
 
+  if (playerInfo.bif <> invalid)
+      content.SDBifUrl = playerInfo.bif.sd
+      content.HDBifUrl = playerInfo.bif.hd
+      content.FHDBifUrl = playerInfo.bif.fhd
+  else
+      content.SDBifUrl = ""
+      content.HDBifUrl = ""
+      content.FHDBifUrl = ""
+  end if
   print "--------------------------------------------------------------------------4"
 
   content.stream = playerInfo.stream
