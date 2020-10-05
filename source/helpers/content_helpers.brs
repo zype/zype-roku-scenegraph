@@ -36,7 +36,9 @@ function ContentHelpers() as object
       content = CreateObject("roSGNode", node_type)
 
       for each key in item
-        content[key] = item[key]
+        if content[key] <> invalid
+          content[key] = item[key]
+        end if
       end for
 
       row.appendChild(content)

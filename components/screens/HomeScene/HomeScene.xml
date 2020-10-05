@@ -52,6 +52,7 @@
 
         <field id="DeepLinkToDetailPage" type="node" onChange="CarouselDeepLinkToDetailPage"/>
 
+        <field id="channelStore" type="node" alwaysNotify="true"/>
 
 
         <field id="SearchString" type="string" alwaysnotify="true" alias="Search.SearchString"/>
@@ -76,6 +77,8 @@
         <field id="transitionTo" type="string" alwaysNotify="true" onChange="transitionToScreen" />
 
         <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
+
+        <field id="setPurchasePlan" type="boolean" alwaysNotify="true" />
 
         <function name="GetPlaylistVideosFunc" />
 
@@ -217,5 +220,9 @@
 
         <!-- Timer to hide autoplay message -->
         <Timer id="autoplayMessageTimer" repeat="false" duration="5" />
+
+        <ChannelStore
+          id="store"
+          fakeServer="false" />
     </children>
 </component>

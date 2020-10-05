@@ -7,6 +7,7 @@
 <component name="AuthSelection" extends="Group" initialFocus="Plans" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
     <interface>
         <field id="plans" type="array" alwaysNotify="true" onChange="SetNativePlans" />
+        <field id="purchasePlans" type="array" alwaysNotify="true" onChange="SetNativePurchasePlans" />
 
         <!-- OAuthButton fields -->
         <field id="itemSelected" type="integer" alias="OAuthButton.itemSelected" alwaysNotify="true" onChange="OnItemSelected" />
@@ -15,7 +16,7 @@
 
         <!-- Plan(s) fields -->
         <field id="planSelected" type="intarray" alias="Plans.rowItemSelected" alwaysNotify="true" onChange="onPlanSelection" />
-        <field id="currentPlanSelected" type="node" />
+        <field id="currentPlanSelected" type="node" alwaysNotify="true" />
     </interface>
 
     <!-- main handler -->
@@ -66,9 +67,9 @@
         translation="[200, 350]"
         numRows="1"
         focusBitmapUri="pkg:/images/focus_grid_light.9.png"
-        itemSize="[880,200]"
+        itemSize="[1000,200]"
         itemSpacing="[0,0]"
-        rowItemSize="[[400,150]]"
+        rowItemSize="[[300,150]]"
         rowItemSpacing="[[40,0]]" />
 
       <Group id="OAuthTransition" translation="[0,570]">

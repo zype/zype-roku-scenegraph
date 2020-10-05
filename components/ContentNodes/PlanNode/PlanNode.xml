@@ -5,10 +5,11 @@
     <field id="code" type="string" />
     <field id="name" type="string" />
     <field id="cost" type="string" />
+    <field id="costValue" type="float" />
     <field id="productType" type="string" />
     <field id="freeTrialQuantity" type="integer" />
     <field id="freeTrialType" type="string" />
-
+    <field id="isPlanSubscribed" type="bool" />
     <field id="zypePlanId" type="string" />
   </interface>
 </component>

@@ -133,6 +133,9 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     m.TestInfoScreen = m.scene.findNode("TestInfoScreen")
 
     m.store = CreateObject("roChannelStore")
+
+    m.channelStore =  m.scene.channelStore
+
     '' m.store.FakeServer(true)
     m.store.SetMessagePort(m.port)
     m.purchasedItems = []
@@ -141,7 +144,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     m.videosList = []
 
     ' Set up services
-    m.roku_store_service = RokuStoreService(m.store, m.port)
+    m.roku_store_service = RokuStoreService(m.store, m.channelStore, m.port)
     m.auth_state_service = AuthStateService()
     m.bifrost_service = BiFrostService()
     m.raf_service = RafService()
@@ -236,10 +239,13 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.scene.videoliststack = [m.videosList]
     m.scene.ObserveField("carouselSelectData",m.port)
+    m.scene.ObserveField("setPurchasePlan",m.port)
+
     m.detailsScreen.videosTree = m.scene.videoliststack.peek()
     m.detailsScreen.autoplay = m.app.autoplay
 
     m.AuthSelection = m.scene.findNode("AuthSelection")
+    m.AccountScreen = m.scene.findNode("AccountScreen")
 
     ' TODO: Add logic here to filter native plans by matching marketplace connect ids
     ' rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans()
@@ -252,14 +258,21 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
       rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans()
       print "rokuPlans : " rokuPlans
-      filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
-      m.AuthSelection.plans = filteredPlans
+
+      m.filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
+      setUpPurchasePlan()
+
     else
       m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
+	  m.AccountScreen.plans = m.roku_store_service.GetNativeSubscriptionPlans()
     end if
 
     m.AuthSelection.observeField("itemSelected", m.port)
-    m.AuthSelection.observeField("planSelected", m.port)
+    m.AuthSelection.observeField("currentPlanSelected", m.port)
+
+    m.AccountScreen.observeField("oAuthItemSelected", m.port)
+    m.AccountScreen.observeField("signInItemSelected", m.port)
+    m.AccountScreen.observeField("currentPlanSelected", m.port)
 
     m.PurchaseScreen = m.scene.findNode("PurchaseScreen")
     m.PurchaseScreen.observeField("itemSelected", m.port)
@@ -293,9 +306,6 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     m.SignUpScreen.helperMessage = m.global.labels.sign_up_helper_message
     m.SignUpScreen.submitButtonText = m.global.labels.sign_up_submit_button
     m.SignUpScreen.observeField("itemSelected", m.port)
-
-    m.AccountScreen = m.scene.findNode("AccountScreen")
-    m.AccountScreen.observeField("itemSelected", m.port)
 
     m.scene.observeField("SearchString", m.port)
 
@@ -388,7 +398,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
               m.akamai_service.setPlayStartedOnce(true)
               playRegularVideo(m.detailsScreen)
-            else if msg.getField()="carouselSelectData"
+            else if msg.getField()="carouselSelectData" then
                 if msg.GetData()<>invalid
                     if msg.GetData().autoplay=invalid or msg.GetData().autoplay=false
                         if msg.GetData().videoid<>invalid
@@ -580,7 +590,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 content = createObject("RoSGNode","VideoNode")
                 content.setFields(msg.getData())
                 playLiveStream(m.epgScreen, content)
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected" then
+            else if ((msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected") then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
@@ -601,8 +611,6 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                     lclScreen = m.SignUpScreen
                 else if msg.getNode() = "RegistrationScreen"
                     lclScreen = m.RegistrationScreen
-                else if msg.getNode() = "AccountScreen"
-                    lclScreen = m.AccountScreen
                 else if msg.getNode() = "PurchaseScreen"
                     lclScreen = m.PurchaseScreen
                 end if
@@ -610,11 +618,20 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 index = msg.getData()
 
                 handleButtonEvents(index, lclscreen)
-
-            else if msg.getNode() = "AuthSelection" and msg.getField() = "planSelected" then
+            else if (msg.getNode() = "AccountScreen" and (msg.getField() = "oAuthItemSelected" or msg.getField() = "signInItemSelected" or msg.getField() = "thankYouOptionSelected"))
+                if msg.getNode() = "AccountScreen"
+                    lclScreen = m.AccountScreen
+                end if
+                index = msg.getData()
+                handleButtonEvents(index, lclscreen)
+            else if (msg.getNode() = "AuthSelection" or msg.getNode() = "AccountScreen") and msg.getField() = "currentPlanSelected" then
               app_info = CreateObject("roAppInfo")
+              SelectedAuthScreen = true
+              if (msg.getNode() = "AccountScreen") then
+                SelectedAuthScreen = false
+              end if
+              plan = msg.GetData()
 
-              plan = m.AuthSelection.currentPlanSelected
               already_purchased = m.roku_store_service.alreadyPurchased(plan.code)
 
               already_purchased_message = "It appears you have already purchased this plan before. If you cancelled your subscription, please renew your subscription on the Roku website. " + chr(10) + chr(10) + "Then you can sign in with your " + app_info.getTitle() + " account."
@@ -623,7 +640,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.scene.callFunc("CreateDialog",m.scene, "Already purchased", already_purchased_message, ["Close"])
               else
                 if m.global.auth.isLoggedIn or (m.global.native_to_universal_subscription = false AND m.global.marketplace_connect_svod <> true) then
-                    handleNativeToUniversal()
+                    handleNativeToUniversal(SelectedAuthScreen)
                 else
                     m.scene.transitionTo = "SignUpScreen"
                 end if
@@ -692,6 +709,8 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                   m.favorites_storage_service.ClearFavorites()
                   m.favorites_management_service.SetFavoriteIds({})
                 end if
+            else if msg.GetField() = "setPurchasePlan" then
+                setUpPurchasePlan()
             end if ' end of field checking
             ' end of msgType = "roSGNodeEvent"
         else if msgType = "roInputEvent" then
@@ -714,6 +733,16 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     end if
     return ""
 End function
+
+function setUpPurchasePlan()
+    rokuPurchasePlans = m.roku_store_service.getPurchases()
+    m.filterPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredPlans, rokuPurchasePlans)
+    print m.filterPurchasePlan[0]
+    m.AuthSelection.plans = m.filteredPlans
+    m.AccountScreen.plans = m.filteredPlans
+    m.AuthSelection.purchasePlans = m.filterPurchasePlan
+    m.AccountScreen.purchasePlans = m.filterPurchasePlan
+end function
 
 function goIntoDeviceLinkingFlow() as void
   pin = m.DeviceLinking.findNode("Pin")
@@ -1641,15 +1670,13 @@ function handleButtonEvents(index, screen)
       pin = GetPin(GetUdidFromReg())
       if user_info.linked then UnlinkDevice(user_info._id, pin, {})
       RemoveUdidFromReg()
-
+      StartLoader()
       LogOut()
       store = CreateObject("roChannelStore")
       store.StoreChannelCredData("") ' clear out Universal SSO data
 
       user_info = m.current_user.getInfo()
       m.auth_state_service.updateAuthWithUserInfo(user_info)
-
-      m.AccountScreen.resetText = true
 
       m.scene.gridContent = m.gridContent
 
@@ -1660,7 +1687,16 @@ function handleButtonEvents(index, screen)
       m.RegistrationScreen.isSignin = false
       m.RegistrationScreen.isRegister = true
       sleep(500)
-      m.scene.callFunc("CreateDialog",m.scene, "Success", "You have been signed out.", ["Close"])
+
+      if m.AccountScreen.itemSelectedRole = "signout" AND m.AccountScreen.itemSelectedTarget = ""
+          EndLoader(m.AccountScreen)
+          m.scene.transitionTo = "AccountScreen"
+      else
+        EndLoader()
+        sleep(500)
+      	m.scene.callFunc("CreateDialog",m.scene, "Success", "You have been signed out.", ["Close"])
+      end if
+
     else if button_role = "submitCredentials" and screen.id = "SignInScreen"
 
       if screen.email = ""
@@ -1672,6 +1708,7 @@ function handleButtonEvents(index, screen)
       else
 
         if screen.email <> "" and screen.password <> ""
+          StartLoader()
           login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
           oauth = RegReadAccessToken()
           if oauth <> invalid
@@ -1700,15 +1737,25 @@ function handleButtonEvents(index, screen)
           ' Reset details screen
           m.detailsScreen.content = m.detailsScreen.content
 
-          sleep(500)
-          m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
 
           print "Calling Reset------------------------------------------------"
           m.SignInScreen.reset = true
           m.RegistrationScreen.reset = true
           m.RegistrationScreen.isRegister = true
           m.SignUpScreen.reset = true
+
+          if m.AccountScreen.itemSelectedRole = "transition" AND m.AccountScreen.itemSelectedTarget = "UniversalAuthSelection"
+              m.scene.transitionTo = "AccountScreen"
+              EndLoader(m.AccountScreen)
+              sleep(500)
+              m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
         else
+            EndLoader()
+            sleep(500)
+            m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+          end if
+        else
+          EndLoader()
           sleep(500)
           m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not find user with that email and password.", ["Close"])
         end if
@@ -1858,8 +1905,6 @@ function handleButtonEvents(index, screen)
           ' Refresh lock icons with grid screen content callback
           m.scene.gridContent = m.gridContent
 
-          m.AccountScreen.resetText = true
-
           ' details screen should update self
           m.detailsScreen.content = m.detailsScreen.content
 
@@ -1883,9 +1928,12 @@ function handleButtonEvents(index, screen)
         m.scene.callFunc("CreateDialog",m.scene, "Error", "There was an error validating your subscription.", ["Close"])
       end if
 
-
+    else if button_role = "transition" and button_target = "DetailsScreen"
+        m.scene.transitionTo = "DetailsScreen"
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
+    else if button_role = "transition" and button_target = "AccountScreen"
+      m.scene.transitionTo = "AccountScreen"
     else if button_role = "transition" and button_target = "SignUpScreen"
       m.scene.transitionTo = "SignUpScreen"
     else if button_role = "transition" and button_target = "PurchaseScreen"
@@ -1918,8 +1966,13 @@ function handleButtonEvents(index, screen)
     end if
 end function
 
-function handleNativeToUniversal() as void
-  m.AuthSelection.visible = false
+function handleNativeToUniversal(authselection = true as boolean) as void
+  if authselection then
+  	m.AuthSelection.visible = false
+  else
+    m.AccountScreen.findNode("confirmPlanGroup").visible = false
+    m.AccountScreen.visible = false
+  end if
   StartLoader()
 
   ' Get updated user info
@@ -1928,8 +1981,15 @@ function handleNativeToUniversal() as void
 
   print "user_info : " user_info
 
-  plan = m.AuthSelection.currentPlanSelected
-
+  if authselection then
+  	plan = m.AuthSelection.currentPlanSelected
+  else
+    plan = m.AccountScreen.currentPlanSelected
+  end if
+  purchaseOrderAction = GetPurchaseOrderAction(m.filterPurchasePlan, plan)
+  purchase_subscription = invalid
+  order_change = invalid
+  if purchaseOrderAction = "" then
   order = [{
     code: plan.code,
     qty: 1
@@ -1938,15 +1998,34 @@ function handleNativeToUniversal() as void
   print "makePurchase-C--For Plan-> " plan.code
   ' Make nsvod purchase
   purchase_subscription = m.roku_store_service.makePurchase(order)
+      subscribePlanFromRoku = m.roku_store_service.getPurchases()
+      print "makePurchase--R--> "  purchase_subscription
+  else
 
-  print "makePurchase--R--> "  purchase_subscription
-  EndLoader()
-  m.AuthSelection.visible = true
-  m.AuthSelection.setFocus(true)
+     myOrder = CreateObject("roSGNode", "ContentNode")
+     myItem = myOrder.createChild("ContentNode")
+     myItem.addFields({ "code": plan.code, "qty": 1})
+     myOrder.action = purchaseOrderAction ' action is Upgrade or Downgrade
+     order_change = m.roku_store_service.orderChange(myOrder)
 
-  if purchase_subscription.success
+     marketplaceParams = {
+       app_id: m.app._id,
+       site_id: m.app.site_id,
+       consumer_id: user_info._id,
+       old_subscription: { id: m.filterPurchasePlan[0].purchaseId , plan_id: m.filterPurchasePlan[0].zypePlanId },
+       new_subscription: { id: order_change.transactionId , plan_id: plan.zypePlanId }
+       action: LCase(purchaseOrderAction),
+     }
+     print " >>>>>>>>>>>> request market "marketplaceParams
+     print " >>>>>>>>>>>> request old_subscription "marketplaceParams.old_subscription
+     print " >>>>>>>>>>>> request new_subscription "marketplaceParams.new_subscription
+     subscribePlanFromRoku = m.roku_store_service.getPurchases()
+
+  end if
+
+  if purchase_subscription <> invalid and purchase_subscription.success
       m.auth_state_service.incrementNativeSubCount()
-
+      setUpPurchasePlan()
       isCheckMarketPlaceConnectSVOD = false
 
       if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
@@ -2045,7 +2124,15 @@ function handleNativeToUniversal() as void
             ' details screen should update self
             m.detailsScreen.content = m.detailsScreen.content
 
-            EndLoader()
+            if authselection then
+              EndLoader()
+            else
+              m.AccountScreen.planSubscribeDetail = subscribePlanFromRoku[0].description
+              EndLoader(m.AccountScreen)
+              m.AccountScreen.planSubscribeSuccess = true
+
+              m.scene.transitionTo = "AccountScreen"
+            end if
 
             sleep(500)
             if (user_info.email <> invalid AND user_info.email <> "")
@@ -2077,9 +2164,131 @@ function handleNativeToUniversal() as void
         m.scene.callFunc("CreateDialog",m.scene, "Success", "Thank you for purchasing the subscription.", ["Dismiss"])
       end if ' end if global.native_to_universal_subscription
 
+  else if order_change <> invalid and order_change.success
+
+      setUpPurchasePlan()
+      if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
+          isCheckMarketPlaceConnectSVOD = true
+      end if
+
+      if m.global.native_to_universal_subscription = true OR isCheckMarketPlaceConnectSVOD = true
+
+        ' Store email used for purchase. For sync subscription later
+        if (user_info.email <> invalid AND user_info.email <> "")
+          m.native_email_storage.DeleteEmail()
+          m.native_email_storage.WriteEmail(user_info.email)
+        end if
+
+        ' Get recent order_change
+        recent_order_change = order_change
+
+        print "recent_order_change====================> " recent_order_change
+
+        ' Check if MarketPlaceConnect SVOD or NOT'
+        if (isCheckMarketPlaceConnectSVOD)
+              print "isCheck MarketPlaceConnectSVOD================================================================================>"
+              print "m.current_user : " m.current_user
+              print "m.current_user.getOAuth() : " m.current_user.getOAuth()
+              print "m.current_user.getInfo() : " m.current_user.getInfo()
+
+              access_token = ""
+              if (m.current_user.getOAuth() <> invalid AND m.current_user.getOAuth().access_token <> invalid)
+                access_token = m.current_user.getOAuth().access_token
+              else
+                access_token = ""
+              end if
+
+              consumer_id = m.current_user.getInfo()._id
+
+              print "access_token : " access_token
+              print "consumer_id : " consumer_id
+
+              print "plan.zypePlanId : " plan.zypePlanId
+              print "m.app._id : " m.app._id
+              print "m.app.site_id : " m.app.site_id
+
+              marketPlaceOrderChangeVerification = m.marketplaceConnect.verifyMarketplaceOrderChange(marketplaceParams)
+              'marketPlaceConnectSVODVerificationStatus = m.marketplaceConnect.verifyMarketplaceSubscription(marketplaceParams)
+              print "======> marketPlaceOrderChangeVerification : ===> " marketPlaceOrderChangeVerification
+        end if
+
+        'isReceiptValidated = true
+        isReceiptValidated = marketPlaceOrderChangeVerification
+
+
+        if isReceiptValidated = true
+            user_info = m.current_user.getInfo()
+
+            ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
+            ' if user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
+            m.auth_state_service.updateAuthWithUserInfo(user_info)
+
+            current_native_plan = m.roku_store_service.latestNativeSubscriptionPurchase()
+            m.auth_state_service.setCurrentNativePlan(current_native_plan)
+
+            ' Refresh lock icons with grid screen content callback
+            m.scene.gridContent = m.gridContent
+
+            m.scene.goBackToNonAuth = true
+
+            m.detailsScreen.content = m.detailsScreen.content
+
+            sleep(500)
+            if authselection then
+              EndLoader()
+            else
+              m.AccountScreen.planSubscribeDetail = subscribePlanFromRoku[0].description
+              print " m.AccountScreen.planSubscribeDetail " subscribePlanFromRoku[0].description
+              EndLoader(m.AccountScreen)
+              m.AccountScreen.planSubscribeSuccess = true
+
+              m.scene.transitionTo = "AccountScreen"
+            end if
+
+        else ' Receipt verification failed
+          if authselection then
+            EndLoader()
+          else
+            EndLoader(m.AccountScreen)
+          end if
+
+          m.scene.transitionTo = "AccountScreen"
+            sleep(500)
+            m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not verify your purchase with Roku. You can cancel your subscription on the Roku website.", ["Close"])
+        end if ' native_sub_status.valid
+
+      ' regular nsvod
+      else
+        if authselection then
+          EndLoader()
+        else
+          EndLoader(m.AccountScreen)
+        end if
+        m.scene.transitionTo = "AccountScreen"
+        current_native_plan = m.roku_store_service.latestNativeSubscriptionPurchase()
+        m.auth_state_service.setCurrentNativePlan(current_native_plan)
+
+        ' Refresh lock icons with grid screen content callback
+        m.scene.gridContent = m.gridContent
+
+        m.scene.goBackToNonAuth = true
+
+        ' details screen should update self
+        m.detailsScreen.content = m.detailsScreen.content
+
+        sleep(500)
+        m.scene.callFunc("CreateDialog",m.scene, "Success", "Thank you for purchasing the subscription.", ["Dismiss"])
+      end if ' end if global.native_to_universal_subscription
   ' User cancelled purchase or error from Roku store
   else
+    if authselection then
+      EndLoader()
     m.AuthSelection.findNode("Plans").setFocus(true)
+    else
+      EndLoader(m.AccountScreen)
+      m.scene.transitionTo = "AccountScreen"
+      m.AccountScreen.findNode("Plans").setFocus(true)
+    end if
     m.scene.callFunc("CreateDialog",m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
   end if
 end function
@@ -2159,6 +2368,18 @@ function handleNativePurchase() as void
   end if
 end function
 
+function GetPurchaseOrderAction(purchasePlans, newPlan) as string
+    'print purchasePlans[0]
+    action = ""
+    if purchasePlans <> invalid AND purchasePlans.count() > 0
+        if purchasePlans[0].costValue < newPlan.costValue
+            action = "Upgrade"
+        else
+            action = "Downgrade"
+        end if
+    end if
+    return action
+end function
 ' Seting details screen's RemakeVideoPlayer value to true recreates Video component
 '     Roku Video component performance degrades significantly after multiple uses, so we make a new one
 function RemakeVideoPlayer(screen) as void

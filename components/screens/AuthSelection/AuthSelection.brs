@@ -41,7 +41,14 @@ end function
 function onVisibleChange() as void
     if m.top.visible = true
       ' if only one plan center plan
-      if m.top.plans.count() = 1 then m.plan_buttons.translation = [450,350] else m.plan_buttons.translation = [220,350]
+      'if m.top.plans.count() = 1 then m.plan_buttons.translation = [450,350] else m.plan_buttons.translation = [220,350]
+      if m.top.plans.count() > 2 then
+        m.plan_buttons.translation = [160,350]
+      else if m.top.plans.count() > 1 then
+        m.plan_buttons.translation = [330,350]
+      else if m.top.plans.count() > 0
+        m.plan_buttons.translation = [500,350]
+      end if
 
       if m.global.device_linking = true
           if m.global.auth.isLoggedIn = false then
@@ -73,6 +80,21 @@ end function
 function SetNativePlans() as void
     content = m.content_helpers.twoDimList2ContentNode([m.top.plans], "PlanNode")
     m.initializers.setUpPlanButtons(m, content)
+end function
+
+function SetNativePurchasePlans() as void
+    internal = m.plan_buttons.content.getChild(0)
+    for i=0 to  m.plan_buttons.content.getChildCount() -1
+        for j=0 to  m.plan_buttons.content.getChild(i).getChildCount() - 1
+            planItem = m.plan_buttons.content.getChild(i).getChild(j)
+            for each purchasePlan in m.top.purchasePlans
+                if planItem.code = purchasePlan.code Then
+                    planItem.isPlanSubscribed = true
+                end if
+            end for
+        end for
+    end for
+
 end function
 
 function GetNativePlans(data = invalid) as object

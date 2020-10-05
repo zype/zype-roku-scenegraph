@@ -3,13 +3,24 @@
 <!--
     Account Screen - display user info or sign in button
 -->
-<component name="AccountScreen" extends="Group" initialFocus="Button">
+<component name="AccountScreen" extends="Group"  xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
     <interface>
-      <field id="itemSelected" type="integer" alwaysNotify="true" alias="Button.itemSelected" onChange="onItemSelected" />
+        <field id="plans" type="array" alwaysNotify="true" onChange="SetNativePlans" />
+        <field id="purchasePlans" type="array" alwaysNotify="true" onChange="SetNativePurchasePlans" />
+
+        <!-- OAuthButton fields -->
+        <field id="oAuthItemSelected" type="integer" alias="OAuthButton.itemSelected" alwaysNotify="true" onChange="onItemSelected" />
+        <field id="signInItemSelected" type="integer" alias="signInButton.itemSelected" alwaysNotify="true" onChange="onItemSelected" />
+        <field id="confirmOptionSelected" type="integer" alias="confirmPlanButton.itemSelected" alwaysNotify="true" onChange="onConfirmOptionSelected" />
+        <field id="thankYouOptionSelected" type="integer" alias="thankYouButton.itemSelected" alwaysNotify="true" onChange="onThankYouOptionSelected" />
+        <field id="signInItemConfirm" type="integer" alwaysNotify="true" />
       <field id="itemSelectedRole" type="string" />
       <field id="itemSelectedTarget" type="string" />
-
-      <field id="resetText" type="boolean" alwaysNotify="true" onChange="resetTextCallback" />
+        <field id="planSubscribeSuccess" type="bool" alwaysNotify="true" onChange="OnPlanSubscribeSuccess" />
+        <field id="planSubscribeDetail" type="string"/>
+        <!-- Plan(s) fields -->
+        <field id="planSelected" type="intarray" alias="Plans.rowItemSelected" alwaysNotify="true" onChange="onPlanSelection" />
+        <field id="currentPlanSelected" type="node" alwaysNotify="true" />
     </interface>
 
     <!-- main handler -->
@@ -17,15 +28,99 @@
     <script type="text/brightscript" uri="pkg:/components/screens/AccountScreen/AccountScreen.brs" />
 
     <children>
+      <Group id ="loggedInGroup" translation="[0,0]" visible = "false">
       <Rectangle
-        id="Background"
-        width="1280"
-        height="720"
+            id="loggedInBackground"
+            color="#151515"
+            width="1920"
+            height="1080"
+            opacity="1"
+            translation="[0,0]" />
+
+        <Group id="TextContainer" translation="[150,80]">
+
+          <Label
+            id="loggedInHeader"
+            width="880"
+            horizAlign="left"
+            text="Manage Your Account"
+            translation="[0,0]" >
+            <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="40"/>
+          </Label>
+
+
+          <Group id="OAuthTransition" translation="[0,100]">
+
+              <Label
+                id="OAuthEmailLabel"
+                width="500"
+                horizAlign="left"
+                text="Account Email:"
+                translation="[0,0]" >
+                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="25"/>
+              </Label>
+
+              <Label
+                id="OAuthLabel"
+                width="500"
+                horizAlign="left"
+                text=""
+                translation="[0,30]">
+                <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20"/>
+              </Label>
+              <LabelList
+                  id="OAuthButton"
+                  translation="[400,20]"
+                  color="0xf5f5f5"
+                  focusedColor="0xf5f5f5"
+                  itemSize="[250, 35]"
+                  itemSpacing = "[0,20]"
+                  numRows="2"
+                  vertFocusAnimationStyle="floatingFocus"
+                  textHorizAlign="center"
+                  font="dictionary:ButtonFont"
+                  focusedFont="dictionary:ButtonFont"
+                  focusBitmapUri="pkg:/images/button-focus.png"
+                  />
+          </Group>
+
+
+        </Group>
+
+        <Group id="SubscripitionContainer" translation="[150,300]">
+
+          <Label
+            id="SubscriptionHeader"
+            width="880"
+            horizAlign="left"
+            wrap="true"
+            text="Manage Your Subscription:"
+            translation="[0,0]">
+            <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="30"/>
+          </Label>
+
+
+          <RowList
+            id="Plans"
+            itemComponentName="PlanButton"
+            numRows="1"
+            focusBitmapUri="pkg:/images/button-focus.png"
+            itemSize="[1000,200]"
+            itemSpacing="[0,0]"
+            rowItemSize="[[300,150]]"
+            rowItemSpacing="[[40,0]]" />
+        </Group>
+      </Group>
+      <Group id ="signInGroup" translation="[0,0]" visible = "false">
+        <Rectangle
+          id="signInBackground"
+          width="1920"
+          height="1080"
         color="0x151515"
         translation="[0,0]" />
 
       <Label
-        id="Header"
+          id="signInHeader"
         width="1280"
         horizAlign="center"
         text=""
@@ -34,7 +129,7 @@
       </Label>
 
       <LabelList
-        id="Button"
+          id="signInButton"
         translation="[440,300]"
         color="0xf5f5f5"
         focusedColor="0xf5f5f5"
@@ -45,6 +140,89 @@
         textHorizAlign="center"
         focusedFont="dictionary:MenuFont"
         focusBitmapUri="pkg:/images/button-focus-light.png" />
+      </Group>
+      <Group id ="confirmPlanGroup" translation="[0,0]" visible = "false">
+        <Rectangle
+          id="confirmPlanBackground"
+          width="1920"
+          height="1080"
+          color="0x151515"
+          translation="[0,0]" />
+
+        <Label
+          id="confirmPlanHeader"
+          width="1280"
+          horizAlign="center"
+          text=""
+          translation="[0,150]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="35"/>
+        </Label>
+
+        <Label
+          id="confirmPlanDescription"
+          width="1280"
+          wrap="true"
+          horizAlign="center"
+          text=""
+          translation="[0,250]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="25"/>
+        </Label>
+
+        <LabelList
+          id="confirmPlanButton"
+          translation="[490,330]"
+          color="0xf5f5f5"
+          focusedColor="0xf5f5f5"
+          numRows="2"
+          vertFocusAnimationStyle="floatingFocus"
+          itemSize="[300, 60]"
+          itemSpacing = "[0,30]"
+          font="dictionary:MenuFont"
+          textHorizAlign="center"
+          focusedFont="dictionary:MenuFont"
+          focusBitmapUri="pkg:/images/button-focus-light.png" />
+      </Group>
+      <Group id ="thankYouGroup" translation="[0,0]" visible = "false">
+        <Rectangle
+          id="thankYouBackground"
+          width="1920"
+          height="1080"
+          color="0x151515"
+          translation="[0,0]" />
+
+        <Label
+          id="thankYouHeader"
+          width="1280"
+          horizAlign="center"
+          text="Thank You!"
+          translation="[0,150]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="35"/>
+        </Label>
+
+        <Label
+          id="thankYouDescription"
+          width="1280"
+          wrap="true"
+          horizAlign="center"
+          text=""
+          translation="[0,250]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="25"/>
+        </Label>
+
+        <LabelList
+          id="thankYouButton"
+          translation="[490,330]"
+          color="0xf5f5f5"
+          focusedColor="0xf5f5f5"
+          numRows="2"
+          vertFocusAnimationStyle="floatingFocus"
+          itemSize="[300, 60]"
+          itemSpacing = "[0,30]"
+          font="dictionary:MenuFont"
+          textHorizAlign="center"
+          focusedFont="dictionary:MenuFont"
+          focusBitmapUri="pkg:/images/button-focus-light.png" />
+      </Group>
     </children>
 
 </component>

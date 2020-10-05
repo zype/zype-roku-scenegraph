@@ -104,6 +104,9 @@ Function Init()
 
     m.TestInfoScreen = m.top.findNode("TestInfoScreen")
 
+    'channel store'
+    m.top.channelStore = m.top.findNode("store")
+
     ' Set theme
     m.top.loadingIndicator.backgroundColor = m.global.theme.background_color
     m.top.loadingIndicator.imageUri = m.global.theme.loader_uri
@@ -447,6 +450,8 @@ Function OnMenuButtonSelected()
       m.top.transitionTo = "Favorites"
     else if button_role = "transition" and button_target = "AccountScreen"
         m.top.transitionTo = "AccountScreen"
+    else if button_role = "transition" and button_target = "AuthSelection"
+        m.top.transitionTo = "AuthSelection"
     else if button_role = "transition" and button_target = "TestInfoScreen"
         m.top.transitionTo = "TestInfoScreen"
     else if button_role = "transition" and button_target = "DeviceLinking"

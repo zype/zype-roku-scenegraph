@@ -2,7 +2,7 @@
 
 function Init()
   m.private = {
-    plan_attibutes: [ "code", "cost", "freeTrialQuantity", "freeTrialType", "name", "productType" ],
+    plan_attibutes: [ "code", "cost", "costValue", "freeTrialQuantity", "freeTrialType", "name", "productType", "isPlanSubscribed" ],
     plan: {}
   }
 
@@ -43,6 +43,9 @@ function initializers() as object
     self.plan_name = self.top.findNode("PlanName")
     self.plan_name.color = self.global.theme.primary_text_color
 
+    self.selectedText = self.top.findNode("selectedText")
+    self.selectedText.color = self.global.theme.primary_text_color
+
     self.trial_period = self.top.findNode("TrialPeriod")
     self.trial_period.color = self.global.theme.primary_text_color
 
@@ -67,6 +70,9 @@ function initializers() as object
     else if self.private.plan.productType = "YearlySub"
       self.cost.text = self.private.plan.cost + " per year"
     end if
+
+    self.selectedText.visible = self.private.plan.isPlanSubscribed
+
   end function
 
   return this

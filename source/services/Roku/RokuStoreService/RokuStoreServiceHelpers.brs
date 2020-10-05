@@ -33,6 +33,23 @@ function RokuStoreServiceHelpers() as object
     end while
   end function
 
+  this.getChannelStoreResponse = function(channelStore, port) as object
+      while true
+        msg = wait(0, port)
+        msgType = type(msg)
+        if msgType = "roSGNodeEvent"
+            status = msg.getData().status
+            transactionId =  msg.getData().purchaseId
+            if status = 1 ' order success
+                transactionId = channelStore.orderStatus.getChild(0).purchaseId
+                return { transactionId: transactionId, success: true}
+            else 'error in doing order
+                return invalid
+            end if
+        end if
+      end while
+  end function
+
   ' Accepts array of roku store items and array of product types to filter by
   this.filterItemsByType = function(items as object, product_types as object) as object
     filtered_items = []
