@@ -76,6 +76,10 @@
         <!-- Name of screen to transition to -->
         <field id="transitionTo" type="string" alwaysNotify="true" onChange="transitionToScreen" />
 
+        <field id="resetTo" type="string" alwaysNotify="true" onChange="resetToScreen" />
+
+        <field id="backScreen" type="string" alwaysNotify="true" onChange="backToScreen" />
+
         <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
 
         <field id="setPurchasePlan" type="boolean" alwaysNotify="true" />

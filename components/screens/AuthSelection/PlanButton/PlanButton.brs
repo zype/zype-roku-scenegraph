@@ -25,11 +25,38 @@ function PlanChanged() as void
   m.initializers.setButtonText(m)
 end function
 
+
+sub ItemHasFocus_Changed(event as dynamic)
+    if event.GetData() = true
+        setFocusButton()
+    else
+        setUnFocusButton()
+    end if
+end sub
+
+
 ' ***********************
 '   Public Functions
 ' ***********************
 function GetPlanInfo(data = invalid) as object
   return m.private.plan
+end function
+
+
+function setFocusButton() as void
+    m.plan_display.color = m.global.theme.focus_plan_button_color
+
+    m.plan_name.color = m.global.theme.focus_primary_text_color
+    m.trial_period.color = m.global.theme.focus_primary_text_color
+    m.cost.color = m.global.theme.focus_primary_text_color
+end function
+
+function setUnFocusButton() as void
+    m.plan_display.color = m.global.theme.plan_button_color
+
+    m.plan_name.color = m.global.theme.primary_text_color
+    m.trial_period.color = m.global.theme.primary_text_color
+    m.cost.color = m.global.theme.primary_text_color
 end function
 
 
@@ -43,8 +70,8 @@ function initializers() as object
     self.plan_name = self.top.findNode("PlanName")
     self.plan_name.color = self.global.theme.primary_text_color
 
-    self.selectedText = self.top.findNode("selectedText")
-    self.selectedText.color = self.global.theme.primary_text_color
+    self.selectedPlanText = self.top.findNode("selectedPlanText")
+    self.selectedPlanText.color = self.global.theme.primary_text_color
 
     self.trial_period = self.top.findNode("TrialPeriod")
     self.trial_period.color = self.global.theme.primary_text_color
@@ -71,7 +98,7 @@ function initializers() as object
       self.cost.text = self.private.plan.cost + " per year"
     end if
 
-    self.selectedText.visible = self.private.plan.isPlanSubscribed
+    self.selectedPlanText.visible = self.private.plan.isPlanSubscribed
 
   end function
 

@@ -55,6 +55,13 @@ function RokuStoreService(store, channelStore, message_port) as object
     return m.helpers.getStoreResponse(m.port)
   end function
 
+  ' Get all IAPs user has purchased
+  this.getAllPurchases = function() as object
+    m.store.GetAllPurchases()
+    return m.helpers.getStoreResponse(m.port)
+  end function
+
+
   ' Get all native subscriptions user has purchased
   this.getUserNativeSubscriptionPurchases = function() as object
     native_subscriptions = m.helpers.filterItemsByType(m.getPurchases(), ["MonthlySub", "YearlySub"])

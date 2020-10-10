@@ -6,7 +6,9 @@
  -->
 <component name="PlanButton" extends="Group" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
     <interface>
-      <field id="itemContent" type="node" onChange="PlanChanged"/>
+      <field id="itemContent" type="node" alwaysNotify="true" onChange="PlanChanged"/>
+      <field id="focusPercent" type="float" onChange="FocusPercent_Changed" alwaysNotify="false" />
+      <field id="itemHasFocus" type="boolean" onChange="ItemHasFocus_Changed" alwaysNotify="false" />
 
       <function name="GetPlanInfo" />
       <function name="SetPlan" />
@@ -57,7 +59,7 @@
       </Rectangle>
 
       <Label
-        id="selectedText"
+        id="selectedPlanText"
         opacity="1"
         width="300"
         horizAlign="center"

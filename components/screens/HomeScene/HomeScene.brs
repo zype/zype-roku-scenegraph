@@ -387,6 +387,33 @@ function transitionToScreen() as void
   screen.setFocus(true)
 end function
 
+function resetToScreen() as void
+    if m.top.resetTo = "AccountScreen" or m.top.resetTo = "AuthSelection" Then
+      prevScreen = m.screenStack.peek()
+      if prevScreen <> invalid then
+        prevScreen.visible = true
+        prevScreen.setFocus(true)
+      end if
+    end if
+end function
+
+function backToScreen() as void
+    print " backToScreen "  m.top.backScreen
+    if m.top.backScreen = "AccountScreen" or m.top.backScreen = "AuthSelection" Then
+        screen = m.screenStack.pop()
+        if screen <> invalid then screen.visible = false
+
+        ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
+        ' open last screen before it and focus it
+        prevScreen = m.screenStack.peek()
+        if prevScreen <> invalid then
+          prevScreen.visible = true
+          prevScreen.setFocus(true)
+        end if
+    end if
+
+end function
+
 function goBackToNonAuthCallback() as void
 
   ' keep removing and hiding auth related screens until reach last non auth screen

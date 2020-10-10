@@ -214,7 +214,7 @@
           translation="[490,330]"
           color="0xf5f5f5"
           focusedColor="0xf5f5f5"
-          numRows="2"
+          numRows="1"
           vertFocusAnimationStyle="floatingFocus"
           itemSize="[300, 60]"
           itemSpacing = "[0,30]"

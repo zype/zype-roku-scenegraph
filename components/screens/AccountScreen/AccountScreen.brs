@@ -170,8 +170,6 @@ function OnPlanSubscribeSuccess() as void
     m.thank_you_button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
     m.thank_you_button.jumpToItem = 0
     m.thank_you_button.setFocus(true)
-    print m.thank_you_button.content
-    print m.thank_you_button.content.getChild(0)
 end function
 
 function resetScreen() as void
@@ -209,6 +207,8 @@ function resetScreen() as void
         end if
 
         m.plan_buttons.jumpToRowItem = [0,0]
+        m.plan_buttons.setFocus(true)
+        m.plan_buttons.setFocus(false)
         m.plan_buttons.setFocus(true)
     else
       print ">>>>>>>>>>> is sign in"
@@ -260,31 +260,6 @@ function SetNativePurchasePlans() as void
     end for
 end function
 
-' function SetNativePurchasePlans1() as void
-'     isExit = false
-'     for i=0 to  m.plan_buttons.content.getChildCount() -1
-'         for j=0 to  m.plan_buttons.content.getChild(i).getChildCount() - 1
-'             planItem = m.plan_buttons.content.getChild(i).getChild(j)
-'             for each purchasePlan in m.top.purchasePlans
-'                 if planItem.code = purchasePlan.code Then
-'                     newItem = m.plan_buttons.content.getChild(i).getChild(j)
-'                     newItem.isPlanSubscribed = true
-'                     m.plan_buttons.content.getChild(i).removeChildIndex(j)
-'                     m.plan_buttons.content.getChild(i).insertChild(newItem, 0)
-'                     isExit = true
-'                     exit for
-'                 end if
-'             end for
-'             if isExit
-'               exit for
-'             end if
-'         end for
-'         if isExit
-'           exit for
-'         end if
-'     end for
-'
-' end function
 
 function GetNativePlans(data = invalid) as object
     return m.top.plans
@@ -326,9 +301,6 @@ function helpers() as object
   end function
 
   this.currentThankYouButtonRole = function(self, index) as string
-    print "currentThankYouButtonRole " self.thank_you_button.content
-    print "currentThankYouButtonRole index " index
-    print "currentThankYouButtonRole getChild " self.thank_you_button.content.getChild(0)
     return self.thank_you_button.content.getChild(index).role
   end function
 
@@ -395,6 +367,7 @@ function initializers() as object
 
     self.oauth_label = self.top.findNode("OAuthLabel")
     self.oauth_label.color = self.global.theme.primary_text_color
+
 
     ' Confirm plan group for confirm plan for purchase/upgrade/downgrade '
 

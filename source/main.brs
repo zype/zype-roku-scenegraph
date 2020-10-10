@@ -269,6 +269,8 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.AuthSelection.observeField("itemSelected", m.port)
     m.AuthSelection.observeField("currentPlanSelected", m.port)
+    m.AuthSelection.observeField("thankYouCloseSelected", m.port)
+
 
     m.AccountScreen.observeField("oAuthItemSelected", m.port)
     m.AccountScreen.observeField("signInItemSelected", m.port)
@@ -618,9 +620,15 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 index = msg.getData()
 
                 handleButtonEvents(index, lclscreen)
-            else if (msg.getNode() = "AccountScreen" and (msg.getField() = "oAuthItemSelected" or msg.getField() = "signInItemSelected" or msg.getField() = "thankYouOptionSelected"))
+            else if (msg.getNode() = "AccountScreen" and (msg.getField() = "oAuthItemSelected" or msg.getField() = "signInItemSelected"))
                 if msg.getNode() = "AccountScreen"
                     lclScreen = m.AccountScreen
+                end if
+                index = msg.getData()
+                handleButtonEvents(index, lclscreen)
+            else if (msg.getNode() = "AuthSelection" and (msg.getField() = "thankYouCloseSelected"))
+                if msg.getNode() = "AuthSelection"
+                    lclScreen = m.AuthSelection
                 end if
                 index = msg.getData()
                 handleButtonEvents(index, lclscreen)
@@ -1932,6 +1940,8 @@ function handleButtonEvents(index, screen)
         m.scene.transitionTo = "DetailsScreen"
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
+    else if button_role = "backScreen" and button_target = "AuthSelection"
+      m.scene.backScreen = "AuthSelection"
     else if button_role = "transition" and button_target = "AccountScreen"
       m.scene.transitionTo = "AccountScreen"
     else if button_role = "transition" and button_target = "SignUpScreen"
@@ -2125,7 +2135,10 @@ function handleNativeToUniversal(authselection = true as boolean) as void
             m.detailsScreen.content = m.detailsScreen.content
 
             if authselection then
-              EndLoader()
+              m.AuthSelection.planSubscribeDetail = subscribePlanFromRoku[0].description
+              EndLoader(m.AuthSelection)
+              m.AuthSelection.planSubscribeSuccess = true
+              m.scene.transitionTo = "AuthSelection"
             else
               m.AccountScreen.planSubscribeDetail = subscribePlanFromRoku[0].description
               EndLoader(m.AccountScreen)
@@ -2134,12 +2147,10 @@ function handleNativeToUniversal(authselection = true as boolean) as void
               m.scene.transitionTo = "AccountScreen"
             end if
 
-            sleep(500)
-            if (user_info.email <> invalid AND user_info.email <> "")
-            m.scene.callFunc("CreateDialog",m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
-        else
-                m.scene.callFunc("CreateDialog",m.scene, "Welcome", "Hi, Thanks for signing up.", ["Close"])
-            end if
+            ' sleep(500)
+            ' if (user_info.email <> invalid AND user_info.email <> "")
+            ' m.scene.callFunc("CreateDialog",m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
+
         else ' Receipt verification failed
             EndLoader()
             sleep(500)
@@ -2263,8 +2274,9 @@ function handleNativeToUniversal(authselection = true as boolean) as void
           EndLoader()
         else
           EndLoader(m.AccountScreen)
+          m.scene.transitionTo = "AccountScreen"
         end if
-        m.scene.transitionTo = "AccountScreen"
+
         current_native_plan = m.roku_store_service.latestNativeSubscriptionPurchase()
         m.auth_state_service.setCurrentNativePlan(current_native_plan)
 
@@ -2277,16 +2289,20 @@ function handleNativeToUniversal(authselection = true as boolean) as void
         m.detailsScreen.content = m.detailsScreen.content
 
         sleep(500)
-        m.scene.callFunc("CreateDialog",m.scene, "Success", "Thank you for purchasing the subscription.", ["Dismiss"])
+        'm.scene.callFunc("CreateDialog",m.scene, "Success", "Thank you for purchasing the subscription.", ["Dismiss"])
       end if ' end if global.native_to_universal_subscription
   ' User cancelled purchase or error from Roku store
   else
     if authselection then
-      EndLoader()
-    m.AuthSelection.findNode("Plans").setFocus(true)
+      '' EndLoader()
+      EndLoader(m.AuthSelection)
+      m.scene.resetTo = "AuthSelection"
+      m.AuthSelection.setFocus(true)
+      m.AuthSelection.findNode("Plans").setFocus(true)
     else
       EndLoader(m.AccountScreen)
-      m.scene.transitionTo = "AccountScreen"
+      m.scene.resetTo = "AccountScreen"
+      m.AccountScreen.setFocus(true)
       m.AccountScreen.findNode("Plans").setFocus(true)
     end if
     m.scene.callFunc("CreateDialog",m.scene, "Incomplete", "Was not able to complete purchase. Please try again later.", ["Close"])
