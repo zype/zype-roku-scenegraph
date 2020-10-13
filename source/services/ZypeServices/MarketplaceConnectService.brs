@@ -53,6 +53,33 @@ Function MarketplaceConnectService() as object
     return filteredPlans
   end function
 
+
+  this.getZypePlanIDFromRokuPlanCode = function(rokuPlanCode as string, local_subscription_plan_ids as object) as string
+    matchingZypePlanID = ""
+
+    ' Get all zype plans'
+    zypePlans = GetPlans()
+
+    ' Filter zype plans by local config zype plan ids'
+    zypeFilteredPlans = GetLocalFilteredZypePlans(zypePlans, local_subscription_plan_ids)
+
+    for each zypePlan in zypeFilteredPlans
+      print "=====================> Roku Plan Code : " rokuPlanCode
+      print "Zype Plan : " zypePlan
+      print "Zype Plan marketplace_ids : " zypePlan.marketplace_ids
+      if zypePlan.marketplace_ids <> invalid and zypePlan.marketplace_ids.roku <> invalid
+        print "Zype Plan roku : " zypePlan.marketplace_ids.roku
+        if zypePlan.marketplace_ids.roku = rokuPlanCode
+          matchingZypePlanID = zypePlan._id
+          exit for ' exit zypePlans for loop
+       end if
+      end if
+    end for
+
+    print "Final matchingZypePlanID =============================> " matchingZypePlanID
+    return matchingZypePlanID
+  end function
+
   ' verifyMarketplaceSubscription()
   ' - calls Zype Marketplace Connect to verify native subscription
   '
@@ -80,7 +107,6 @@ Function MarketplaceConnectService() as object
 
     return false
   end function
-
 
   ' verifyMarketplacePurchase()
   ' - calls Zype Marketplace Connect to verify native purchase (consumable)
