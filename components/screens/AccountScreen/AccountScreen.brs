@@ -173,14 +173,11 @@ function OnPlanSubscribeSuccess() as void
 end function
 
 function resetScreen() as void
-
-  print ">>>>>>>>>>> resetScreen"
     m.confirm_plan_group.visible = false
     if m.thank_you_group.visible = true then
       return
     end if
     if m.global.auth.isLoggedIn
-        print ">>>>>>>>>>> is logged in"
         m.signin_group.visible = false
         m.loggedin_group.visible = true
         m.top.setFocus(true)
@@ -211,7 +208,6 @@ function resetScreen() as void
         m.plan_buttons.setFocus(false)
         m.plan_buttons.setFocus(true)
     else
-      print ">>>>>>>>>>> is sign in"
       m.loggedin_group.visible = false
       m.signin_group.visible = true
       m.signin_header.text = m.global.labels.account_screen_header
@@ -353,6 +349,9 @@ function initializers() as object
     self.oauth_email_label = self.top.findNode("OAuthEmailLabel")
     self.oauth_email_label.color = self.global.theme.primary_text_color
 
+    self.oauth_label = self.top.findNode("OAuthLabel")
+    self.oauth_label.color = self.global.theme.primary_text_color
+
     self.subscription_header = self.top.findNode("SubscriptionHeader")
     self.subscription_header.color = self.global.theme.primary_text_color
 
@@ -364,10 +363,6 @@ function initializers() as object
     self.oauth_button.focusedColor = self.global.theme.background_color
     self.oauth_button.focusBitmapUri = self.global.theme.button_filledin_uri
     self.oauth_button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
-
-    self.oauth_label = self.top.findNode("OAuthLabel")
-    self.oauth_label.color = self.global.theme.primary_text_color
-
 
     ' Confirm plan group for confirm plan for purchase/upgrade/downgrade '
 

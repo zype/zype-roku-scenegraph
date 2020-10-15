@@ -57,20 +57,21 @@
                 horizAlign="left"
                 text="Account Email:"
                 translation="[0,0]" >
-                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="25"/>
+                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="30"/>
               </Label>
 
-              <Label
+              <ScrollingLabel
                 id="OAuthLabel"
-                width="500"
+                width="400"
+                maxWidth="400"
                 horizAlign="left"
                 text=""
-                translation="[0,30]">
+                translation="[0,50]">
                 <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="20"/>
-              </Label>
+              </ScrollingLabel>
               <LabelList
                   id="OAuthButton"
-                  translation="[400,20]"
+                  translation="[410,20]"
                   color="0xf5f5f5"
                   focusedColor="0xf5f5f5"
                   itemSize="[250, 35]"
@@ -104,6 +105,7 @@
             id="Plans"
             itemComponentName="PlanButton"
             numRows="1"
+            drawFocusFeedback="false"
             focusBitmapUri="pkg:/images/button-focus.png"
             itemSize="[1000,200]"
             itemSpacing="[0,0]"
