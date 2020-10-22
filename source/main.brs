@@ -151,6 +151,8 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     SetGlobalAuthObject()
     m.akamai_service = AkamaiService()
+    m.mediamelon_service = MediaMelonService()
+
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
     m.loadingIndicator = m.scene.findNode("loadingIndicator")
@@ -1019,6 +1021,70 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
           print "PlayerInfo.analytics: "; playerInfo.analytics
           m.akamai_service.InitializeAkamaiLibrary(cd, playerInfo.analytics.beacon, m.videoPlayer)
           m.akamai_service.StartAkamaiEvents()
+      end if
+
+      if(m.global.advanced_analytics_enabled = true)
+          if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
+          if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
+
+          mediamelonCustomerID = m.global.advanced_analytics_customerid
+
+          playerNameString =  "Roku Player"
+          app_info = CreateObject("roAppInfo")
+          subscriberID = ""
+          subscriberType = ""
+          subscriptionId = invalid
+
+
+          if content.subscriptionRequired then
+              if subscriberType = "" then subscriberType ="subscription" else subscriberType ="subscription"
+              currentUser = m.current_user.getInfo()
+              if (currentUser.subscription_ids <> invalid and currentUser.subscription_ids.count() > 0)
+                  subscriptionId = currentUser.subscription_ids[0]
+              end if
+          end if
+          if content.passRequired then
+              if subscriberType = "" then subscriberType ="pass" else subscriberType ="|pass"
+          end if
+          if content.purchaseRequired then
+              if subscriberType = "" then subscriberType ="purchase" else subscriberType ="|purchase"
+          end if
+          if content.redemptionCodeRequired then
+              if subscriberType = "" then subscriberType ="subscription" else subscriberType ="|subscription"
+          end if
+          if content.rentalRequired then
+              if subscriberType = "" then subscriberType ="rental" else subscriberType ="|rental"
+          end if
+
+          If consumer_id <> invalid then subscriberID = consumer_id
+
+          if subscriberType = "" then
+             subscriberType ="free"
+             subscriberID = "unknown"
+          end if
+
+          MMConfig = {
+              customerID : mediamelonCustomerID
+              subscriberId : subscriberID
+              subscriberType: subscriberType
+              subscriberTag: invalid
+              disableManifestFetch: false
+              domainName: app_info.GetTitle()
+              playerName: playerNameString
+          }
+          Custom = {
+            "siteid" : playerInfo.analytics.siteid
+            "subscriptionId" : subscriptionId
+          }
+          print "=========================================================="
+          print "            MMStream Video FROM MAIN "
+          print "   MMConfig  "  MMConfig
+          print "   Custom    "  Custom
+          print "=========================================================="
+          m.mediamelon_service.InitializeMediaMelonService(MMConfig, Custom, m.videoPlayer)
+
+          m.mediamelon_service.StartMediaMelonEvents()
+
       end if
 
             print "--------------------------------------------------------------------------15"
@@ -2297,7 +2363,9 @@ function SetFeatures() as void
     marketplace_connect_svod: configs.marketplace_connect_svod,
     subscription_plan_ids: configs.subscription_plan_ids,
     enable_segment_analytics: configs.enable_segment_analytics,
-    segment_source_write_key: configs.segment_source_write_key
+    segment_source_write_key: configs.segment_source_write_key,
+    advanced_analytics_enabled: configs.advanced_analytics_enabled,
+    advanced_analytics_customerid: configs.advanced_analytics_customerid
   })
 
   if (configs.favorites_via_api = true)
