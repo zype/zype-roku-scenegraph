@@ -34,5 +34,8 @@
   "subscription_plan_ids": [
       "<subscription_plan_id_1>",
       "<subscription_plan_id_2>"
-    ]
+    ],
+  "custom_lock_color": "#ff0000",
+  "custom_unlock_color": "#0000FF",
+  "enable_unlock_transparent": false
 }

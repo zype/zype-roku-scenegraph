@@ -38,6 +38,7 @@
     <!-- for pagination -->
     <field id="isPaginator" type="boolean" />
     <field id="nextPage" type="integer" />
+    <field id="isLock" type="boolean" value="false" />
 
   </interface>
 </component>
