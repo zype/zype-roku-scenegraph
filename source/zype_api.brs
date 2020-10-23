@@ -847,6 +847,7 @@ end function
 ' Get Subscription Plans
 '*************************
 Function GetPlans(urlParams = {} as Object)
+    urlParams.per_page = 100
     url = GetApiConfigs().endpoint + "plans"
     params = AppendAppKeyToParams(urlParams)
     response = MakeRequest(url, params)

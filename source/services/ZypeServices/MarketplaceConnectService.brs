@@ -28,7 +28,7 @@ Function MarketplaceConnectService() as object
     filteredPlans = []
 
     ' Get all zype plans'
-    zypePlans = GetPlans({"per_page": 100})
+    zypePlans = GetPlans()
 
     ' Filter zype plans by local config zype plan ids'
     zypeFilteredPlans = GetLocalFilteredZypePlans(zypePlans, local_subscription_plan_ids)
