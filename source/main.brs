@@ -1023,7 +1023,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
           m.akamai_service.StartAkamaiEvents()
       end if
 
-      if(m.global.advanced_analytics_enabled = true)
+      if(m.global.advanced_analytics_enabled = true and m.global.advanced_analytics_customerid <> invalid and m.global.advanced_analytics_customerid <> 0)
           if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
           if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
 
@@ -1033,27 +1033,33 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
           app_info = CreateObject("roAppInfo")
           subscriberID = ""
           subscriberType = ""
-          subscriptionId = invalid
+          subscriptionId = ""
+          appTitle = ""
+          siteID = ""
+          if app_info.GetTitle() <> invalid then appTitle = app_info.GetTitle()
+          if playerInfo.analytics.siteid <> invalid then siteID = playerInfo.analytics.siteid
 
 
           if content.subscriptionRequired then
-              if subscriberType = "" then subscriberType ="subscription" else subscriberType ="subscription"
-              currentUser = m.current_user.getInfo()
-              if (currentUser.subscription_ids <> invalid and currentUser.subscription_ids.count() > 0)
-                  subscriptionId = currentUser.subscription_ids[0]
-              end if
+              if subscriberType = "" then subscriberType ="subscription" else subscriberType = subscriberType + "|subscription"
           end if
+
+          currentUser = m.current_user.getInfo()
+          if (currentUser <> invalid and currentUser.subscription_ids <> invalid and currentUser.subscription_ids.count() > 0)
+              subscriptionId = currentUser.subscription_ids[0]
+          end if
+
           if content.passRequired then
-              if subscriberType = "" then subscriberType ="pass" else subscriberType ="|pass"
+              if subscriberType = "" then subscriberType ="pass" else subscriberType = subscriberType + "|pass"
           end if
           if content.purchaseRequired then
-              if subscriberType = "" then subscriberType ="purchase" else subscriberType ="|purchase"
+              if subscriberType = "" then subscriberType ="purchase" else subscriberType = subscriberType + "|purchase"
           end if
           if content.redemptionCodeRequired then
-              if subscriberType = "" then subscriberType ="subscription" else subscriberType ="|subscription"
+              if subscriberType = "" then subscriberType ="redemption" else subscriberType = subscriberType + "|redemption"
           end if
           if content.rentalRequired then
-              if subscriberType = "" then subscriberType ="rental" else subscriberType ="|rental"
+              if subscriberType = "" then subscriberType ="rental" else subscriberType = subscriberType + "|rental"
           end if
 
           If consumer_id <> invalid then subscriberID = consumer_id
@@ -1063,21 +1069,24 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
              subscriberID = "unknown"
           end if
 
+          if subscriptionId = invalid then subscriptionId = ""
+
           MMConfig = {
               customerID : mediamelonCustomerID
               subscriberId : subscriberID
               subscriberType: subscriberType
               subscriberTag: invalid
               disableManifestFetch: false
-              domainName: app_info.GetTitle()
+              domainName: appTitle
               playerName: playerNameString
           }
+
           Custom = {
-            "siteid" : playerInfo.analytics.siteid
+            "siteid" : siteID
             "subscriptionId" : subscriptionId
           }
           print "=========================================================="
-          print "            MMStream Video FROM MAIN "
+          print "   MMStream Video FROM MAIN "
           print "   MMConfig  "  MMConfig
           print "   Custom    "  Custom
           print "=========================================================="
