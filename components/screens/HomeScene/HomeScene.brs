@@ -384,6 +384,14 @@ function transitionToScreen() as void
   screen.setFocus(true)
 end function
 
+function resetFocusToScreen() as void
+      prevScreen = m.screenStack.peek()
+      if prevScreen <> invalid then
+        prevScreen.visible = true
+        prevScreen.setFocus(true)
+      end if
+end function
+
 function goBackToNonAuthCallback() as void
 
   ' keep removing and hiding auth related screens until reach last non auth screen

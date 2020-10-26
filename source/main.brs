@@ -1664,6 +1664,7 @@ function handleButtonEvents(index, screen)
 
       m.scene.goBackToNonAuth = true
 
+      m.scene.resetFocus = true
       ' Reset details screen buttons
       m.detailsScreen.content = m.detailsScreen.content
       m.RegistrationScreen.isSignin = false
@@ -1706,17 +1707,19 @@ function handleButtonEvents(index, screen)
           ' m.scene.transitionTo = "AccountScreen"
           m.scene.goBackToNonAuth = true
 
-          ' Reset details screen
-          m.detailsScreen.content = m.detailsScreen.content
-
-          sleep(500)
-          m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
-
           print "Calling Reset------------------------------------------------"
           m.SignInScreen.reset = true
           m.RegistrationScreen.reset = true
           m.RegistrationScreen.isRegister = true
           m.SignUpScreen.reset = true
+
+          m.scene.resetFocus = true
+
+          ' Reset details screen
+          m.detailsScreen.content = m.detailsScreen.content
+
+          sleep(500)
+          m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
         else
           sleep(500)
           m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not find user with that email and password.", ["Close"])

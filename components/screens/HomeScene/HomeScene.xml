@@ -75,6 +75,8 @@
         <!-- Name of screen to transition to -->
         <field id="transitionTo" type="string" alwaysNotify="true" onChange="transitionToScreen" />
 
+        <field id="resetFocus" type="bool" alwaysNotify="true" onChange="resetFocusToScreen" />
+
         <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
 
         <function name="GetPlaylistVideosFunc" />
