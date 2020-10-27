@@ -35,7 +35,7 @@
       "<subscription_plan_id_1>",
       "<subscription_plan_id_2>"
     ],
-  "custom_lock_color": "#ff0000",
-  "custom_unlock_color": "#0000FF",
+  "custom_lock_color": "#d12c04",
+  "custom_unlock_color": "#047db6",
   "enable_unlock_transparent": false
 }
