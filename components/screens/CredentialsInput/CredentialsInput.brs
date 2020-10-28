@@ -274,14 +274,14 @@ function initializers() as object
     self.signin_button = self.top.findNode("signinButton")
     self.signin_button.focusBitmapUri = self.global.theme.button_focus_uri
     self.signin_button.color = self.global.theme.primary_text_color
-    self.signin_button.focusedColor = self.global.theme.primary_text_color
+    self.signin_button.focusedColor = self.global.theme.secondary_text_color
     self.signin_button.content = self.content_helpers.oneDimList2ContentNode([{title: self.global.labels.sign_in_submit_button, role: "transition", target: "SignInScreen"}], "ButtonNode")
 '    self.signin_button.observeField("visible", "onVisibleChange")
 
     self.submit_button = self.top.findNode("SubmitButton")
     self.submit_button.focusBitmapUri = self.global.theme.button_focus_uri
     self.submit_button.color = self.global.theme.primary_text_color
-    self.submit_button.focusedColor = self.global.theme.primary_text_color
+    self.submit_button.focusedColor = self.global.theme.secondary_text_color
     self.submit_button.content = self.content_helpers.oneDimList2ContentNode([{title: self.global.labels.user_credential_submit_button}], "ButtonNode")
 
     self.helper_message = self.top.findNode("HelperMessage")

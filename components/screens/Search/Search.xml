@@ -85,7 +85,7 @@
         <!-- Overhang logo -->
         <Poster
             id="PosterOverhang"
-            translation="[100, 30]"
+            translation="[85, 40]"
             loadwidth="500"
             loadheight="100"
             loadDisplayMode="scaleToFit"
