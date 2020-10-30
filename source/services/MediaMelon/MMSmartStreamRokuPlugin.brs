@@ -203,10 +203,11 @@ function registerPlugin()
                             else
                                 assetName = _getDomain(m.video.streaminfo.streamUrl)
                             end if
-                            if m.video.content.description <> invalid
-                                assetId = m.video.content.description
-                            else assetId = ""
-                            end if
+                            assetId = videoId
+                            ' if m.video.content.description <> invalid
+                            '     assetId = m.video.content.description
+                            ' else assetId = ""
+                            ' end if
                             'if m.lastStream<>m.video.streaminfo.streamUrl
                                 response = m.mmSmart.initializeSession("QBRDisabled", m.video.streaminfo.streamUrl, "invalid", assetId, assetName, videoId)
                                 if response["status"] = True
@@ -266,10 +267,11 @@ function _startView(setByClient as boolean) as void
                 else
                     assetName = _getDomain(m.video.streaminfo.streamUrl)
                 end if
-                if m.video.content.description <> invalid
-                    assetId = m.video.content.description
-                else assetId = ""
-                end if
+                assetId = videoId
+                ' if m.video.content.description <> invalid
+                '     assetId = m.video.content.description
+                ' else assetId = ""
+                ' end if
                 'if m.lastStream <> m.video.streaminfo.streamUrl
                     response = m.mmSmart.initializeSession("QBRDisabled", m.video.streaminfo.streamUrl, "invalid", assetId, assetName, videoId)
                     if response.status = True
