@@ -21,6 +21,14 @@ function onVisibleChange() as void
   end if
 end function
 
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+        m.button.setFocus(true)
+    else
+        ' Unfocused'
+    end if
+end sub
+
 function resetTextCallback() as void
   if m.global.auth.isLoggedIn
     m.header.text = m.global.labels.logged_in_header_label + m.global.auth.email
@@ -69,6 +77,8 @@ function initializers() as object
     self.button.focusedColor = self.global.theme.primary_text_color
     self.button.focusBitmapUri = self.global.theme.focus_grid_uri
     self.button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
+
+    self.top.observeField("focusedChild", "OnFocusedChild")
 
     self.header = self.top.findNode("Header")
     self.header.color = self.global.theme.primary_text_color

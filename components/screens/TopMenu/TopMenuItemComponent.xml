@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component
+    name="TopMenuItemComponent"
+    extends="Group"
+    >
+
+    <interface>
+      <field id="width" type="float" onChange="onSizeChange"/>
+      <field id="height" type="float" onChange="onSizeChange"/>
+      <field id="itemContent" type="node" onChange="OnContentChange"/>
+
+
+      <field id="focusPercent" type="float" onChange="FocusPercent_Changed" alwaysNotify="false" />
+      <field id="lastFocusPercent" type="float" alwaysNotify="false" />
+      <field id="itemHasFocus" type="boolean" onChange="ItemHasFocus_Changed" alwaysNotify="false" />
+      <field id="gridHasFocus" type="boolean" onChange="ParentHasFocus_Changed" alwaysNotify="false"/>
+
+    </interface>
+
+    <script type="text/brightscript" uri="TopMenuItemComponent.brs" />
+    <children>
+        <!-- <Rectangle
+            id="selectedBorderRectangle"
+            height="5"
+            translation="[10, 75]"
+            opacity="1"
+            /> -->
+        <Rectangle
+            id="focusBorderRectangle"
+            height="5"
+            translation="[10, 75]"
+            opacity="1"
+            />
+
+        <Group id="iconAndTextlayoutGroup">
+          <ScrollingLabel translation="[25, 25]" id="title">
+              <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="32" />
+          </ScrollingLabel>
+        </Group>
+    </children>
+</component>

@@ -88,13 +88,13 @@ function currentButtonTarget(index as integer) as string
     return m.SignInButton.content.getChild(index).target
 end function
 
-function onKeyEvent(key as String, press as Boolean) as Boolean
-    ? ">>> MyLibrary >> onKeyEvent"
+function onKeyEvent(key, press) as Boolean
+    ? ">>> MyLibrary >> onKeyEvent " key " " press
     result = false
     if press then
         ? "key == ";  key
         if key = "options" then
-            result = true
+            result = false
         else if key = "back"
             ' if Details opened
             if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false then

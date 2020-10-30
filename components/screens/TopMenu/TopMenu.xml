@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Zype.  All Rights Reserved. **********-->
+
+<!--
+    node - menu
+-->
+<component name="TopMenu" extends="Group" initialFocus="MenuButtons">
+
+  <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
+  <script type="text/brightscript" uri="pkg:/components/screens/TopMenu/TopMenu.brs" />
+    <interface>
+        <!-- Button press handler -->
+        <field id="itemSelected" type="integer" alwaysnotify="true" alias="MenuButtons.itemSelected" onChange="onItemSelected" />
+        <field id="itemFocused" type="integer" alwaysnotify="true" alias="MenuButtons.itemFocused" onChange="onItemFocused" />
+        <field id="itemSelectedRole" type="string" />
+        <field id="itemSelectedTarget" type="string" />
+
+        <field id="isDeviceLinkingEnabled" type="bool" onChange="InitSidebarButtons"/>
+
+        <!-- To Outside -->
+        <field id="selectedPageNumber" type="integer" alwaysNotify="true" value="0"/>
+
+        <!-- From Outside -->
+        <function name="SelectMenuItem" />
+    </interface>
+
+
+
+    <children>
+        <Group id="gMenu" translation="[0,-105]">
+
+          <!-- Background Shade -->
+          <Rectangle
+              id="Shade"
+              width="1920"
+              height="105"
+              color="0x040460"
+              opacity="0.8"
+              translation="[0,0]"
+              />
+
+          <ScrollingLabel translation="[25, 25]" id="hiddentitle" visible="false">
+                <Font role = "font" uri = "pkg:/fonts/Roboto-Bold.ttf" size = "32" />
+            </ScrollingLabel>
+
+          <MarkupGrid id="MenuButtons" translation="[0,0]"
+              itemComponentName="TopMenuItemComponent"
+              numColumns="6"
+              numRows="1"
+              itemSize="[0,105]"
+              focusBitmapUri="pkg:/images/focus_grid_light.9.png"
+              focusFootprintBitmapUri="pkg:/images/nil.png"
+              horizFocusAnimationStyle="floatingFocus"
+              vertFocusAnimationStyle="floatingFocus"
+              drawFocusFeedback = "false"
+              visible="true"
+              />
+        </Group>
+
+        <Animation id="showMenuAnimation" duration="0.2" easeFunction="linear">
+            <Vector2DFieldInterpolator key="[0, 1]" keyValue="[ [0,-105], [0,0] ]" fieldToInterp="gMenu.translation" />
+        </Animation>
+        <Animation id="hideMenuAnimation" duration="0.2" easeFunction="linear">
+            <Vector2DFieldInterpolator key="[0, 1]" keyValue="[ [0,0], [0,-105] ]" fieldToInterp="gMenu.translation" />
+        </Animation>
+
+    </children>
+
+</component>

@@ -13,6 +13,9 @@ Function Init()
 
     print "m.top.uniqueSessionID > " m.top.uniqueSessionID
 
+    m.menuHideTimer = m.top.findNode("menuHideTimer")
+    m.menuHideTimer.observeField("fire", "HideMenu")
+
     if (m.global.enable_segment_analytics = true)
         if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
             print "[HomeScene] INFO : SEGMENT ANALYTICS ENABLED..."
@@ -55,6 +58,12 @@ Function Init()
     m.Menu = m.top.findNode("Menu")
     ' Observer  to handle Menu Item selection inside Menu
     m.Menu.observeField("itemSelected", "OnMenuButtonSelected")
+
+    ' TopMenu
+    m.TopMenu = m.top.findNode("TopMenu")
+
+    ' Observer  to handle Menu Item selection inside Menu
+    m.TopMenu.observeField("itemSelected", "OnTopMenuButtonSelected")
 
     ' Device Linking
     m.deviceLinking = m.top.findNode("DeviceLinking")
@@ -437,33 +446,122 @@ Function OnMenuButtonSelected()
 
     button_role = m.Menu.itemSelectedRole
     button_target = m.Menu.itemSelectedTarget
-
-    ' Menu is visible - it must be last element
-    menu = m.screenStack.pop()
-    menu.visible = false
-
-    if button_role = "transition" and button_target = "Search"
-      m.top.SearchString = ""
-      m.top.ResultsText = ""
-      m.top.transitionTo = "Search"
-    else if button_role = "transition" and button_target = "EPGScreen"
-'      m.top.findNode("EPGScreen").reset = true
-      m.top.transitionTo = "EPGScreen"
-    else if button_role = "transition" and button_target = "InfoScreen"
-      m.top.transitionTo = "InfoScreen"
-    else if button_role = "transition" and button_target = "Favorites"
-      m.top.transitionTo = "Favorites"
-    else if button_role = "transition" and button_target = "AccountScreen"
-        m.top.transitionTo = "AccountScreen"
-    else if button_role = "transition" and button_target = "TestInfoScreen"
-        m.top.transitionTo = "TestInfoScreen"
-    else if button_role = "transition" and button_target = "DeviceLinking"
-        m.deviceLinking.show = true
-        m.top.transitionTo = "DeviceLinking"
-    else if button_role = "transition" and button_target = "MyLibrary"
-        m.top.transitionTo = "MyLibrary"
-    end if
+    MenuActionAsPerRoleTarget(button_role, button_target)
 End Function
+
+' On TopMenu Button Selected
+Function OnTopMenuButtonSelected()
+    ? "[HomeScene] Top Menu Button Selected"
+    ? m.TopMenu.itemSelected
+
+    button_role = m.TopMenu.itemSelectedRole
+    button_target = m.TopMenu.itemSelectedTarget
+
+    MenuActionAsPerRoleTarget(button_role, button_target)
+end function
+
+Function MenuActionAsPerRoleTarget(button_role as string, button_target as string)
+
+      ' Menu is visible - it must be last element
+      menu = m.screenStack.pop()
+      menu.visible = false
+
+      if button_role = "transition" and button_target = "Search"
+        m.top.SearchString = ""
+        m.top.ResultsText = ""
+        m.top.transitionTo = "Search"
+      else if button_role = "transition" and button_target = "EPGScreen"
+  '      m.top.findNode("EPGScreen").reset = true
+        m.top.transitionTo = "EPGScreen"
+      else if button_role = "transition" and button_target = "InfoScreen"
+        m.top.transitionTo = "InfoScreen"
+      else if button_role = "transition" and button_target = "Favorites"
+        m.top.transitionTo = "Favorites"
+      else if button_role = "transition" and button_target = "AccountScreen"
+          m.top.transitionTo = "AccountScreen"
+      else if button_role = "transition" and button_target = "GridScreen"
+          m.top.transitionTo = "GridScreen"
+      else if button_role = "transition" and button_target = "TestInfoScreen"
+          m.top.transitionTo = "TestInfoScreen"
+      else if button_role = "transition" and button_target = "DeviceLinking"
+          m.deviceLinking.show = true
+          m.top.transitionTo = "DeviceLinking"
+      else if button_role = "transition" and button_target = "MyLibrary"
+          m.top.transitionTo = "MyLibrary"
+      end if
+end function
+
+function ShowMenu()
+
+    if m.global.enable_top_navigation = true then
+
+       currentTopScreen = m.screenStack.peek()
+       print "currentTopScreen :: " currentTopScreen
+
+       if (currentTopScreen <> invalid)
+         if currentTopScreen.id = "Search"
+             m.top.LastSelectedMenu = m.global.labels.menu_search_button
+         else if currentTopScreen.id = "MyLibrary"
+             m.top.LastSelectedMenu = m.global.labels.menu_my_library_button
+         else if currentTopScreen.id = "Favorites"
+             m.top.LastSelectedMenu = m.global.labels.menu_favorites_button
+         else if currentTopScreen.id = "AccountScreen"
+             m.top.LastSelectedMenu = m.global.labels.menu_account_button
+         else if currentTopScreen.id = "GridScreen"
+             m.top.LastSelectedMenu = m.global.labels.menu_home_button
+         else if currentTopScreen.id = "InfoScreen"
+             m.top.LastSelectedMenu = m.global.labels.menu_info_button
+         else if currentTopScreen.id = "TestInfoScreen"
+             m.top.LastSelectedMenu = m.global.labels.menu_test_info_button
+         else if currentTopScreen.id = "AuthSelection"
+             m.top.LastSelectedMenu = m.global.labels.menu_account_button
+         else
+             m.top.LastSelectedMenu = m.global.labels.menu_home_button
+         end if
+       end if
+
+       print "m.top.LastSelectedMenu ==========> " m.top.LastSelectedMenu
+       ' m.global.labels.menu_live_button
+
+      ' add Menu screen to Screen stack
+        m.screenStack.push(m.TopMenu)
+        m.top.appendChild(m.TopMenu)
+        ' show and focus Top Menu
+        ' m.TopMenu.LastSelectedMenu = m.top.LastSelectedMenu
+        m.TopMenu.visible = true
+        m.TopMenu.setFocus(true)
+    else
+        ' add Menu screen to Screen stack
+        m.screenStack.push(m.Menu)
+
+        ' show and focus Menu
+        m.Menu.visible = true
+        m.Menu.setFocus(true)
+    end if
+
+end function
+
+function HideMenu()
+    details = m.screenStack.pop()
+    details.visible = false
+
+    if m.global.enable_top_navigation = true then m.top.removeChild(m.TopMenu)
+    lastScreen = m.screenStack.peek()
+    print "Hidemenu " lastScreen
+    if (lastScreen <> invalid)
+      lastScreen.visible = true
+      lastScreen.setFocus(true)
+    end if
+end function
+
+function ShowMenuAndStartHideMenuTimer()
+    m.menuHideTimer.control = "start"
+    ShowMenu()
+end function
+
+function StopHideMenuTimer()
+    m.menuHideTimer.control = "stop"
+end function
 
 function MyLibraryTriggerSignIn() as void
     button_role = m.MyLibrary.itemSelectedRole
@@ -488,25 +586,27 @@ Function OnKeyEvent(key, press) as Boolean
 
             if m.detailsScreen.videoPlayer.hasFocus() then
                 result = true
-            else if m.Menu.visible = false then ' Prevent multiple menu clicks
-                ' add Menu screen to Screen stack
-                m.screenStack.push(m.Menu)
-
-                ' show and focus Menu
-                m.Menu.visible = true
-                m.Menu.setFocus(true)
+            else if m.global.enable_top_navigation = false and m.Menu.visible = false then ' Prevent multiple menu clicks
+                ShowMenu()
+            else if m.global.enable_top_navigation = true and m.TopMenu.visible = false then ' Prevent multiple top menu clicks
+                ShowMenu()
             else
-                details = m.screenStack.pop()
-                details.visible = false
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
+                HideMenu()
             end if
+        else if key = "up"
+          if m.global.enable_top_navigation = true and m.TopMenu.visible = false then' Prevent multiple menu clicks
+            ' add Menu screen to Screen stack
+            ShowMenu()
+            result = true
+          else if m.detailsScreen.videoPlayer.visible = true
+            result = true
+          end if
         else if key = "back"
             ? "isSpecialScreen(): "; isSpecialScreen()
 
             if isSpecialScreen()
                     m.gridScreen.heroCarouselShow=false
-                if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
+                if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false and m.TopMenu.visible = false then
                     ? "1"
                     ' if detailsScreen is open and video is stopped, details is lastScreen
                     details = m.screenStack.pop()
@@ -681,7 +781,9 @@ Function OnKeyEvent(key, press) as Boolean
 End Function
 
 Function isSpecialScreen()
-    if m.screenStack.peek().id = "Menu"
+    ? " isSpecialScreen "
+    ? m.screenStack.peek()
+    if m.screenStack.peek().id = "Menu" or m.screenStack.peek().id = "TopMenu"
         return false
     else if (m.detailsScreen.visible = true) OR (m.contentStack.count() > 0 and m.gridScreen.visible = true) OR (m.deviceLinking.visible = true)
         return true

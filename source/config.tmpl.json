@@ -34,5 +34,6 @@
   "subscription_plan_ids": [
       "<subscription_plan_id_1>",
       "<subscription_plan_id_2>"
-    ]
+    ],
+  "enable_top_navigation": true
 }

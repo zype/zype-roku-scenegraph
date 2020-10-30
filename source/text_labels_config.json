@@ -1,11 +1,13 @@
 {
   "menu_label": "Options",
+  "menu_home_button": "Home",
   "menu_search_button": "Search",
   "menu_info_button": "About",
   "menu_device_linking_button": "Link Device",
   "menu_account_button": "Account",
   "menu_favorites_button": "Favorites",
   "menu_my_library_button": "My Library",
+  "menu_test_info_button": "Test Info",
   "menu_my_tv_button": "Guide",
 
   "link_device_button": "Link Device",

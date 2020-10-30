@@ -550,6 +550,8 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 m.sliderGroup.visible=true
                 m.sliderButton.setFocus(true)
                 result=true
+            else
+                m.scene.callfunc("ShowMenu")
             end if
         else if key="right"
             if m.sliderGroup.visible=true
