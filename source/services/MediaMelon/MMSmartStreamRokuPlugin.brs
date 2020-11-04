@@ -428,10 +428,11 @@ function _videoStateChangeHandler(videoState as string)
                     else
                         assetName = _getDomain(m.video.streaminfo.streamUrl)
                     end if
-                    if m.video.content.description <> invalid
-                        assetId = m.video.content.description
-                    else assetId = ""
-                    end if
+                    'if m.video.content.description <> invalid
+                    '    assetId = m.video.content.description
+                    'else assetId = ""
+                    'end if
+                    assetId = videoId
                     response = m.mmSmart.initializeSession("QBRDisabled", m.video.streaminfo.streamUrl, "invalid", assetId, assetName, videoId)
                 else if m.video.content.url<>invalid
                     if m.video.content.id <> invalid
@@ -446,10 +447,11 @@ function _videoStateChangeHandler(videoState as string)
                     else
                         assetName = _getDomain(m.video.content.url)
                     end if
-                    if m.video.content.description<>invalid
-                        assetId=m.video.content.description
-                    else   assetId=""
-                    end if
+                    'if m.video.content.description<>invalid
+                    '    assetId=m.video.content.description
+                    'else   assetId=""
+                    'end if
+                    assetId = videoId
                     response = m.mmSmart.initializeSession("QBRDisabled", m.video.content.url, "invalid", assetId, assetName, videoId)
                 end if
                 errorCode = ""
