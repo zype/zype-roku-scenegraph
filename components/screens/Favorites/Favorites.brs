@@ -12,7 +12,9 @@ Function Init()
 
     m.top.observeField("visible", "OnTopVisibilityChange")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
-    m.top.observeField("focusedChild", "OnFocusedChild")
+    if m.global.enable_top_navigation = true then
+      m.top.observeField("focusedChild", "OnFocusedChild")
+    end if
 
     m.videoTitle = m.top.findNode("VideoTitle")
     m.NoItems = m.top.findNode("NoItems")
@@ -98,7 +100,9 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     if press then
         ? "key == ";  key
         if key = "options" then
-            result = false
+            if m.global.enable_top_navigation = false then
+                result = true
+            end if
         else if key = "back"
             ' if Details opened
             if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.NoItems.text = "" then

@@ -16,12 +16,15 @@
         <field id="itemSelectedTarget" type="string" />
 
         <field id="isDeviceLinkingEnabled" type="bool" onChange="InitSidebarButtons"/>
-
+        <field id="menuHideAnimationCompleted" type="boolean" value="false" alwaysnotify="true"/>
+        <field id="menuShowAnimationCompleted" type="boolean" value="false" alwaysnotify="true"/>
         <!-- To Outside -->
         <field id="selectedPageNumber" type="integer" alwaysNotify="true" value="0"/>
 
         <!-- From Outside -->
         <function name="SelectMenuItem" />
+        <function name="TriggerHideMenu" />
+        <function name="TriggerShowMenu" />
     </interface>
 
 
@@ -30,18 +33,18 @@
         <Group id="gMenu" translation="[0,-105]">
 
           <!-- Background Shade -->
-          <Rectangle
+          <Poster
               id="Shade"
-              width="1920"
-              height="105"
-              color="0x040460"
+              width="800"
+              height="50"
+              uri="pkg:/images/white_fill_corner_radius_$$RES$$_10.9.png"
               opacity="0.8"
-              translation="[0,0]"
+              translation="[240,27.5]"
               />
 
-          <ScrollingLabel translation="[25, 25]" id="hiddentitle" visible="false">
-                <Font role = "font" uri = "pkg:/fonts/Roboto-Bold.ttf" size = "32" />
-            </ScrollingLabel>
+            <Label translation="[25, 25]" id="hiddentitle" visible="false">
+                <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="26" />
+            </Label>
 
           <MarkupGrid id="MenuButtons" translation="[0,0]"
               itemComponentName="TopMenuItemComponent"

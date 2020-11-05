@@ -20,6 +20,7 @@ Function Init()
     m.carouselShow=m.top.findNode("carouselShow")
     m.sliderButton=m.top.findNode("sliderButton")
     m.sliderGroup=m.top.findNode("sliderGroup")
+    m.sliderFocus=m.top.findNode("sliderFocus")
     ' Set theme
     m.rowList.focusBitmapUri = m.global.theme.focus_grid_uri
     m.rowList.rowLabelColor = m.global.theme.primary_text_color
@@ -440,7 +441,6 @@ Sub showHeroCarousel()
     m.slider3.loadDisplayMode="scaleToZoom"
     m.slider3.translation=m.sliderValuesHome.translation3
 
-    m.sliderFocus=m.top.findNode("sliderFocus")
     m.sliderFocus.uri=m.global.theme.slider_focus
     m.sliderFocus.height=m.sliderFocusValuesHome.height
     m.sliderFocus.width=m.sliderFocusValuesHome.width
@@ -550,8 +550,8 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 m.sliderGroup.visible=true
                 m.sliderButton.setFocus(true)
                 result=true
-            else
-                m.scene.callfunc("ShowMenu")
+            else if m.global.enable_top_navigation = true then
+                m.scene.callfunc("TriggerShowMenu")
             end if
         else if key="right"
             if m.sliderGroup.visible=true

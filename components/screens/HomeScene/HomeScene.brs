@@ -14,7 +14,8 @@ Function Init()
     print "m.top.uniqueSessionID > " m.top.uniqueSessionID
 
     m.menuHideTimer = m.top.findNode("menuHideTimer")
-    m.menuHideTimer.observeField("fire", "HideMenu")
+    m.menuHideTimer.observeField("fire", "TriggerHideMenu")
+
 
     if (m.global.enable_segment_analytics = true)
         if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
@@ -64,6 +65,8 @@ Function Init()
 
     ' Observer  to handle Menu Item selection inside Menu
     m.TopMenu.observeField("itemSelected", "OnTopMenuButtonSelected")
+    m.TopMenu.observeField("menuHideAnimationCompleted", "HideTopMenu")
+    m.TopMenu.observeField("menuShowAnimationCompleted", "ShowTopMenu")
 
     ' Device Linking
     m.deviceLinking = m.top.findNode("DeviceLinking")
@@ -491,12 +494,33 @@ Function MenuActionAsPerRoleTarget(button_role as string, button_target as strin
       end if
 end function
 
-function ShowMenu()
+function TriggerHideMenu()
+    m.TopMenu.callFunc("TriggerHideMenu")
+end function
 
-    if m.global.enable_top_navigation = true then
+function TriggerShowMenu()
+    m.TopMenu.callFunc("TriggerShowMenu")
+end function
+
+function ShowMenu()
+    ' add Menu screen to Screen stack
+    m.screenStack.push(m.Menu)
+
+    ' show and focus Menu
+    m.Menu.visible = true
+    m.Menu.setFocus(true)
+
+
+end function
+
+
+function ShowTopMenu()
+
+    if (m.TopMenu.menuShowAnimationCompleted = true)
+        m.TopMenu.menuShowAnimationCompleted = false
+
 
        currentTopScreen = m.screenStack.peek()
-       print "currentTopScreen :: " currentTopScreen
 
        if (currentTopScreen <> invalid)
          if currentTopScreen.id = "Search"
@@ -520,24 +544,20 @@ function ShowMenu()
          end if
        end if
 
-       print "m.top.LastSelectedMenu ==========> " m.top.LastSelectedMenu
+
        ' m.global.labels.menu_live_button
 
       ' add Menu screen to Screen stack
         m.screenStack.push(m.TopMenu)
         m.top.appendChild(m.TopMenu)
+        if (m.gridScreen <> invalid)
+            m.gridScreen.visibleSliderSelector = false
+        end if
         ' show and focus Top Menu
-        ' m.TopMenu.LastSelectedMenu = m.top.LastSelectedMenu
         m.TopMenu.visible = true
         m.TopMenu.setFocus(true)
-    else
-        ' add Menu screen to Screen stack
-        m.screenStack.push(m.Menu)
-
-        ' show and focus Menu
-        m.Menu.visible = true
-        m.Menu.setFocus(true)
     end if
+
 
 end function
 
@@ -545,7 +565,6 @@ function HideMenu()
     details = m.screenStack.pop()
     details.visible = false
 
-    if m.global.enable_top_navigation = true then m.top.removeChild(m.TopMenu)
     lastScreen = m.screenStack.peek()
     print "Hidemenu " lastScreen
     if (lastScreen <> invalid)
@@ -554,9 +573,31 @@ function HideMenu()
     end if
 end function
 
+function HideTopMenu()
+
+    if (m.gridScreen <> invalid)
+        m.gridScreen.visibleSliderSelector = true
+    end if
+    if (m.TopMenu.menuHideAnimationCompleted = true)
+        m.TopMenu.menuHideAnimationCompleted = false
+        if m.screenStack.peek() <> invalid AND m.screenStack.peek().id = "TopMenu"
+            print ">>>>>>>>>>>>>>>>>>>> m.screenStack.peek().id ::: " m.screenStack.peek().id
+            menu = m.screenStack.pop()
+            menu.visible = false
+            m.top.removeChild(m.TopMenu)
+            lastScreen = m.screenStack.peek()
+            print "lastscreen  " lastScreen
+            if (lastScreen <> invalid)
+              lastScreen.visible = true
+              lastScreen.setFocus(true)
+            end if
+        end if
+    end if
+end function
+
 function ShowMenuAndStartHideMenuTimer()
     m.menuHideTimer.control = "start"
-    ShowMenu()
+    TriggerShowMenu()
 end function
 
 function StopHideMenuTimer()
@@ -586,17 +627,26 @@ Function OnKeyEvent(key, press) as Boolean
 
             if m.detailsScreen.videoPlayer.hasFocus() then
                 result = true
-            else if m.global.enable_top_navigation = false and m.Menu.visible = false then ' Prevent multiple menu clicks
-                ShowMenu()
-            else if m.global.enable_top_navigation = true and m.TopMenu.visible = false then ' Prevent multiple top menu clicks
-                ShowMenu()
-            else
-                HideMenu()
+            else if m.global.enable_top_navigation = false
+                if m.Menu.visible = false then ' Prevent multiple menu clicks
+                  ShowMenu()
+                else
+                  HideMenu()
+                end if
+            else if m.global.enable_top_navigation = true
+                if m.TopMenu.visible = false then ' Prevent multiple top menu clicks
+                  TriggerShowMenu()
+                else
+                  TriggerHideMenu()
+                end if
             end if
+        else if key = "back" AND m.TopMenu.visible = true
+          TriggerHideMenu()
+          result = true
         else if key = "up"
           if m.global.enable_top_navigation = true and m.TopMenu.visible = false then' Prevent multiple menu clicks
             ' add Menu screen to Screen stack
-            ShowMenu()
+            TriggerShowMenu()
             result = true
           else if m.detailsScreen.videoPlayer.visible = true
             result = true

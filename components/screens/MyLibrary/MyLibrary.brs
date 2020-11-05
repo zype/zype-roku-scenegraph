@@ -1,7 +1,7 @@
 ' ********** Copyright 2016 Roku Corp.  All Rights Reserved. **********
 Function Init()
     m.content_helpers = ContentHelpers()
-
+    m.scene = m.top.GetScene()
     m.gridScreen = m.top.findNode("Grid")
     m.gridScreen.content = invalid
     m.detailsScreen = m.top.findNode("MyLibraryDetailsScreen")
@@ -17,6 +17,10 @@ Function Init()
 
     m.top.observeField("visible", "OnTopVisibilityChange")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
+
+    if m.global.enable_top_navigation = true
+      m.top.observeField("focusedChild", "OnFocusedChild")
+    end if
 
     ' Set theme
     m.AppBackground = m.top.findNode("AppBackground")
@@ -56,6 +60,23 @@ Function OnRowItemSelected()
     end if
 End Function
 
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+        print "On focus mylibrary"
+        print m.top.content
+
+         if (m.top.content = invalid) then print true else print false
+        if m.global.auth.isLoggedIn = false
+            m.SignInButton.setFocus(true)
+        ' else if m.top.content <> invalid
+        '     m.detailsScreen.setFocus(true)
+        end if
+    else
+        ' Unfocused'
+    end if
+end sub
+
+
 sub OnContentChange()
     ? "[MyLibrary] On Content Change"
 end sub
@@ -94,7 +115,9 @@ function onKeyEvent(key, press) as Boolean
     if press then
         ? "key == ";  key
         if key = "options" then
-            result = false
+            if m.global.enable_top_navigation = false then
+              result = true
+            end if
         else if key = "back"
             ' if Details opened
             if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false then

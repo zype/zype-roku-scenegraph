@@ -90,8 +90,8 @@
 
         <function name="ShowMenuAndStartHideMenuTimer" />
         <function name="StopHideMenuTimer" />
-        <function name="ShowMenu" />
-        <function name="HideMenu" />
+        <function name="TriggerHideMenu" />
+        <function name="TriggerShowMenu" />
 
         <field id="segmentEvent" type="assocArray" onChange="onSegmentEventChanged"/>
     </interface>

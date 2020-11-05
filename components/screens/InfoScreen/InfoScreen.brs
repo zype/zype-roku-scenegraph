@@ -31,9 +31,13 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
         if key="down" then
             result = true
         else if key="up" then
-            result = false
+            if m.global.enable_top_navigation = false then
+              result = true
+            end if
         else if key = "options" then
-            result = false
+            if m.global.enable_top_navigation = false then
+              result = true
+            end if
         else if key = "back"
             result = false
         end if

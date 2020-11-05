@@ -21,9 +21,15 @@ function OnKeyEvent(key as string, press as boolean) as boolean
 
     if press
       if key = "down"
-        if m.helpers.focusedChild(m) = "Plans" and m.global.auth.isLoggedIn = false and m.global.device_linking = true then m.oauth_button.setFocus(true)
+        if m.helpers.focusedChild(m) = "Plans" and m.global.auth.isLoggedIn = false and m.global.device_linking = true then
+          m.oauth_button.setFocus(true)
+          result = true
+        end if
       else if key = "up"
-        if m.helpers.focusedChild(m) = "OAuthTransition" then m.plan_buttons.setFocus(true)
+        if m.helpers.focusedChild(m) = "OAuthTransition" then
+          m.plan_buttons.setFocus(true)
+          result = true
+        end if
       end if
     end if
 
@@ -37,6 +43,14 @@ end function
 function onPlanSelection() as void
     m.top.currentPlanSelected = m.helpers.planSelected(m)
 end function
+
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+        m.plan_buttons.setFocus(true)
+    else
+        ' Unfocused'
+    end if
+end sub
 
 function onVisibleChange() as void
     if m.top.visible = true
@@ -142,6 +156,9 @@ function initializers() as object
     self.oauth_label.color = self.global.theme.primary_text_color
 
     self.top.observeField("itemSelected", "onItemSelected")
+    if self.global.enable_top_navigation = true
+        self.top.observeField("focusedChild", "OnFocusedChild")
+    end if
   end function
 
   this.setUpPlanButtons = function(self, plans) as void

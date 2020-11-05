@@ -9,26 +9,56 @@ Sub Init()
     m.MenuButtons = m.top.findNode("MenuButtons")
     m.hiddentitle = m.top.findNode("hiddentitle")
     m.gMenu = m.top.findNode("gMenu")
-    m.showMenuAnimation = m.top.findNode("showMenuAnimation")
+
     m.hideMenuAnimation = m.top.findNode("hideMenuAnimation")
+    m.hideMenuAnimation.observeField("state", "onHideMenuAnimationState")
+    m.showMenuAnimation = m.top.findNode("showMenuAnimation")
+    m.showMenuAnimation.observeField("state", "onShowMenuAnimationState")
+    m.shade = m.top.findNode("Shade")
+
     InitSidebarButtons()
 
     ' Set theme
-    m.shade = m.top.findNode("Shade")
-    m.shade.color = m.global.theme.background_color
+
+    ' m.shade.color = m.global.theme.background_color
+    m.shade.blendcolor = m.global.theme.background_color
+    ' m.shade.color = m.global.theme.background_color
     m.userAction = false
     '
     m.MenuButtons.color = m.global.theme.primary_text_color
     m.MenuButtons.focusedColor = m.global.theme.secondary_text_color
     m.MenuButtons.focusBitmapUri = m.global.theme.button_focus_uri
     '
-
+    m.top.menuShowAnimationCompleted = false
+    m.top.menuShowAnimationCompleted = false
     m.top.observeField("focusedChild", "OnFocusedChildChange")
 End Sub
+sub onHideMenuAnimationState()
+    if m.hideMenuAnimation.state = "stopped" Then
+        m.top.menuHideAnimationCompleted = true
+    end if
+end sub
+
+sub onShowMenuAnimationState()
+    print " onShowMenuAnimationState "
+    if m.showMenuAnimation.state = "stopped" Then
+        m.top.menuShowAnimationCompleted = true
+    end if
+end sub
+
+function TriggerHideMenu()
+  print "Topmenu triggerhidemenu"
+    m.hideMenuAnimation.control = "start"
+end function
+
+function TriggerShowMenu()
+  print "Topmenu TriggerShowMenu"
+    m.showMenuAnimation.control = "start"
+end function
 
 sub OnFocusedChildChange()
-    print "TopMenu : OnFocusedChildChange IsInFocusChain : " m.top.IsInFocusChain()
-    print "TopMenu : OnFocusedChildChange hasFocus : " m.MenuButtons.hasFocus()
+    ' print "TopMenu : OnFocusedChildChange IsInFocusChain : " m.top.IsInFocusChain()
+    ' print "TopMenu : OnFocusedChildChange hasFocus : " m.MenuButtons.hasFocus()
     if m.top.isInFocusChain() and not m.MenuButtons.hasFocus() then
         print " m.Scene.LastSelectedMenu => :: " m.Scene.LastSelectedMenu
         m.MenuButtons.setFocus(true)
@@ -144,15 +174,18 @@ Function InitSidebarButtons()
     favTextWidth = m.hiddentitle.BoundingRect().width
     totalMenuItem++
 
+    ' Test menu'
+   
     if m.global.test_info_screen
       initialselected = ""
       if (m.Scene.LastSelectedMenu = m.global.labels.menu_test_info_button)
           initialselected = "initialselected"
           intialFocusIndex++
       end if
-      menuButtons.push( {title: m.global.menu_test_info_button, ShortDescriptionLine1: m.global.menu_test_info_button, ShortDescriptionLine2: initialselected, role: "transition", target: "TestInfoScreen" } )
+      menuButtons.push( {title: m.global.labels.menu_test_info_button, ShortDescriptionLine1: m.global.labels.menu_test_info_button, ShortDescriptionLine2: initialselected, role: "transition", target: "TestInfoScreen" } )
       m.hiddentitle.text = m.global.labels.menu_test_info_button
       testTextWidth = m.hiddentitle.BoundingRect().width
+
       totalMenuItem++
     end if
 
@@ -162,7 +195,7 @@ Function InitSidebarButtons()
      end for
 
      m.MenuButtons.columnWidths = [hometextWidth,acccountTextWidth,mylibraryTextWidth,searchTextWidth,infoTextWidth,favTextWidth,testTextWidth]
-     m.MenuButtons.itemSpacing = [50,0]
+     m.MenuButtons.itemSpacing = [60,0]
 
      ' print "hometextWidth : " hometextWidth
      ' print "insiderTextWidth : " insiderTextWidth
@@ -173,14 +206,27 @@ Function InitSidebarButtons()
 
      totalTextW = hometextWidth + acccountTextWidth + mylibraryTextWidth + searchTextWidth + infoTextWidth + favTextWidth + testTextWidth
 
+     maxWidth = 0
+     if hometextWidth > maxWidth then maxWidth = hometextWidth
+     if acccountTextWidth > maxWidth then maxWidth = acccountTextWidth
+     if mylibraryTextWidth > maxWidth then maxWidth = mylibraryTextWidth
+     if searchTextWidth > maxWidth then maxWidth = searchTextWidth
+     if infoTextWidth > maxWidth then maxWidth = infoTextWidth
+     if favTextWidth > maxWidth then maxWidth = favTextWidth
+     if testTextWidth > maxWidth then maxWidth = testTextWidth
+
      'print "totalTextW : " totalTextW
-     MenuWidth = totalTextW + (50*totalMenuItem)
+     MenuWidth = totalTextW + (60*totalMenuItem)
      xPos = (1280 - MenuWidth)/2
      print "MenuWidth :========================================================> " MenuWidth
+     m.shade.width = MenuWidth - 10
+     m.shade.translation = [xPos + 6,27.5]
+     m.MenuButtons.itemSize = [0, maxWidth]
+     m.MenuButtons.numColumns = totalMenuItem
      ' print "xPos :========================================================> " xPos
      m.MenuButtons.content = m.content_helpers.oneDimList2ContentNode(menuButtons, "TopMenuItemData")
-     m.MenuButtons.translation = [xPos + 20,0]
-     m.showMenuAnimation.control = "start"
+     m.MenuButtons.translation = [xPos + 6,0]
+     ' m.showMenuAnimation.control = "start"
      m.MenuButtons.jumpToItem = intialFocusIndex
 End Function
 
@@ -264,7 +310,7 @@ Function OnKeyEvent(key, press) as Boolean
     if press then
         if key = "down" then
             ' m.hideMenuAnimation.control = "start"
-            m.Scene.callFunc("HideMenu")
+            m.Scene.callFunc("TriggerHideMenu")
             result = true
         else if key = "OK" then
             result = true

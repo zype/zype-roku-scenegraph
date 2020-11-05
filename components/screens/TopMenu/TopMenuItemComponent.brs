@@ -4,9 +4,9 @@ Sub init()
     m.focusBorderRectangle = m.top.findNode("focusBorderRectangle")
     ' m.selectedBorderRectangle.color = "#DDA003"
     ' m.focusBorderRectangle.color = "#FFFFFF"
-    m.focusBorderRectangle.color = "#DDA003"
+    m.focusBorderRectangle.blendcolor = m.global.theme.secondary_text_color ''"#1919c1"
 
-    m.title.color = "#FFFFFF"
+    m.title.color = m.global.theme.primary_text_color
 
     m.top.lastFocusPercent = 0
     changeFocus(0)
@@ -15,6 +15,7 @@ End Sub
 Sub OnContentChange()
   ' print "m.top.itemContent :: " m.top.itemContent
   m.title.text  = m.top.itemContent.SHORTDESCRIPTIONLINE1
+
   ' m.selectedBorderRectangle.visible = false
   if (m.top.itemContent.ShortDescriptionLine2 = "initialselected")
     ' m.selectedBorderRectangle.visible = true
@@ -27,7 +28,7 @@ Sub OnContentChange()
       ' end if
   end if
   ' m.selectedBorderRectangle.width = m.title.BoundingRect().width + 30
-  m.focusBorderRectangle.width = m.title.BoundingRect().width + 30
+  m.focusBorderRectangle.width = m.title.BoundingRect().width + 50
 End Sub
 
 Sub onFocusPercentChange()
@@ -47,10 +48,14 @@ End Sub
 sub changeFocus(focusPercent)
     m.focusBorderRectangle.opacity = focusPercent
     m.top.lastFocusPercent = focusPercent
+    if focusPercent > 0 then
+      m.title.color = m.global.theme.background_color
+    else
+      m.title.color = m.global.theme.primary_text_color
+    end if
 end sub
 
 sub FocusPercent_Changed(event as dynamic)
-    print "FocusPercent_Changed-----------" event.GetData()
     value = event.GetData()
     if (m.top.gridHasFocus) then
         changeFocus(value)

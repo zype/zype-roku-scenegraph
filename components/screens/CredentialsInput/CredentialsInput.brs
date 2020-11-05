@@ -300,7 +300,9 @@ function initializers() as object
 
     self.confirm_signup = self.top.findNode("ConfirmSignup")
 
-    self.top.observeField("focusedChild", "OnFocusedChild")
+    if self.global.enable_top_navigation = true then
+      self.top.observeField("focusedChild", "OnFocusedChild")
+    end if
   end function
 
   return this
