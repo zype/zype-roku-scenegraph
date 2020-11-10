@@ -29,7 +29,7 @@ function _createConnection(port as Object) as Object
   connection.SetPort(port)
   connection.SetCertificatesFile("common:/certs/ca-bundle.crt")
   connection.AddHeader("Content-Type", "application/json")
-  connection.AddHeader("Accept", "application/json")  
+  connection.AddHeader("Accept", "application/json")
   connection.AddHeader("Expect", "")
   connection.AddHeader("Connection", "keep-alive")
   'connection.AddHeader("Accept-Encoding", "gzip, deflate, br")
@@ -48,7 +48,7 @@ end function
 function _createEVPDigest() as Object
   return CreateObject("roEVPDigest")
 end function
- 
+
 function _getStreamFormat(url as String) as String
 
     ismRegex = CreateObject("roRegex", "\.isml?\/manifest", "i")
@@ -174,10 +174,11 @@ function _generatePid(src as String) as String
 end function
 
 function _generateSubId(src as string) as string
-  ba = _createByteArray()
-  ba.FromAsciiString(src)
-  digest = _createEVPDigest()
-  digest.setup("md5")
-  result = digest.process(ba)
-  return result
+  return src
+  ' ba = _createByteArray()
+  ' ba.FromAsciiString(src)
+  ' digest = _createEVPDigest()
+  ' digest.setup("md5")
+  ' result = digest.process(ba)
+  ' return result
 end function
