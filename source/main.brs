@@ -1031,7 +1031,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
 
           playerNameString =  "Roku Player"
           app_info = CreateObject("roAppInfo")
-          subscriberID = ""
+          subscriberID = "unknown"
           subscriberType = ""
           subscriptionId = ""
           appTitle = ""
@@ -1062,11 +1062,10 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
               if subscriberType = "" then subscriberType ="rental" else subscriberType = subscriberType + "|rental"
           end if
 
-          If consumer_id <> invalid then subscriberID = consumer_id
+          If consumer_id <> invalid and consumer_id <> "" then subscriberID = consumer_id
 
           if subscriberType = "" then
              subscriberType ="free"
-             subscriberID = "unknown"
           end if
 
           if subscriptionId = invalid then subscriptionId = ""
@@ -1082,7 +1081,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
           }
 
           Custom = {
-            "siteid" : siteID
+            "siteId" : siteID
             "subscriptionId" : subscriptionId
           }
           print "=========================================================="
