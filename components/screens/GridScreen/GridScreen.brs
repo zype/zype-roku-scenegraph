@@ -459,20 +459,30 @@ sub UpdateSliderImages()
     if (m.totalSliderImages > 0)
       print "Center Slider Index ::::::::::::::::::::::::::::::: " m.currentSliderImageIndex
       if ((m.currentSliderImageIndex - 1) < 0)
-          m.slider1.uri=m.top.heroCarouselData[m.totalSliderImages-1].pictures[0].url
+          m.slider1.uri=GetPosterImageurl(m.totalSliderImages-1)
       else
-          m.slider1.uri=m.top.heroCarouselData[m.currentSliderImageIndex-1].pictures[0].url
+          m.slider1.uri=GetPosterImageurl(m.currentSliderImageIndex-1)
       end if
 
-      m.slider2.uri=m.top.heroCarouselData[m.currentSliderImageIndex].pictures[0].url
+      m.slider2.uri=GetPosterImageurl(m.currentSliderImageIndex)
 
       if ((m.currentSliderImageIndex+1 >= m.totalSliderImages))
-          m.slider3.uri=m.top.heroCarouselData[0].pictures[0].url
+          m.slider3.uri=GetPosterImageurl(0)
       else
-          m.slider3.uri=m.top.heroCarouselData[m.currentSliderImageIndex+1].pictures[0].url
+          m.slider3.uri=GetPosterImageurl(m.currentSliderImageIndex+1)
       end if
     end if
 end sub
+
+function GetPosterImageurl(index as integer) as string
+
+  defaultPoster = "pkg:/images/splash_image_fhd.png"
+  if m.top.heroCarouselData[index].pictures <> invalid and m.top.heroCarouselData[index].pictures.count() > 0 and  m.top.heroCarouselData[index].pictures[0].url <> invalid and  m.top.heroCarouselData[index].pictures[0].url <> "" then
+      return m.top.heroCarouselData[index].pictures[0].url
+  else
+      return defaultPoster
+  end if
+end function
 
 sub ChangeSliderIndex(isRight = false as boolean)
     if (m.totalSliderImages > 1)
