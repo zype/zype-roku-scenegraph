@@ -333,7 +333,7 @@ Function OnRowItemSelected()
         m.detailsScreen.PlaylistRowIndex = rowItemSelected[0]
         m.detailsScreen.CurrentVideoIndex = rowItemSelected[1]
 
-        if (m.detailsScreen.videosTree[rowItemSelected[0]] <> invalid)
+        if (m.detailsScreen.videosTree <> invalid and m.detailsScreen.videosTree[rowItemSelected[0]] <> invalid)
 	         m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
         else
             m.detailsScreen.totalVideosCount = 0
