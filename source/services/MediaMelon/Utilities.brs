@@ -174,11 +174,10 @@ function _generatePid(src as String) as String
 end function
 
 function _generateSubId(src as string) as string
-  return src
-  ' ba = _createByteArray()
-  ' ba.FromAsciiString(src)
-  ' digest = _createEVPDigest()
-  ' digest.setup("md5")
-  ' result = digest.process(ba)
-  ' return result
+    ba = _createByteArray()
+    ba.FromAsciiString(src)
+    digest = _createEVPDigest()
+    digest.setup("md5")
+    result = digest.process(ba)
+    return result
 end function
