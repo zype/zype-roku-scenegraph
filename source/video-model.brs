@@ -38,6 +38,7 @@ Function CreateVideoObject(attrs As Object) As Object
     subscriptionRequired: properties.subscription_required,
     purchaseRequired: properties.purchase_required,
     marketplace_ids: properties.marketplace_ids,
+    redemptionCodeRequired: properties.redemption_code_required
     registrationRequired: properties.registration_required,
     rentalRequired: properties.rental_required,
     passRequired: properties.pass_required,
