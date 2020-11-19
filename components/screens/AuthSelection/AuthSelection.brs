@@ -24,6 +24,8 @@ function OnKeyEvent(key as string, press as boolean) as boolean
         if m.helpers.focusedChild(m) = "Plans" and m.global.auth.isLoggedIn = false and m.global.device_linking = true then m.oauth_button.setFocus(true)
       else if key = "up"
         if m.helpers.focusedChild(m) = "OAuthTransition" then m.plan_buttons.setFocus(true)
+      else if key = "options"
+        result = true
       end if
     end if
 

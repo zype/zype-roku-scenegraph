@@ -22,6 +22,17 @@ function onVisibleChange() as void
     end if
 end function
 
+function onKeyEvent(key as String, press as Boolean) as Boolean
+  result = false
+  if press
+    ? ">>> UniversalAuthSelection >> onKeyEvent >> key " key
+    if key = "options"
+      result = true
+    end if
+  end if
+  return result
+end function
+
 function helpers() as object
   this = {}
 

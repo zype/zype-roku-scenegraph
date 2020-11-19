@@ -25,6 +25,7 @@
         <field id="gridContent" type="node" alias="GridScreen.content" onChange="OnChangeContent" alwaysNotify="true"/>
 
         <field id="loadingIndicator" type="node" />
+        <field id="loadingScreen" type="node" />
         <!--Content for HeroCarousel on Home Scene-->
         <field id="heroCarouselData" type="array" alias="GridScreen.heroCarouselData" alwaysNotify="true"/>
         <field id="IsShowAutoPlayBackground" type="boolean" alias="autoPlayBackground.visible" alwaysNotify="true" onChange="onAutoPlayBgChange"/>
