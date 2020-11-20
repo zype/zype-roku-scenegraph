@@ -152,6 +152,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     SetGlobalAuthObject()
     m.akamai_service = AkamaiService()
     m.mediamelon_service = MediaMelonService()
+    m.google_analytics_service = GoogleAnalyticsService()
 
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
@@ -1004,6 +1005,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
         end if
       end if
 
+      ' Akamai Analytics'
       if(playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
           if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
           if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
@@ -1023,6 +1025,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
           m.akamai_service.StartAkamaiEvents()
       end if
 
+      ' Advance Analytics (MediaMelon)'
       if(m.global.advanced_analytics_enabled = true and m.global.advanced_analytics_customerid <> invalid and m.global.advanced_analytics_customerid <> 0)
           if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
           if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
@@ -2379,6 +2382,18 @@ function SetFeatures() as void
     advanced_analytics_customerid: configs.advanced_analytics_customerid
   })
 
+  if configs.google_analytics_tracking_id <> invalid and configs.google_analytics_tracking_id <> "" then
+
+      m.global.addFields({ google_analytics_tracking_id: configs.google_analytics_tracking_id,
+                           google_analytics_enable : true
+                         })
+      SetGoogleAnalyticsTracker(configs.google_analytics_tracking_id)
+  else
+    m.global.addFields({ google_analytics_tracking_id: "",
+                         google_analytics_enable : false
+                       })
+  end if
+
   if (configs.favorites_via_api = true)
       ' Clear local favorites
       m.favorites_storage_service.ClearFavorites()
@@ -2428,7 +2443,8 @@ function SetGlobalAuthObject() as void
     isLoggedIn: is_logged_in,
     isLinked: current_user_info.linked,
     email: user_email,
-    entitlements: entitlements
+    entitlements: entitlements,
+    userId : current_user_info._id
   } })
 
 
@@ -2455,6 +2471,31 @@ function SetTextLabels() as void
 
         m.global.addFields({ labels: labels })
     end if
+end function
+
+
+function SetGoogleAnalyticsTracker(trackingId as string)
+
+  device_info = CreateObject("roDeviceInfo")
+
+  cid = device_info.GetChannelClientId()
+
+  ui_res = device_info.GetUIResolution()
+  sr = Substitute("{0}x{1}", ui_res.width.ToStr(), ui_res.height.ToStr())
+
+  appName = CreateObject("roAppInfo").GetTitle()
+  appVersion = CreateObject("roAppInfo").GetVersion()
+
+  UATracker = CreateObject("roAssociativeArray")
+  UATracker.cid = cid
+  UATracker.sr = sr
+  UATracker.appName = appName + "-Roku"
+  UATracker.appVersion = appVersion
+  UATracker.endpoint = "https://www.google-analytics.com/collect"
+  UATracker.locale = device_info.GetCurrentLocale()
+  UATracker.trackingId = trackingId
+  m.global.addFields({ UATracker: UATracker })
+
 end function
 
 function HandleDeeplinkEvent(contentId as Dynamic, mediaType as Dynamic, isInputEvent as boolean)
