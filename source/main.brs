@@ -2,6 +2,7 @@ Library "Roku_Ads.brs"
 
 ' ********** Copyright 2016 Zype Inc.  All Rights Reserved. **********
 Function Main (args as Dynamic) as Void
+    m.appStartSource = args.source
     if (args.ContentID <> invalid) and (args.MediaType <> invalid)
         if (args <> invalid)
             contentID   = args.contentID
@@ -161,6 +162,20 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     ' HB: sending app launch trigger from here
     m.scene.sentLaunchCompleteEvent = true
+
+    ' Google Analytics'
+    if(m.global.google_analytics_enable = true)
+        params = {
+          category: "AppStart"
+          action: m.appStartSource
+        }
+        customParams = {
+          siteId: m.app.site_id
+          deviceId: m.global.UATracker.cid
+        }
+        m.google_analytics_service.SendGATrackEvent(params, customParams)
+    end if
+
     print "1=============================================================================================================================>"
 
     m.playlistsRowItemSizes = []
