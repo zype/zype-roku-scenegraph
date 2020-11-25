@@ -153,7 +153,6 @@
 
            <Poster id="OptionsIcon"
                blendColor="#ffffff"
-               enableColorBlending="false"
                translation="[1139, 53]"
                width="24"
                height="24"

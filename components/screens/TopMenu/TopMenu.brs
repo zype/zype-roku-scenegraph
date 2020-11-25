@@ -25,8 +25,8 @@ Sub Init()
     ' m.shade.color = m.global.theme.background_color
     m.userAction = false
     '
-    m.MenuButtons.color = m.global.theme.primary_text_color
-    m.MenuButtons.focusedColor = m.global.theme.secondary_text_color
+    ' m.MenuButtons.color = m.global.theme.primary_text_color
+    ' m.MenuButtons.focusedColor = m.global.theme.secondary_text_color
     m.MenuButtons.focusBitmapUri = m.global.theme.button_focus_uri
     '
     m.top.menuShowAnimationCompleted = false
@@ -79,6 +79,7 @@ Function InitSidebarButtons()
     favTextWidth = 0
     mylibraryTextWidth = 0
     testTextWidth = 0
+    menuColumnWidth = CreateObject("roArray", 7, true)
 
     totalMenuItem = 0
     ' Home'
@@ -96,6 +97,7 @@ Function InitSidebarButtons()
     m.hiddentitle.text = m.global.labels.menu_home_button
     hometextWidth = m.hiddentitle.BoundingRect().width
     totalMenuItem++
+    menuColumnWidth.Push(hometextWidth)
 
     if m.global.enable_epg = true then menuButtons.push( { title: m.global.labels.menu_my_tv_button, ShortDescriptionLine1: m.global.labels.menu_my_tv_button, ShortDescriptionLine2: initialselected, role: "transition", target: "EPGScreen" } )
 
@@ -110,6 +112,7 @@ Function InitSidebarButtons()
         m.hiddentitle.text = m.global.labels.menu_account_button
         acccountTextWidth = m.hiddentitle.BoundingRect().width
         totalMenuItem++
+        menuColumnWidth.Push(acccountTextWidth)
     else
         if (m.global.marketplace_connect_svod or (m.global.auth<>invalid and m.global.auth.isLoggedIn <> invalid and m.global.auth.isLoggedIn <> false))
 
@@ -122,6 +125,7 @@ Function InitSidebarButtons()
             m.hiddentitle.text = m.global.labels.menu_account_button
             acccountTextWidth = m.hiddentitle.BoundingRect().width
             totalMenuItem++
+            menuColumnWidth.Push(acccountTextWidth)
         end if
     end if
 
@@ -136,6 +140,7 @@ Function InitSidebarButtons()
         m.hiddentitle.text = m.global.labels.menu_my_library_button
         mylibraryTextWidth = m.hiddentitle.BoundingRect().width
         totalMenuItem++
+        menuColumnWidth.Push(mylibraryTextWidth)
     end if
 
     ' Search'
@@ -149,6 +154,7 @@ Function InitSidebarButtons()
     m.hiddentitle.text = m.global.labels.menu_search_button
     searchTextWidth = m.hiddentitle.BoundingRect().width
     totalMenuItem++
+    menuColumnWidth.Push(searchTextWidth)
 
     ' Info Screen'
     initialselected = ""
@@ -161,6 +167,7 @@ Function InitSidebarButtons()
     m.hiddentitle.text = m.global.labels.menu_info_button
     infoTextWidth = m.hiddentitle.BoundingRect().width
     totalMenuItem++
+    menuColumnWidth.Push(infoTextWidth)
 
     ' Favorite'
     initialselected = ""
@@ -173,9 +180,10 @@ Function InitSidebarButtons()
     m.hiddentitle.text = m.global.labels.menu_favorites_button
     favTextWidth = m.hiddentitle.BoundingRect().width
     totalMenuItem++
+    menuColumnWidth.Push(favTextWidth)
 
     ' Test menu'
-   
+
     if m.global.test_info_screen
       initialselected = ""
       if (m.Scene.LastSelectedMenu = m.global.labels.menu_test_info_button)
@@ -185,49 +193,33 @@ Function InitSidebarButtons()
       menuButtons.push( {title: m.global.labels.menu_test_info_button, ShortDescriptionLine1: m.global.labels.menu_test_info_button, ShortDescriptionLine2: initialselected, role: "transition", target: "TestInfoScreen" } )
       m.hiddentitle.text = m.global.labels.menu_test_info_button
       testTextWidth = m.hiddentitle.BoundingRect().width
-
       totalMenuItem++
+      menuColumnWidth.Push(testTextWidth)
     end if
 
     content = m.content_helpers.oneDimList2ContentNode(menuButtons, "TopMenuItemData")
-     for i=0 to content.getChildCount()-1
-         print ">>>>>>>>>>>>>>>>>>>>>>>>content " content.getChild(i)
-     end for
+    m.MenuButtons.columnWidths = menuColumnWidth
+    m.MenuButtons.itemSpacing = [60,0]
 
-     m.MenuButtons.columnWidths = [hometextWidth,acccountTextWidth,mylibraryTextWidth,searchTextWidth,infoTextWidth,favTextWidth,testTextWidth]
-     m.MenuButtons.itemSpacing = [60,0]
+    totalTextW = 0
+    maxWidth = 0
 
-     ' print "hometextWidth : " hometextWidth
-     ' print "insiderTextWidth : " insiderTextWidth
-     ' print "liveTextWidth : " liveTextWidth
-     ' print "searchTextWidth : " searchTextWidth
-     ' print "favTextWidth : " favTextWidth
-     ' print "moreTextWidth : " moreTextWidth
+    For each item in menuColumnWidth
+     totalTextW += item
+      if item > maxWidth then maxWidth = item
+    End For
 
-     totalTextW = hometextWidth + acccountTextWidth + mylibraryTextWidth + searchTextWidth + infoTextWidth + favTextWidth + testTextWidth
+    MenuWidth = totalTextW + (60*totalMenuItem)
+    xPos = (1280 - MenuWidth)/2
 
-     maxWidth = 0
-     if hometextWidth > maxWidth then maxWidth = hometextWidth
-     if acccountTextWidth > maxWidth then maxWidth = acccountTextWidth
-     if mylibraryTextWidth > maxWidth then maxWidth = mylibraryTextWidth
-     if searchTextWidth > maxWidth then maxWidth = searchTextWidth
-     if infoTextWidth > maxWidth then maxWidth = infoTextWidth
-     if favTextWidth > maxWidth then maxWidth = favTextWidth
-     if testTextWidth > maxWidth then maxWidth = testTextWidth
-
-     'print "totalTextW : " totalTextW
-     MenuWidth = totalTextW + (60*totalMenuItem)
-     xPos = (1280 - MenuWidth)/2
-     print "MenuWidth :========================================================> " MenuWidth
-     m.shade.width = MenuWidth - 10
-     m.shade.translation = [xPos + 6,27.5]
-     m.MenuButtons.itemSize = [0, maxWidth]
-     m.MenuButtons.numColumns = totalMenuItem
-     ' print "xPos :========================================================> " xPos
-     m.MenuButtons.content = m.content_helpers.oneDimList2ContentNode(menuButtons, "TopMenuItemData")
-     m.MenuButtons.translation = [xPos + 6,0]
-     ' m.showMenuAnimation.control = "start"
-     m.MenuButtons.jumpToItem = intialFocusIndex
+    m.shade.width = MenuWidth - 10
+    m.shade.translation = [xPos + 6,27.5]
+    m.MenuButtons.itemSize = [0, maxWidth]
+    m.MenuButtons.numColumns = totalMenuItem
+    m.MenuButtons.content = m.content_helpers.oneDimList2ContentNode(menuButtons, "TopMenuItemData")
+    m.MenuButtons.translation = [xPos + 6,0]
+    ' m.showMenuAnimation.control = "start"
+    m.MenuButtons.jumpToItem = intialFocusIndex
 End Function
 
 ' on Menu Button press handler
@@ -265,7 +257,7 @@ Sub onItemSelected()
 
     ' SelectOption(selectedOptionTitle)
     ' m.top.selectedPageNumber = selectedOption
-    
+
     m.top.itemSelectedRole = childNode.role
     m.top.itemSelectedTarget = childNode.target
 end sub

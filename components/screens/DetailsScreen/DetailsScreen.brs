@@ -10,8 +10,8 @@ Function Init()
 
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
-    m.top.DontShowSubscriptionPackages = true
-    m.top.ShowSubscriptionPackagesCallback = false
+    ' m.top.DontShowSubscriptionPackages = true
+    ' m.top.ShowSubscriptionPackagesCallback = false
 
     m.buttons           =   m.top.findNode("Buttons")
 

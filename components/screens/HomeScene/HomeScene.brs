@@ -644,12 +644,12 @@ Function OnKeyEvent(key, press) as Boolean
           TriggerHideMenu()
           result = true
         else if key = "up"
-          if m.global.enable_top_navigation = true and m.TopMenu.visible = false then' Prevent multiple menu clicks
-            ' add Menu screen to Screen stack
-            TriggerShowMenu()
+          if m.detailsScreen.videoPlayer.visible = true
             result = true
-          else if m.detailsScreen.videoPlayer.visible = true
-            result = true
+          else if m.global.enable_top_navigation = true and m.TopMenu.visible = false then' Prevent multiple menu clicks
+              ' add Menu screen to Screen stack
+              TriggerShowMenu()
+              result = true            
           end if
         else if key = "back"
             ? "isSpecialScreen(): "; isSpecialScreen()
