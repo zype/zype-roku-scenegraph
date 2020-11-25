@@ -36,7 +36,6 @@
       "<subscription_plan_id_2>"
     ],
   "advanced_analytics_enabled": false,
-  "advanced_analytics_customerid": 0
-    ],
+  "advanced_analytics_customerid": 0,
   "enable_top_navigation": true
 }
