@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component name="MMTask" extends="Task">
+    <interface>
+        <field id="video" type="node" alwaysNotify="true"/>
+        <field id="config" type="assocarray" alwaysNotify="true"/>
+        <field id="error" type="assocarray" alwaysNotify="true"/>
+        <field id="customTags" type="assocarray" alwaysNotify="true"/>
+        <field id="view" type="String" alwaysNotify="true"/>
+        <field id="exit" type="Boolean" alwaysNotify="true"/>
+    </interface>
+    <script type="text/brightscript" uri="pkg:/source/services/MediaMelon/MMSmartStreamWrapper.brs"/>
+    <script type="text/brightscript" uri="pkg:/source/services/MediaMelon/MMSmartStreamEngine.brs"/>
+    <script type="text/brightscript" uri="pkg:/source/services/MediaMelon/MMSmartStreamRokuPlugin.brs"/>
+    <script type="text/brightscript" uri="pkg:/source/services/MediaMelon/Utilities.brs"/>
+</component>
