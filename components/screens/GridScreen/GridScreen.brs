@@ -19,6 +19,7 @@ Function Init()
     m.top.observeField("focusedChild", "OnFocusedChildChange")
     m.carouselShow=m.top.findNode("carouselShow")
     m.sliderButton=m.top.findNode("sliderButton")
+    m.top.sliderButton = m.sliderButton
     m.sliderGroup=m.top.findNode("sliderGroup")
     ' Set theme
     m.rowList.focusBitmapUri = m.global.theme.focus_grid_uri
