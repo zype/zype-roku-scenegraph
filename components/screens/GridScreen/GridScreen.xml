@@ -47,6 +47,7 @@
         <!-- Video Player referencible by HomeScene -->
         <field id="VideoPlayer" type="node" />
         <field id="sliderButton" type="node" />
+        <field id="exitDialogOpen" type="bool" value ="false"/>
 
         <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
     </interface>

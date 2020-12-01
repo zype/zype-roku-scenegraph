@@ -9,12 +9,14 @@
     <!-- Segment Analytics Connector path -->
     <script type="text/brightscript" uri="pkg:/source/analytics/SegmentAnalyticsConnector.brs" />
     <script type="text/brightscript" uri="pkg:/source/utils.brs" />
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
 
     <interface>
         <field id="myVideosArray" type="assocArray"  />
         <field id="allDataReceived" type="boolean" alwaysNotify="true" value="false"/>
 
         <field id="uniqueSessionID" type="string" alwaysnotify="true"/>
+        <field id="outRequest" type="AssocArray"/>
 
 
         <!--Interface to handle app launch complete event for sending beacon to Roku-->
@@ -79,6 +81,8 @@
         <field id="resetFocus" type="bool" alwaysNotify="true" onChange="resetFocusToScreen" />
 
         <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
+
+        <field id="exitItemSelected" type="integer" alwaysnotify="true" alias="exitButtons.itemSelected" onChange="exitButtonSelected" />
 
         <function name="GetPlaylistVideosFunc" />
 
@@ -217,6 +221,41 @@
           font="dictionary:loadingIndicatorFont"
           backgroundColor="0x151515"
           backgroundOpacity="0"/>
+
+
+          <Group id="gExitDialog" visible="false">
+              <Rectangle id = "hideMe" height = "720" width = "1280" opacity = ".3" />
+              <Poster
+                id="exitDialog"
+                width="800"
+                height="250"
+                uri="pkg:/images/white_fill_corner_radius_10.9.png"
+                opacity = "0.8"
+                translation="[0,0]" >
+
+                <Label id ="exitText" translation="[0,50]" width = "800" text="Are you sure you want to exit?" horizAlign="center">
+                  <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="30"/>
+                </Label>
+
+                  <Label translation="[25, 25]" id="hiddentitle" visible="false">
+                    <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="26" />
+                  </Label>
+
+                  <MarkupGrid id="exitButtons" translation="[0,200]"
+                      itemComponentName="ExitButton"
+                      numColumns="6"
+                      numRows="1"
+                      itemSize="[0,105]"
+                      focusBitmapUri="pkg:/images/focus_grid_light.9.png"
+                      focusFootprintBitmapUri="pkg:/images/nil.png"
+                      horizFocusAnimationStyle="floatingFocus"
+                      vertFocusAnimationStyle="floatingFocus"
+
+                      drawFocusFeedback = "false"
+                      visible="true"
+                      />
+              </Poster>
+          </Group>
 
         <!-- Timer to hide autoplay message -->
         <Timer id="autoplayMessageTimer" repeat="false" duration="5" />
