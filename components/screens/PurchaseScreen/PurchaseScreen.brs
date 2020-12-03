@@ -114,7 +114,7 @@ function initializers() as object
     self.PurchaseButtons.color = self.global.theme.primary_text_color
     self.PurchaseButtons.focusedColor = self.global.theme.primary_text_color
     self.PurchaseButtons.focusBitmapUri = self.global.theme.focus_grid_uri
-    self.PurchaseButtons.focusedFootprintBitmapUri = self.global.theme.focus_grid_uri
+    ' self.PurchaseButtons.focusedFootprintBitmapUri = self.global.theme.focus_grid_uri
 
     btns = [
       { title: "Purchase product - $X.XX", role: "confirm_purchase" },

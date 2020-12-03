@@ -25,6 +25,9 @@ Function Init()
     m.keyboard.textEditBox.textColor = "0x777777"
     m.top.observeField("visible", "OnTopVisibilityChange")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
+    if m.global.enable_top_navigation = true
+      m.top.observeField("focusedChild", "OnFocusedChild")
+    end if
 
     ' Set theme
     m.AppBackground = m.top.findNode("AppBackground")
@@ -76,10 +79,21 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
             if m.gridScreen.content <> invalid then m.gridScreen.setFocus(true)
             result = true
         else if key="up" then
-            m.keyboard.setFocus(true)
-            result = true
+            if m.global.enable_top_navigation = true then
+                if (m.gridScreen.visible = true AND m.gridScreen.hasFocus())
+                    m.keyboard.setFocus(true)
+                    result = true
+                else
+                    result = false
+                end if
+            else
+                m.keyboard.setFocus(true)
+                result = true
+            end if
         else if key = "options" then
-            result = true
+            if m.global.enable_top_navigation = false then
+              result = true
+            end if
         else if key = "back"
             ' if Details opened
             if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false then
@@ -126,6 +140,14 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
 
     return result
 end function
+
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+        m.keyboard.setFocus(true)
+    else
+        ' Unfocused'
+    end if
+end sub
 
 Sub OnTopVisibilityChange()
     if m.top.visible = true

@@ -12,3 +12,4 @@ splash_min_time=1500
 ui_resolutions=hd
 bs_libs_required=roku_ads_lib
 supports_input_launch=1
+uri_resolution_autosub=$$RES$$,sd,hd,fhd

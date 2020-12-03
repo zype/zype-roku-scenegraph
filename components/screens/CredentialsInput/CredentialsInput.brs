@@ -147,6 +147,15 @@ function updateCheckbox() as void
 end function
 
 
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+      m.inputs.setFocus(true)
+    else
+        ' Unfocused'
+    end if
+end sub
+
+
 sub updateScreen()
   if m.top.isRegister
     m.confirm_signup.visible = false
@@ -292,6 +301,10 @@ function initializers() as object
     self.input_keyboard = self.top.findNode("InputKeyboard")
 
     self.confirm_signup = self.top.findNode("ConfirmSignup")
+
+    if self.global.enable_top_navigation = true then
+      self.top.observeField("focusedChild", "OnFocusedChild")
+    end if
   end function
 
   return this
