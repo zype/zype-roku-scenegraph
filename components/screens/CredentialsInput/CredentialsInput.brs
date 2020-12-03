@@ -53,6 +53,8 @@ function onKeyEvent(key as string, press as boolean) as boolean
         m.inputs.jumpToRowItem = [0,0]
         result = true
       end if
+    else if key = "options"
+      result = true
     end if
 
   end if ' press = true

@@ -113,7 +113,7 @@ Function Init()
 
     ' loading indicator starts at initializatio of channel
     m.top.loadingIndicator = m.top.findNode("loadingIndicator")
-
+    m.top.loadingScreen = m.top.findNode("LoadingScreen")
     m.TestInfoScreen = m.top.findNode("TestInfoScreen")
 
     ' Set theme
@@ -130,6 +130,8 @@ Function Init()
     m.rowItemSizes = {}
     m.rowSpacings  = {}
     m.playListFromHeroSlider=false
+    m.playListDetailFromHeroSlider=false
+
     m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
 
     'timer for autoplay
@@ -303,11 +305,11 @@ Sub carouselSelectDataSelected()
 End SUb
 
 Sub CarouselDeepLinkToDetailPage()
-    m.gridScreen.visible = "false"
+    m.gridScreen.visible = false
     m.detailsScreen.autoplay = false
     m.detailsScreen.content = m.top.DeepLinkToDetailPage
     m.detailsScreen.setFocus(true)
-    m.detailsScreen.visible = "true"
+    m.detailsScreen.visible = true
     m.screenStack.push(m.detailsScreen)
 ENd SUb
 
@@ -365,6 +367,7 @@ Function OnRowItemSelected()
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = true
+        if m.playListFromHeroSlider = true then m.playListDetailFromHeroSlider = true
         m.screenStack.push(m.detailsScreen)
         print "m.gridScreen.focusedContent: "; type(m.gridScreen.focusedContent)
     end if
@@ -619,7 +622,7 @@ Function OnKeyEvent(key, press) as Boolean
     ? "key: "; key
     ? "press: "; press
     ? "m.screenStack.count(): "; m.screenStack.count()
-
+    ? " m.playListDetailFromHeroSlider " m.playListDetailFromHeroSlider
     result = false
     if press then
         if key = "options" then
@@ -652,9 +655,13 @@ Function OnKeyEvent(key, press) as Boolean
               result = true            
           end if
         else if key = "back"
-            ? "isSpecialScreen(): "; isSpecialScreen()
+            isSpecialScreen = isSpecialScreen()
+            ? "isSpecialScreen(): "; isSpecialScreen
+            if m.top.loadingIndicator.control = "start" then
 
-            if isSpecialScreen()
+                  return true
+            end if
+            if isSpecialScreen
                     m.gridScreen.heroCarouselShow=false
                 if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false and m.TopMenu.visible = false then
                     ? "1"
@@ -672,13 +679,18 @@ Function OnKeyEvent(key, press) as Boolean
                     m.screenStack.peek().setFocus(true)
 
                     if m.screenStack.peek().id = "Search"
-                    SearchGrid = m.screenStack.peek().findNode("Grid")
-                    SearchGrid.visible = false
+                      SearchGrid = m.screenStack.peek().findNode("Grid")
+                      SearchGrid.visible = false
 
-                    SearchDetailsScreen = m.screenStack.peek().findNode("SearchDetailsScreen")
-                    SearchDetailsScreen.videoPlayerVisible = false
+                      SearchDetailsScreen = m.screenStack.peek().findNode("SearchDetailsScreen")
+                      SearchDetailsScreen.videoPlayerVisible = false
                     end if
-
+                    if m.playListFromHeroSlider=true and m.playListDetailFromHeroSlider = false then
+                        contentStackCount = m.contentStack.count()
+                        m.contentStack.pop()
+                        m.playListFromHeroSlider=false
+                        m.gridScreen.moveFocusToheroCarousel=true                        
+                   end if
                     result = true
 
                 ' if video player opened
@@ -690,12 +702,14 @@ Function OnKeyEvent(key, press) as Boolean
                     m.detailsScreen.videoPlayer.setFocus(false)
 
                     m.detailsScreen.visible = true
+                    if m.playListFromHeroSlider = true then m.playListDetailFromHeroSlider = true
                     m.detailsScreen.setFocus(true)
                     result = true
                else if  m.playListFromHeroSlider=true then
                     ?m.contentStack
                     previousContent = m.contentStack[0]
                     m.gridScreen.content = previousContent
+                    m.contentStack.pop()
                     lastPosition = GetLastPositionFromTracker()
                     lastRowItemSizes = GetLastRowItemSizes()
                     lastRowSpacings = GetLastRowSpacings()
@@ -759,7 +773,9 @@ Function OnKeyEvent(key, press) as Boolean
                     ' if the screen is visible - it must be the last element
                     screen = m.screenStack.pop()
                     screen.visible = false
-
+                    if m.playListFromHeroSlider = true and m.playListDetailFromHeroSlider = true and m.top.dialog = invalid then
+                        m.playListDetailFromHeroSlider = false
+                    end if
                     ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                     ' open last screen before it and focus it
                     m.screenStack.peek().visible = true
@@ -776,8 +792,11 @@ Function OnKeyEvent(key, press) as Boolean
     if press = false then
 
         print "Dialog: "; m.top.dialog
+        if key = "back" and (m.top.loadingIndicator.control = "start" or m.top.loadingScreen.visible = true) then
+              return true
+        end if
 
-        if key = "back" AND m.top.dialog = invalid AND not isSpecialScreen()
+        if key = "back" AND m.top.dialog = invalid and m.dialogdetail = invalid AND not isSpecialScreen()
             m.gridScreen.heroCarouselShow=true
         end if
 
@@ -787,19 +806,21 @@ Function OnKeyEvent(key, press) as Boolean
                 m.top.TriggerDeviceUnlink = true
                 m.top.dialog.close = true
                 m.top.dialog = invalid
+                m.dialogdetail = invalid
             else if((buttonIndex = 0 and key = "OK" AND m.top.dialog.title <> "Closed caption/audio configuration") OR (buttonIndex = 1 and key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation"))
                 m.top.dialog.close = true
                 m.top.dialog = invalid
-
+                m.dialogdetail = invalid
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)
 
             end if
             print "buttonIndex: "; buttonIndex; " buttonKey: "; key
         else
-            if key = "back" AND m.top.dialog = invalid
+            if key = "back" AND (m.top.dialog = invalid and m.dialogdetail = invalid)
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)
+                if m.dialogdetail <> invalid then m.dialogdetail = invalid
             end if
         end if
 
@@ -822,6 +843,7 @@ Function OnKeyEvent(key, press) as Boolean
 
             m.detailsScreen.autoplay = false
             m.detailsScreen.visible = true
+            if m.playListFromHeroSlider = true then m.playListDetailFromHeroSlider = true
             m.detailsScreen.setFocus(true)
           end if
         end if
@@ -835,6 +857,8 @@ Function isSpecialScreen()
     ? m.screenStack.peek()
     if m.screenStack.peek().id = "Menu" or m.screenStack.peek().id = "TopMenu"
         return false
+    else if m.playListFromHeroSlider = true and m.playListDetailFromHeroSlider = true then
+            return false
     else if (m.detailsScreen.visible = true) OR (m.contentStack.count() > 0 and m.gridScreen.visible = true) OR (m.deviceLinking.visible = true)
         return true
     else
@@ -844,9 +868,9 @@ End Function
 
 
 ' Takes screen and creates dialog for it
-function CreateDialog(screen, title, message, buttons)
+function CreateDialog(screen, title, message, buttons, setDialogDetail = false)
   m.top.dialog = invalid
-
+  m.dialogdetail = invalid
   dialog = createObject("roSGNode", "Dialog")
   dialog.title = title
   dialog.message = message
@@ -855,12 +879,17 @@ function CreateDialog(screen, title, message, buttons)
   dialog.observeField("buttonSelected", "DialogButtonSelected")
 
   m.top.dialog = dialog
+  if setDialogDetail = true then
+    m.dialogdetail = dialog
+  end if
+
 end function
 
 sub DialogButtonSelected()
     if (m.top.dialog <> invalid) then
         m.top.dialog.close = true
         m.top.dialog = invalid
+        m.dialogdetail = invalid
     end if
 end sub
 

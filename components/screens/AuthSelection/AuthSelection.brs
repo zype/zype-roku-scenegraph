@@ -29,6 +29,8 @@ function OnKeyEvent(key as string, press as boolean) as boolean
         if m.helpers.focusedChild(m) = "OAuthTransition" then
           m.plan_buttons.setFocus(true)
           result = true
+      else if key = "options"
+        result = true
         end if
       end if
     end if

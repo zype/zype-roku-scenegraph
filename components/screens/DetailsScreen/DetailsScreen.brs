@@ -167,7 +167,7 @@ End Function
 
 ' set proper focus to buttons if Details opened and stops Video if Details closed
 Sub onVisibleChange()
-    ? "[DetailsScreen] onVisibleChange"
+    ? "[DetailsScreen] onVisibleChange " m.top.visible
     if m.top.visible = true then
         m.buttons.jumpToItem = 0
 

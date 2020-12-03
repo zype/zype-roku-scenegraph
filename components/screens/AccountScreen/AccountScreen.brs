@@ -45,6 +45,17 @@ function resetTextCallback() as void
   m.button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
 end function
 
+function onKeyEvent(key as String, press as Boolean) as Boolean
+  result = false
+  if press
+    ? ">>> AccountScreen >> onKeyEvent >> key " key
+    if key = "options"
+      result = true
+    end if
+  end if
+  return result
+end function
+
 function helpers() as object
   this = {}
 

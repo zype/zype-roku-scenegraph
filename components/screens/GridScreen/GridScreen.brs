@@ -19,6 +19,7 @@ Function Init()
     m.top.observeField("focusedChild", "OnFocusedChildChange")
     m.carouselShow=m.top.findNode("carouselShow")
     m.sliderButton=m.top.findNode("sliderButton")
+    m.top.sliderButton = m.sliderButton
     m.sliderGroup=m.top.findNode("sliderGroup")
     m.sliderFocus=m.top.findNode("sliderFocus")
     ' Set theme
