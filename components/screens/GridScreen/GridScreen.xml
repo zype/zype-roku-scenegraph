@@ -18,7 +18,7 @@
 
         <!-- herCarousel Content Data -->
         <field id="heroCarouselData" type="array" onChange="showHeroCarousel"/>
-
+        <field id="visibleSliderSelector" type="bool" alwaysNotify="true" alias="sliderFocus.visible" />
         <!-- herCarousel Data to be shown or not -->
         <field id="heroCarouselShow" type="bool" />
         <field id="moveFocusToheroCarousel" type="bool" onChange="moveFocusToheroCarousel" />
@@ -92,7 +92,6 @@
                 <Poster
                     id="OptionsIcon"
                     blendColor="#ffffff"
-                    enableColorBlending="false"
                     translation="[1139, 53]"
                     width="24"
                     height="24"

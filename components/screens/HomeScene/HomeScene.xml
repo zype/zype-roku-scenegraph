@@ -82,6 +82,8 @@
 
         <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
 
+        <field id="LastSelectedMenu" value="" type="string"/>
+
         <field id="exitItemSelected" type="integer" alwaysnotify="true" alias="exitButtons.itemSelected" onChange="exitButtonSelected" />
 
         <function name="GetPlaylistVideosFunc" />
@@ -90,6 +92,12 @@
         <function name="PushScreenIntoScreenStack" />
         <function name="PushContentIntoContentStack" />
         <function name="CreateDialog" />
+
+        <function name="ShowMenuAndStartHideMenuTimer" />
+        <function name="StopHideMenuTimer" />
+        <function name="TriggerHideMenu" />
+        <function name="TriggerShowMenu" />
+
         <field id="segmentEvent" type="assocArray" onChange="onSegmentEventChanged"/>
     </interface>
 
@@ -116,6 +124,11 @@
         <!--Menu screen.-->
         <Menu
             id="Menu"
+            visible="false"/>
+
+        <!--TopMenu screen.-->
+        <TopMenu
+            id="TopMenu"
             visible="false"/>
 
         <!-- Device Linking screen -->
@@ -259,5 +272,7 @@
 
         <!-- Timer to hide autoplay message -->
         <Timer id="autoplayMessageTimer" repeat="false" duration="5" />
+
+        <Timer id="menuHideTimer" repeat="false" duration="3" />
     </children>
 </component>

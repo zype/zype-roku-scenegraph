@@ -328,6 +328,9 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
       ' Stop loader and refocus
       m.gridScreen.setFocus(true)
       m.loadingIndicator.control = "stop"
+      if m.global.enable_top_navigation = true then
+          m.scene.callFunc("ShowMenuAndStartHideMenuTimer")
+      end if
     end if
 
     'autoPlayHero = LoadAutoPlayHero()
@@ -593,13 +596,16 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 content = createObject("RoSGNode","VideoNode")
                 content.setFields(msg.getData())
                 playLiveStream(m.epgScreen, content)
-            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected" then
+            else if (msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "GridScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected" then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
                     lclScreen = m.favoritesDetailsScreen
                 else if msg.getNode() = "SearchDetailsScreen"
                     lclScreen = m.searchDetailsScreen
+                else if msg.getNode() = "GridScreen"
+                    print "GridScreen========================================================0000000000000000000000000"
+                    lclScreen = m.gridScreen
                 else if msg.getNode() = "MyLibraryDetailsScreen"
                     lclScreen = m.MyLibraryDetailsScreen
                 else if msg.getNode() = "DetailsScreen"
@@ -1983,6 +1989,8 @@ function handleButtonEvents(index, screen)
 
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
+    else if button_role = "transition" and button_target = "GridScreen"
+      m.scene.transitionTo = "GridScreen"
     else if button_role = "transition" and button_target = "SignUpScreen"
       m.scene.transitionTo = "SignUpScreen"
     else if button_role = "transition" and button_target = "PurchaseScreen"
@@ -2387,7 +2395,8 @@ function SetFeatures() as void
     enable_segment_analytics: configs.enable_segment_analytics,
     segment_source_write_key: configs.segment_source_write_key,
     advanced_analytics_enabled: configs.advanced_analytics_enabled,
-    advanced_analytics_customerid: configs.advanced_analytics_customerid
+    advanced_analytics_customerid: configs.advanced_analytics_customerid,
+    enable_top_navigation: configs.enable_top_navigation
   })
 
   if (configs.favorites_via_api = true)

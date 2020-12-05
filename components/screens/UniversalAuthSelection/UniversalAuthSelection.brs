@@ -33,6 +33,15 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
   return result
 end function
 
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+      m.u_auth_buttons.setFocus(true)
+    else
+        ' Unfocused'
+    end if
+end sub
+
+
 function helpers() as object
   this = {}
 
@@ -72,6 +81,10 @@ function initializers() as object
     self.u_auth_buttons.content = self.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
 
     self.top.observeField("visible", "onVisibleChange")
+    if self.global.enable_top_navigation = true
+      self.top.observeField("focusedChild", "OnFocusedChild")
+    end if
+
   end function
 
   return this
