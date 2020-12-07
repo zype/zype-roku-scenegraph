@@ -1921,61 +1921,86 @@ function handleButtonEvents(index, screen)
         end if
       end if
     else if button_role = "syncNative"
-      user_info = m.current_user.getInfo()
-      latest_native_sub = m.roku_store_service.latestNativeSubscriptionPurchase()
+        StartLoader()
+        m.loadingIndicator.control = "start"
+        'user_info = m.current_user.getInfo()
+        latest_native_sub = m.roku_store_service.latestNativeSubscriptionPurchase()
 
-      third_party_id = GetPlan(latest_native_sub.code, {}).third_party_id
-
-      bifrost_params = {
-        app_key: GetApiConfigs().app_key,
-        consumer_id: user_info._id,
-        third_party_id: third_party_id,
-        roku_api_key: GetApiConfigs().roku_api_key,
-        transaction_id: UCase(latest_native_sub.purchaseId),
-        device_type: "roku"
-      }
-
-      native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
-
-      if native_sub_status <> invalid and native_sub_status.is_valid <> invalid and native_sub_status.is_valid
-
-        updated_user_info = m.current_user.getInfo()
-
-        ' native subscription sync success
-        if updated_user_info.subscription_count > 0
-          ' Re-login. Get new access token
-        '   if updated_user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
-          m.auth_state_service.updateAuthWithUserInfo(updated_user_info)
-
-          ' Refresh lock icons with grid screen content callback
-          m.scene.gridContent = m.gridContent
-
-          m.AccountScreen.resetText = true
-
-          ' details screen should update self
-          m.detailsScreen.content = m.detailsScreen.content
-
-          m.native_email_storage.WriteEmail(updated_user_info.email)
-
-          sleep(500)
-          m.scene.callFunc("CreateDialog",m.scene, "Success", "Was able to validate subscription.", ["Close"])
-
-        ' subscription count = 0
+        print "latest_native_sub---> " latest_native_sub
+        access_token = ""
+        if (m.current_user.getOAuth() <> invalid AND m.current_user.getOAuth().access_token <> invalid)
+          access_token = m.current_user.getOAuth().access_token
         else
-
-          stored_email = m.native_email_storage.ReadEmail()
-          if stored_email = "" or stored_email = invalid then message = "Please sign in with the correct email to sync your subscription." else message = "Please sign in as " + stored_email + " to sync your subscription."
-
-          sleep(500)
-          m.scene.callFunc("CreateDialog",m.scene, "Error", message, ["Close"])
+          access_token = ""
         end if
 
-      else
+        consumer_id = m.current_user.getInfo()._id
+
+        matchingZypePlanId = m.marketplaceConnect.getZypePlanIDFromRokuPlanCode(latest_native_sub.code, m.global.subscription_plan_ids)
+
+        print "access_token : " access_token
+        print "consumer_id : " consumer_id
+        print "purchase_subscription.receipt.purchaseId : " latest_native_sub.purchaseId
+        print "plan.zypePlanId : " matchingZypePlanId
+        print "m.app._id : " m.app._id
+        print "m.app.site_id : " m.app.site_id
+
+        marketplaceParams = {
+            access_token: access_token,
+            consumer_id: consumer_id,
+            transaction_id: latest_native_sub.purchaseId,
+            plan_id: matchingZypePlanId,
+            app_id: m.app._id,
+            site_id: m.app.site_id
+        }
+
+        print "marketplaceParams ---> " marketplaceParams
+
+        if (matchingZypePlanId <> "")
+            marketPlaceConnectSVODVerificationStatus = m.marketplaceConnect.verifyMarketplaceSubscription(marketplaceParams)
+            print "======> marketPlaceConnectSVODVerificationStatus : ===> " marketPlaceConnectSVODVerificationStatus
+
+            if marketPlaceConnectSVODVerificationStatus = true
+              updated_user_info = m.current_user.getInfo()
+              print "updated_user_info ==> " updated_user_info
+                ' native subscription sync success
+              if updated_user_info.subscription_count > 0
+                  ' Re-login. Get new access token
+                  m.auth_state_service.updateAuthWithUserInfo(updated_user_info)
+                  ' Refresh lock icons with grid screen content callback
+                  m.scene.gridContent = m.gridContent
+
+                  m.AccountScreen.resetText = true
+
+                  ' details screen should update self
+                  m.detailsScreen.content = m.detailsScreen.content
+
+                  m.native_email_storage.WriteEmail(updated_user_info.email)
+
+                  EndLoader(m.AccountScreen)
+                  m.loadingIndicator.control = "stop"
+                  sleep(500)
+                  m.scene.callFunc("CreateDialog",m.scene, "Success", "Was able to validate subscription.", ["Close"])
+               else
+                  stored_email = m.native_email_storage.ReadEmail()
+                  if stored_email = "" or stored_email = invalid then message = "Please sign in with the correct email to sync your subscription." else message = "Please sign in as " + stored_email + " to sync your subscription."
+                  EndLoader(m.AccountScreen)
+                  m.loadingIndicator.control = "stop"
+                  sleep(500)
+                  m.scene.callFunc("CreateDialog",m.scene, "Error", message, ["Close"])
+              end if
+            else
+                EndLoader(m.AccountScreen)
+                m.loadingIndicator.control = "stop"
+               sleep(500)
+               m.scene.callFunc("CreateDialog",m.scene, "Error", "There was an error validating your subscription.", ["Close"])
+            end if
+        else
+            EndLoader(m.AccountScreen)
+            m.loadingIndicator.control = "stop"
         sleep(500)
         m.scene.callFunc("CreateDialog",m.scene, "Error", "There was an error validating your subscription.", ["Close"])
       end if
-
-
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
     else if button_role = "transition" and button_target = "GridScreen"
@@ -1984,22 +2009,17 @@ function handleButtonEvents(index, screen)
       m.scene.transitionTo = "SignUpScreen"
     else if button_role = "transition" and button_target = "PurchaseScreen"
       if screen.content.storeProduct<>invalid
-
           m.PurchaseScreen.purchaseItem = screen.content.storeProduct
           m.PurchaseScreen.itemName = screen.content.title
           m.PurchaseScreen.videoId = screen.content.id
-
       else if screen.rowTVODInitiateContent.DESCRIPTION<>""
         m.PurchaseScreen.isPlayList=true
         m.PurchaseScreen.playListVideoCount = screen.rowTVODInitiateContent.NUMEPISODES.toStr()
         m.PurchaseScreen.purchaseItem = parseJSON(screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1)
         m.PurchaseScreen.itemName = screen.rowTVODInitiateContent.title
         m.PurchaseScreen.videoId = screen.rowTVODInitiateContent.id
-
       end if
-
       m.scene.transitionTo = "PurchaseScreen"
-
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
       if m.global.enable_device_linking = false then m.scene.transitionTo = "SignInScreen" else m.scene.transitionTo = "UniversalAuthSelection"
     else if button_role = "transition" and button_target = "DeviceLinking"
@@ -2040,7 +2060,6 @@ function handleNativeToUniversal() as void
 
   if purchase_subscription.success
       m.auth_state_service.incrementNativeSubCount()
-
       isCheckMarketPlaceConnectSVOD = false
 
       if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
