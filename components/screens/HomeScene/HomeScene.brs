@@ -706,7 +706,7 @@ Function OnKeyEvent(key, press) as Boolean
           else if m.global.enable_top_navigation = true and m.TopMenu.visible = false then' Prevent multiple menu clicks
               ' add Menu screen to Screen stack
               TriggerShowMenu()
-              result = true            
+              result = true
           end if
         else if key = "back"
             isSpecialScreen = isSpecialScreen()

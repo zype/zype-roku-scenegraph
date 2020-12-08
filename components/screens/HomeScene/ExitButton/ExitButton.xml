@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--********** Copyright 2016 Roku Corp.  All Rights Reserved. **********-->
+
+<!-- node that renders PlanButton
+    should display information for Native Subscription
+ -->
+<component name="ExitButton" extends="Group" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+    <interface>
+      <field id="width" type="float" onChange="onSizeChange"/>
+      <field id="height" type="float" onChange="onSizeChange"/>
+      <field id="itemContent" type="node" onChange="OnContentChange"/>
+
+
+      <field id="focusPercent" type="float" onChange="FocusPercent_Changed" alwaysNotify="false" />
+      <field id="lastFocusPercent" type="float" alwaysNotify="false" />
+      <field id="itemHasFocus" type="boolean" onChange="ItemHasFocus_Changed" alwaysNotify="false" />
+      <field id="gridHasFocus" type="boolean" onChange="ParentHasFocus_Changed" alwaysNotify="false"/>
+
+
+    </interface>
+
+    <!-- main handler -->
+    <script type="text/brightscript" uri="pkg:/components/screens/HomeScene/ExitButton/ExitButton.brs" />
+
+    <children>
+    
+      <Poster
+          id="exitButton"
+          uri="pkg:/images/white_fill_corner_radius_$$RES$$_10.9.png"
+          height="50"
+          translation="[0, 27.5]"
+          />
+
+
+      <Label translation="[25, 25]" id="exitLabel" height="50" vertAlign="center" horizAlign="center">
+            <Font role = "font" uri = "pkg:/fonts/Roboto-Bold.ttf" size = "26" />
+      </Label>
+    </children>
+</component>
