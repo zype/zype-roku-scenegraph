@@ -398,7 +398,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     ' m.scene.sentLaunchCompleteEvent = true
 
     m.scene.observeField("outRequest", m.port)
-  
+
     while(true)
         msg = wait(0, m.port)
         msgType = type(msg)
@@ -955,11 +955,11 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
   ' If video source is not available
   if(playerInfo.statusCode <> 200 or content.streamFormat = "(null)")
         print "--------------------------------------------------------------------------8 - Closed"
-    CloseVideoPlayer(screen)
+        CloseVideoPlayer(screen)
         if m.LoadingScreen.visible = true
           EndLoadingScreen(screen)
         end if
-    CreateVideoUnavailableDialog(playerInfo.errorMessage)
+      m.scene.callFunc("CreateDialog",m.scene, "Error", playerInfo.errorMessage, ["Close"])
   else
         print "--------------------------------------------------------------------------9 - Play"
     PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo, content)
@@ -2319,7 +2319,7 @@ Function EndLoadingScreen(screen=m.detailsScreen)
   m.loadingIndicator1.control = "stop"
   m.LoadingScreen.show = false
   m.LoadingScreen.setFocus(false)
-  screen.setFocus(true)
+  m.scene.resetFocus = true
 End Function
 
 

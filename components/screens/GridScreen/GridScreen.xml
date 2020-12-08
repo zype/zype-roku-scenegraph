@@ -18,7 +18,6 @@
 
         <!-- herCarousel Content Data -->
         <field id="heroCarouselData" type="array" onChange="showHeroCarousel"/>
-        <field id="visibleSliderSelector" type="bool" alwaysNotify="true" alias="sliderFocus.visible" />
         <!-- herCarousel Data to be shown or not -->
         <field id="heroCarouselShow" type="bool" />
         <field id="visibleSliderSelector" type="bool" alwaysNotify="true" alias="sliderFocus.visible" onChange="onSliderVisibleChange" />

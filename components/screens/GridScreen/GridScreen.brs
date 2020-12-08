@@ -477,7 +477,7 @@ End Sub
 
 sub UpdateSliderImages()
     if (m.totalSliderImages > 0)
-      print "Center Slider Index ::::::::::::::::::::::::::::::: " m.currentSliderImageIndex
+      ' print "Center Slider Index ::::::::::::::::::::::::::::::: " m.currentSliderImageIndex
       if ((m.currentSliderImageIndex - 1) < 0)
           m.slider1.uri=GetPosterImageurl(m.totalSliderImages-1)
       else
@@ -540,8 +540,8 @@ SUb moveFocusToheroCarousel()
 End Sub
 
 Sub changeSliderImage()
-  if m.top.visible AND m.top.videoPlayer.visible = false and m.top.exitDialogOpen = false
-    print "============================================sliderchange==================================================>"m.index
+  if m.top.visible AND m.top.videoPlayer.visible = false and m.top.exitDialogOpen = false and m.top.visibleSliderSelector = true
+    ' print "============================================sliderchange==================================================>"m.index
     ' Consider this as Right Press when auto timer expired'
     ChangeSliderIndex(true)
   end if

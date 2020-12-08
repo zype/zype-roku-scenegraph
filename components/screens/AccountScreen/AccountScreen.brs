@@ -74,19 +74,11 @@ function helpers() as object
   return this
 end function
 
-sub OnFocusedChild()
-    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
-      m.button.setFocus(true)
-    else
-    end if
-end sub
-
 function initializers() as object
   this = {}
 
   this.initChildren = function(self) as void
     self.top.observeField("visible", "onVisibleChange")
-    self.top.observeField("focusedChild", "OnFocusedChild")
 
     self.background = self.top.findNode("Background")
     self.background.color = self.global.theme.background_color

@@ -16,7 +16,7 @@ End Function
 
 ' onChange handler for "show" field
 sub onShow()
-    print " [LoadingScreen] onShow()"
+    'print " [LoadingScreen] onShow()"
 
     m.top.visible = m.top.show
     m.top.setFocus(m.top.show)
