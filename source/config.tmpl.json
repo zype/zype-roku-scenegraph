@@ -38,5 +38,8 @@
   "advanced_analytics_enabled": false,
   "advanced_analytics_customerid": 0,
   "enable_top_navigation": true,
-  "google_analytics_tracking_id":"<ADD_YOUR_KEY_HERE>"
+  "google_analytics_tracking_id":"<ADD_YOUR_KEY_HERE>",
+  "custom_lock_color": "#d12c04",
+  "custom_unlock_color": "#047db6",
+  "enable_unlock_transparent": false
 }
