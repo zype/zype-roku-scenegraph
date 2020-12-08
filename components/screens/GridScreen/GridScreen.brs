@@ -540,7 +540,7 @@ SUb moveFocusToheroCarousel()
 End Sub
 
 Sub changeSliderImage()
-  if m.top.visible AND m.top.videoPlayer.visible = false
+  if m.top.visible AND m.top.videoPlayer.visible = false and m.top.exitDialogOpen = false
     print "============================================sliderchange==================================================>"m.index
     ' Consider this as Right Press when auto timer expired'
     ChangeSliderIndex(true)

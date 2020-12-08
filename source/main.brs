@@ -379,6 +379,8 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     ' HB: Actually we have finished all loading here
     ' m.scene.sentLaunchCompleteEvent = true
 
+    m.scene.observeField("outRequest", m.port)
+  
     while(true)
         msg = wait(0, m.port)
         msgType = type(msg)
@@ -387,8 +389,17 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
             print "msg.getField(): "; msg.getField()
             print "msg.getData(): "; msg.getData()
             print "msg.getNode(): "; msg.getNode()
-
-            if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
+            ' When The AppManager want to send command back to Main
+            if (msg.GetField() = "outRequest")
+                request = msg.GetData()
+                if (request <> invalid)
+                  print "Request : " request
+                    if (request.DoesExist("ExitApp") AND (request.ExitApp = true))
+                        print "ExitApp :  Closing Screen."
+                        screen.close()
+                    end if
+                end if
+            else if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
               RemakeVideoPlayer(m.detailsScreen)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
               m.akamai_service.setPlayStartedOnce(true)

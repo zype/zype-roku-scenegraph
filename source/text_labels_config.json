@@ -35,7 +35,9 @@
   "sign_up_to_watch_submit_button": "Sign Up to Watch",
   "custom_plan_purchase_message": "",
   "program_is_not_available": "Program data is not available",
-
+  "exit_dialog_message" : "Are you sure you want to exit {0} ?",
+  "exit_yes_button" : "Yes, exit.",
+  "exit_no_button" : "No, take me back.",
   "subscribe_button": "Subscribe to Watch",
   "swaf_button": "Watch Ad Free",
   "watch_trailer_button": "Watch Trailer",
