@@ -2341,7 +2341,7 @@ End Function
 '     2- edit CustomTheme() inside source/themes.brs
 '     3- add/update the images inside the images folder
 Function SetTheme()
-
+m.app.theme = "light"
   if m.app.theme <> invalid
     theme = m.app.theme
 
