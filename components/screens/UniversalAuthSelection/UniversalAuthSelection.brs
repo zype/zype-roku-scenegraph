@@ -72,8 +72,9 @@ function initializers() as object
 
     self.u_auth_buttons = self.top.findNode("UAuthMethods")
     self.u_auth_buttons.color = self.global.theme.primary_text_color
-    self.u_auth_buttons.focusedColor = self.global.theme.primary_text_color
-    self.u_auth_buttons.focusBitmapUri = self.global.theme.focus_grid_uri
+    self.u_auth_buttons.focusedColor = self.global.theme.button_focus_color
+    self.u_auth_buttons.focusBitmapUri = self.global.theme.button_focus_uri
+    self.u_auth_buttons.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
     btns = [
       { title: self.global.labels.sign_in_transition_button, role: "transition", target: "SignInScreen" },
       { title: self.global.labels.link_device_transition_button, role: "transition", target: "DeviceLinking" }

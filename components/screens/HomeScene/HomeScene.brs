@@ -392,7 +392,9 @@ Function OnRowItemSelected()
         m.gridScreen.visible = false
 
         for each key in m.gridScreen.focusedContent.keys()
-          m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
+          if m.nextVideoNode[key] <> invalid
+            m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
+          end if
         end for
 
         rowItemSelected = m.gridScreen.findNode("RowList").rowItemSelected

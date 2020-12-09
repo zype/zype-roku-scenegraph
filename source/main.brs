@@ -115,6 +115,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     m.port = CreateObject("roMessagePort")
 
     print "m.app.theme::: " m.app.theme
+    
     if m.app.theme = "dark"
        theme=DarkTheme()
     else if m.app.theme = "light"
@@ -2007,26 +2008,27 @@ function handleButtonEvents(index, screen)
 
                   m.native_email_storage.WriteEmail(updated_user_info.email)
 
-                  EndLoader(m.AccountScreen)
+                  EndLoadingScreen(m.AccountScreen)
                   m.loadingIndicator.control = "stop"
                   sleep(500)
+                  m.scene.transitionTo = "GridScreen"
                   m.scene.callFunc("CreateDialog",m.scene, "Success", "Was able to validate subscription.", ["Close"])
                else
                   stored_email = m.native_email_storage.ReadEmail()
                   if stored_email = "" or stored_email = invalid then message = "Please sign in with the correct email to sync your subscription." else message = "Please sign in as " + stored_email + " to sync your subscription."
-                  EndLoader(m.AccountScreen)
+                  EndLoadingScreen(m.AccountScreen)
                   m.loadingIndicator.control = "stop"
                   sleep(500)
                   m.scene.callFunc("CreateDialog",m.scene, "Error", message, ["Close"])
               end if
             else
-                EndLoader(m.AccountScreen)
+                EndLoadingScreen(m.AccountScreen)
                 m.loadingIndicator.control = "stop"
                sleep(500)
                m.scene.callFunc("CreateDialog",m.scene, "Error", "There was an error validating your subscription.", ["Close"])
             end if
         else
-            EndLoader(m.AccountScreen)
+            EndLoadingScreen(m.AccountScreen)
             m.loadingIndicator.control = "stop"
         sleep(500)
         m.scene.callFunc("CreateDialog",m.scene, "Error", "There was an error validating your subscription.", ["Close"])
@@ -2380,7 +2382,7 @@ End Function
 '     2- edit CustomTheme() inside source/themes.brs
 '     3- add/update the images inside the images folder
 Function SetTheme()
-m.app.theme = "light"
+
   if m.app.theme <> invalid
     theme = m.app.theme
 

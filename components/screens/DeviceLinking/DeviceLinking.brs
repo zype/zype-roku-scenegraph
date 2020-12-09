@@ -28,7 +28,7 @@ Function Init()
 
     m.pin.color = m.global.theme.primary_text_color
 
-    m.unlinkButton.focusedColor = m.global.theme.primary_text_color
+    m.unlinkButton.focusedColor = m.global.theme.button_focus_color
     m.unlinkButton.focusBitmapUri = m.global.theme.button_focus_uri
     m.unlinkButton.focusFootprintBitmapUri = m.global.theme.button_unfocus_uri
 End Function

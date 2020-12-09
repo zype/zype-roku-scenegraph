@@ -85,9 +85,9 @@ function initializers() as object
 
     self.button = self.top.findNode("Button")
     self.button.color = self.global.theme.primary_text_color
-    self.button.focusedColor = self.global.theme.primary_text_color
-    self.button.focusBitmapUri = self.global.theme.focus_grid_uri
-    self.button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
+    self.button.focusedColor = self.global.theme.button_focus_color
+    self.button.focusBitmapUri = self.global.theme.button_focus_uri
+    self.button.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
 
     if self.global.enable_top_navigation = true then
       self.top.observeField("focusedChild", "OnFocusedChild")
