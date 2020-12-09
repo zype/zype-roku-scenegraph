@@ -674,7 +674,7 @@ Sub OnContentChange()
   if m.top.content <> invalid
     refreshButtons()
     m.description.content   = m.top.content
-    m.description.Description.height = "250"
+    m.description.Description.height = "225"
 
     ' print "detailScreen OnContentChange ====> m.top.content : " m.top.content
     m.top.videoPlayer.content   = m.top.content

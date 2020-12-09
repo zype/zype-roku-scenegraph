@@ -23,7 +23,7 @@ Function LightTheme() as Object
         primary_text_color:         "#1f1f1f",
         secondary_text_color:       "#595959",
         plan_button_color:          "#d6d6d6",
-        button_focus_color:         "#f0f0f0",
+        button_focus_color:         "#ffffff",
         loader_uri:                 "pkg:/components/screens/LoadingIndicator/darkLoader.png",
         focus_grid_uri:             "pkg:/images/focus_grid_dark.9.png",
         overlay_uri:                "pkg:/images/whiteOverlay.png",
