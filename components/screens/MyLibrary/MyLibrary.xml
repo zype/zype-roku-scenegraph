@@ -58,7 +58,7 @@
             id="Grid"
             focusBitmapUri="pkg:/images/focus_grid_light.9.png"
             translation="[-60, 250]"
-            itemSize="[1327, 218]"
+            itemSize="[1400, 218]"
             numRows="2"
             itemSpacing="[13, 0]"
             focusXOffset="[147]"
@@ -82,7 +82,7 @@
         <!-- Overhang logo -->
         <Poster
             id="PosterOverhang"
-            translation="[100, 30]"
+            translation="[85, 40]"
             loadwidth="500"
             loadheight="100"
             loadDisplayMode="scaleToFit"
@@ -108,7 +108,7 @@
             focusedColor="0xf5f5f5"
             numRows="1"
             vertFocusAnimationStyle="floatingFocus"
-            itemSize="[300, 35]"
+            itemSize="[300, 45]"
             font="dictionary:MenuFont"
             textHorizAlign="center"
             focusedFont="dictionary:MenuFont"

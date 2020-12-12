@@ -111,10 +111,10 @@ function initializers() as object
     self.ItemLabel.color = self.global.theme.primary_text_color
 
     self.PurchaseButtons = self.top.findNode("PurchaseButtons")
-    self.PurchaseButtons.color = self.global.theme.primary_text_color
-    self.PurchaseButtons.focusedColor = self.global.theme.primary_text_color
-    self.PurchaseButtons.focusBitmapUri = self.global.theme.focus_grid_uri
-    ' self.PurchaseButtons.focusedFootprintBitmapUri = self.global.theme.focus_grid_uri
+    self.PurchaseButtons.color = self.global.theme.button_focus_color
+    self.PurchaseButtons.focusedColor = self.global.theme.button_focus_color
+    self.PurchaseButtons.focusBitmapUri = self.global.theme.button_focus_uri
+    self.PurchaseButtons.focusedFootprintBitmapUri = self.global.theme.button_unfocus_uri
 
     btns = [
       { title: "Purchase product - $X.XX", role: "confirm_purchase" },
@@ -124,9 +124,9 @@ function initializers() as object
 
     self.OauthButton = self.top.findNode("OAuthButton")
     self.OauthButton.color = self.global.theme.primary_text_color
-    self.OauthButton.focusedColor = self.global.theme.background_color
-    self.OauthButton.focusBitmapUri = self.global.theme.button_filledin_uri
-    self.OauthButton.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
+    self.OauthButton.focusedColor = self.global.theme.button_focus_color
+    self.OauthButton.focusBitmapUri = self.global.theme.button_focus_uri
+    self.OauthButton.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
 
     oauthBtn = [{ title: self.global.labels.sign_in_button, role: "transition", target: "UniversalAuthSelection" }]
     self.OauthButton.content = self.contentHelpers.oneDimList2ContentNode(oauthBtn, "ButtonNode")

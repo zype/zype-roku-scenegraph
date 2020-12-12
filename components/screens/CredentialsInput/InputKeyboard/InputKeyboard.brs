@@ -64,9 +64,9 @@ function initializers() as object
 
     self.confirm_button = self.top.findNode("ConfirmButton")
     self.confirm_button.color = self.global.theme.primary_text_color
-    self.confirm_button.focusedColor = self.global.theme.background_color
-    self.confirm_button.focusBitmapUri = self.global.theme.button_filledin_uri
-    self.confirm_button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
+    self.confirm_button.focusedColor = self.global.theme.button_focus_color
+    self.confirm_button.focusBitmapUri = self.global.theme.button_focus_uri
+    self.confirm_button.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
     self.confirm_button.content = self.content_helpers.oneDimList2ContentNode([{title: "Continue"}], "ButtonNode")
   end function
 

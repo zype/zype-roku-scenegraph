@@ -123,6 +123,11 @@ Function Init()
     m.autoPlayBackground = m.top.findNode("autoPlayBackground")
     m.autoPlayBackground.color = m.global.theme.background_color
 
+
+    m.content_helpers = ContentHelpers()
+    ' Exit confirm dialog'
+    SetExitDialog()
+
     ' For tracking position bwtn playlist levels
     m.IndexTracker = {}
 
@@ -182,6 +187,53 @@ function GetSegmentAppOpenedOrInstalledEventInfo(isOpened as boolean)
     print "App Open/Installed trackObj.properties : " trackObj.properties
     return trackObj
 end function
+
+Sub SetExitDialog()
+
+    m.gExitDialog = m.top.findNode("gExitDialog")
+    m.exitDialog = m.top.findNode("exitDialog")
+    m.exitButtons = m.top.findNode("exitButtons")
+    m.exitText = m.top.findNode("exitText")
+    m.hiddentitle = m.top.findNode("hiddentitle")
+    exitDialogRect = m.exitDialog.boundingRect()
+
+    xPos = (1280 - exitDialogRect.width) /2
+    yPos = (720 - exitDialogRect.height) /2
+    app_info = CreateObject("roAppInfo")
+    appTitle = app_info.GetTitle()
+    if appTitle = invalid then appTitle = ""
+    m.exitText.text = Substitute(m.global.labels.exit_dialog_message, appTitle)
+
+    m.exitDialog.translation = [xPos, yPos]
+
+    m.exitDialog.blendcolor =  m.global.theme.background_color
+    print "exit background =================== > " m.global.theme.background_color
+    m.exitText.color = m.global.theme.primary_text_color
+    m.exitDialog.focusBitmapUri = m.global.theme.button_focus_uri
+
+    yesLabel = m.global.labels.exit_yes_button
+    noLabel = m.global.labels.exit_no_button
+    exitButtons = [
+          { title: yesLabel, ShortDescriptionLine1: yesLabel,  role: "transition", target: "exit" }
+          { title: noLabel, ShortDescriptionLine1: noLabel,  role: "transition", target: "cancel" }
+      ]
+
+    m.hiddentitle.text = yesLabel
+    yesWidth = m.hiddentitle.BoundingRect().width
+    m.hiddentitle.text = noLabel
+    noWidth = m.hiddentitle.BoundingRect().width
+    spacing = 80
+    m.exitButtons.columnWidths = [yesWidth, noWidth]
+    m.exitButtons.itemSpacing = [spacing,0]
+    m.exitButtons.itemSize = [0, noWidth]
+    m.exitButtons.numColumns = 2
+    m.exitButtons.content = m.content_helpers.oneDimList2ContentNode(exitButtons, "ExitNode")
+    xPos = (800 - (yesWidth + noWidth + spacing ))/ 2
+    m.exitButtons.translation = [xPos ,125]
+    ' m.showMenuAnimation.control = "start"
+    m.exitButtons.jumpToItem = 0
+
+end sub
 
 Sub onSegmentEventChanged()
     if m.top.segmentEvent<>invalid
@@ -340,14 +392,16 @@ Function OnRowItemSelected()
         m.gridScreen.visible = false
 
         for each key in m.gridScreen.focusedContent.keys()
-          m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
+          if m.nextVideoNode[key] <> invalid
+            m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
+          end if
         end for
 
         rowItemSelected = m.gridScreen.findNode("RowList").rowItemSelected
         m.detailsScreen.PlaylistRowIndex = rowItemSelected[0]
         m.detailsScreen.CurrentVideoIndex = rowItemSelected[1]
 
-        if (m.detailsScreen.videosTree[rowItemSelected[0]] <> invalid)
+        if (m.detailsScreen.videosTree <> invalid and m.detailsScreen.videosTree[rowItemSelected[0]] <> invalid)
 	         m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
         else
             m.detailsScreen.totalVideosCount = 0
@@ -622,8 +676,10 @@ Function OnKeyEvent(key, press) as Boolean
     ? "key: "; key
     ? "press: "; press
     ? "m.screenStack.count(): "; m.screenStack.count()
-    ? " m.playListDetailFromHeroSlider " m.playListDetailFromHeroSlider
     result = false
+    if m.gExitDialog.visible = true
+        return true
+    end if
     if press then
         if key = "options" then
             ' option key handler
@@ -652,7 +708,7 @@ Function OnKeyEvent(key, press) as Boolean
           else if m.global.enable_top_navigation = true and m.TopMenu.visible = false then' Prevent multiple menu clicks
               ' add Menu screen to Screen stack
               TriggerShowMenu()
-              result = true            
+              result = true
           end if
         else if key = "back"
             isSpecialScreen = isSpecialScreen()
@@ -689,7 +745,7 @@ Function OnKeyEvent(key, press) as Boolean
                         contentStackCount = m.contentStack.count()
                         m.contentStack.pop()
                         m.playListFromHeroSlider=false
-                        m.gridScreen.moveFocusToheroCarousel=true                        
+                        m.gridScreen.moveFocusToheroCarousel=true
                    end if
                     result = true
 
@@ -781,7 +837,11 @@ Function OnKeyEvent(key, press) as Boolean
                     m.screenStack.peek().visible = true
                     m.screenStack.peek().setFocus(true)
                     result = true
-
+                else
+                    m.gExitDialog.visible = true
+                    m.gridScreen.exitDialogOpen = true
+                    m.exitButtons.setFocus(true)
+                    result = true
                 end if
             end if
         end if
@@ -792,7 +852,7 @@ Function OnKeyEvent(key, press) as Boolean
     if press = false then
 
         print "Dialog: "; m.top.dialog
-        if key = "back" and (m.top.loadingIndicator.control = "start" or m.top.loadingScreen.visible = true) then
+        if key = "back" and ((m.top.loadingIndicator.control = "start" or m.top.loadingScreen.visible = true) or m.gExitDialog.visible = true)then
               return true
         end if
 
@@ -866,6 +926,19 @@ Function isSpecialScreen()
     end if
 End Function
 
+Sub exitButtonSelected()
+    index = m.top.exitItemSelected
+    selectedOption = m.exitButtons.itemFocused
+    print "selectedOption " index
+    if index = 0
+      m.top.outRequest = {"ExitApp": true}
+    else
+      print " set visible false for exit"
+      m.gExitDialog.visible = false
+      m.gridScreen.exitDialogOpen = false
+      resetFocusToScreen()
+    end if
+end sub
 
 ' Takes screen and creates dialog for it
 function CreateDialog(screen, title, message, buttons, setDialogDetail = false)
