@@ -84,17 +84,18 @@
 
         <LabelList
             id="OAuthButton"
-            translation="[590,50]"
+            translation="[540,50]"
             color="0xf5f5f5"
-            focusedColor="0xf5f5f5"
-            itemSize="[100, 50]"
+            focusedColor="0xffffff"
+            itemSize="[200, 50]"
             numRows="1"
             vertFocusAnimationStyle="floatingFocus"
             textHorizAlign="center"
             font="dictionary:ButtonFont"
             focusedFont="dictionary:ButtonFont"
-            focusBitmapUri="pkg:/images/button-focus.png"
+            focusBitmapUri="pkg:/images/button-focus-light.png"
             />
+
       </Group>
 
     </children>
