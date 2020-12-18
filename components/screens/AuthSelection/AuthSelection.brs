@@ -149,7 +149,7 @@ function initializers() as object
     self.plan_buttons.focusBitmapUri = self.global.theme.focus_grid_uri
 
     self.oauth_button = self.top.findNode("OAuthButton")
-    self.oauth_button.color = self.global.theme.primary_text_color
+    self.oauth_button.color = self.global.theme.button_unfocus_color
     self.oauth_button.focusedColor = self.global.theme.button_focus_color
     self.oauth_button.focusBitmapUri = self.global.theme.button_focus_uri
     self.oauth_button.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
