@@ -190,7 +190,7 @@ function resetScreen() as void
 
         if m.global.device_linking = true
           btn = [ { title: m.global.labels.sign_out_button, role: "signout", target: "" } ]
-          btn.push({ title: m.global.labels.sync_native_button, role: "syncNative", target: "" })
+          if m.global.auth.universalSubCount = 0 and m.global.nsvod.currentPlan.count() > 0 then  btn.push({ title: m.global.labels.sync_native_button, role: "syncNative", target: "" })
           m.oauth_button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
           m.oauth_label.text = m.global.auth.email
         end if
