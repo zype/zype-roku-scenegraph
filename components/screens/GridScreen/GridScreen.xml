@@ -18,9 +18,9 @@
 
         <!-- herCarousel Content Data -->
         <field id="heroCarouselData" type="array" onChange="showHeroCarousel"/>
-
         <!-- herCarousel Data to be shown or not -->
         <field id="heroCarouselShow" type="bool" />
+        <field id="visibleSliderSelector" type="bool" alwaysNotify="true" alias="sliderFocus.visible" onChange="onSliderVisibleChange" />
         <field id="moveFocusToheroCarousel" type="bool" onChange="moveFocusToheroCarousel" />
 
 
@@ -46,6 +46,8 @@
 
         <!-- Video Player referencible by HomeScene -->
         <field id="VideoPlayer" type="node" />
+        <field id="sliderButton" type="node" />
+        <field id="exitDialogOpen" type="bool" value ="false"/>
 
         <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
     </interface>
@@ -71,7 +73,7 @@
             <Group id="Overhang">
                 <Poster
                     id="PosterOverhang"
-                    translation="[100, 30]"
+                    translation="[85, 40]"
                     loadwidth="500"
                     loadheight="100"
                     loadDisplayMode="scaleToFit"
@@ -90,7 +92,6 @@
                 <Poster
                     id="OptionsIcon"
                     blendColor="#ffffff"
-                    enableColorBlending="false"
                     translation="[1139, 53]"
                     width="24"
                     height="24"
@@ -105,7 +106,7 @@
 
             <Description
                 id="Description"
-                translation="[106, 140]"
+                translation="[87, 150]"
                 itemSpacings="[7,17]" />
         </Group>
 

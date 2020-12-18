@@ -604,11 +604,16 @@ Function GetPlayerInfo(videoid As String, urlParams = {} As Object) As Object
       end if
 
       if video.DoesExist("title")
-        info.video.title = video.title
+          info.video.title = video.title
       end if
 
       if video.DoesExist("duration")
-        info.video.duration = video.duration
+          info.video.duration = video.duration
+      end if
+
+      if response.body.DoesExist("bif")
+          info.bif = response.body.bif
+          print "info.bif ::: " info.bif
       end if
 
       ' Set VideoID'
@@ -842,6 +847,7 @@ end function
 ' Get Subscription Plans
 '*************************
 Function GetPlans(urlParams = {} as Object)
+    urlParams.per_page = 100
     url = GetApiConfigs().endpoint + "plans"
     params = AppendAppKeyToParams(urlParams)
     response = MakeRequest(url, params)

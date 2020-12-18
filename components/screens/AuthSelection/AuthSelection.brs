@@ -34,11 +34,19 @@ function OnKeyEvent(key as string, press as boolean) as boolean
            return true
         end if
       else if key = "down"
-        if m.helpers.focusedChild(m) = "Plans" and m.global.auth.isLoggedIn = false and m.global.device_linking = true then m.oauth_button.setFocus(true)
+        if m.helpers.focusedChild(m) = "Plans" and m.global.auth.isLoggedIn = false and m.global.device_linking = true then
+          m.oauth_button.setFocus(true)
+          result = true
+        end if
       else if key = "up"
-        if m.helpers.focusedChild(m) = "OAuthTransition" then m.plan_buttons.setFocus(true)
+        if m.helpers.focusedChild(m) = "OAuthTransition" then
+          m.plan_buttons.setFocus(true)
+          result = true
+      else if key = "options"
+        result = true
       end if
 
+    end if
     end if
 
     return result
@@ -102,6 +110,14 @@ function GetPlanDurationText(productType as string) as string
     end if
 
 end function
+
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+        m.plan_buttons.setFocus(true)
+    else
+        ' Unfocused'
+    end if
+end sub
 
 function onVisibleChange() as void
 
@@ -273,9 +289,9 @@ function initializers() as object
 
     self.oauth_button = self.top.findNode("OAuthButton")
     self.oauth_button.color = self.global.theme.primary_text_color
-    self.oauth_button.focusedColor = self.global.theme.background_color
-    self.oauth_button.focusBitmapUri = self.global.theme.button_filledin_uri
-    self.oauth_button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
+    self.oauth_button.focusedColor = self.global.theme.button_focus_color
+    self.oauth_button.focusBitmapUri = self.global.theme.button_focus_uri
+    self.oauth_button.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
 
     self.oauth_label = self.top.findNode("OAuthLabel")
     self.oauth_label.color = self.global.theme.primary_text_color
@@ -322,6 +338,9 @@ function initializers() as object
     self.thank_you_button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
 
     self.top.observeField("itemSelected", "onItemSelected")
+    if self.global.enable_top_navigation = true
+        self.top.observeField("focusedChild", "OnFocusedChild")
+    end if
   end function
 
   this.setUpPlanButtons = function(self, plans) as void

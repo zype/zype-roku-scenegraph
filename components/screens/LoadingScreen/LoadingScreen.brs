@@ -16,7 +16,7 @@ End Function
 
 ' onChange handler for "show" field
 sub onShow()
-    print " [LoadingScreen] onShow()"
+    'print " [LoadingScreen] onShow()"
 
     m.top.visible = m.top.show
     m.top.setFocus(m.top.show)
@@ -31,6 +31,7 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
             result = true
         else if key = "back" then
             print "Back button from Loading Screen"
+            return true
         end if
     end if
     return result

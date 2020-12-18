@@ -69,6 +69,7 @@
             rowItemSize="[[262, 147]]"
             rowItemSpacing="[[16, 3]]"
             showRowLabel="true"
+            rowLabelColor="#000000"
             showRowCounter="true"
             rowLabelOffset="[[147, 20]]"
             rowLabelFont="dictionary:RowListFont"
@@ -85,7 +86,7 @@
         <!-- Overhang logo -->
         <Poster
             id="PosterOverhang"
-            translation="[100, 30]"
+            translation="[85, 40]"
             loadwidth="500"
             loadheight="100"
             loadDisplayMode="scaleToFit"

@@ -98,12 +98,12 @@
         <!--Control buttons.-->
         <LabelList
             id="Buttons"
-            translation="[106,500]"
+            translation="[98,505]"
             color="0xf5f5f5"
-            focusedColor="0xf5f5f5"
+            focusedColor="0xffffff"
             numRows="5"
             vertFocusAnimationStyle="floatingFocus"
-            itemSize="[350, 45]"
+            itemSize="[329, 52]"
             textHorizAlign="center"
             font="dictionary:ButtonFont"
             focusedFont="dictionary:ButtonFont"
@@ -111,9 +111,9 @@
             />
         <LabelList
             id="SubscriptionButtons"
-            translation="[106,550]"
+            translation="[98,605]"
             color="0xf5f5f5"
-            focusedColor="0xf5f5f5"
+            focusedColor="0xffffff"
             numRows="5"
             vertFocusAnimationStyle="floatingFocus"
             itemSize="[350, 45]"
@@ -126,7 +126,7 @@
         <!--Item description.-->
         <Description
             id="Description"
-            translation="[106, 140]"
+            translation="[87, 150]"
             itemSpacings="[7,17]" />
 
         <!-- Overhang -->
@@ -134,7 +134,7 @@
             id="Overhang">
             <Poster
                id="PosterOverhang"
-               translation="[100, 30]"
+               translation="[85, 40]"
                loadwidth="500"
                loadheight="100"
                loadDisplayMode="scaleToFit"
@@ -153,7 +153,6 @@
 
            <Poster id="OptionsIcon"
                blendColor="#ffffff"
-               enableColorBlending="false"
                translation="[1139, 53]"
                width="24"
                height="24"

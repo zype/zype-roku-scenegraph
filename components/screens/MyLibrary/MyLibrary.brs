@@ -1,7 +1,7 @@
 ' ********** Copyright 2016 Roku Corp.  All Rights Reserved. **********
 Function Init()
     m.content_helpers = ContentHelpers()
-
+    m.scene = m.top.GetScene()
     m.gridScreen = m.top.findNode("Grid")
     m.gridScreen.content = invalid
     m.detailsScreen = m.top.findNode("MyLibraryDetailsScreen")
@@ -18,6 +18,10 @@ Function Init()
     m.top.observeField("visible", "OnTopVisibilityChange")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
 
+    if m.global.enable_top_navigation = true
+      m.top.observeField("focusedChild", "OnFocusedChild")
+    end if
+
     ' Set theme
     m.AppBackground = m.top.findNode("AppBackground")
     m.AppBackground.color = m.global.theme.background_color
@@ -33,8 +37,9 @@ Function Init()
 
     m.SignInButton = m.top.findNode("SignInButton")
     m.SignInButton.color = m.global.theme.primary_text_color
-    m.SignInButton.focusedColor = m.global.theme.primary_text_color
+    m.SignInButton.focusedColor = m.global.theme.button_focus_color
     m.SignInButton.focusBitmapUri = m.global.theme.button_focus_uri
+    m.SignInButton.focusFootprintBitmapUri = m.global.theme.button_unfocus_uri
     m.SignInButton.content = m.content_helpers.oneDimList2ContentNode([{ title: m.global.labels.sign_in_button, role: "transition", target: "AuthSelection" }], "ButtonNode")
     m.SignInButton.visible = false
 End Function
@@ -55,6 +60,23 @@ Function OnRowItemSelected()
         m.top.isChildrensVisible = true
     end if
 End Function
+
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+        print "On focus mylibrary"
+        print m.top.content
+
+         if (m.top.content = invalid) then print true else print false
+        if m.global.auth.isLoggedIn = false
+            m.SignInButton.setFocus(true)
+        ' else if m.top.content <> invalid
+        '     m.detailsScreen.setFocus(true)
+        end if
+    else
+        ' Unfocused'
+    end if
+end sub
+
 
 sub OnContentChange()
     ? "[MyLibrary] On Content Change"
@@ -88,13 +110,15 @@ function currentButtonTarget(index as integer) as string
     return m.SignInButton.content.getChild(index).target
 end function
 
-function onKeyEvent(key as String, press as Boolean) as Boolean
-    ? ">>> MyLibrary >> onKeyEvent"
+function onKeyEvent(key, press) as Boolean
+    ? ">>> MyLibrary >> onKeyEvent " key " " press
     result = false
     if press then
         ? "key == ";  key
         if key = "options" then
-            result = true
+            if m.global.enable_top_navigation = false then
+              result = true
+            end if
         else if key = "back"
             ' if Details opened
             if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false then

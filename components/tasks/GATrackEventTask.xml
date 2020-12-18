@@ -1,0 +1,12 @@
+<?rokuml version="1.0" encoding="utf-8" ?>
+
+<component name="GATrackEventTask" extends="Task" >
+
+  <interface>
+    <field id="eventParams" type="assocarray" />
+    <field id="customParams" type="assocarray" />
+  </interface>
+
+  <!-- <script type="text/brightscript" uri="pkg:/source/helpers/Utilities.brs" /> -->
+  <script type="text/brightscript" uri="GATrackEventTask.brs" />
+</component>

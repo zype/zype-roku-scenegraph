@@ -13,6 +13,10 @@ Function Init()
 
     print "m.top.uniqueSessionID > " m.top.uniqueSessionID
 
+    m.menuHideTimer = m.top.findNode("menuHideTimer")
+    m.menuHideTimer.observeField("fire", "TriggerHideMenu")
+
+
     if (m.global.enable_segment_analytics = true)
         if (m.global.segment_source_write_key <> invalid AND m.global.segment_source_write_key <> "")
             print "[HomeScene] INFO : SEGMENT ANALYTICS ENABLED..."
@@ -55,6 +59,14 @@ Function Init()
     m.Menu = m.top.findNode("Menu")
     ' Observer  to handle Menu Item selection inside Menu
     m.Menu.observeField("itemSelected", "OnMenuButtonSelected")
+
+    ' TopMenu
+    m.TopMenu = m.top.findNode("TopMenu")
+
+    ' Observer  to handle Menu Item selection inside Menu
+    m.TopMenu.observeField("itemSelected", "OnTopMenuButtonSelected")
+    m.TopMenu.observeField("menuHideAnimationCompleted", "HideTopMenu")
+    m.TopMenu.observeField("menuShowAnimationCompleted", "ShowTopMenu")
 
     ' Device Linking
     m.deviceLinking = m.top.findNode("DeviceLinking")
@@ -101,7 +113,7 @@ Function Init()
 
     ' loading indicator starts at initializatio of channel
     m.top.loadingIndicator = m.top.findNode("loadingIndicator")
-
+    m.top.loadingScreen = m.top.findNode("LoadingScreen")
     m.TestInfoScreen = m.top.findNode("TestInfoScreen")
 
     'channel store'
@@ -114,6 +126,11 @@ Function Init()
     m.autoPlayBackground = m.top.findNode("autoPlayBackground")
     m.autoPlayBackground.color = m.global.theme.background_color
 
+
+    m.content_helpers = ContentHelpers()
+    ' Exit confirm dialog'
+    SetExitDialog()
+
     ' For tracking position bwtn playlist levels
     m.IndexTracker = {}
 
@@ -121,6 +138,8 @@ Function Init()
     m.rowItemSizes = {}
     m.rowSpacings  = {}
     m.playListFromHeroSlider=false
+    m.playListDetailFromHeroSlider=false
+
     m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
 
     'timer for autoplay
@@ -171,6 +190,53 @@ function GetSegmentAppOpenedOrInstalledEventInfo(isOpened as boolean)
     print "App Open/Installed trackObj.properties : " trackObj.properties
     return trackObj
 end function
+
+Sub SetExitDialog()
+
+    m.gExitDialog = m.top.findNode("gExitDialog")
+    m.exitDialog = m.top.findNode("exitDialog")
+    m.exitButtons = m.top.findNode("exitButtons")
+    m.exitText = m.top.findNode("exitText")
+    m.hiddentitle = m.top.findNode("hiddentitle")
+    exitDialogRect = m.exitDialog.boundingRect()
+
+    xPos = (1280 - exitDialogRect.width) /2
+    yPos = (720 - exitDialogRect.height) /2
+    app_info = CreateObject("roAppInfo")
+    appTitle = app_info.GetTitle()
+    if appTitle = invalid then appTitle = ""
+    m.exitText.text = Substitute(m.global.labels.exit_dialog_message, appTitle)
+
+    m.exitDialog.translation = [xPos, yPos]
+
+    m.exitDialog.blendcolor =  m.global.theme.background_color
+    print "exit background =================== > " m.global.theme.background_color
+    m.exitText.color = m.global.theme.primary_text_color
+    m.exitDialog.focusBitmapUri = m.global.theme.button_focus_uri
+
+    yesLabel = m.global.labels.exit_yes_button
+    noLabel = m.global.labels.exit_no_button
+    exitButtons = [
+          { title: yesLabel, ShortDescriptionLine1: yesLabel,  role: "transition", target: "exit" }
+          { title: noLabel, ShortDescriptionLine1: noLabel,  role: "transition", target: "cancel" }
+      ]
+
+    m.hiddentitle.text = yesLabel
+    yesWidth = m.hiddentitle.BoundingRect().width
+    m.hiddentitle.text = noLabel
+    noWidth = m.hiddentitle.BoundingRect().width
+    spacing = 80
+    m.exitButtons.columnWidths = [yesWidth, noWidth]
+    m.exitButtons.itemSpacing = [spacing,0]
+    m.exitButtons.itemSize = [0, noWidth]
+    m.exitButtons.numColumns = 2
+    m.exitButtons.content = m.content_helpers.oneDimList2ContentNode(exitButtons, "ExitNode")
+    xPos = (800 - (yesWidth + noWidth + spacing ))/ 2
+    m.exitButtons.translation = [xPos ,125]
+    ' m.showMenuAnimation.control = "start"
+    m.exitButtons.jumpToItem = 0
+
+end sub
 
 Sub onSegmentEventChanged()
     if m.top.segmentEvent<>invalid
@@ -294,11 +360,11 @@ Sub carouselSelectDataSelected()
 End SUb
 
 Sub CarouselDeepLinkToDetailPage()
-    m.gridScreen.visible = "false"
+    m.gridScreen.visible = false
     m.detailsScreen.autoplay = false
     m.detailsScreen.content = m.top.DeepLinkToDetailPage
     m.detailsScreen.setFocus(true)
-    m.detailsScreen.visible = "true"
+    m.detailsScreen.visible = true
     m.screenStack.push(m.detailsScreen)
 ENd SUb
 
@@ -329,14 +395,16 @@ Function OnRowItemSelected()
         m.gridScreen.visible = false
 
         for each key in m.gridScreen.focusedContent.keys()
+          if m.nextVideoNode[key] <> invalid
           m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
+          end if
         end for
 
         rowItemSelected = m.gridScreen.findNode("RowList").rowItemSelected
         m.detailsScreen.PlaylistRowIndex = rowItemSelected[0]
         m.detailsScreen.CurrentVideoIndex = rowItemSelected[1]
 
-        if (m.detailsScreen.videosTree[rowItemSelected[0]] <> invalid)
+        if (m.detailsScreen.videosTree <> invalid and m.detailsScreen.videosTree[rowItemSelected[0]] <> invalid)
 	         m.detailsScreen.totalVideosCount = m.detailsScreen.videosTree[rowItemSelected[0]].count()
         else
             m.detailsScreen.totalVideosCount = 0
@@ -356,6 +424,7 @@ Function OnRowItemSelected()
         m.detailsScreen.content = m.gridScreen.focusedContent
         m.detailsScreen.setFocus(true)
         m.detailsScreen.visible = true
+        if m.playListFromHeroSlider = true then m.playListDetailFromHeroSlider = true
         m.screenStack.push(m.detailsScreen)
         print "m.gridScreen.focusedContent: "; type(m.gridScreen.focusedContent)
     end if
@@ -382,9 +451,19 @@ function transitionToScreen() as void
   screen = m.top.findNode(m.top.transitionTo)
 
   PushScreenIntoScreenStack(screen)
-
+  print "transitionToScreen 1 "
   screen.visible = true
+  print "transitionToScreen 2 "
   screen.setFocus(true)
+  print "transitionToScreen 3 "
+end function
+
+function resetFocusToScreen() as void
+      prevScreen = m.screenStack.peek()
+      if prevScreen <> invalid then
+        prevScreen.visible = true
+        prevScreen.setFocus(true)
+      end if
 end function
 
 function resetToScreen() as void
@@ -459,6 +538,21 @@ Function OnMenuButtonSelected()
 
     button_role = m.Menu.itemSelectedRole
     button_target = m.Menu.itemSelectedTarget
+    MenuActionAsPerRoleTarget(button_role, button_target)
+End Function
+
+' On TopMenu Button Selected
+Function OnTopMenuButtonSelected()
+    ? "[HomeScene] Top Menu Button Selected"
+    ? m.TopMenu.itemSelected
+
+    button_role = m.TopMenu.itemSelectedRole
+    button_target = m.TopMenu.itemSelectedTarget
+
+    MenuActionAsPerRoleTarget(button_role, button_target)
+end function
+
+Function MenuActionAsPerRoleTarget(button_role as string, button_target as string)
 
     ' Menu is visible - it must be last element
     menu = m.screenStack.pop()
@@ -477,6 +571,8 @@ Function OnMenuButtonSelected()
       m.top.transitionTo = "Favorites"
     else if button_role = "transition" and button_target = "AccountScreen"
         m.top.transitionTo = "AccountScreen"
+      else if button_role = "transition" and button_target = "GridScreen"
+          m.top.transitionTo = "GridScreen"
     else if button_role = "transition" and button_target = "AuthSelection"
         m.top.transitionTo = "AuthSelection"
     else if button_role = "transition" and button_target = "TestInfoScreen"
@@ -487,7 +583,117 @@ Function OnMenuButtonSelected()
     else if button_role = "transition" and button_target = "MyLibrary"
         m.top.transitionTo = "MyLibrary"
     end if
-End Function
+end function
+
+function TriggerHideMenu()
+    m.TopMenu.callFunc("TriggerHideMenu")
+end function
+
+function TriggerShowMenu()
+    m.TopMenu.callFunc("TriggerShowMenu")
+end function
+
+function ShowMenu()
+    ' add Menu screen to Screen stack
+    m.screenStack.push(m.Menu)
+
+    ' show and focus Menu
+    m.Menu.visible = true
+    m.Menu.setFocus(true)
+
+
+end function
+
+
+function ShowTopMenu()
+
+    if (m.TopMenu.menuShowAnimationCompleted = true)
+        m.TopMenu.menuShowAnimationCompleted = false
+
+
+       currentTopScreen = m.screenStack.peek()
+
+       if (currentTopScreen <> invalid)
+         if currentTopScreen.id = "Search"
+             m.top.LastSelectedMenu = m.global.labels.menu_search_button
+         else if currentTopScreen.id = "MyLibrary"
+             m.top.LastSelectedMenu = m.global.labels.menu_my_library_button
+         else if currentTopScreen.id = "Favorites"
+             m.top.LastSelectedMenu = m.global.labels.menu_favorites_button
+         else if currentTopScreen.id = "AccountScreen"
+             m.top.LastSelectedMenu = m.global.labels.menu_account_button
+         else if currentTopScreen.id = "GridScreen"
+             m.top.LastSelectedMenu = m.global.labels.menu_home_button
+         else if currentTopScreen.id = "InfoScreen"
+             m.top.LastSelectedMenu = m.global.labels.menu_info_button
+         else if currentTopScreen.id = "TestInfoScreen"
+             m.top.LastSelectedMenu = m.global.labels.menu_test_info_button
+         else if currentTopScreen.id = "AuthSelection"
+             m.top.LastSelectedMenu = m.global.labels.menu_account_button
+         else
+             m.top.LastSelectedMenu = m.global.labels.menu_home_button
+         end if
+       end if
+
+
+       ' m.global.labels.menu_live_button
+
+      ' add Menu screen to Screen stack
+        m.screenStack.push(m.TopMenu)
+        m.top.appendChild(m.TopMenu)
+        if (m.gridScreen <> invalid)
+            m.gridScreen.visibleSliderSelector = false
+        end if
+        ' show and focus Top Menu
+        m.TopMenu.visible = true
+        m.TopMenu.setFocus(true)
+    end if
+
+
+end function
+
+function HideMenu()
+    details = m.screenStack.pop()
+    details.visible = false
+
+    lastScreen = m.screenStack.peek()
+    print "Hidemenu " lastScreen
+    if (lastScreen <> invalid)
+      lastScreen.visible = true
+      lastScreen.setFocus(true)
+    end if
+end function
+
+function HideTopMenu()
+
+    if (m.gridScreen <> invalid)
+        m.gridScreen.visibleSliderSelector = true
+    end if
+    if (m.TopMenu.menuHideAnimationCompleted = true)
+        m.TopMenu.menuHideAnimationCompleted = false
+        if m.screenStack.peek() <> invalid AND m.screenStack.peek().id = "TopMenu"
+            print ">>>>>>>>>>>>>>>>>>>> m.screenStack.peek().id ::: " m.screenStack.peek().id
+            menu = m.screenStack.pop()
+            menu.visible = false
+            m.top.removeChild(m.TopMenu)
+            lastScreen = m.screenStack.peek()
+            ' print "lastscreen  " lastScreen
+            if (lastScreen <> invalid)
+              lastScreen.visible = true
+              lastScreen.setFocus(true)
+            end if
+        end if
+    end if
+end function
+
+function ShowMenuAndStartHideMenuTimer()
+    m.menuHideTimer.control = "start"
+    TriggerShowMenu()
+end function
+
+function StopHideMenuTimer()
+    m.menuHideTimer.control = "stop"
+end function
 
 function MyLibraryTriggerSignIn() as void
     button_role = m.MyLibrary.itemSelectedRole
@@ -504,33 +710,50 @@ Function OnKeyEvent(key, press) as Boolean
     ? "key: "; key
     ? "press: "; press
     ? "m.screenStack.count(): "; m.screenStack.count()
-
     result = false
+    if m.gExitDialog.visible = true
+        return true
+    end if
     if press then
         if key = "options" then
             ' option key handler
 
             if m.detailsScreen.videoPlayer.hasFocus() then
                 result = true
-            else if m.Menu.visible = false then ' Prevent multiple menu clicks
-                ' add Menu screen to Screen stack
-                m.screenStack.push(m.Menu)
-
-                ' show and focus Menu
-                m.Menu.visible = true
-                m.Menu.setFocus(true)
+            else if m.global.enable_top_navigation = false
+                if m.Menu.visible = false then ' Prevent multiple menu clicks
+                  ShowMenu()
             else
-                details = m.screenStack.pop()
-                details.visible = false
-                m.screenStack.peek().visible = true
-                m.screenStack.peek().setFocus(true)
+                  HideMenu()
             end if
+            else if m.global.enable_top_navigation = true
+                if m.TopMenu.visible = false then ' Prevent multiple top menu clicks
+                  TriggerShowMenu()
+                else
+                  TriggerHideMenu()
+                end if
+            end if
+        else if key = "back" AND m.TopMenu.visible = true
+          TriggerHideMenu()
+          result = true
+        else if key = "up"
+          if m.detailsScreen.videoPlayer.visible = true
+            result = true
+          else if m.global.enable_top_navigation = true and m.TopMenu.visible = false then' Prevent multiple menu clicks
+              ' add Menu screen to Screen stack
+              TriggerShowMenu()
+              result = true
+          end if
         else if key = "back"
-            ? "isSpecialScreen(): "; isSpecialScreen()
+            isSpecialScreen = isSpecialScreen()
+            ? "isSpecialScreen(): "; isSpecialScreen
+            if m.top.loadingIndicator.control = "start" then
 
-            if isSpecialScreen()
+                  return true
+            end if
+            if isSpecialScreen
                     m.gridScreen.heroCarouselShow=false
-                if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false then
+                if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false and m.TopMenu.visible = false then
                     ? "1"
                     ' if detailsScreen is open and video is stopped, details is lastScreen
                     details = m.screenStack.pop()
@@ -552,7 +775,12 @@ Function OnKeyEvent(key, press) as Boolean
                     SearchDetailsScreen = m.screenStack.peek().findNode("SearchDetailsScreen")
                     SearchDetailsScreen.videoPlayerVisible = false
                     end if
-
+                    if m.playListFromHeroSlider=true and m.playListDetailFromHeroSlider = false then
+                        contentStackCount = m.contentStack.count()
+                        m.contentStack.pop()
+                        m.playListFromHeroSlider=false
+                        m.gridScreen.moveFocusToheroCarousel=true
+                   end if
                     result = true
 
                 ' if video player opened
@@ -564,12 +792,14 @@ Function OnKeyEvent(key, press) as Boolean
                     m.detailsScreen.videoPlayer.setFocus(false)
 
                     m.detailsScreen.visible = true
+                    if m.playListFromHeroSlider = true then m.playListDetailFromHeroSlider = true
                     m.detailsScreen.setFocus(true)
                     result = true
                else if  m.playListFromHeroSlider=true then
                     ?m.contentStack
                     previousContent = m.contentStack[0]
                     m.gridScreen.content = previousContent
+                    m.contentStack.pop()
                     lastPosition = GetLastPositionFromTracker()
                     lastRowItemSizes = GetLastRowItemSizes()
                     lastRowSpacings = GetLastRowSpacings()
@@ -633,13 +863,19 @@ Function OnKeyEvent(key, press) as Boolean
                     ' if the screen is visible - it must be the last element
                     screen = m.screenStack.pop()
                     screen.visible = false
-
+                    if m.playListFromHeroSlider = true and m.playListDetailFromHeroSlider = true and m.top.dialog = invalid then
+                        m.playListDetailFromHeroSlider = false
+                    end if
                     ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
                     ' open last screen before it and focus it
                     m.screenStack.peek().visible = true
                     m.screenStack.peek().setFocus(true)
                     result = true
-
+                else
+                    m.gExitDialog.visible = true
+                    m.gridScreen.exitDialogOpen = true
+                    m.exitButtons.setFocus(true)
+                    result = true
                 end if
             end if
         end if
@@ -650,8 +886,11 @@ Function OnKeyEvent(key, press) as Boolean
     if press = false then
 
         print "Dialog: "; m.top.dialog
+        if key = "back" and ((m.top.loadingIndicator.control = "start" or m.top.loadingScreen.visible = true) or m.gExitDialog.visible = true)then
+              return true
+        end if
 
-        if key = "back" AND m.top.dialog = invalid AND not isSpecialScreen()
+        if key = "back" AND m.top.dialog = invalid and m.dialogdetail = invalid AND not isSpecialScreen()
             m.gridScreen.heroCarouselShow=true
         end if
 
@@ -661,19 +900,21 @@ Function OnKeyEvent(key, press) as Boolean
                 m.top.TriggerDeviceUnlink = true
                 m.top.dialog.close = true
                 m.top.dialog = invalid
+                m.dialogdetail = invalid
             else if((buttonIndex = 0 and key = "OK" AND m.top.dialog.title <> "Closed caption/audio configuration") OR (buttonIndex = 1 and key = "OK" AND m.top.dialog.title = "Device Unlink Confirmation"))
                 m.top.dialog.close = true
                 m.top.dialog = invalid
-
+                m.dialogdetail = invalid
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)
 
             end if
             print "buttonIndex: "; buttonIndex; " buttonKey: "; key
         else
-            if key = "back" AND m.top.dialog = invalid
+            if key = "back" AND (m.top.dialog = invalid and m.dialogdetail = invalid)
                 m.screenStack.peek().visible = true
                 m.screenStack.peek().setFocus(true)
+                if m.dialogdetail <> invalid then m.dialogdetail = invalid
             end if
         end if
 
@@ -696,6 +937,7 @@ Function OnKeyEvent(key, press) as Boolean
 
             m.detailsScreen.autoplay = false
             m.detailsScreen.visible = true
+            if m.playListFromHeroSlider = true then m.playListDetailFromHeroSlider = true
             m.detailsScreen.setFocus(true)
           end if
         end if
@@ -705,8 +947,12 @@ Function OnKeyEvent(key, press) as Boolean
 End Function
 
 Function isSpecialScreen()
-    if m.screenStack.peek().id = "Menu"
+    ? " isSpecialScreen "
+    ? m.screenStack.peek()
+    if m.screenStack.peek().id = "Menu" or m.screenStack.peek().id = "TopMenu"
         return false
+    else if m.playListFromHeroSlider = true and m.playListDetailFromHeroSlider = true then
+            return false
     else if (m.detailsScreen.visible = true) OR (m.contentStack.count() > 0 and m.gridScreen.visible = true) OR (m.deviceLinking.visible = true)
         return true
     else
@@ -714,11 +960,24 @@ Function isSpecialScreen()
     end if
 End Function
 
+Sub exitButtonSelected()
+    index = m.top.exitItemSelected
+    selectedOption = m.exitButtons.itemFocused
+    print "selectedOption " index
+    if index = 0
+      m.top.outRequest = {"ExitApp": true}
+    else
+      print " set visible false for exit"
+      m.gExitDialog.visible = false
+      m.gridScreen.exitDialogOpen = false
+      resetFocusToScreen()
+    end if
+end sub
 
 ' Takes screen and creates dialog for it
-function CreateDialog(screen, title, message, buttons)
+function CreateDialog(screen, title, message, buttons, setDialogDetail = false)
   m.top.dialog = invalid
-
+  m.dialogdetail = invalid
   dialog = createObject("roSGNode", "Dialog")
   dialog.title = title
   dialog.message = message
@@ -727,12 +986,17 @@ function CreateDialog(screen, title, message, buttons)
   dialog.observeField("buttonSelected", "DialogButtonSelected")
 
   m.top.dialog = dialog
+  if setDialogDetail = true then
+    m.dialogdetail = dialog
+  end if
+
 end function
 
 sub DialogButtonSelected()
     if (m.top.dialog <> invalid) then
         m.top.dialog.close = true
         m.top.dialog = invalid
+        m.dialogdetail = invalid
     end if
 end sub
 

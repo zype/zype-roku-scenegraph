@@ -74,7 +74,7 @@
                   translation="[410,20]"
                   color="0xf5f5f5"
                   focusedColor="0xf5f5f5"
-                  itemSize="[250, 35]"
+                  itemSize="[300, 35]"
                   itemSpacing = "[0,20]"
                   numRows="2"
                   vertFocusAnimationStyle="floatingFocus"

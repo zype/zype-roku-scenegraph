@@ -12,6 +12,9 @@ Function Init()
 
     m.top.observeField("visible", "OnTopVisibilityChange")
     m.top.observeField("rowItemSelected", "OnRowItemSelected")
+    if m.global.enable_top_navigation = true then
+      m.top.observeField("focusedChild", "OnFocusedChild")
+    end if
 
     m.videoTitle = m.top.findNode("VideoTitle")
     m.NoItems = m.top.findNode("NoItems")
@@ -66,6 +69,18 @@ sub OnContentChange()
 
 end sub
 
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+      if (m.NoItems.text = "")
+          m.gridScreen.setFocus(true)
+      else
+          m.NoItems.setFocus(true)
+      end if
+    else
+        ' Unfocused'
+    end if
+end sub
+
 ' handler of focused item in RowList
 Sub OnItemFocused()
     itemFocused = m.top.itemFocused
@@ -85,7 +100,9 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
     if press then
         ? "key == ";  key
         if key = "options" then
-            result = true
+            if m.global.enable_top_navigation = false then
+                result = true
+            end if
         else if key = "back"
             ' if Details opened
             if m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.NoItems.text = "" then

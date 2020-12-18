@@ -36,29 +36,18 @@ function OnKeyEvent(key as string, press as boolean) as boolean
            resetScreen()
            return true
         end if
-      end if
-    end if
-    ' if press
-    '   if key = "up"
-    '     if m.helpers.focusedChild(m) = "SubscripitionContainer" and m.global.auth.isLoggedIn = true then
-    '       ? " Focus change to oauth button "
-    '       m.oauth_button.setFocus(true)
-    '     end if
-    '   else if key = "down"
-    '     ? " Focus change to plan_buttons "
-    '     if m.helpers.focusedChild(m) = "TextContainer" then m.plan_buttons.setFocus(true)
-    '   end if
-    ' end if
-
-    if press
-      if key = "up"
+      else if key = "up"
         if m.plan_buttons.hasFocus() and m.global.auth.isLoggedIn = true then
           ? " Focus change to oauth button "
           m.oauth_button.setFocus(true)
+          result = true
         end if
       else if key = "down"
         ? " Focus change to plan_buttons "
-        if m.oauth_button.hasFocus() then m.plan_buttons.setFocus(true)
+        if m.oauth_button.hasFocus() then
+          m.plan_buttons.setFocus(true)
+          result = true
+        end if
       end if
     end if
 
@@ -155,6 +144,15 @@ function onVisibleChange() as void
     end if
 end function
 
+sub OnFocusedChild()
+    print "[Account] OnFocusedChild " m.top.IsInFocusChain() " "m.top.hasFocus()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+        m.oauth_button.setFocus(true)
+    else
+        print m.top.focusedChild
+        ' Unfocused'
+    end if
+end sub
 
 function OnPlanSubscribeSuccess() as void
   print " >>>>>>>> OnPlanSubscribeSuccess "m.top.planSubscribeDetail
@@ -192,7 +190,7 @@ function resetScreen() as void
 
         if m.global.device_linking = true
           btn = [ { title: m.global.labels.sign_out_button, role: "signout", target: "" } ]
-          if m.global.auth.universalSubCount = 0 and m.global.nsvod.currentPlan.count() > 0 then  btn.push({ title: m.global.labels.sync_native_button, role: "syncNative", target: "" })
+          btn.push({ title: m.global.labels.sync_native_button, role: "syncNative", target: "" })
           m.oauth_button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
           m.oauth_label.text = m.global.auth.email
         end if
@@ -204,9 +202,9 @@ function resetScreen() as void
         end if
 
         m.plan_buttons.jumpToRowItem = [0,0]
-        m.plan_buttons.setFocus(true)
-        m.plan_buttons.setFocus(false)
-        m.plan_buttons.setFocus(true)
+        ' m.plan_buttons.setFocus(true)
+        ' m.plan_buttons.setFocus(false)
+        m.oauth_button.setFocus(true)
     else
       m.loggedin_group.visible = false
       m.signin_group.visible = true
@@ -331,9 +329,9 @@ function initializers() as object
 
     self.signin_button = self.top.findNode("signInButton")
     self.signin_button.color = self.global.theme.primary_text_color
-    self.signin_button.focusedColor = self.global.theme.background_color
+    self.signin_button.focusedColor = self.global.theme.button_focus_color
     self.signin_button.focusBitmapUri = self.global.theme.button_filledin_uri
-    self.signin_button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
+    self.signin_button.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
 
 
     ' Loggin Group for manage subscription '
@@ -403,6 +401,10 @@ function initializers() as object
     self.thank_you_button.focusedColor = self.global.theme.background_color
     self.thank_you_button.focusBitmapUri = self.global.theme.button_filledin_uri
     self.thank_you_button.focusFootprintBitmapUri = self.global.theme.focus_grid_uri
+
+    if self.global.enable_top_navigation = true then
+      self.top.observeField("focusedChild", "OnFocusedChild")
+    end if
 
 
   end function

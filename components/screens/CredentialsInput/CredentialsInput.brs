@@ -53,6 +53,8 @@ function onKeyEvent(key as string, press as boolean) as boolean
         m.inputs.jumpToRowItem = [0,0]
         result = true
       end if
+    else if key = "options"
+      result = true
     end if
 
   end if ' press = true
@@ -143,6 +145,15 @@ function updateCheckbox() as void
   m.top.findNode("signinHintMessage").visible = false
   m.top.findNode("signinButton").visible = false
 end function
+
+
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+      m.inputs.setFocus(true)
+    else
+        ' Unfocused'
+    end if
+end sub
 
 
 sub updateScreen()
@@ -274,14 +285,16 @@ function initializers() as object
     self.signin_button = self.top.findNode("signinButton")
     self.signin_button.focusBitmapUri = self.global.theme.button_focus_uri
     self.signin_button.color = self.global.theme.primary_text_color
-    self.signin_button.focusedColor = self.global.theme.primary_text_color
+    self.signin_button.focusedColor = self.global.theme.button_focus_color
+    self.signin_button.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
     self.signin_button.content = self.content_helpers.oneDimList2ContentNode([{title: self.global.labels.sign_in_submit_button, role: "transition", target: "SignInScreen"}], "ButtonNode")
 '    self.signin_button.observeField("visible", "onVisibleChange")
 
     self.submit_button = self.top.findNode("SubmitButton")
     self.submit_button.focusBitmapUri = self.global.theme.button_focus_uri
     self.submit_button.color = self.global.theme.primary_text_color
-    self.submit_button.focusedColor = self.global.theme.primary_text_color
+    self.submit_button.focusedColor = self.global.theme.button_focus_color
+    self.submit_button.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
     self.submit_button.content = self.content_helpers.oneDimList2ContentNode([{title: self.global.labels.user_credential_submit_button}], "ButtonNode")
 
     self.helper_message = self.top.findNode("HelperMessage")
@@ -290,6 +303,10 @@ function initializers() as object
     self.input_keyboard = self.top.findNode("InputKeyboard")
 
     self.confirm_signup = self.top.findNode("ConfirmSignup")
+
+    if self.global.enable_top_navigation = true then
+      self.top.observeField("focusedChild", "OnFocusedChild")
+    end if
   end function
 
   return this

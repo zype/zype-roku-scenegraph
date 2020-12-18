@@ -9,12 +9,14 @@
     <!-- Segment Analytics Connector path -->
     <script type="text/brightscript" uri="pkg:/source/analytics/SegmentAnalyticsConnector.brs" />
     <script type="text/brightscript" uri="pkg:/source/utils.brs" />
+    <script type="text/brightscript" uri="pkg:/source/helpers/content_helpers.brs" />
 
     <interface>
         <field id="myVideosArray" type="assocArray"  />
         <field id="allDataReceived" type="boolean" alwaysNotify="true" value="false"/>
 
         <field id="uniqueSessionID" type="string" alwaysnotify="true"/>
+        <field id="outRequest" type="AssocArray"/>
 
 
         <!--Interface to handle app launch complete event for sending beacon to Roku-->
@@ -25,6 +27,7 @@
         <field id="gridContent" type="node" alias="GridScreen.content" onChange="OnChangeContent" alwaysNotify="true"/>
 
         <field id="loadingIndicator" type="node" />
+        <field id="loadingScreen" type="node" />
         <!--Content for HeroCarousel on Home Scene-->
         <field id="heroCarouselData" type="array" alias="GridScreen.heroCarouselData" alwaysNotify="true"/>
         <field id="IsShowAutoPlayBackground" type="boolean" alias="autoPlayBackground.visible" alwaysNotify="true" onChange="onAutoPlayBgChange"/>
@@ -76,11 +79,17 @@
         <!-- Name of screen to transition to -->
         <field id="transitionTo" type="string" alwaysNotify="true" onChange="transitionToScreen" />
 
+        <field id="resetFocus" type="bool" alwaysNotify="true" onChange="resetFocusToScreen" />
+
         <field id="resetTo" type="string" alwaysNotify="true" onChange="resetToScreen" />
 
         <field id="backScreen" type="string" alwaysNotify="true" onChange="backToScreen" />
 
         <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
+
+        <field id="LastSelectedMenu" value="" type="string"/>
+
+        <field id="exitItemSelected" type="integer" alwaysnotify="true" alias="exitButtons.itemSelected" onChange="exitButtonSelected" />
 
         <field id="setPurchasePlan" type="boolean" alwaysNotify="true" />
 
@@ -90,6 +99,12 @@
         <function name="PushScreenIntoScreenStack" />
         <function name="PushContentIntoContentStack" />
         <function name="CreateDialog" />
+
+        <function name="ShowMenuAndStartHideMenuTimer" />
+        <function name="StopHideMenuTimer" />
+        <function name="TriggerHideMenu" />
+        <function name="TriggerShowMenu" />
+
         <field id="segmentEvent" type="assocArray" onChange="onSegmentEventChanged"/>
     </interface>
 
@@ -116,6 +131,11 @@
         <!--Menu screen.-->
         <Menu
             id="Menu"
+            visible="false"/>
+
+        <!--TopMenu screen.-->
+        <TopMenu
+            id="TopMenu"
             visible="false"/>
 
         <!-- Device Linking screen -->
@@ -222,8 +242,45 @@
           backgroundColor="0x151515"
           backgroundOpacity="0"/>
 
+
+          <Group id="gExitDialog" visible="false">
+              <Rectangle id = "hideMe" height = "720" width = "1280" opacity = ".3" />
+              <Poster
+                id="exitDialog"
+                width="800"
+                height="250"
+                uri="pkg:/images/white_fill_corner_radius_10.9.png"
+                opacity = "0.8"
+                translation="[0,0]" >
+
+                <Label id ="exitText" translation="[0,50]" width = "800" text="Are you sure you want to exit?" horizAlign="center">
+                  <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="30"/>
+                </Label>
+
+                  <Label translation="[25, 25]" id="hiddentitle" visible="false">
+                    <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="26" />
+                  </Label>
+
+                  <MarkupGrid id="exitButtons" translation="[0,200]"
+                      itemComponentName="ExitButton"
+                      numColumns="6"
+                      numRows="1"
+                      itemSize="[0,105]"
+                      focusBitmapUri="pkg:/images/focus_grid_light.9.png"
+                      focusFootprintBitmapUri="pkg:/images/nil.png"
+                      horizFocusAnimationStyle="floatingFocus"
+                      vertFocusAnimationStyle="floatingFocus"
+
+                      drawFocusFeedback = "false"
+                      visible="true"
+                      />
+              </Poster>
+          </Group>
+
         <!-- Timer to hide autoplay message -->
         <Timer id="autoplayMessageTimer" repeat="false" duration="5" />
+
+        <Timer id="menuHideTimer" repeat="false" duration="3" />
 
         <ChannelStore
           id="store"

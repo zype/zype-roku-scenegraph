@@ -2,6 +2,7 @@ Library "Roku_Ads.brs"
 
 ' ********** Copyright 2016 Zype Inc.  All Rights Reserved. **********
 Function Main (args as Dynamic) as Void
+    m.appStartSource = args.source
     if (args.ContentID <> invalid) and (args.MediaType <> invalid)
         if (args <> invalid)
             contentID   = args.contentID
@@ -154,13 +155,30 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     SetGlobalAuthObject()
     m.akamai_service = AkamaiService()
+    m.mediamelon_service = MediaMelonService()
+    m.google_analytics_service = GoogleAnalyticsService()
+
     m.LoadingScreen = m.scene.findNode("LoadingScreen")
 
-    m.loadingIndicator = m.scene.findNode("loadingIndicator")
+    m.loadingIndicator = m.scene.loadingIndicator
     m.loadingIndicator1 = m.scene.findNode("loadingIndicator1")
 
     ' HB: sending app launch trigger from here
     m.scene.sentLaunchCompleteEvent = true
+
+    ' Google Analytics'
+    if(m.global.google_analytics_enable = true)
+        params = {
+          category: "AppStart"
+          action: m.appStartSource
+        }
+        customParams = {
+          siteId: m.app.site_id
+          deviceId: m.global.UATracker.cid
+        }
+        m.google_analytics_service.SendGATrackEvent(params, customParams)
+    end if
+
     print "1=============================================================================================================================>"
 
     m.playlistsRowItemSizes = []
@@ -170,8 +188,8 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     m.contentID = contentID
     ' Start loader if deep linked
     if m.contentID <> invalid
-      m.loadingIndicator.control = "stop"
-      StartLoader()
+      EndLoader()
+      StartLoadingScreen()
     end if
 
     m.detailsScreen = m.scene.findNode("DetailsScreen")
@@ -194,20 +212,10 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
         end if
     end for
 
-    heroCarousels = LoadHeroCarousels()
-    if heroCarousels <>invalid
-        m.gridScreen.heroCarouselShow=true
-        m.scene.heroCarouselData = heroCarousels
-    else
-        m.gridScreen.heroCarouselShow=false
-    end if
-
-    m.scene.gridContent = m.gridContent
-
     if m.contentID = invalid
       ' Keep loader spinning. App not done loading yet
-      m.gridScreen.setFocus(false)
-      m.loadingIndicator.control = "start"
+      ' m.gridScreen.setFocus(false)
+       StartLoader()
     end if
 
     m.Menu = m.scene.findNode("Menu")
@@ -334,57 +342,74 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
         HandleDeeplinkEvent(m.contentID, mediaType, false)
     end if
 
+    heroCarousels = LoadHeroCarousels()
+    if heroCarousels <>invalid
+        m.gridScreen.heroCarouselShow=true
+        m.scene.heroCarouselData = heroCarousels
+    else
+        m.gridScreen.heroCarouselShow=false
+    end if
+
+    m.scene.gridContent = m.gridContent
+
     if m.contentID = invalid
       ' Stop loader and refocus
       m.gridScreen.setFocus(true)
-      m.loadingIndicator.control = "stop"
+      EndLoader()
+      if m.global.enable_top_navigation = true then
+          m.scene.callFunc("ShowMenuAndStartHideMenuTimer")
+      end if
     end if
 
     'autoPlayHero = LoadAutoPlayHero()
     'print "autoPlayHero :: " autoPlayHero[0]
-    for each item in autoPlayHero
-        if item.active and item.zobject_type_title = "autoplay_hero"
+    if autoPlayHero <> invalid then
+	    for each item in autoPlayHero
+	        if item.active and item.zobject_type_title = "autoplay_hero"
 
-            'append message
-            appInfo = CreateObject("roAppInfo")
-            'appTitle = appInfo.GetTitle()
+	            'append message
+	            appInfo = CreateObject("roAppInfo")
+	            'appTitle = appInfo.GetTitle()
 
-            autoplayMessage           = createObject("RoSGNode", "Label")
-            autoplayMessage.id        = "autoplayMessage"
-            autoplayMessage.color     = "#FFFFFF"
-            autoplayMessage.wrap      = true
-            autoplayMessage.text      = m.global.labels.autoplay_message '.Replace("<app title>",appTitle)
-            autoplayMessage.width     = 1280
-            autoplayMessage.maxLines  = 2
-            autoplayMessage.lineSpacing = "0"
-            autoplayMessage.font = CreateObject("roSGNode", "Font")
-            autoplayMessage.font.uri = "pkg:/fonts/Roboto-Regular.ttf"
-            autoplayMessage.font.size = 22
-            autoplayMessage.translation = [0, 620]
-            autoplayMessage.horizAlign = "center"
-            autoplayMessage.visible = false
+	            autoplayMessage           = createObject("RoSGNode", "Label")
+	            autoplayMessage.id        = "autoplayMessage"
+	            autoplayMessage.color     = "#FFFFFF"
+	            autoplayMessage.wrap      = true
+	            autoplayMessage.text      = m.global.labels.autoplay_message '.Replace("<app title>",appTitle)
+	            autoplayMessage.width     = 1280
+	            autoplayMessage.maxLines  = 2
+	            autoplayMessage.lineSpacing = "0"
+	            autoplayMessage.font = CreateObject("roSGNode", "Font")
+	            autoplayMessage.font.uri = "pkg:/fonts/Roboto-Regular.ttf"
+	            autoplayMessage.font.size = 22
+	            autoplayMessage.translation = [0, 620]
+	            autoplayMessage.horizAlign = "center"
+	            autoplayMessage.visible = false
 
-            m.scene.appendChild(autoplayMessage)
-            'm.scene.autoplaytimer = 1
+	            m.scene.appendChild(autoplayMessage)
+	            'm.scene.autoplaytimer = 1
 
-            StartLoader()
-            linkedVideoObject=CreateVideoObject(GetVideo(item.videoid))
-            auth1 = getAuth(linkedVideoObject)
+	                StartLoadingScreen()
+	            linkedVideoObject=CreateVideoObject(GetVideo(item.videoid))
+	            auth1 = getAuth(linkedVideoObject)
 
-            content = createObject("RoSGNode","VideoNode")
-            content.setFields(linkedVideoObject)
-            m.scene.IsShowAutoPlayBackground = false
-            m.scene.InitialAutoPlay = true
-            playVideo(m.gridScreen, auth1, m.app.avod, content)
-            m.loadingIndicator.control = "stop"
+	            content = createObject("RoSGNode","VideoNode")
+	            content.setFields(linkedVideoObject)
+	            m.scene.IsShowAutoPlayBackground = false
+	            m.scene.InitialAutoPlay = true
+	            playVideo(m.gridScreen, auth1, m.app.avod, content)
+	                EndLoader()
 
-            exit for
-        end if
-    end for
+	            exit for
+	        end if
+	    end for
+    end if
 
     print "App done loading=============================================================================================================================>"
     ' HB: Actually we have finished all loading here
     ' m.scene.sentLaunchCompleteEvent = true
+
+    m.scene.observeField("outRequest", m.port)
 
     while(true)
         msg = wait(0, m.port)
@@ -394,8 +419,17 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
             print "msg.getField(): "; msg.getField()
             print "msg.getData(): "; msg.getData()
             print "msg.getNode(): "; msg.getNode()
-
-            if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
+            ' When The AppManager want to send command back to Main
+            if (msg.GetField() = "outRequest")
+                request = msg.GetData()
+                if (request <> invalid)
+                  	print "Request : " request
+                    if (request.DoesExist("ExitApp") AND (request.ExitApp = true))
+                        print "ExitApp :  Closing Screen."
+                        screen.close()
+                    end if
+                end if
+            else if m.app.autoplay = true AND msg.getField() = "triggerPlay" AND msg.getData() = true then
               RemakeVideoPlayer(m.detailsScreen)
               RemoveVideoIdForResumeFromReg(m.detailsScreen.content.id)
               m.akamai_service.setPlayStartedOnce(true)
@@ -404,7 +438,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 if msg.GetData()<>invalid
                     if msg.GetData().autoplay=invalid or msg.GetData().autoplay=false
                         if msg.GetData().videoid<>invalid
-                            m.loadingIndicator.control = "start"
+                            StartLoader()
                             m.gridScreen.visible = "false"
                             m.detailsScreen.autoplay = false
                             linkedVideoNode = createObject("roSGNode", "VideoNode")
@@ -413,9 +447,9 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                                 linkedVideoNode[key] = linkedVideoObject[key]
                             end for
                             m.scene.DeepLinkToDetailPage = linkedVideoNode
-                            m.loadingIndicator.control = "stop"
+                            EndLoader()
                         else if msg.GetData().playlistid<>invalid
-                            m.loadingIndicator.control = "start"
+                            StartLoader()
                             m.gridScreen.playlistItemSelected = false
                             content = m.gridScreen.focusedContent
 
@@ -443,22 +477,21 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                             else
                                 print "Saved crash.......................--------------------------main.brs(389)-----------------------------..."
                             end if
-
-                            m.loadingIndicator.control = "stop"
+                            EndLoader()
                         end if
                     else
-                        StartLoader()
+                        StartLoadingScreen()
                         linkedVideoObject=CreateVideoObject(GetVideo(msg.GetData().videoid))
                         auth1 = getAuth(linkedVideoObject)
 
                         content = createObject("RoSGNode","VideoNode")
                         content.setFields(linkedVideoObject)
                         playVideo(m.gridScreen, auth1, m.app.avod, content)
-                        m.loadingIndicator.control = "stop"
+                        EndLoader()
                     end if
                 end if
             else if msg.getField() = "playlistItemSelected" and msg.GetData() = true and m.gridScreen.focusedContent.contentType = 2 then
-                m.loadingIndicator.control = "start"
+                StartLoader()
                 m.gridScreen.playlistItemSelected = false
                 content = m.gridScreen.focusedContent
 
@@ -489,9 +522,9 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 else
                     print "Saved crash.......................--------------------------main.brs(426)-----------------------------..."
                 end if
-                m.loadingIndicator.control = "stop"
+                EndLoader()
             else if msg.getNode() = "Favorites" and msg.getField() = "visible" and msg.getData() = true
-                m.loadingIndicator.control = "start"
+                StartLoader()
                 favorites_content = GetFavoritesContent()
                 m.scene.favoritesContent = ParseContent(favorites_content)
                 hasNoContent = true
@@ -502,7 +535,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
                 if hasNoContent = true then m.Favorites.NoItemsText = m.global.labels.no_favorites_message.replace("{{chr(10)}}", chr(10))
 
-                m.loadingIndicator.control = "stop"
+                EndLoader()
 
             else if msg.getNode() = "MyLibrary" and msg.getField() = "visible" and msg.getData() = true
                 sign_in_button = m.MyLibrary.findNode("SignInButton")
@@ -511,7 +544,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
                 if m.global.auth.isLoggedIn
                     sign_in_button.visible = false
-                    m.loadingIndicator.control = "start"
+                    StartLoader()
                 else
                     sign_in_button.visible = true
                     sign_in_button.setFocus(true)
@@ -555,7 +588,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                     sign_in_button.setFocus(true)
                 end if
 
-                m.loadingIndicator.control = "stop"
+                EndLoader()
                 m.MyLibrary.setFocus(true)
 
             else if msg.getField() = "paginatorSelected" and msg.getData() = true and msg.getNode() = "MyLibrary"
@@ -582,9 +615,9 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 m.scene.myLibraryContent = ParseContent([new_my_library])
                 m.MyLibrary.setFocus(true)
             else if msg.getField() = "SearchString"
-                m.loadingIndicator.control = "start"
+                StartLoader()
                 SearchQuery(m.scene.SearchString)
-                m.loadingIndicator.control = "stop"
+                EndLoader()
             else if msg.getField() = "startStream"
                 RemakeVideoPlayer(m.epgScreen)
                 m.VideoPlayer = m.epgScreen.VideoPlayer
@@ -592,13 +625,16 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 content = createObject("RoSGNode","VideoNode")
                 content.setFields(msg.getData())
                 playLiveStream(m.epgScreen, content)
-            else if ((msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected") then
+            else if ((msg.getNode() = "FavoritesDetailsScreen" or msg.getNode() = "GridScreen" or msg.getNode() = "SearchDetailsScreen" or msg.getNode() = "MyLibraryDetailsScreen" or msg.getNode() = "DetailsScreen" or msg.getNode() = "AuthSelection" or msg.getNode() = "UniversalAuthSelection" or msg.getNode() = "SignInScreen" or msg.getNode() = "SignUpScreen" or msg.getNode() = "AccountScreen" or msg.getNode() = "PurchaseScreen" or msg.getNode() = "RegistrationScreen") and msg.getField() = "itemSelected") then
 
                 ' access component node content
                 if msg.getNode() = "FavoritesDetailsScreen"
                     lclScreen = m.favoritesDetailsScreen
                 else if msg.getNode() = "SearchDetailsScreen"
                     lclScreen = m.searchDetailsScreen
+                else if msg.getNode() = "GridScreen"
+                    print "GridScreen========================================================0000000000000000000000000"
+                    lclScreen = m.gridScreen
                 else if msg.getNode() = "MyLibraryDetailsScreen"
                     lclScreen = m.MyLibraryDetailsScreen
                 else if msg.getNode() = "DetailsScreen"
@@ -866,27 +902,27 @@ end function
 '     3- Both NSVOD and USVOD. User either purchased a native subscription or is linked
 sub playRegularVideo(screen as Object)
     print "PLAY REGULAR VIDEO"
-    StartLoader()
+    StartLoadingScreen()
     playVideo(screen, getAuth(screen.content), m.app.avod)
 end sub
 
 
 sub playTrailerVideo(screen as Object, content = invalid)
   print "PLAY TRAILER VIDEO"
-  StartLoader()
+  StartLoadingScreen()
   playVideo(screen, getAuth(content), false, content)
 end sub
 
 
 sub playLiveStream(screen as Object, content = invalid)
   print "PLAY LIVE"
-  StartLoader()
+  StartLoadingScreen()
   playVideo(screen, getAuth(content), false, content)
 end sub
 
 sub playAutoPlayHero(screen as Object, content = invalid)
   print "PLAY Autoplay Hero"
-  StartLoader()
+  StartLoadingScreen()
   playVideo(screen, getAuth(content), false, content)
 end sub
 
@@ -929,6 +965,15 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       playerInfo.video.video_content_genre = m.global.video_content_genre
   end if
 
+  if (playerInfo.bif <> invalid)
+      content.SDBifUrl = playerInfo.bif.sd
+      content.HDBifUrl = playerInfo.bif.hd
+      content.FHDBifUrl = playerInfo.bif.fhd
+  else
+      content.SDBifUrl = ""
+      content.HDBifUrl = ""
+      content.FHDBifUrl = ""
+  end if
   print "--------------------------------------------------------------------------4"
 
   content.stream = playerInfo.stream
@@ -949,9 +994,9 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
         print "--------------------------------------------------------------------------8 - Closed"
     CloseVideoPlayer(screen)
         if m.LoadingScreen.visible = true
-          EndLoader(screen)
+          EndLoadingScreen(screen)
         end if
-    CreateVideoUnavailableDialog(playerInfo.errorMessage)
+      m.scene.callFunc("CreateDialog",m.scene, "Error", playerInfo.errorMessage, ["Close"])
   else
         print "--------------------------------------------------------------------------9 - Play"
     PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo, content)
@@ -986,7 +1031,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
             ads = video_service.PrepareAds(playerInfo, no_ads)
 
             if playerInfo.on_Air = true then m.midroll_ads = [] else m.midroll_ads = ads.midroll
-            m.loadingIndicator.control = "stop"
+            EndLoader()
 
             print "--------------------------------------------------------------------------11"
 
@@ -999,7 +1044,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
 
     ' Start playing video
         if playContent AND (not screen.videoPlayerVisible = false) then
-      m.loadingIndicator.control = "stop"
+            EndLoader()
 
             print "--------------------------------------------------------------------------13"
       print "[Main] Playing video"
@@ -1020,7 +1065,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
             ' if screen.hasField("videoPlayerVisible") then screen.videoPlayerVisible = true
 
       if m.LoadingScreen.visible = true
-        EndLoader(screen)
+        EndLoadingScreen(screen)
       end if
 
       m.currentVideoInfo = playerInfo.video
@@ -1030,6 +1075,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
         end if
       end if
 
+      ' Akamai Analytics'
       if(playerInfo.analytics.beacon <> invalid AND playerInfo.analytics.beacon <> "")
           if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
           if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
@@ -1049,6 +1095,79 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
           m.akamai_service.StartAkamaiEvents()
       end if
 
+      ' Advance Analytics (MediaMelon)'
+      if(m.global.advanced_analytics_enabled = true and m.global.advanced_analytics_customerid <> invalid and m.global.advanced_analytics_customerid <> 0)
+          if auth.access_token <> invalid then token_info = RetrieveTokenStatus({ access_token: auth.access_token }) else token_info = invalid
+          if token_info <> invalid then consumer_id = token_info.resource_owner_id else consumer_id = ""
+
+          mediamelonCustomerID = m.global.advanced_analytics_customerid
+
+          playerNameString =  "Roku Player"
+          app_info = CreateObject("roAppInfo")
+          subscriberID = "unknown"
+          subscriberType = ""
+          subscriptionId = ""
+          appTitle = ""
+          siteID = ""
+          if app_info.GetTitle() <> invalid then appTitle = app_info.GetTitle()
+          if playerInfo.analytics.siteid <> invalid then siteID = playerInfo.analytics.siteid
+
+
+          if content.subscriptionRequired then
+              if subscriberType = "" then subscriberType ="subscription" else subscriberType = subscriberType + "|subscription"
+          end if
+
+          currentUser = m.current_user.getInfo()
+          if (currentUser <> invalid and currentUser.subscription_ids <> invalid and currentUser.subscription_ids.count() > 0)
+              subscriptionId = currentUser.subscription_ids[0]
+          end if
+
+          if content.passRequired then
+              if subscriberType = "" then subscriberType ="pass" else subscriberType = subscriberType + "|pass"
+          end if
+          if content.purchaseRequired then
+              if subscriberType = "" then subscriberType ="purchase" else subscriberType = subscriberType + "|purchase"
+          end if
+          if content.redemptionCodeRequired then
+              if subscriberType = "" then subscriberType ="redemption" else subscriberType = subscriberType + "|redemption"
+          end if
+          if content.rentalRequired then
+              if subscriberType = "" then subscriberType ="rental" else subscriberType = subscriberType + "|rental"
+          end if
+
+          If consumer_id <> invalid and consumer_id <> "" then subscriberID = consumer_id
+
+          if subscriberType = "" then
+             subscriberType ="free"
+          end if
+
+          if subscriptionId = invalid then subscriptionId = ""
+
+          MMConfig = {
+              customerID : mediamelonCustomerID
+              subscriberId : subscriberID
+              subscriberType: subscriberType
+              subscriberTag: invalid
+              disableManifestFetch: false
+              domainName: appTitle
+              playerName: playerNameString
+          }
+
+          Custom = {
+            "siteId" : siteID
+            "subscriptionId" : subscriptionId
+          }
+          print "=========================================================="
+          print "   MMStream Video FROM MAIN "
+          print "   MMConfig  "  MMConfig
+          print "   Custom    "  Custom
+          print "=========================================================="
+          m.mediamelon_service.InitializeMediaMelonService(MMConfig, Custom, m.videoPlayer)
+
+          m.mediamelon_service.StartMediaMelonEvents()
+
+      end if
+
             print "--------------------------------------------------------------------------15"
       m.videoPlayer.control = "play"
       m.videoPlayer.setFocus(true)
@@ -1062,23 +1181,23 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
             print "--------------------------------------------------------------------------17 - Close"
       CloseVideoPlayer(screen)
             if m.LoadingScreen.visible = true
-              EndLoader(screen)
+        EndLoadingScreen(screen)
             end if
       m.currentVideoInfo = invalid
     end if ' end of if playContent
   end if
 
   if m.LoadingScreen.visible = true
-    EndLoader(screen)
+    EndLoadingScreen(screen)
   end if
-  m.loadingIndicator.control = "stop"
+  EndLoader()
   print "------------------------------------LAST---------------------------------------- : screen.videoPlayerVisible : " screen.videoPlayerVisible
 end sub
 
 sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo, content = invalid)
   if content = invalid then content = screen.content
 	' show loading indicator before requesting ad and playing video
-	m.loadingIndicator.control = "start"
+	StartLoader()
 	m.on_air = content.on_Air
 
 	m.VideoPlayer = screen.VideoPlayer
@@ -1136,7 +1255,7 @@ sub CloseVideoPlayer(screen=m.detailsScreen)
   screen.videoPlayerVisible = false
 
   if m.LoadingScreen.visible = true
-    EndLoader()
+    EndLoadingScreen()
   end if
 
   screen.visible = true
@@ -1690,6 +1809,7 @@ function handleButtonEvents(index, screen)
 
       m.scene.goBackToNonAuth = true
 
+      m.scene.resetFocus = true
       ' Reset details screen buttons
       m.detailsScreen.content = m.detailsScreen.content
       m.RegistrationScreen.isSignin = false
@@ -1697,7 +1817,7 @@ function handleButtonEvents(index, screen)
       sleep(500)
 
       if m.AccountScreen.itemSelectedRole = "signout" AND m.AccountScreen.itemSelectedTarget = ""
-          EndLoader(m.AccountScreen)
+          EndLoadingScreen(m.AccountScreen)
           m.scene.transitionTo = "AccountScreen"
       else
         EndLoader()
@@ -1714,60 +1834,59 @@ function handleButtonEvents(index, screen)
         sleep(500)
         m.scene.callFunc("CreateDialog",m.scene, "Error", "Password is empty", ["Close"])
       else
-
-        if screen.email <> "" and screen.password <> ""
-          StartLoader()
-          login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
-          oauth = RegReadAccessToken()
-          if oauth <> invalid
-            dataAsJson = FormatJson({
-              "access_token": oauth.access_token,
-              "refresh_token": oauth.refresh_token,
-              "email": oauth.email,
-              "password": oauth.password
-            })
-            store = CreateObject("roChannelStore")
-            store.StoreChannelCredData(dataAsJson) ' store Universal SSO data
+          if screen.email <> "" and screen.password <> ""
+            StartLoader()
+            login_response = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
+            oauth = RegReadAccessToken()
+            if oauth <> invalid
+              dataAsJson = FormatJson({
+                "access_token": oauth.access_token,
+                "refresh_token": oauth.refresh_token,
+                "email": oauth.email,
+                "password": oauth.password
+              })
+              store = CreateObject("roChannelStore")
+              store.StoreChannelCredData(dataAsJson) ' store Universal SSO data
+            end if
+          else
+            login_response = invalid
           end if
-        else
-          login_response = invalid
-        end if
+          if login_response <> invalid
+            user_info = m.current_user.getInfo()
+            m.auth_state_service.updateAuthWithUserInfo(user_info)
 
-        if login_response <> invalid
-          user_info = m.current_user.getInfo()
-          m.auth_state_service.updateAuthWithUserInfo(user_info)
+            m.scene.gridContent = m.gridContent
 
-          m.scene.gridContent = m.gridContent
+            ' m.scene.transitionTo = "AccountScreen"
+            m.scene.goBackToNonAuth = true
 
-          ' m.scene.transitionTo = "AccountScreen"
-          m.scene.goBackToNonAuth = true
+            print "Calling Reset------------------------------------------------"
+            m.SignInScreen.reset = true
+            m.RegistrationScreen.reset = true
+            m.RegistrationScreen.isRegister = true
+            m.SignUpScreen.reset = true
 
-          ' Reset details screen
-          m.detailsScreen.content = m.detailsScreen.content
+            m.scene.resetFocus = true
+
+            ' Reset details screen
+            m.detailsScreen.content = m.detailsScreen.content
 
 
-          print "Calling Reset------------------------------------------------"
-          m.SignInScreen.reset = true
-          m.RegistrationScreen.reset = true
-          m.RegistrationScreen.isRegister = true
-          m.SignUpScreen.reset = true
-
-          if m.AccountScreen.itemSelectedRole = "transition" AND m.AccountScreen.itemSelectedTarget = "UniversalAuthSelection"
-              m.scene.transitionTo = "AccountScreen"
-              EndLoader(m.AccountScreen)
-              sleep(500)
-              m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
-        else
+            if m.AccountScreen.itemSelectedRole = "transition" AND m.AccountScreen.itemSelectedTarget = "UniversalAuthSelection"
+                m.scene.transitionTo = "AccountScreen"
+                EndLoadingScreen(m.AccountScreen)
+                sleep(500)
+                m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+            else
+                EndLoader()
+                sleep(500)
+                m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+            end if
+          else
             EndLoader()
             sleep(500)
-            m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
+            m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not find user with that email and password.", ["Close"])
           end if
-        else
-          EndLoader()
-          sleep(500)
-          m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not find user with that email and password.", ["Close"])
-        end if
-
       end if ' end of email/password validation
 
     else if button_role = "submitCredentials" and screen.id = "SignUpScreen"
@@ -1780,7 +1899,7 @@ function handleButtonEvents(index, screen)
       else if signUpChecked = false
         m.scene.callFunc("CreateDialog",m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
       else
-        StartLoader()
+        StartLoadingScreen()
         create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
 
         if create_consumer_response <> invalid
@@ -1812,7 +1931,7 @@ function handleButtonEvents(index, screen)
             end if
           end if
         else
-          EndLoader()
+          EndLoadingScreen()
           m.SignUpScreen.setFocus(true)
           m.SignUpScreen.findNode("SubmitButton").setFocus(true)
 
@@ -1833,13 +1952,13 @@ function handleButtonEvents(index, screen)
         sleep(500)
         m.scene.callFunc("CreateDialog",m.scene, "Error", "You must agree with the terms of service in order to proceed.", ["Close"])
       else
-        StartLoader()
+        StartLoadingScreen()
         if not m.RegistrationScreen.isSignin
           create_consumer_response = CreateConsumer({ "consumer[email]": screen.email, "consumer[password]": screen.password, "consumer[name]": "" })
         end if
         if m.RegistrationScreen.isSignin or create_consumer_response <> invalid
           oauth = Login(GetApiConfigs().client_id, GetApiConfigs().client_secret, screen.email, screen.password)
-'          oauth = RegReadAccessToken()
+          'oauth = RegReadAccessToken()
           if oauth <> invalid
             dataAsJson = FormatJson({
               "access_token": oauth.access_token,
@@ -1851,12 +1970,12 @@ function handleButtonEvents(index, screen)
             store.StoreChannelCredData(dataAsJson) ' store Universal SSO data
             user_info = m.current_user.getInfo()
             m.auth_state_service.updateAuthWithUserInfo(user_info)
-'            m.scene.gridContent = m.gridContent
+            'm.scene.gridContent = m.gridContent
             m.RegistrationScreen.isSignin = false
             m.RegistrationScreen.reset = true
             m.detailsScreen.content = m.detailsScreen.content
             m.scene.goBackToNonAuth = true
-            EndLoader()
+            EndLoadingScreen()
 
             ' HB : MarketPlaceConnect With RegistrationScreen'
             isSubscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0)
@@ -1869,14 +1988,14 @@ function handleButtonEvents(index, screen)
 
             m.Menu.isRefreshMenu = true
           else
-            EndLoader()
+            EndLoadingScreen()
             m.RegistrationScreen.setFocus(true)
             m.RegistrationScreen.findNode("SubmitButton").setFocus(true)
             sleep(500)
             m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not find user with that email and password.", ["Close"])
           end if
         else
-          EndLoader()
+          EndLoadingScreen()
           m.RegistrationScreen.setFocus(true)
           m.RegistrationScreen.findNode("SubmitButton").setFocus(true)
           sleep(500)
@@ -1884,62 +2003,94 @@ function handleButtonEvents(index, screen)
         end if
       end if
     else if button_role = "syncNative"
-      user_info = m.current_user.getInfo()
-      latest_native_sub = m.roku_store_service.latestNativeSubscriptionPurchase()
+        StartLoader()
+        'user_info = m.current_user.getInfo()
+        latest_native_sub = m.roku_store_service.latestNativeSubscriptionPurchase()
 
-      third_party_id = GetPlan(latest_native_sub.code, {}).third_party_id
-
-      bifrost_params = {
-        app_key: GetApiConfigs().app_key,
-        consumer_id: user_info._id,
-        third_party_id: third_party_id,
-        roku_api_key: GetApiConfigs().roku_api_key,
-        transaction_id: UCase(latest_native_sub.purchaseId),
-        device_type: "roku"
-      }
-
-      native_sub_status = GetNativeSubscriptionStatus(bifrost_params)
-
-      if native_sub_status <> invalid and native_sub_status.is_valid <> invalid and native_sub_status.is_valid
-
-        updated_user_info = m.current_user.getInfo()
-
-        ' native subscription sync success
-        if updated_user_info.subscription_count > 0
-          ' Re-login. Get new access token
-        '   if updated_user_info.linked then GetAndSaveNewToken("device_linking") else GetAndSaveNewToken("login")
-          m.auth_state_service.updateAuthWithUserInfo(updated_user_info)
-
-          ' Refresh lock icons with grid screen content callback
-          m.scene.gridContent = m.gridContent
-
-          ' details screen should update self
-          m.detailsScreen.content = m.detailsScreen.content
-
-          m.native_email_storage.WriteEmail(updated_user_info.email)
-
-          sleep(500)
-          m.scene.callFunc("CreateDialog",m.scene, "Success", "Was able to validate subscription.", ["Close"])
-
-        ' subscription count = 0
+        print "latest_native_sub---> " latest_native_sub
+        access_token = ""
+        if (m.current_user.getOAuth() <> invalid AND m.current_user.getOAuth().access_token <> invalid)
+          access_token = m.current_user.getOAuth().access_token
         else
-
-          stored_email = m.native_email_storage.ReadEmail()
-          if stored_email = "" or stored_email = invalid then message = "Please sign in with the correct email to sync your subscription." else message = "Please sign in as " + stored_email + " to sync your subscription."
-
-          sleep(500)
-          m.scene.callFunc("CreateDialog",m.scene, "Error", message, ["Close"])
+          access_token = ""
         end if
 
-      else
-        sleep(500)
-        m.scene.callFunc("CreateDialog",m.scene, "Error", "There was an error validating your subscription.", ["Close"])
-      end if
+        consumer_id = m.current_user.getInfo()._id
 
+        matchingZypePlanId = m.marketplaceConnect.getZypePlanIDFromRokuPlanCode(latest_native_sub.code, m.global.subscription_plan_ids)
+
+        print "access_token : " access_token
+        print "consumer_id : " consumer_id
+        print "purchase_subscription.receipt.purchaseId : " latest_native_sub.purchaseId
+        print "plan.zypePlanId : " matchingZypePlanId
+        print "m.app._id : " m.app._id
+        print "m.app.site_id : " m.app.site_id
+
+        marketplaceParams = {
+            access_token: access_token,
+            consumer_id: consumer_id,
+            transaction_id: latest_native_sub.purchaseId,
+            plan_id: matchingZypePlanId,
+            app_id: m.app._id,
+            site_id: m.app.site_id
+      }
+
+        print "marketplaceParams ---> " marketplaceParams
+
+        if (matchingZypePlanId <> "")
+            marketPlaceConnectSVODVerificationStatus = m.marketplaceConnect.verifyMarketplaceSubscription(marketplaceParams)
+            print "======> marketPlaceConnectSVODVerificationStatus : ===> " marketPlaceConnectSVODVerificationStatus
+
+            if marketPlaceConnectSVODVerificationStatus = true
+                updated_user_info = m.current_user.getInfo()
+                print "updated_user_info ==> " updated_user_info
+                ' native subscription sync success
+                if updated_user_info.subscription_count > 0
+                  ' Re-login. Get new access token
+                  m.auth_state_service.updateAuthWithUserInfo(updated_user_info)
+                  ' Refresh lock icons with grid screen content callback
+                  m.scene.gridContent = m.gridContent
+
+                  ' details screen should update self
+                  m.detailsScreen.content = m.detailsScreen.content
+
+                  m.native_email_storage.WriteEmail(updated_user_info.email)
+
+                  EndLoadingScreen(m.AccountScreen)
+                  EndLoader()
+                  sleep(500)
+                  m.scene.transitionTo = "GridScreen"
+                  m.scene.callFunc("CreateDialog",m.scene, "Success", "Was able to validate subscription.", ["Close"])
+                else
+                  stored_email = m.native_email_storage.ReadEmail()
+                  if stored_email = "" or stored_email = invalid then
+                      message = "Please sign in with the correct email to sync your subscription."
+                  else
+                      message = "Please sign in as " + stored_email + " to sync your subscription."
+                  end if
+                  EndLoadingScreen(m.AccountScreen)
+                  EndLoader()
+                  sleep(500)
+                  m.scene.callFunc("CreateDialog",m.scene, "Error", message, ["Close"])
+                end if
+            else
+               EndLoadingScreen(m.AccountScreen)
+               EndLoader()
+               sleep(500)
+               m.scene.callFunc("CreateDialog",m.scene, "Error", "There was an error validating your subscription.", ["Close"])
+            end if
+        else
+            EndLoadingScreen(m.AccountScreen)
+            EndLoader()
+            sleep(500)
+            m.scene.callFunc("CreateDialog",m.scene, "Error", "There was an error validating your subscription.", ["Close"])
+        end if
     else if button_role = "transition" and button_target = "DetailsScreen"
         m.scene.transitionTo = "DetailsScreen"
     else if button_role = "transition" and button_target = "AuthSelection"
       m.scene.transitionTo = "AuthSelection"
+    else if button_role = "transition" and button_target = "GridScreen"
+      m.scene.transitionTo = "GridScreen"
     else if button_role = "backScreen" and button_target = "AuthSelection"
       m.scene.backScreen = "AuthSelection"
     else if button_role = "transition" and button_target = "AccountScreen"
@@ -1948,22 +2099,17 @@ function handleButtonEvents(index, screen)
       m.scene.transitionTo = "SignUpScreen"
     else if button_role = "transition" and button_target = "PurchaseScreen"
       if screen.content.storeProduct<>invalid
-
           m.PurchaseScreen.purchaseItem = screen.content.storeProduct
           m.PurchaseScreen.itemName = screen.content.title
           m.PurchaseScreen.videoId = screen.content.id
-
       else if screen.rowTVODInitiateContent.DESCRIPTION<>""
         m.PurchaseScreen.isPlayList=true
         m.PurchaseScreen.playListVideoCount = screen.rowTVODInitiateContent.NUMEPISODES.toStr()
         m.PurchaseScreen.purchaseItem = parseJSON(screen.rowTVODInitiateContent.SHORTDESCRIPTIONLINE1)
         m.PurchaseScreen.itemName = screen.rowTVODInitiateContent.title
         m.PurchaseScreen.videoId = screen.rowTVODInitiateContent.id
-
       end if
-
       m.scene.transitionTo = "PurchaseScreen"
-
     else if button_role = "transition" and button_target = "UniversalAuthSelection"
       if m.global.enable_device_linking = false then m.scene.transitionTo = "SignInScreen" else m.scene.transitionTo = "UniversalAuthSelection"
     else if button_role = "transition" and button_target = "DeviceLinking"
@@ -1983,7 +2129,7 @@ function handleNativeToUniversal(authselection = true as boolean) as void
     m.AccountScreen.findNode("confirmPlanGroup").visible = false
     m.AccountScreen.visible = false
   end if
-  StartLoader()
+  StartLoadingScreen()
 
   ' Get updated user info
   user_info = m.current_user.getInfo()
@@ -2010,6 +2156,10 @@ function handleNativeToUniversal(authselection = true as boolean) as void
   purchase_subscription = m.roku_store_service.makePurchase(order)
       subscribePlanFromRoku = m.roku_store_service.getPurchases()
       print "makePurchase--R--> "  purchase_subscription
+  EndLoadingScreen()
+  m.AuthSelection.visible = true
+  m.AuthSelection.setFocus(true)
+
   else
 
      myOrder = CreateObject("roSGNode", "ContentNode")
@@ -2136,12 +2286,12 @@ function handleNativeToUniversal(authselection = true as boolean) as void
 
             if authselection then
               m.AuthSelection.planSubscribeDetail = subscribePlanFromRoku[0].description
-              EndLoader(m.AuthSelection)
+              EndLoadingScreen(m.AuthSelection)
               m.AuthSelection.planSubscribeSuccess = true
               m.scene.transitionTo = "AuthSelection"
             else
               m.AccountScreen.planSubscribeDetail = subscribePlanFromRoku[0].description
-              EndLoader(m.AccountScreen)
+              EndLoadingScreen(m.AccountScreen)
               m.AccountScreen.planSubscribeSuccess = true
 
               m.scene.transitionTo = "AccountScreen"
@@ -2152,7 +2302,7 @@ function handleNativeToUniversal(authselection = true as boolean) as void
             ' m.scene.callFunc("CreateDialog",m.scene, "Welcome", "Hi, " + user_info.email + ". Thanks for signing up.", ["Close"])
 
         else ' Receipt verification failed
-            EndLoader()
+            EndLoadingScreen()
             sleep(500)
             m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not verify your purchase with Roku. You can cancel your subscription on the Roku website.", ["Close"])
         end if ' native_sub_status.valid
@@ -2250,17 +2400,17 @@ function handleNativeToUniversal(authselection = true as boolean) as void
             else
               m.AccountScreen.planSubscribeDetail = subscribePlanFromRoku[0].description
               print " m.AccountScreen.planSubscribeDetail " subscribePlanFromRoku[0].description
-              EndLoader(m.AccountScreen)
+              EndLoadingScreen(m.AccountScreen)
               m.AccountScreen.planSubscribeSuccess = true
 
               m.scene.transitionTo = "AccountScreen"
             end if
 
         else ' Receipt verification failed
+            EndLoadingScreen()
           if authselection then
-            EndLoader()
           else
-            EndLoader(m.AccountScreen)
+            EndLoadingScreen(m.AccountScreen)
           end if
 
           m.scene.transitionTo = "AccountScreen"
@@ -2271,9 +2421,9 @@ function handleNativeToUniversal(authselection = true as boolean) as void
       ' regular nsvod
       else
         if authselection then
-          EndLoader()
+          EndLoadingScreen()
         else
-          EndLoader(m.AccountScreen)
+          EndLoadingScreen(m.AccountScreen)
           m.scene.transitionTo = "AccountScreen"
         end if
 
@@ -2295,12 +2445,12 @@ function handleNativeToUniversal(authselection = true as boolean) as void
   else
     if authselection then
       '' EndLoader()
-      EndLoader(m.AuthSelection)
+      EndLoadingScreen(m.AuthSelection)
       m.scene.resetTo = "AuthSelection"
       m.AuthSelection.setFocus(true)
       m.AuthSelection.findNode("Plans").setFocus(true)
     else
-      EndLoader(m.AccountScreen)
+      EndLoadingScreen(m.AccountScreen)
       m.scene.resetTo = "AccountScreen"
       m.AccountScreen.setFocus(true)
       m.AccountScreen.findNode("Plans").setFocus(true)
@@ -2311,7 +2461,7 @@ end function
 
 function handleNativePurchase() as void
   m.PurchaseScreen.visible = false
-  StartLoader()
+  StartLoadingScreen()
 
   ' Get updated user info
   userInfo = m.current_user.getInfo()
@@ -2323,7 +2473,7 @@ function handleNativePurchase() as void
   }]
 
   purchase_item = m.roku_store_service.makePurchase(order)
-  EndLoader()
+  EndLoadingScreen()
 
   if purchase_item.success
     m.native_email_storage.DeleteEmail()
@@ -2361,7 +2511,7 @@ function handleNativePurchase() as void
       ' details screen should update self
       m.detailsScreen.content = m.detailsScreen.content
 
-      EndLoader()
+      EndLoadingScreen()
       sleep(500)
       m.scene.callFunc("CreateDialog",m.scene, "Success", "Thank you for purchasing the video.", ["Dismiss"])
 
@@ -2374,7 +2524,7 @@ function handleNativePurchase() as void
       ' details screen should update self
       m.detailsScreen.content = m.detailsScreen.content
 
-      EndLoader()
+      EndLoadingScreen()
       sleep(500)
       m.scene.callFunc("CreateDialog",m.scene, "Error", "Could not verify your purchase with Roku marketplace. Please try again later.", ["Close"])
     end if
@@ -2403,17 +2553,26 @@ function RemakeVideoPlayer(screen) as void
     screen.VideoPlayer.seek = 0.0
 end function
 
-Function StartLoader()
+Function StartLoadingScreen()
     m.LoadingScreen.show = true
     m.LoadingScreen.setFocus(true)
     m.loadingIndicator1.control = "start"
 End Function
 
-Function EndLoader(screen=m.detailsScreen)
+Function EndLoadingScreen(screen=m.detailsScreen)
   m.loadingIndicator1.control = "stop"
   m.LoadingScreen.show = false
   m.LoadingScreen.setFocus(false)
-  screen.setFocus(true)
+  m.scene.resetFocus = true
+End Function
+
+
+Function StartLoader()
+    m.loadingIndicator.control = "start"
+End Function
+
+Function EndLoader()
+  m.loadingIndicator.control = "stop"
 End Function
 
 Function markFavoriteButton(lclScreen)
@@ -2512,6 +2671,9 @@ function SetFeatures() as void
     swaf: m.app.subscribe_to_watch_ad_free,
     enable_epg: configs.enable_epg,
     enable_lock_icons: m.app.enable_lock_icons,
+    custom_lock_color: configs.custom_lock_color,
+    custom_unlock_color: configs.custom_unlock_color,
+    enable_unlock_transparent: configs.enable_unlock_transparent,
     inline_title_text_display: configs.inline_title_text_display,
     image_caching_support: configs.image_caching_support,
     native_to_universal_subscription: m.app.native_to_universal_subscription,
@@ -2525,8 +2687,23 @@ function SetFeatures() as void
     marketplace_connect_svod: configs.marketplace_connect_svod,
     subscription_plan_ids: configs.subscription_plan_ids,
     enable_segment_analytics: configs.enable_segment_analytics,
-    segment_source_write_key: configs.segment_source_write_key
+    segment_source_write_key: configs.segment_source_write_key,
+    advanced_analytics_enabled: configs.advanced_analytics_enabled,
+    advanced_analytics_customerid: configs.advanced_analytics_customerid,
+    enable_top_navigation: configs.enable_top_navigation
   })
+
+  if configs.google_analytics_tracking_id <> invalid and configs.google_analytics_tracking_id <> "" then
+
+      m.global.addFields({ google_analytics_tracking_id: configs.google_analytics_tracking_id,
+                           google_analytics_enable : true
+                         })
+      SetGoogleAnalyticsTracker(configs.google_analytics_tracking_id)
+  else
+    m.global.addFields({ google_analytics_tracking_id: "",
+                         google_analytics_enable : false
+                       })
+  end if
 
   if (configs.favorites_via_api = true)
       ' Clear local favorites
@@ -2577,7 +2754,8 @@ function SetGlobalAuthObject() as void
     isLoggedIn: is_logged_in,
     isLinked: current_user_info.linked,
     email: user_email,
-    entitlements: entitlements
+    entitlements: entitlements,
+    userId : current_user_info._id
   } })
 
 
@@ -2606,6 +2784,31 @@ function SetTextLabels() as void
     end if
 end function
 
+
+function SetGoogleAnalyticsTracker(trackingId as string)
+
+  device_info = CreateObject("roDeviceInfo")
+
+  cid = device_info.GetChannelClientId()
+
+  ui_res = device_info.GetUIResolution()
+  sr = Substitute("{0}x{1}", ui_res.width.ToStr(), ui_res.height.ToStr())
+
+  appName = CreateObject("roAppInfo").GetTitle()
+  appVersion = CreateObject("roAppInfo").GetVersion()
+
+  UATracker = CreateObject("roAssociativeArray")
+  UATracker.cid = cid
+  UATracker.sr = sr
+  UATracker.appName = appName + "-Roku"
+  UATracker.appVersion = appVersion
+  UATracker.endpoint = "https://www.google-analytics.com/collect"
+  UATracker.locale = device_info.GetCurrentLocale()
+  UATracker.trackingId = trackingId
+  m.global.addFields({ UATracker: UATracker })
+
+end function
+
 function HandleDeeplinkEvent(contentId as Dynamic, mediaType as Dynamic, isInputEvent as boolean)
     print "Handle DeeplinkEvent : " isInputEvent
     m.contentID = contentId
@@ -2613,7 +2816,7 @@ function HandleDeeplinkEvent(contentId as Dynamic, mediaType as Dynamic, isInput
 
     if (m.contentID <> invalid)
         if (isInputEvent) then
-            m.loadingIndicator.control = "start"
+            StartLoader()
         end if
 
         if mediaType = "episode" or mediaType = "season"
@@ -2666,7 +2869,7 @@ function HandleDeeplinkEvent(contentId as Dynamic, mediaType as Dynamic, isInput
 
       ' Close loading screen if still visible
       if m.LoadingScreen.visible = true
-        EndLoader()
+        EndLoadingScreen()
 
         ' Trigger grid screen refocus if visible
         if m.gridScreen.visible = true
@@ -2675,7 +2878,7 @@ function HandleDeeplinkEvent(contentId as Dynamic, mediaType as Dynamic, isInput
       end if
 
       if (isInputEvent) then
-          m.loadingIndicator.control = "stop"
+          EndLoader()
       end if
     end if
 end function

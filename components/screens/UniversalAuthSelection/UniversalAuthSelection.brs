@@ -22,6 +22,26 @@ function onVisibleChange() as void
     end if
 end function
 
+function onKeyEvent(key as String, press as Boolean) as Boolean
+  result = false
+  if press
+    ? ">>> UniversalAuthSelection >> onKeyEvent >> key " key
+    if key = "options"
+      result = true
+    end if
+  end if
+  return result
+end function
+
+sub OnFocusedChild()
+    if (m.top.IsInFocusChain() and m.top.hasFocus()) then
+      m.u_auth_buttons.setFocus(true)
+    else
+        ' Unfocused'
+    end if
+end sub
+
+
 function helpers() as object
   this = {}
 
@@ -52,8 +72,9 @@ function initializers() as object
 
     self.u_auth_buttons = self.top.findNode("UAuthMethods")
     self.u_auth_buttons.color = self.global.theme.primary_text_color
-    self.u_auth_buttons.focusedColor = self.global.theme.primary_text_color
-    self.u_auth_buttons.focusBitmapUri = self.global.theme.focus_grid_uri
+    self.u_auth_buttons.focusedColor = self.global.theme.button_focus_color
+    self.u_auth_buttons.focusBitmapUri = self.global.theme.button_focus_uri
+    self.u_auth_buttons.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
     btns = [
       { title: self.global.labels.sign_in_transition_button, role: "transition", target: "SignInScreen" },
       { title: self.global.labels.link_device_transition_button, role: "transition", target: "DeviceLinking" }
@@ -61,6 +82,10 @@ function initializers() as object
     self.u_auth_buttons.content = self.content_helpers.oneDimList2ContentNode(btns, "ButtonNode")
 
     self.top.observeField("visible", "onVisibleChange")
+    if self.global.enable_top_navigation = true
+      self.top.observeField("focusedChild", "OnFocusedChild")
+    end if
+
   end function
 
   return this

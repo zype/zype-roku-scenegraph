@@ -15,11 +15,16 @@ Function Init()
     m.description   =   m.top.findNode("Description")
     m.background    =   m.top.findNode("Background")
 
+    m.sliderFocus=m.top.findNode("sliderFocus")
+
+    m.sliderFocus.visible = false
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
     m.carouselShow=m.top.findNode("carouselShow")
     m.sliderButton=m.top.findNode("sliderButton")
+    m.top.sliderButton = m.sliderButton
     m.sliderGroup=m.top.findNode("sliderGroup")
+    m.sliderFocus=m.top.findNode("sliderFocus")
     ' Set theme
     m.rowList.focusBitmapUri = m.global.theme.focus_grid_uri
     m.rowList.rowLabelColor = m.global.theme.primary_text_color
@@ -38,6 +43,14 @@ Function Init()
     m.tVideoHeartBeatTimer.observeField("fire", "OnVideoHeartBeatEventFired")
     m.tVideoHeartBeatTimer.duration = 5
 End Function
+
+Sub onSliderVisibleChange()
+    m.sliderFocus.visible = m.top.visibleSliderSelector
+    if (m.sliderFocus.visible = true AND m.sliderTimer <> invalid)
+      m.sliderTimer.control="stop"
+      m.sliderTimer.control="start"
+    end if
+End Sub
 
 sub OnVideoHeartBeatEventFired()
     isSendEvent = false
@@ -390,33 +403,40 @@ Sub OnFocusedChildChange()
     end if
 End Sub
 
+sub onFirstCarouselImageLoadStatusChange()
+    if m.slider1.loadStatus <> "loading"
+          m.sliderFocus.visible = true
+    end if
+End Sub
+
 Sub showHeroCarousel()
     'for each item in m.top.heroCarouselData
 
            '' ?item.pictures[0]
     'end for
     m.sliderData=[]
-    m.index=0
     m.sliderValuesHome={}
-    m.sliderValuesHome.height=380
-    m.sliderValuesHome.width=923
-    m.sliderValuesHome.translation1=[-794.5,0]
-    m.sliderValuesHome.translation2=[178.5,0]
-    m.sliderValuesHome.translation3=[1151.5,0]
+
+    m.sliderValuesHome.height=376
+    m.sliderValuesHome.width=919
+    m.sliderValuesHome.translation1=[-792.5,2]
+    m.sliderValuesHome.translation2=[180.5,2]
+    m.sliderValuesHome.translation3=[1153.5,2]
 
     m.sliderFocusValuesHome={}
-    m.sliderFocusValuesHome.height=390
-    m.sliderFocusValuesHome.width=933
-    m.sliderFocusValuesHome.translation=[173.5,-6]
+    m.sliderFocusValuesHome.height=404
+    m.sliderFocusValuesHome.width=947
+    m.sliderFocusValuesHome.translation=[166,-12]
 
-
-    m.sliderGroup.translation=[0,5]
+    m.sliderGroup.translation=[0,12]
 
     m.currentSliderImageIndex = 0
     m.totalSliderImages = m.top.heroCarouselData.count()
     print "============================== TotalSliderImages ==============================" m.totalSliderImages
 
     m.slider1=m.top.findNode("slider1")
+    m.slider1.unobserveField("loadStatus")
+    m.slider1.observeField("loadStatus", "onFirstCarouselImageLoadStatusChange")
     m.slider1.Height=m.sliderValuesHome.height
     m.slider1.Width=m.sliderValuesHome.width
     m.slider1.LoadHeight=m.sliderValuesHome.height
@@ -440,8 +460,8 @@ Sub showHeroCarousel()
     m.slider3.loadDisplayMode="scaleToZoom"
     m.slider3.translation=m.sliderValuesHome.translation3
 
-    m.sliderFocus=m.top.findNode("sliderFocus")
     m.sliderFocus.uri=m.global.theme.slider_focus
+    ' m.sliderFocus.uri = m.global.theme.focus_grid_uri
     m.sliderFocus.height=m.sliderFocusValuesHome.height
     m.sliderFocus.width=m.sliderFocusValuesHome.width
     m.sliderFocus.translation=m.sliderFocusValuesHome.translation
@@ -457,22 +477,32 @@ End Sub
 
 sub UpdateSliderImages()
     if (m.totalSliderImages > 0)
-      print "Center Slider Index ::::::::::::::::::::::::::::::: " m.currentSliderImageIndex
+      ' print "Center Slider Index ::::::::::::::::::::::::::::::: " m.currentSliderImageIndex
       if ((m.currentSliderImageIndex - 1) < 0)
-          m.slider1.uri=m.top.heroCarouselData[m.totalSliderImages-1].pictures[0].url
+          m.slider1.uri=GetPosterImageurl(m.totalSliderImages-1)
       else
-          m.slider1.uri=m.top.heroCarouselData[m.currentSliderImageIndex-1].pictures[0].url
+          m.slider1.uri=GetPosterImageurl(m.currentSliderImageIndex-1)
       end if
 
-      m.slider2.uri=m.top.heroCarouselData[m.currentSliderImageIndex].pictures[0].url
+      m.slider2.uri=GetPosterImageurl(m.currentSliderImageIndex)
 
       if ((m.currentSliderImageIndex+1 >= m.totalSliderImages))
-          m.slider3.uri=m.top.heroCarouselData[0].pictures[0].url
+          m.slider3.uri=GetPosterImageurl(0)
       else
-          m.slider3.uri=m.top.heroCarouselData[m.currentSliderImageIndex+1].pictures[0].url
+          m.slider3.uri=GetPosterImageurl(m.currentSliderImageIndex+1)
       end if
     end if
 end sub
+
+function GetPosterImageurl(index as integer) as string
+
+  defaultPoster = "pkg:/images/splash_image_fhd.png"
+  if m.top.heroCarouselData[index].pictures <> invalid and m.top.heroCarouselData[index].pictures.count() > 0 and  m.top.heroCarouselData[index].pictures[0].url <> invalid and  m.top.heroCarouselData[index].pictures[0].url <> "" then
+      return m.top.heroCarouselData[index].pictures[0].url
+  else
+      return defaultPoster
+  end if
+end function
 
 sub ChangeSliderIndex(isRight = false as boolean)
     if (m.totalSliderImages > 1)
@@ -510,8 +540,8 @@ SUb moveFocusToheroCarousel()
 End Sub
 
 Sub changeSliderImage()
-  if m.top.visible AND m.top.videoPlayer.visible = false
-    print "============================================sliderchange==================================================>"m.index
+  if m.top.visible AND m.top.videoPlayer.visible = false and m.top.exitDialogOpen = false and m.top.visibleSliderSelector = true
+    ' print "============================================sliderchange==================================================>"m.index
     ' Consider this as Right Press when auto timer expired'
     ChangeSliderIndex(true)
   end if
@@ -550,6 +580,8 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
                 m.sliderGroup.visible=true
                 m.sliderButton.setFocus(true)
                 result=true
+            else if m.global.enable_top_navigation = true then
+                m.scene.callfunc("TriggerShowMenu")
             end if
         else if key="right"
             if m.sliderGroup.visible=true
