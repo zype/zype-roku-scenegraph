@@ -19,7 +19,7 @@ function OnKeyEvent(key as string, press as boolean) as boolean
     ? ">>> AccountScreen >>> OnKeyEvent " key " press " press
 
     result = false
-    ? " Focus " m.helpers.focusedChild(m)
+    ' ? " Focus " m.helpers.focusedChild(m)
     if m.global.auth.isLoggedIn = false Then
     ? "Return false"
         return false
@@ -94,6 +94,7 @@ Function onThankYouOptionSelected() as void
     if thankYouBtnRole = "Cancel" then
         m.thank_you_group.visible = false
         resetScreen()
+        m.Scene.callFunc("OpenPreviousScreen")
     ' else
     '     m.thank_you_group.visible = false
     '     m.top.itemSelectedRole = thankYouBtnRole
@@ -147,9 +148,14 @@ end function
 sub OnFocusedChild()
     print "[Account] OnFocusedChild " m.top.IsInFocusChain() " "m.top.hasFocus()
     if (m.top.IsInFocusChain() and m.top.hasFocus()) then
-        m.oauth_button.setFocus(true)
+      if m.thank_you_group.visible = false then
+          if m.global.auth.isLoggedIn
+              m.oauth_button.setFocus(true)
+          else
+            m.signin_button.setFocus(true)
+          end if
+      end if
     else
-        print m.top.focusedChild
         ' Unfocused'
     end if
 end sub
@@ -253,6 +259,31 @@ function SetNativePurchasePlans() as void
         end for
     end for
 end function
+
+
+function SetPurchasePlansDetails() as void
+    for i=0 to  m.plan_buttons.content.getChildCount() -1
+        for j=0 to  m.plan_buttons.content.getChild(i).getChildCount() - 1
+            planItem = m.plan_buttons.content.getChild(i).getChild(j)
+            for each purchasePlan in m.top.allPurchasePlans
+                if planItem.code = purchasePlan.code Then
+                    print " i " i "j "j " " purchasePlan
+                    if m.plan_buttons.content.getChild(i).getChild(j).isPlanSubscribed = false Then
+                      print "not subscribed"
+                      if purchasePlan.renewalDate <> invalid and purchasePlan.renewalDate <> ""
+                        m.plan_buttons.content.getChild(i).getChild(j).planStatus = "Starting on"
+                        m.plan_buttons.content.getChild(i).getChild(j).activateDate = purchasePlan.expirationDate
+                      end if
+                    else
+                        m.plan_buttons.content.getChild(i).getChild(j).planStatus = "Current Plan"
+                    end if
+
+                end if
+            end for
+        end for
+    end for
+end function
+
 
 
 function GetNativePlans(data = invalid) as object

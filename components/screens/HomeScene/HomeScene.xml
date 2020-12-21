@@ -104,6 +104,7 @@
         <function name="StopHideMenuTimer" />
         <function name="TriggerHideMenu" />
         <function name="TriggerShowMenu" />
+        <function name="OpenPreviousScreen" />
 
         <field id="segmentEvent" type="assocArray" onChange="onSegmentEventChanged"/>
     </interface>

@@ -70,5 +70,17 @@
         <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="15"/>
       </Label>
 
+      <Label
+        id="selectedPlanActivateDate"
+        opacity="1"
+        width="300"
+        horizAlign="center"
+        wrap="true"
+        text=""
+        visible = "true"
+        translation="[0,200]">
+        <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="15"/>
+      </Label>
+
     </children>
 </component>

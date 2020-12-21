@@ -265,6 +265,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
       rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans()
+      rokuPurchases = m.roku_store_service.GetPurchases()
       print "rokuPlans : " rokuPlans
 
       m.filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
@@ -780,12 +781,15 @@ End function
 
 function setUpPurchasePlan()
     rokuPurchasePlans = m.roku_store_service.getPurchases()
+    allPurchasePlan = m.roku_store_service.getAllPurchases()
+
     m.filterPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredPlans, rokuPurchasePlans)
-    print m.filterPurchasePlan[0]
+    m.filterAllPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredPlans, allPurchasePlan)
     m.AuthSelection.plans = m.filteredPlans
     m.AccountScreen.plans = m.filteredPlans
     m.AuthSelection.purchasePlans = m.filterPurchasePlan
     m.AccountScreen.purchasePlans = m.filterPurchasePlan
+    m.AccountScreen.allPurchasePlans = m.filterAllPurchasePlan
 end function
 
 function goIntoDeviceLinkingFlow() as void
@@ -2145,21 +2149,18 @@ function handleNativeToUniversal(authselection = true as boolean) as void
   purchaseOrderAction = GetPurchaseOrderAction(m.filterPurchasePlan, plan)
   purchase_subscription = invalid
   order_change = invalid
+
   if purchaseOrderAction = "" then
-  order = [{
-    code: plan.code,
-    qty: 1
-  }]
+      order = [{
+        code: plan.code,
+        qty: 1
+      }]
 
-  print "makePurchase-C--For Plan-> " plan.code
-  ' Make nsvod purchase
-  purchase_subscription = m.roku_store_service.makePurchase(order)
+      print "makePurchase-C--For Plan-> " plan.code
+      ' Make nsvod purchase
+      purchase_subscription = m.roku_store_service.makePurchase(order)
       subscribePlanFromRoku = m.roku_store_service.getPurchases()
-      print "makePurchase--R--> "  purchase_subscription
-  EndLoadingScreen()
-  m.AuthSelection.visible = true
-  m.AuthSelection.setFocus(true)
-
+      print "makePurchase--R--> "  purchase_subscription      
   else
 
      myOrder = CreateObject("roSGNode", "ContentNode")

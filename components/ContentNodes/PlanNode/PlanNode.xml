@@ -10,6 +10,8 @@
     <field id="freeTrialQuantity" type="integer" />
     <field id="freeTrialType" type="string" />
     <field id="isPlanSubscribed" type="bool" />
+    <field id="planStatus" type="string" value ="" />
+    <field id="activateDate" type="string" value ="" />
     <field id="zypePlanId" type="string" />
   </interface>
 </component>

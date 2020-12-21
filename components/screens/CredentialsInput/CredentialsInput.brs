@@ -33,14 +33,12 @@ function onKeyEvent(key as string, press as boolean) as boolean
     else if key = "up"
       if m.helpers.focusedChild(m) = "SubmitButton" AND m.inputs <> invalid
         m.inputs.setFocus(true)
-        result = true
       else if m.helpers.focusedChild(m) = "ConfirmSignup"
         m.submit_button.setFocus(true)
-        result = true
       else if m.helpers.focusedChild(m) = "signinButton"
         m.submit_button.setFocus(true)
-        result = true
       end if
+      result = true
     else if key = "back"
       if m.helpers.focusedChild(m) = "InputKeyboard" AND m.inputs <> invalid then
         m.inputs.setFocus(true)

@@ -7,6 +7,7 @@
     <interface>
         <field id="plans" type="array" alwaysNotify="true" onChange="SetNativePlans" />
         <field id="purchasePlans" type="array" alwaysNotify="true" onChange="SetNativePurchasePlans" />
+        <field id="allPurchasePlans" type="array" alwaysNotify="true" onChange="SetPurchasePlansDetails" />
 
         <!-- OAuthButton fields -->
         <field id="oAuthItemSelected" type="integer" alias="OAuthButton.itemSelected" alwaysNotify="true" onChange="onItemSelected" />
@@ -107,7 +108,7 @@
             numRows="1"
             drawFocusFeedback="false"
             focusBitmapUri="pkg:/images/button-focus.png"
-            itemSize="[1000,200]"
+            itemSize="[1000,250]"
             itemSpacing="[0,0]"
             rowItemSize="[[300,150]]"
             rowItemSpacing="[[40,0]]" />

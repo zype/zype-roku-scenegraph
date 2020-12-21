@@ -748,8 +748,7 @@ Function OnKeyEvent(key, press) as Boolean
             isSpecialScreen = isSpecialScreen()
             ? "isSpecialScreen(): "; isSpecialScreen
             if m.top.loadingIndicator.control = "start" then
-
-                  return true
+                return true
             end if
             if isSpecialScreen
                     m.gridScreen.heroCarouselShow=false
@@ -945,6 +944,21 @@ Function OnKeyEvent(key, press) as Boolean
 
     return result
 End Function
+
+Function OpenPreviousScreen()
+
+  screen = m.screenStack.pop()
+  screen.visible = false
+  if m.playListFromHeroSlider = true and m.playListDetailFromHeroSlider = true and m.top.dialog = invalid then
+      m.playListDetailFromHeroSlider = false
+  end if
+  ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
+  ' open last screen before it and focus it
+  m.screenStack.peek().visible = true
+  m.screenStack.peek().setFocus(true)
+
+
+end function
 
 Function isSpecialScreen()
     ? " isSpecialScreen "

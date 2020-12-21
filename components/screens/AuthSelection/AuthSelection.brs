@@ -186,12 +186,12 @@ Function onThankYouOptionSelected() as void
     m.top.itemSelectedTarget = ""
     index = m.top.thankYouOptionSelected
     thankYouBtnRole = m.helpers.currentThankYouButtonRole(m, index)
-    print " onThankYouOptionSelected "
     if thankYouBtnRole = "Cancel" then
         resetScreen()
+        m.thank_you_group.visible = false
         m.top.itemSelectedRole = "backScreen"
         m.top.itemSelectedTarget = "AuthSelection"
-        m.top.thankYouCloseSelected = true   
+        m.top.thankYouCloseSelected = true
     end if
 End Function
 
