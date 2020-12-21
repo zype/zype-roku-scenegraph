@@ -94,13 +94,7 @@ Function onThankYouOptionSelected() as void
     if thankYouBtnRole = "Cancel" then
         m.thank_you_group.visible = false
         resetScreen()
-        m.Scene.callFunc("OpenPreviousScreen")
-    ' else
-    '     m.thank_you_group.visible = false
-    '     m.top.itemSelectedRole = thankYouBtnRole
-    '     m.top.itemSelectedTarget = m.helpers.currentThankYouButtonTarget(m, index)
-    '     print " onThankYouOptionSelected itemSelectedRole" m.top.itemSelectedRole
-    '     print " onThankYouOptionSelected itemSelectedTarget" m.top.itemSelectedTarget
+        ' m.Scene.callFunc("OpenPreviousScreen")
     end if
 End Function
 
