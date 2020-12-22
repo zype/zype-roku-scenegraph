@@ -210,7 +210,7 @@ Sub SetExitDialog()
     m.exitDialog.translation = [xPos, yPos]
 
     m.exitDialog.blendcolor =  m.global.theme.background_color
-    print "exit background =================== > " m.global.theme.background_color
+
     m.exitText.color = m.global.theme.primary_text_color
     m.exitDialog.focusBitmapUri = m.global.theme.button_focus_uri
 
@@ -233,8 +233,7 @@ Sub SetExitDialog()
     m.exitButtons.content = m.content_helpers.oneDimList2ContentNode(exitButtons, "ExitNode")
     xPos = (800 - (yesWidth + noWidth + spacing ))/ 2
     m.exitButtons.translation = [xPos ,125]
-    ' m.showMenuAnimation.control = "start"
-    m.exitButtons.jumpToItem = 0
+    m.exitButtons.jumpToItem = 1
 
 end sub
 
