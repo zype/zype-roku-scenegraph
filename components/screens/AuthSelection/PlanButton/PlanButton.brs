@@ -2,7 +2,7 @@
 
 function Init()
   m.private = {
-    plan_attibutes: [ "code", "cost", "costValue", "freeTrialQuantity", "freeTrialType", "name", "productType", "isPlanSubscribed", "planStatus", "activateDate" ],
+    plan_attibutes: [ "code", "cost", "costValue", "freeTrialQuantity", "freeTrialType", "name", "productType", "isPlanSubscribed", "planStatus", "expiredDate" ],
     plan: {}
   }
 
@@ -74,8 +74,8 @@ function initializers() as object
     self.selectedPlanText.color = self.global.theme.primary_text_color
 
 
-    self.selectedPlanActivateDate = self.top.findNode("selectedPlanActivateDate")
-    self.selectedPlanActivateDate.color = self.global.theme.primary_text_color
+    self.selectedPlanExpiredDate = self.top.findNode("selectedPlanExpiredDate")
+    self.selectedPlanExpiredDate.color = self.global.theme.primary_text_color
 
     self.trial_period = self.top.findNode("TrialPeriod")
     self.trial_period.color = self.global.theme.primary_text_color
@@ -103,22 +103,22 @@ function initializers() as object
     end if
 
     self.selectedPlanText.visible = self.private.plan.isPlanSubscribed
-    self.selectedPlanActivateDate.visible = false
+    self.selectedPlanExpiredDate.visible = false
 
     if self.private.plan.isPlanSubscribed then
       self.selectedPlanText.text = self.private.plan.planStatus
-    else if self.private.plan.activateDate <> "" and self.private.plan.planStatus <> ""
-      self.selectedPlanText.text = self.private.plan.planStatus
-      self.selectedPlanText.visible = true
-      activateDateTime = CreateObject("roDateTime")
-      activateDateTime.FromISO8601String(self.private.plan.activateDate)
-      year = activateDateTime.GetYear()
-      month = activateDateTime.GetMonth()
-      date =  activateDateTime.GetDayOfMonth()
-      activateDateText = self.helpers.GetFormattedDate(year,month,date)
-      self.selectedPlanActivateDate.text =activateDateText
-      self.selectedPlanActivateDate.visible = true
+      if self.private.plan.expiredDate <> "" and self.private.plan.planStatus <> "" then
+        expiredDateTime = CreateObject("roDateTime")
+        expiredDateTime.FromISO8601String(self.private.plan.expiredDate)
+        year = expiredDateTime.GetYear()
+        month = expiredDateTime.GetMonth()
+        date =  expiredDateTime.GetDayOfMonth()
+        expiredDateText = self.helpers.GetFormattedDate(date,month,year)
+        self.selectedPlanExpiredDate.text = "Expires on : "+ expiredDateText
+        self.selectedPlanExpiredDate.visible = true
+      end if
     end if
+
 
   end function
 
@@ -132,7 +132,7 @@ function helpers() as object
     return m.top.focusedChild
   end function
 
-  this.GetFormattedDate = function(year as integer, month as integer, date as integer) as string
+  this.GetFormattedDate = function(date as integer, month as integer, year as integer) as string
     dateText = ""
     monthText = ""
     yearText = year.ToStr()
@@ -148,7 +148,7 @@ function helpers() as object
         monthText = "0"+month.ToStr()
     end if
 
-    return yearText + "-" + monthText + "-" + dateText
+    return dateText + "-" + monthText + "-" + yearText
   end function
 
   return this

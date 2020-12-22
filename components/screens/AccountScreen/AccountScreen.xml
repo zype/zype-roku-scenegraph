@@ -101,6 +101,17 @@
             <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="30"/>
           </Label>
 
+          <Label
+            id="UpcommingSubscriptionDetail"
+            width="880"
+            horizAlign="left"
+            vertAlign="center"
+            wrap="true"
+            visible = "true"
+            text=""
+            translation="[0,50]">
+            <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="15"/>
+          </Label>
 
           <RowList
             id="Plans"
@@ -195,9 +206,13 @@
 
         <Label
           id="thankYouHeader"
-          width="1280"
+          width="1080"
           horizAlign="center"
           text="Thank You!"
+          wrap ="true"
+          numLines="2"
+          lineSpacing ="10"
+
           translation="[0,150]">
           <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="35"/>
         </Label>
@@ -208,7 +223,7 @@
           wrap="true"
           horizAlign="center"
           text=""
-          translation="[0,250]">
+          translation="[0,350]">
           <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="25"/>
         </Label>
 

@@ -110,8 +110,8 @@ function onPlanSelection() as void
     m.confirm_plan_description.text = ""
     btn = []
     if isSubscribed() then
-        purchasePlan = m.top.purchasePlans[0]
-        if selectedPlan.zypePlanId = purchasePlan.zypePlanId
+        purchasePlan = m.top.purchasePlans[0]        
+        if purchasePlan <> invalid and selectedPlan.zypePlanId = purchasePlan.zypePlanId
           m.confirm_plan_description.text = "It appears you have already purchased this plan before." '' + chr(10) + "If you cancelled your subscription, please renew your subscription on the Roku website. " + chr(10) + "Then you can sign in with your account."
           btn = [{ title: m.global.labels.ok_button, role: "Cancel", target: "" }]
           m.confirm_plan_button.translation = [490,450]
@@ -163,8 +163,14 @@ function OnPlanSubscribeSuccess() as void
 
     'btn = [ { title: m.global.labels.return_to_home_button, role: "transition", target: "DetailsScreen" } ]
     btn = [{ title: m.global.labels.close_button, role: "Cancel", target: "" }]
-
-    m.thank_you_header.text = Substitute(m.global.labels.thank_you_message, m.top.planSubscribeDetail)
+    if m.isUpcommingPlanAvailble then
+        m.thank_you_header.text = m.thankYouUpcomingPlanText
+    else
+        m.thank_you_header.text = Substitute(m.global.labels.thank_you_message, m.top.planSubscribeDetail)
+    end if
+    thankYouRect = m.thank_you_header.boundingRect()
+    thankyouXPos = (1280 - thankYouRect.width) / 2
+    m.thank_you_header.translation = [thankyouXPos,150]
     m.thank_you_button.content = m.content_helpers.oneDimList2ContentNode(btn, "ButtonNode")
     m.thank_you_button.jumpToItem = 0
     m.thank_you_button.setFocus(true)
@@ -201,6 +207,14 @@ function resetScreen() as void
           m.subscription_header.text = m.global.labels.subscribe_header_label
         end if
 
+        if m.isUpcommingPlanAvailble then
+          m.upcomming_subscription_detail.text = m.upCommingPlanText
+          m.upcomming_subscription_detail.visible = true
+        else
+          m.upcomming_subscription_detail.text = ""
+          m.upcomming_subscription_detail.visible = false
+        end if
+
         m.plan_buttons.jumpToRowItem = [0,0]
         ' m.plan_buttons.setFocus(true)
         ' m.plan_buttons.setFocus(false)
@@ -227,8 +241,10 @@ function GetPlanDurationText(productType as string) as string
 
 end function
 function isSubscribed() as boolean
-  return (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0 and m.top.purchasePlan <> invalid and  m.top.purchasePlan.count() > 0)
+  return ((m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount > 0) and m.top.purchasePlans <> invalid and  m.top.purchasePlans.count() > 0)
 end function
+
+
 ' ***********************
 '   Public Functions
 '
@@ -256,20 +272,24 @@ end function
 
 
 function SetPurchasePlansDetails() as void
+    m.isUpcommingPlanAvailble = false
+    m.upCommingPlanText = invalid
+    m.thankYouUpcomingPlanText = invalid
     for i=0 to  m.plan_buttons.content.getChildCount() -1
         for j=0 to  m.plan_buttons.content.getChild(i).getChildCount() - 1
             planItem = m.plan_buttons.content.getChild(i).getChild(j)
             for each purchasePlan in m.top.allPurchasePlans
                 if planItem.code = purchasePlan.code Then
-                    print " i " i "j "j " " purchasePlan
                     if m.plan_buttons.content.getChild(i).getChild(j).isPlanSubscribed = false Then
-                      print "not subscribed"
                       if purchasePlan.renewalDate <> invalid and purchasePlan.renewalDate <> ""
-                        m.plan_buttons.content.getChild(i).getChild(j).planStatus = "Starting on"
-                        m.plan_buttons.content.getChild(i).getChild(j).activateDate = purchasePlan.expirationDate
+                        m.isUpcommingPlanAvailble = true
+                        m.upCommingPlanText = Substitute(m.global.labels.upcoming_subscription_detail_label, m.plan_buttons.content.getChild(i).getChild(j).name)
+                        renewalDate = m.helpers.getDateTextFromISODate(m,purchasePlan.renewalDate)
+                        m.thankYouUpcomingPlanText = Substitute(m.global.labels.thank_you_message_upcommingplan, m.plan_buttons.content.getChild(i).getChild(j).name, renewalDate)
                       end if
                     else
                         m.plan_buttons.content.getChild(i).getChild(j).planStatus = "Current Plan"
+                        m.plan_buttons.content.getChild(i).getChild(j).expiredDate = purchasePlan.expirationDate
                     end if
 
                 end if
@@ -327,6 +347,34 @@ function helpers() as object
     return self.thank_you_button.content.getChild(index).target
   end function
 
+  this.getDateTextFromISODate = function(self, date as object) as string
+      dateTime = CreateObject("roDateTime")
+      dateTime.FromISO8601String(date)
+      year = dateTime.GetYear()
+      month = dateTime.GetMonth()
+      date =  dateTime.GetDayOfMonth()
+      dateText = self.helpers.GetFormattedDate(date,month,year)
+      return dateText
+  end function
+
+  this.GetFormattedDate = function(date as integer, month as integer, year as integer) as string
+    dateText = ""
+    monthText = ""
+    yearText = year.ToStr()
+    if date > 9
+        dateText = date.ToStr()
+    else
+        dateText = "0"+date.ToStr()
+    end if
+
+    if month > 9
+        monthText = month.ToStr()
+    else
+        monthText = "0"+month.ToStr()
+    end if
+
+    return dateText + "-" + monthText + "-" + yearText
+  end function
 
   return this
 end function
@@ -342,7 +390,9 @@ function initializers() as object
   this.initChildren = function(self) as void
     app_info = CreateObject("roAppInfo")
     self.top.observeField("visible", "onVisibleChange")
-
+    self.isUpcommingPlanAvailble = false
+    self.upCommingPlanText = invalid
+    self.thankYouUpcomingPlanText = invalid
     ' SignIn Group for loggin '
     self.signin_group = self.top.findNode("signInGroup")
 
@@ -377,6 +427,9 @@ function initializers() as object
 
     self.subscription_header = self.top.findNode("SubscriptionHeader")
     self.subscription_header.color = self.global.theme.primary_text_color
+
+    self.upcomming_subscription_detail = self.top.findNode("UpcommingSubscriptionDetail")
+    self.upcomming_subscription_detail.color = self.global.theme.primary_text_color
 
     self.plan_buttons = self.top.findNode("Plans")
     self.plan_buttons.focusBitmapUri = self.global.theme.focus_grid_uri
