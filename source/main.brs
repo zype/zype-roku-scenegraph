@@ -2160,7 +2160,7 @@ function handleNativeToUniversal(authselection = true as boolean) as void
       ' Make nsvod purchase
       purchase_subscription = m.roku_store_service.makePurchase(order)
       subscribePlanFromRoku = m.roku_store_service.getPurchases()
-      print "makePurchase--R--> "  purchase_subscription      
+      print "makePurchase--R--> "  purchase_subscription
   else
 
      myOrder = CreateObject("roSGNode", "ContentNode")

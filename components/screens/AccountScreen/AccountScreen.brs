@@ -110,7 +110,7 @@ function onPlanSelection() as void
     m.confirm_plan_description.text = ""
     btn = []
     if isSubscribed() then
-        purchasePlan = m.top.purchasePlans[0]        
+        purchasePlan = m.top.purchasePlans[0]
         if purchasePlan <> invalid and selectedPlan.zypePlanId = purchasePlan.zypePlanId
           m.confirm_plan_description.text = "It appears you have already purchased this plan before." '' + chr(10) + "If you cancelled your subscription, please renew your subscription on the Roku website. " + chr(10) + "Then you can sign in with your account."
           btn = [{ title: m.global.labels.ok_button, role: "Cancel", target: "" }]
@@ -262,7 +262,8 @@ function SetNativePurchasePlans() as void
             planItem = m.plan_buttons.content.getChild(i).getChild(j)
             for each purchasePlan in m.top.purchasePlans
                 if planItem.code = purchasePlan.code Then
-                    m.plan_buttons.content.getChild(i).getChild(j).isPlanSubscribed = true
+                      m.plan_buttons.content.getChild(i).getChild(j).isPlanSubscribed = true
+                      m.SubscribedPlan = m.plan_buttons.content.getChild(i).getChild(j)
                     return
                 end if
             end for
@@ -296,6 +297,9 @@ function SetPurchasePlansDetails() as void
             end for
         end for
     end for
+    if m.isUpcommingPlanAvailble = false then
+      m.SubscribedPlan.expiredDate = ""
+    end if
 end function
 
 
@@ -403,9 +407,9 @@ function initializers() as object
     self.signin_header.color = self.global.theme.primary_text_color
 
     self.signin_button = self.top.findNode("signInButton")
-    self.signin_button.color = self.global.theme.primary_text_color
+    self.signin_button.color = self.global.theme.button_unfocus_color
     self.signin_button.focusedColor = self.global.theme.button_focus_color
-    self.signin_button.focusBitmapUri = self.global.theme.button_filledin_uri
+    self.signin_button.focusBitmapUri = self.global.theme.button_focus_uri
     self.signin_button.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri
 
 
