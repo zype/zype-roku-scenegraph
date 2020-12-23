@@ -297,7 +297,7 @@ function SetPurchasePlansDetails() as void
             end for
         end for
     end for
-    if m.isUpcommingPlanAvailble = false then
+    if m.isUpcommingPlanAvailble = false and m.SubscribedPlan <> invalid then
       m.SubscribedPlan.expiredDate = ""
     end if
 end function
