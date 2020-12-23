@@ -62,11 +62,11 @@
         id="selectedPlanText"
         opacity="1"
         width="300"
-        horizAlign="left"
+        horizAlign="center"
         wrap="true"
         text="Current Plan"
         visible = "true"
-        translation="[5,170]">
+        translation="[0,170]">
         <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="15"/>
       </Label>
 
@@ -74,11 +74,11 @@
         id="selectedPlanExpiredDate"
         opacity="1"
         width="300"
-        horizAlign="left"
+        horizAlign="center"
         wrap="true"
         text=""
         visible = "true"
-        translation="[5,190]">
+        translation="[0,190]">
         <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="15"/>
       </Label>
 
