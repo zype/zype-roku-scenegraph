@@ -7,6 +7,7 @@
     <interface>
         <field id="plans" type="array" alwaysNotify="true" onChange="SetNativePlans" />
         <field id="purchasePlans" type="array" alwaysNotify="true" onChange="SetNativePurchasePlans" />
+        <field id="allowedUpgrade" type="boolean" value="true" />
         <field id="allPurchasePlans" type="array" alwaysNotify="true" onChange="SetPurchasePlansDetails" />
 
         <!-- OAuthButton fields -->

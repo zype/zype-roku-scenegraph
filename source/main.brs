@@ -264,13 +264,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     print "subscription_plan_ids----------------> " m.global.subscription_plan_ids
 
     if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
-      rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans()
-      rokuPurchases = m.roku_store_service.GetPurchases()
-      print "rokuPlans : " rokuPlans
-
-      m.filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
       setUpPurchasePlan()
-
     else
       m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
 	  m.AccountScreen.plans = m.roku_store_service.GetNativeSubscriptionPlans()
@@ -780,11 +774,20 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 End function
 
 function setUpPurchasePlan()
+
+    m.current_user_info = m.current_user.getInfo()
+    allowedFreePlan = true
+    if m.current_user_info <> invalid then
+      if (m.current_user_info.has_trialed <> invalid and m.current_user_info.has_trialed) then allowedFreePlan = false
+    end if
+    rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans(allowedFreePlan)
+    m.filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
+
     rokuPurchasePlans = m.roku_store_service.getPurchases()
     allPurchasePlan = m.roku_store_service.getAllPurchases()
 
     m.filterPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredPlans, rokuPurchasePlans)
-    m.filterAllPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredPlans, allPurchasePlan)
+    m.filterAllPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filterPurchasePlan, allPurchasePlan)
     m.AuthSelection.plans = m.filteredPlans
     m.AccountScreen.plans = m.filteredPlans
     m.AuthSelection.purchasePlans = m.filterPurchasePlan
@@ -1877,11 +1880,13 @@ function handleButtonEvents(index, screen)
 
 
             if m.AccountScreen.itemSelectedRole = "transition" AND m.AccountScreen.itemSelectedTarget = "UniversalAuthSelection"
+                setUpPurchasePlan()
                 m.scene.transitionTo = "AccountScreen"
                 EndLoadingScreen(m.AccountScreen)
                 sleep(500)
                 m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
             else
+                setUpPurchasePlan()
                 EndLoader()
                 sleep(500)
                 m.scene.callFunc("CreateDialog",m.scene, "Success", "Signed in as: " + user_info.email, ["Close"])
@@ -1979,6 +1984,7 @@ function handleButtonEvents(index, screen)
             m.RegistrationScreen.reset = true
             m.detailsScreen.content = m.detailsScreen.content
             m.scene.goBackToNonAuth = true
+            setUpPurchasePlan()
             EndLoadingScreen()
 
             ' HB : MarketPlaceConnect With RegistrationScreen'

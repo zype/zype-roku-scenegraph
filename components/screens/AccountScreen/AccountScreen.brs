@@ -101,7 +101,10 @@ End Function
 function onPlanSelection() as void
     print " >>>>>>>>>>>>>> Confirm plan"
     selectedPlan = m.helpers.planSelected(m)
-
+    if m.top.allowedUpgrade = false then
+      m.Scene.callFunc("CreateDialog",m.Scene, "Error", "You are not allowed to change plan in free trial.", ["Close"])
+      return
+    end if
     m.confirm_plan_group.visible = true
     m.signin_group.visible = false
     m.loggedin_group.visible = false
@@ -262,8 +265,11 @@ function SetNativePurchasePlans() as void
             planItem = m.plan_buttons.content.getChild(i).getChild(j)
             for each purchasePlan in m.top.purchasePlans
                 if planItem.code = purchasePlan.code Then
-                      m.plan_buttons.content.getChild(i).getChild(j).isPlanSubscribed = true
-                      m.SubscribedPlan = m.plan_buttons.content.getChild(i).getChild(j)
+                    if purchasePlan.freeTrialQuantity > 0
+                        m.top.allowedUpgrade = false
+                    end if
+                    m.plan_buttons.content.getChild(i).getChild(j).isPlanSubscribed = true
+                    m.SubscribedPlan = m.plan_buttons.content.getChild(i).getChild(j)
                     return
                 end if
             end for
