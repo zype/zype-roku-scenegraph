@@ -378,6 +378,17 @@ Sub onVisibleChange()
     end if
 End Sub
 
+Sub showHideHeroCarousel()
+  if m.top.heroCarouselAllowedToShow=true
+      m.carouselShow.visible=false
+      m.sliderGroup.visible=true
+      m.sliderButton.setFocus(true)
+  else
+      m.carouselShow.visible=true
+      m.sliderGroup.visible=false
+      m.rowList.setFocus(true)
+  end if
+end sub
 
 
 ' set proper focus to RowList in case if return from Details Screen
@@ -385,7 +396,7 @@ Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.rowList.hasFocus()  then
         if m.top.heroCarouselShow=true
             if m.scene.IsShowAutoPlayBackground = false AND m.top.VideoPlayer.visible = false
-              print "OnFocusedChildChange >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+              ' print "OnFocusedChildChange >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
               m.sliderButton.setFocus(true)
             end if
             m.sliderGroup.visible=true
@@ -533,10 +544,16 @@ Sub selectSlider()
 End SUb
 
 SUb moveFocusToheroCarousel()
-    m.top.moveFocusToheroCarousel=false
-    m.sliderButton.setFocus(true)
-    m.sliderGroup.visible=true
-    m.carouselShow.visible=false
+  m.top.moveFocusToheroCarousel=false
+  if m.top.heroCarouselAllowedToShow=true
+  	  m.sliderButton.setFocus(true)
+      m.sliderGroup.visible=true
+      m.carouselShow.visible=false
+  else
+      m.carouselShow.visible=true
+      m.sliderGroup.visible=false
+      m.rowList.setFocus(true)
+  end if
 End Sub
 
 Sub changeSliderImage()
