@@ -115,6 +115,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     m.port = CreateObject("roMessagePort")
 
     print "m.app.theme::: " m.app.theme
+
     if m.app.theme = "dark"
        theme=DarkTheme()
     else if m.app.theme = "light"
@@ -344,11 +345,13 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     end if
 
     heroCarousels = LoadHeroCarousels()
-    if heroCarousels <>invalid
+    if heroCarousels <> invalid
         m.gridScreen.heroCarouselShow=true
+        m.gridScreen.heroCarouselAllowedToShow=true
         m.scene.heroCarouselData = heroCarousels
     else
         m.gridScreen.heroCarouselShow=false
+        m.gridScreen.heroCarouselAllowedToShow=false
     end if
 
     m.scene.gridContent = m.gridContent
@@ -440,7 +443,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                     if msg.GetData().autoplay=invalid or msg.GetData().autoplay=false
                         if msg.GetData().videoid<>invalid
                             StartLoader()
-                            m.gridScreen.visible = "false"
+                            m.gridScreen.visible = false
                             m.detailsScreen.autoplay = false
                             linkedVideoNode = createObject("roSGNode", "VideoNode")
                             linkedVideoObject=CreateVideoObject(GetVideo(msg.GetData().videoid))

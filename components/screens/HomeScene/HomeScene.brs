@@ -809,7 +809,9 @@ Function OnKeyEvent(key, press) as Boolean
                     m.detailsScreen.videosTree = m.top.videoliststack.peek()
                     result = true
                     m.gridscreen.visible=true
-                    m.gridScreen.heroCarouselShow=true
+                    if m.gridScreen.heroCarouselAllowedToShow = true
+                      m.gridScreen.heroCarouselShow=true
+                    end if
                     m.gridScreen.moveFocusToheroCarousel=true
                     m.playListFromHeroSlider=false
                 else if m.contentStack.count() > 0 and m.gridScreen.visible = true then
@@ -889,7 +891,9 @@ Function OnKeyEvent(key, press) as Boolean
         end if
 
         if key = "back" AND m.top.dialog = invalid and m.dialogdetail = invalid AND not isSpecialScreen()
-            m.gridScreen.heroCarouselShow=true
+            if m.gridScreen.heroCarouselAllowedToShow = true
+                m.gridScreen.heroCarouselShow=true
+            end if
         end if
 
         if(m.top.dialog <> invalid)
