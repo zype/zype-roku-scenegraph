@@ -2,10 +2,12 @@ Function DarkTheme() as Object
     theme = {
         background_color:           "#000000",
         primary_text_color:         "#f5f5f5",
+        focus_primary_text_color:   "#000000",
         secondary_text_color:       "#a8a8a8",
         plan_button_color:          "#464646",
         button_focus_color:         "#000000",
         button_unfocus_color:       "#000000",
+        focus_plan_button_color:    "#ffffff",
         loader_uri:                 "pkg:/components/screens/LoadingIndicator/lightLoader.png",
         focus_grid_uri:             "pkg:/images/focus_grid_light.9.png",
         overlay_uri:                "pkg:/images/blackOverlay.png",
@@ -22,10 +24,12 @@ Function LightTheme() as Object
     theme = {
         background_color:           "#f0f0f0",
         primary_text_color:         "#1f1f1f",
+        focus_primary_text_color:   "#ffffff",
         secondary_text_color:       "#595959",
         plan_button_color:          "#d6d6d6",
         button_focus_color:         "#ffffff",
         button_unfocus_color:       "#1f1f1f",
+        focus_plan_button_color:    "#000000",
         loader_uri:                 "pkg:/components/screens/LoadingIndicator/darkLoader.png",
         focus_grid_uri:             "pkg:/images/focus_grid_dark.9.png",
         overlay_uri:                "pkg:/images/whiteOverlay.png",
@@ -50,13 +54,15 @@ Function CustomTheme() as Object
     theme = {
         background_color:           "#008080",
         primary_text_color:         "#121212",
+        focus_primary_text_color:   "#000000",
         secondary_text_color:       "#ffa500",
+        focus_plan_button_color:    "#ffffff",
         loader_uri:                 "pkg:/components/screens/LoadingIndicator/customLoader.png",
         focus_grid_uri:             "pkg:/images/focus_grid_custom.9.png",
         overlay_uri:                "pkg:/images/whiteOverlay.png",
         button_focus_uri:           "pkg:/images/button-focus-custom.png"
         button_filledin_uri:        "pkg:/images/button-filledin-light.png"
-        paginate_button:            "pkg:/images/paginate_light.png"
+        paginate_button:            "pkg:/images/paginate_light.png"        
     }
     return theme
 End Function

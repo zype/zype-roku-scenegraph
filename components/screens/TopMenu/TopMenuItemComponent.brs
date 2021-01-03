@@ -65,7 +65,7 @@ sub FocusPercent_Changed(event as dynamic)
 end sub
 
 sub ItemHasFocus_Changed(event as dynamic)
-    print "ItemHasFocus_Changed-----------" event.GetData()
+    print "[TopMenu] ItemHasFocus_Changed-----------" event.GetData()
     value = event.GetData()
     if (value) then
         changeFocus(1)

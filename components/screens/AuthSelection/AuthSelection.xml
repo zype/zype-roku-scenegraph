@@ -7,15 +7,21 @@
 <component name="AuthSelection" extends="Group" initialFocus="Plans" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
     <interface>
         <field id="plans" type="array" alwaysNotify="true" onChange="SetNativePlans" />
+        <field id="purchasePlans" type="array" alwaysNotify="true" onChange="SetNativePurchasePlans" />
 
         <!-- OAuthButton fields -->
         <field id="itemSelected" type="integer" alias="OAuthButton.itemSelected" alwaysNotify="true" onChange="OnItemSelected" />
         <field id="itemSelectedRole" type="string" />
         <field id="itemSelectedTarget" type="string" />
+        <field id="planSubscribeSuccess" type="bool" alwaysNotify="true" onChange="OnPlanSubscribeSuccess" />
+        <field id="planSubscribeDetail" type="string"/>
+        <field id="confirmOptionSelected" type="integer" alias="confirmPlanButton.itemSelected" alwaysNotify="true" onChange="onConfirmOptionSelected" />
+        <field id="thankYouOptionSelected" type="integer" alias="thankYouButton.itemSelected" alwaysNotify="true" onChange="onThankYouOptionSelected" />
+        <field id="thankYouCloseSelected" type="bool" alwaysNotify="true"/>
 
         <!-- Plan(s) fields -->
         <field id="planSelected" type="intarray" alias="Plans.rowItemSelected" alwaysNotify="true" onChange="onPlanSelection" />
-        <field id="currentPlanSelected" type="node" />
+        <field id="currentPlanSelected" type="node" alwaysNotify="true" />
     </interface>
 
     <!-- main handler -->
@@ -23,6 +29,7 @@
     <script type="text/brightscript" uri="pkg:/components/screens/AuthSelection/AuthSelection.brs" />
 
     <children>
+      <Group id ="subscriptionGroup" translation="[0,0]" visible = "true">
       <Rectangle
           id="Background"
           color="#151515"
@@ -65,10 +72,11 @@
         itemComponentName="PlanButton"
         translation="[200, 350]"
         numRows="1"
-        focusBitmapUri="pkg:/images/focus_grid_light.9.png"
-        itemSize="[880,200]"
+        drawFocusFeedback="false"
+        focusBitmapUri="pkg:/images/button-focus.png"
+        itemSize="[1000,200]"
         itemSpacing="[0,0]"
-        rowItemSize="[[400,150]]"
+        rowItemSize="[[300,150]]"
         rowItemSpacing="[[40,0]]" />
 
       <Group id="OAuthTransition" translation="[0,570]">
@@ -96,6 +104,89 @@
             focusBitmapUri="pkg:/images/button-focus-light.png"
             />
 
+          </Group>
+      </Group>
+      <Group id ="confirmPlanGroup" translation="[0,0]" visible = "false">
+        <Rectangle
+          id="confirmPlanBackground"
+          width="1920"
+          height="1080"
+          color="0x151515"
+          translation="[0,0]" />
+
+        <Label
+          id="confirmPlanHeader"
+          width="1280"
+          horizAlign="center"
+          text=""
+          translation="[0,150]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="35"/>
+        </Label>
+
+        <Label
+          id="confirmPlanDescription"
+          width="1280"
+          wrap="true"
+          horizAlign="center"
+          text=""
+          translation="[0,250]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="25"/>
+        </Label>
+
+        <LabelList
+          id="confirmPlanButton"
+          translation="[440,330]"
+          color="0xf5f5f5"
+          focusedColor="0xf5f5f5"
+          numRows="2"
+          vertFocusAnimationStyle="floatingFocus"
+          itemSize="[300, 60]"
+          itemSpacing = "[0,30]"
+          font="dictionary:MenuFont"
+          textHorizAlign="center"
+          focusedFont="dictionary:MenuFont"
+          focusBitmapUri="pkg:/images/button-focus-light.png" />
+      </Group>
+      <Group id ="thankYouGroup" translation="[0,0]" visible = "false">
+        <Rectangle
+          id="thankYouBackground"
+          width="1920"
+          height="1080"
+          color="0x151515"
+          translation="[0,0]" />
+
+        <Label
+          id="thankYouHeader"
+          width="1280"
+          horizAlign="center"
+          text="Thank You!"
+          translation="[0,150]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Bold.ttf" size="35"/>
+        </Label>
+
+        <Label
+          id="thankYouDescription"
+          width="1280"
+          wrap="true"
+          horizAlign="center"
+          text=""
+          translation="[0,250]">
+          <Font role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="25"/>
+        </Label>
+
+        <LabelList
+          id="thankYouButton"
+          translation="[440,330]"
+          color="0xf5f5f5"
+          focusedColor="0xf5f5f5"
+          numRows="2"
+          vertFocusAnimationStyle="floatingFocus"
+          itemSize="[300, 60]"
+          itemSpacing = "[0,30]"
+          font="dictionary:MenuFont"
+          textHorizAlign="center"
+          focusedFont="dictionary:MenuFont"
+          focusBitmapUri="pkg:/images/button-focus-light.png" />
       </Group>
 
     </children>

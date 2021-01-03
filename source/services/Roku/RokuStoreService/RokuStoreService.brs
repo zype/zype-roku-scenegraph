@@ -19,9 +19,12 @@
 ' Dependencies
 '     source/services/Roku/RokuStoreService/RokuStoreServiceHelpers.brs
 '****************************************************
-function RokuStoreService(store, message_port) as object
+function RokuStoreService(store, channelStore, message_port) as object
   this = {}
   this.store = store
+  this.channelStore = channelStore
+  this.channelStore.observeField("orderStatus", m.port)  
+
   this.port = message_port
   this.helpers = RokuStoreServiceHelpers()
 
@@ -52,6 +55,13 @@ function RokuStoreService(store, message_port) as object
     return m.helpers.getStoreResponse(m.port)
   end function
 
+  ' Get all IAPs user has purchased
+  this.getAllPurchases = function() as object
+    m.store.GetAllPurchases()
+    return m.helpers.getStoreResponse(m.port)
+  end function
+
+
   ' Get all native subscriptions user has purchased
   this.getUserNativeSubscriptionPurchases = function() as object
     native_subscriptions = m.helpers.filterItemsByType(m.getPurchases(), ["MonthlySub", "YearlySub"])
@@ -80,6 +90,22 @@ function RokuStoreService(store, message_port) as object
 
     if success then return { receipt: order_response[0], success: true} else return {receipt: invalid, success: false}
   end function
+
+
+  this.orderChange = function(order) as object
+    m.channelStore.order = order
+    'm.channelStore.observeField("orderStatus", "onOrderStatus")
+    m.channelStore.command = "doOrder"
+
+    order_response = m.helpers.getChannelStoreResponse(m.channelStore, m.port)
+
+    if order_response = invalid then return {receipt: invalid, success: false}
+
+    return order_response
+  end function
+
+
+
 
   ' Check if already purchased
   this.alreadyPurchased = function(code as string) as boolean

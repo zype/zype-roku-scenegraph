@@ -62,8 +62,10 @@ function initializers() as object
     self.keyboard.focusedKeyColor = self.global.brand_color
     self.keyboard.textEditBox.textColor = self.global.theme.primary_text_color
 
+
+
     self.confirm_button = self.top.findNode("ConfirmButton")
-    self.confirm_button.color = self.global.theme.primary_text_color
+    self.confirm_button.color = self.global.theme.button_unfocus_color
     self.confirm_button.focusedColor = self.global.theme.button_focus_color
     self.confirm_button.focusBitmapUri = self.global.theme.button_focus_uri
     self.confirm_button.focusFootprintBitmapUri = self.global.theme.button_unfocus_uri

@@ -2,7 +2,7 @@
 
 function Init()
   m.private = {
-    plan_attibutes: [ "code", "cost", "freeTrialQuantity", "freeTrialType", "name", "productType" ],
+    plan_attibutes: [ "code", "cost", "costValue", "freeTrialQuantity", "freeTrialType", "name", "productType", "isPlanSubscribed", "planStatus", "expiredDate" ],
     plan: {}
   }
 
@@ -25,11 +25,38 @@ function PlanChanged() as void
   m.initializers.setButtonText(m)
 end function
 
+
+sub ItemHasFocus_Changed(event as dynamic)
+    if event.GetData() = true
+        setFocusButton()
+    else
+        setUnFocusButton()
+    end if
+end sub
+
+
 ' ***********************
 '   Public Functions
 ' ***********************
 function GetPlanInfo(data = invalid) as object
   return m.private.plan
+end function
+
+
+function setFocusButton() as void
+    m.plan_display.color = m.global.theme.focus_plan_button_color
+
+    m.plan_name.color = m.global.theme.focus_primary_text_color
+    m.trial_period.color = m.global.theme.focus_primary_text_color
+    m.cost.color = m.global.theme.focus_primary_text_color
+end function
+
+function setUnFocusButton() as void
+    m.plan_display.color = m.global.theme.plan_button_color
+
+    m.plan_name.color = m.global.theme.primary_text_color
+    m.trial_period.color = m.global.theme.primary_text_color
+    m.cost.color = m.global.theme.primary_text_color
 end function
 
 
@@ -42,6 +69,13 @@ function initializers() as object
 
     self.plan_name = self.top.findNode("PlanName")
     self.plan_name.color = self.global.theme.primary_text_color
+
+    self.selectedPlanText = self.top.findNode("selectedPlanText")
+    self.selectedPlanText.color = self.global.theme.primary_text_color
+
+
+    self.selectedPlanExpiredDate = self.top.findNode("selectedPlanExpiredDate")
+    self.selectedPlanExpiredDate.color = self.global.theme.primary_text_color
 
     self.trial_period = self.top.findNode("TrialPeriod")
     self.trial_period.color = self.global.theme.primary_text_color
@@ -67,6 +101,25 @@ function initializers() as object
     else if self.private.plan.productType = "YearlySub"
       self.cost.text = self.private.plan.cost + " per year"
     end if
+
+    self.selectedPlanText.visible = self.private.plan.isPlanSubscribed
+    self.selectedPlanExpiredDate.visible = false
+
+    if self.private.plan.isPlanSubscribed then
+      self.selectedPlanText.text = self.private.plan.planStatus
+      if self.private.plan.expiredDate <> "" and self.private.plan.planStatus <> "" then
+        expiredDateTime = CreateObject("roDateTime")
+        expiredDateTime.FromISO8601String(self.private.plan.expiredDate)
+        year = expiredDateTime.GetYear()
+        month = expiredDateTime.GetMonth()
+        date =  expiredDateTime.GetDayOfMonth()
+        expiredDateText = self.helpers.GetFormattedDate(date,month,year)
+        self.selectedPlanExpiredDate.text = "Expires on : "+ expiredDateText
+        self.selectedPlanExpiredDate.visible = true
+      end if
+    end if
+
+
   end function
 
   return this
@@ -77,6 +130,25 @@ function helpers() as object
 
   this.focusedChild = function() as string
     return m.top.focusedChild
+  end function
+
+  this.GetFormattedDate = function(date as integer, month as integer, year as integer) as string
+    dateText = ""
+    monthText = ""
+    yearText = year.ToStr()
+    if date > 9
+        dateText = date.ToStr()
+    else
+        dateText = "0"+date.ToStr()
+    end if
+
+    if month > 9
+        monthText = month.ToStr()
+    else
+        monthText = "0"+month.ToStr()
+    end if
+
+    return dateText + "-" + monthText + "-" + yearText
   end function
 
   return this

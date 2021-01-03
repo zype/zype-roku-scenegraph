@@ -36,7 +36,7 @@ Function Init()
     m.resultsString.color = m.global.theme.secondary_text_color
 
     m.SignInButton = m.top.findNode("SignInButton")
-    m.SignInButton.color = m.global.theme.primary_text_color
+    m.SignInButton.color = m.global.theme.button_unfocus_color
     m.SignInButton.focusedColor = m.global.theme.button_focus_color
     m.SignInButton.focusBitmapUri = m.global.theme.button_focus_uri
     m.SignInButton.focusFootprintBitmapUri = m.global.theme.button_unfocus_uri

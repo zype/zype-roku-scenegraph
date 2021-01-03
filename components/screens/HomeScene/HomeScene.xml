@@ -55,6 +55,7 @@
 
         <field id="DeepLinkToDetailPage" type="node" onChange="CarouselDeepLinkToDetailPage"/>
 
+        <field id="channelStore" type="node" alwaysNotify="true"/>
 
 
         <field id="SearchString" type="string" alwaysnotify="true" alias="Search.SearchString"/>
@@ -80,11 +81,17 @@
 
         <field id="resetFocus" type="bool" alwaysNotify="true" onChange="resetFocusToScreen" />
 
+        <field id="resetTo" type="string" alwaysNotify="true" onChange="resetToScreen" />
+
+        <field id="backScreen" type="string" alwaysNotify="true" onChange="backToScreen" />
+
         <field id="goBackToNonAuth" type="boolean" alwaysNotify="true" onChange="goBackToNonAuthCallback" />
 
         <field id="LastSelectedMenu" value="" type="string"/>
 
         <field id="exitItemSelected" type="integer" alwaysnotify="true" alias="exitButtons.itemSelected" onChange="exitButtonSelected" />
+
+        <field id="setPurchasePlan" type="boolean" alwaysNotify="true" />
 
         <function name="GetPlaylistVideosFunc" />
 
@@ -97,6 +104,7 @@
         <function name="StopHideMenuTimer" />
         <function name="TriggerHideMenu" />
         <function name="TriggerShowMenu" />
+        <function name="OpenPreviousScreen" />
 
         <field id="segmentEvent" type="assocArray" onChange="onSegmentEventChanged"/>
     </interface>
@@ -274,5 +282,9 @@
         <Timer id="autoplayMessageTimer" repeat="false" duration="5" />
 
         <Timer id="menuHideTimer" repeat="false" duration="3" />
+
+        <ChannelStore
+          id="store"
+          fakeServer="false" />
     </children>
 </component>

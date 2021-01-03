@@ -116,6 +116,9 @@ Function Init()
     m.top.loadingScreen = m.top.findNode("LoadingScreen")
     m.TestInfoScreen = m.top.findNode("TestInfoScreen")
 
+    'channel store'
+    m.top.channelStore = m.top.findNode("store")
+
     ' Set theme
     m.top.loadingIndicator.backgroundColor = m.global.theme.background_color
     m.top.loadingIndicator.imageUri = m.global.theme.loader_uri
@@ -392,7 +395,7 @@ Function OnRowItemSelected()
 
         for each key in m.gridScreen.focusedContent.keys()
           if m.nextVideoNode[key] <> invalid
-            m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
+          m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
           end if
         end for
 
@@ -447,9 +450,11 @@ function transitionToScreen() as void
   screen = m.top.findNode(m.top.transitionTo)
 
   PushScreenIntoScreenStack(screen)
-
+  print "transitionToScreen 1 "
   screen.visible = true
+  print "transitionToScreen 2 "
   screen.setFocus(true)
+  print "transitionToScreen 3 "
 end function
 
 function resetFocusToScreen() as void
@@ -458,6 +463,33 @@ function resetFocusToScreen() as void
         prevScreen.visible = true
         prevScreen.setFocus(true)
       end if
+end function
+
+function resetToScreen() as void
+    if m.top.resetTo = "AccountScreen" or m.top.resetTo = "AuthSelection" Then
+      prevScreen = m.screenStack.peek()
+      if prevScreen <> invalid then
+        prevScreen.visible = true
+        prevScreen.setFocus(true)
+      end if
+    end if
+end function
+
+function backToScreen() as void
+    print " backToScreen "  m.top.backScreen
+    if m.top.backScreen = "AccountScreen" or m.top.backScreen = "AuthSelection" Then
+        screen = m.screenStack.pop()
+        if screen <> invalid then screen.visible = false
+
+        ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
+        ' open last screen before it and focus it
+        prevScreen = m.screenStack.peek()
+        if prevScreen <> invalid then
+          prevScreen.visible = true
+          prevScreen.setFocus(true)
+        end if
+    end if
+
 end function
 
 function goBackToNonAuthCallback() as void
@@ -521,33 +553,35 @@ end function
 
 Function MenuActionAsPerRoleTarget(button_role as string, button_target as string)
 
-      ' Menu is visible - it must be last element
-      menu = m.screenStack.pop()
-      menu.visible = false
+    ' Menu is visible - it must be last element
+    menu = m.screenStack.pop()
+    menu.visible = false
 
-      if button_role = "transition" and button_target = "Search"
-        m.top.SearchString = ""
-        m.top.ResultsText = ""
-        m.top.transitionTo = "Search"
-      else if button_role = "transition" and button_target = "EPGScreen"
-  '      m.top.findNode("EPGScreen").reset = true
-        m.top.transitionTo = "EPGScreen"
-      else if button_role = "transition" and button_target = "InfoScreen"
-        m.top.transitionTo = "InfoScreen"
-      else if button_role = "transition" and button_target = "Favorites"
-        m.top.transitionTo = "Favorites"
-      else if button_role = "transition" and button_target = "AccountScreen"
-          m.top.transitionTo = "AccountScreen"
+    if button_role = "transition" and button_target = "Search"
+      m.top.SearchString = ""
+      m.top.ResultsText = ""
+      m.top.transitionTo = "Search"
+    else if button_role = "transition" and button_target = "EPGScreen"
+'      m.top.findNode("EPGScreen").reset = true
+      m.top.transitionTo = "EPGScreen"
+    else if button_role = "transition" and button_target = "InfoScreen"
+      m.top.transitionTo = "InfoScreen"
+    else if button_role = "transition" and button_target = "Favorites"
+      m.top.transitionTo = "Favorites"
+    else if button_role = "transition" and button_target = "AccountScreen"
+        m.top.transitionTo = "AccountScreen"
       else if button_role = "transition" and button_target = "GridScreen"
           m.top.transitionTo = "GridScreen"
-      else if button_role = "transition" and button_target = "TestInfoScreen"
-          m.top.transitionTo = "TestInfoScreen"
-      else if button_role = "transition" and button_target = "DeviceLinking"
-          m.deviceLinking.show = true
-          m.top.transitionTo = "DeviceLinking"
-      else if button_role = "transition" and button_target = "MyLibrary"
-          m.top.transitionTo = "MyLibrary"
-      end if
+    else if button_role = "transition" and button_target = "AuthSelection"
+        m.top.transitionTo = "AuthSelection"
+    else if button_role = "transition" and button_target = "TestInfoScreen"
+        m.top.transitionTo = "TestInfoScreen"
+    else if button_role = "transition" and button_target = "DeviceLinking"
+        m.deviceLinking.show = true
+        m.top.transitionTo = "DeviceLinking"
+    else if button_role = "transition" and button_target = "MyLibrary"
+        m.top.transitionTo = "MyLibrary"
+    end if
 end function
 
 function TriggerHideMenu()
@@ -642,7 +676,7 @@ function HideTopMenu()
             menu.visible = false
             m.top.removeChild(m.TopMenu)
             lastScreen = m.screenStack.peek()
-            print "lastscreen  " lastScreen
+            ' print "lastscreen  " lastScreen
             if (lastScreen <> invalid)
               lastScreen.visible = true
               lastScreen.setFocus(true)
@@ -688,9 +722,9 @@ Function OnKeyEvent(key, press) as Boolean
             else if m.global.enable_top_navigation = false
                 if m.Menu.visible = false then ' Prevent multiple menu clicks
                   ShowMenu()
-                else
+            else
                   HideMenu()
-                end if
+            end if
             else if m.global.enable_top_navigation = true
                 if m.TopMenu.visible = false then ' Prevent multiple top menu clicks
                   TriggerShowMenu()
@@ -713,8 +747,7 @@ Function OnKeyEvent(key, press) as Boolean
             isSpecialScreen = isSpecialScreen()
             ? "isSpecialScreen(): "; isSpecialScreen
             if m.top.loadingIndicator.control = "start" then
-
-                  return true
+                return true
             end if
             if isSpecialScreen
                     m.gridScreen.heroCarouselShow=false
@@ -734,11 +767,11 @@ Function OnKeyEvent(key, press) as Boolean
                     m.screenStack.peek().setFocus(true)
 
                     if m.screenStack.peek().id = "Search"
-                      SearchGrid = m.screenStack.peek().findNode("Grid")
-                      SearchGrid.visible = false
+                    SearchGrid = m.screenStack.peek().findNode("Grid")
+                    SearchGrid.visible = false
 
-                      SearchDetailsScreen = m.screenStack.peek().findNode("SearchDetailsScreen")
-                      SearchDetailsScreen.videoPlayerVisible = false
+                    SearchDetailsScreen = m.screenStack.peek().findNode("SearchDetailsScreen")
+                    SearchDetailsScreen.videoPlayerVisible = false
                     end if
                     if m.playListFromHeroSlider=true and m.playListDetailFromHeroSlider = false then
                         contentStackCount = m.contentStack.count()
@@ -914,6 +947,21 @@ Function OnKeyEvent(key, press) as Boolean
 
     return result
 End Function
+
+Function OpenPreviousScreen()
+
+  screen = m.screenStack.pop()
+  screen.visible = false
+  if m.playListFromHeroSlider = true and m.playListDetailFromHeroSlider = true and m.top.dialog = invalid then
+      m.playListDetailFromHeroSlider = false
+  end if
+  ' after screen pop m.screenStack.peek() == last opened screen (gridScreen or detailScreen),
+  ' open last screen before it and focus it
+  m.screenStack.peek().visible = true
+  m.screenStack.peek().setFocus(true)
+
+
+end function
 
 Function isSpecialScreen()
     ? " isSpecialScreen "
