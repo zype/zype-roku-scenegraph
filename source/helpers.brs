@@ -11,9 +11,18 @@ end function
 
 function LoadHeroCarousels()
     rawData = GetZObjects({"zobject_type": "top_playlists"})
+    heroCarouselData = CreateObject("roArray", rawData.Count(), true)
     if rawData <> invalid AND rawData.Count()>0
         rawData.sortby("priority")
-        return rawData
+        For each item in rawData
+          if item <> invalid and item.pictures <> invalid and item.pictures[0] <> invalid and item.pictures[0].url <> invalid then
+             heroCarouselData.push(item)
+          end if
+        End For
+        
+        if heroCarouselData.count() > 0 then
+            return heroCarouselData
+        end if
     end if
     return invalid
 end function
