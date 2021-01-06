@@ -20,7 +20,9 @@
 
 
         <!--Interface to handle app launch complete event for sending beacon to Roku-->
-        <field id="sentLaunchCompleteEvent" type="boolean" alwaysNotify="true" onChange="sendAppLaunchCompleteBeacon" />
+        <field id="sentLaunchCompleteEvent" type="boolean" alwaysNotify="true" onChange="sendAppLaunchCompleteBeacon"/>
+    <field id="sentAppDialogInitiateEvent" type="boolean" alwaysNotify="true" onChange="sendAppDialogInitiateBeacon" />
+    <field id="sentAppDialogCompleteEvent" type="boolean" alwaysNotify="true" onChange="sendAppDialogCompleteBeacon" />
 
 
         <!-- Content for RowList in GridScreen on Home Scene -->
