@@ -151,6 +151,8 @@ Function Init()
     end if
 
     m.appLaunchCompleteBeaconSent = false
+    m.appDialogInitiateBeaconSent = false
+    m.appDialogCompleteBeaconSent = false
 End Function
 
 Sub SendAppInstalledOrOpenedSegmentAnalyticsEvent(isOpened as boolean)
@@ -367,12 +369,29 @@ Sub CarouselDeepLinkToDetailPage()
     m.screenStack.push(m.detailsScreen)
 ENd SUb
 
+' Beacon Events'
 sub sendAppLaunchCompleteBeacon()
-	if (m.appLaunchCompleteBeaconSent = false)
-			print "Sending AppLaunchComplete.................................................................."
-			m.top.signalBeacon("AppLaunchComplete")
-			m.appLaunchCompleteBeaconSent = true
-	end if
+    if (m.appLaunchCompleteBeaconSent = false AND (m.appDialogInitiateBeaconSent = false OR m.appDialogCompleteBeaconSent = true))
+        print "Sending AppLaunchComplete.................................................................."
+        m.top.signalBeacon("AppLaunchComplete")
+        m.appLaunchCompleteBeaconSent = true
+    end if
+end sub
+
+sub sendAppDialogInitiateBeacon()
+    if (m.appDialogInitiateBeaconSent = false and m.appLaunchCompleteBeaconSent = false)
+        print "Sending AppDialogInitiate.................................................................."
+        m.top.signalBeacon("AppDialogInitiate")
+        m.appDialogInitiateBeaconSent = true
+    end if
+end sub
+
+sub sendAppDialogCompleteBeacon()
+    if (m.appDialogCompleteBeaconSent = false AND m.appDialogInitiateBeaconSent = true)
+        print "Sending AppDialogComplete.................................................................."
+        m.top.signalBeacon("AppDialogComplete")
+        m.appDialogCompleteBeaconSent = true
+    end if
 end sub
 
 ' Row item selected handler
