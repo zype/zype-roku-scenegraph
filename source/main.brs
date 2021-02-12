@@ -879,7 +879,7 @@ function transitionToVideoPlayer(videoObject as object) as void
     ' Start playing video if logged in or no monetization
     if is_subscribed = true or (videoObject.subscription_required = false and videoObject.purchase_required = false)
         m.akamai_service.setPlayStartedOnce(true)
-        playRegularVideo(m.detailsScreen)
+        playRegularVideo(m.detailsScreen, true)
     end if
 end function
 
@@ -907,10 +907,12 @@ end function
 '     1- No subscription required for video
 '     2- NSVOD only and user has already purchased a native subscription
 '     3- Both NSVOD and USVOD. User either purchased a native subscription or is linked
-sub playRegularVideo(screen as Object)
+sub playRegularVideo(screen as Object, isDeepLink = false as boolean)
     print "PLAY REGULAR VIDEO"
     StartLoadingScreen()
-    playVideo(screen, getAuth(screen.content), m.app.avod)
+    adsEnable = m.app.avod
+    if isDeepLink then adsEnable = false
+    playVideo(screen, getAuth(screen.content), adsEnable)
 end sub
 
 
