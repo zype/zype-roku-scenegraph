@@ -877,7 +877,7 @@ function transitionToVideoPlayer(videoObject as object) as void
     is_subscribed = (m.global.auth.nativeSubCount > 0 or m.global.auth.universalSubCount)
 
     ' Start playing video if logged in or no monetization
-    if is_subscribed = true or (videoObject.subscription_required = false and videoObject.purchase_required = false)
+    if is_subscribed = true or ((videoObject.subscription_required = invalid or (videoObject.subscription_required <> invalid and videoObject.subscription_required = false)) and (videoObject.purchase_required = invalid or (videoObject.purchase_required <> invalid and videoObject.purchase_required = false)))
         m.akamai_service.setPlayStartedOnce(true)
         playRegularVideo(m.detailsScreen, true)
     end if
