@@ -7,6 +7,7 @@
 <component name="AuthSelection" extends="Group" initialFocus="Plans" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
     <interface>
         <field id="plans" type="array" alwaysNotify="true" onChange="SetNativePlans" />
+        <field id="allPlans" type="array" alwaysNotify="true"/>
         <field id="purchasePlans" type="array" alwaysNotify="true" onChange="SetNativePurchasePlans" />
 
         <!-- OAuthButton fields -->

@@ -783,16 +783,20 @@ function setUpPurchasePlan()
     if m.current_user_info <> invalid then
       if (m.current_user_info.has_trialed <> invalid and m.current_user_info.has_trialed) then allowedFreePlan = false
     end if
+
+    rokuAllPlans = m.roku_store_service.GetNativeSubscriptionPlans()
+    m.filteredAllPlans = m.marketplaceConnect.getSubscriptionPlans(rokuAllPlans, m.global.subscription_plan_ids)
     rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans(allowedFreePlan)
     m.filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
 
     rokuPurchasePlans = m.roku_store_service.getPurchases()
     allPurchasePlan = m.roku_store_service.getAllPurchases()
-
-    m.filterPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredPlans, rokuPurchasePlans)
+    m.filterPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredAllPlans, rokuPurchasePlans)
     m.filterAllPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filterPurchasePlan, allPurchasePlan)
     m.AuthSelection.plans = m.filteredPlans
     m.AccountScreen.plans = m.filteredPlans
+    m.AuthSelection.allPlans = m.filteredAllPlans
+    m.AccountScreen.allPlans = m.filteredAllPlans
     m.AuthSelection.purchasePlans = m.filterPurchasePlan
     m.AccountScreen.purchasePlans = m.filterPurchasePlan
     m.AccountScreen.allPurchasePlans = m.filterAllPurchasePlan
@@ -2195,7 +2199,6 @@ function handleNativeToUniversal(authselection = true as boolean) as void
 
   if purchase_subscription <> invalid and purchase_subscription.success
       m.auth_state_service.incrementNativeSubCount()
-      setUpPurchasePlan()
       isCheckMarketPlaceConnectSVOD = false
 
       if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
@@ -2277,6 +2280,7 @@ function handleNativeToUniversal(authselection = true as boolean) as void
         end if
 
         if isReceiptValidated = true
+            setUpPurchasePlan()
             user_info = m.current_user.getInfo()
 
             ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
@@ -2337,7 +2341,6 @@ function handleNativeToUniversal(authselection = true as boolean) as void
 
   else if order_change <> invalid and order_change.success
 
-      setUpPurchasePlan()
       if (m.global.marketplace_connect_svod = true AND m.global.subscription_plan_ids <> invalid AND m.global.subscription_plan_ids.count() > 0)
           isCheckMarketPlaceConnectSVOD = true
       end if
@@ -2388,6 +2391,7 @@ function handleNativeToUniversal(authselection = true as boolean) as void
 
 
         if isReceiptValidated = true
+            setUpPurchasePlan()
             user_info = m.current_user.getInfo()
 
             ' Create new access token. Creating sub does not update entitlements for access tokens created before subscription
