@@ -99,9 +99,12 @@ Function onThankYouOptionSelected() as void
 End Function
 
 function onPlanSelection() as void
-    print " >>>>>>>>>>>>>> Confirm plan"
+    print " >>>>>>>>>>>>>> Confirm plan" m.top.allowedUpgrade
     selectedPlan = m.helpers.planSelected(m)
-
+    if m.top.allowedUpgrade = false then
+      m.Scene.callFunc("CreateDialog",m.Scene, "Error", "You are not allowed to change plan in free trial.", ["Close"])
+      return
+    end if
     m.confirm_plan_group.visible = true
     m.signin_group.visible = false
     m.loggedin_group.visible = false
@@ -165,6 +168,8 @@ function OnPlanSubscribeSuccess() as void
     btn = [{ title: m.global.labels.close_button, role: "Cancel", target: "" }]
     if m.isUpcommingPlanAvailble then
         m.thank_you_header.text = m.thankYouUpcomingPlanText
+    else if m.isCurrentPlanFree
+        m.thank_you_header.text = Substitute(m.global.labels.thank_you_message, m.top.planSubscribeDetail)
     else
         m.thank_you_header.text = Substitute(m.global.labels.thank_you_message, m.top.planSubscribeDetail)
     end if
@@ -209,6 +214,9 @@ function resetScreen() as void
 
         if m.isUpcommingPlanAvailble then
           m.upcomming_subscription_detail.text = m.upCommingPlanText
+          m.upcomming_subscription_detail.visible = true
+        else if m.isCurrentPlanFree then
+          m.upcomming_subscription_detail.text = m.currentFreePlanText
           m.upcomming_subscription_detail.visible = true
         else
           m.upcomming_subscription_detail.text = ""
@@ -262,19 +270,36 @@ function SetNativePurchasePlans() as void
             planItem = m.plan_buttons.content.getChild(i).getChild(j)
             for each purchasePlan in m.top.purchasePlans
                 if planItem.code = purchasePlan.code Then
-                      m.plan_buttons.content.getChild(i).getChild(j).isPlanSubscribed = true
-                      m.SubscribedPlan = m.plan_buttons.content.getChild(i).getChild(j)
+                    if purchasePlan.freeTrialQuantity > 0
+                        m.top.allowedUpgrade = false
+                    end if
+                    m.plan_buttons.content.getChild(i).getChild(j).isPlanSubscribed = true
+                    m.SubscribedPlan = m.plan_buttons.content.getChild(i).getChild(j)
                     return
                 end if
             end for
         end for
     end for
+
+    if m.top.allowedUpgrade = true
+      for each purchasePlan in m.top.purchasePlans
+        for each planItem in m.top.allPlans
+            if planItem.code = purchasePlan.code and purchasePlan.freeTrialQuantity > 0
+                m.top.allowedUpgrade = false
+                exit for
+            end if
+        end for
+      end for
+    end if
 end function
 
 
 function SetPurchasePlansDetails() as void
     m.isUpcommingPlanAvailble = false
     m.upCommingPlanText = invalid
+    m.isCurrentPlanFree = false
+    m.currentFreePlanText = invalid
+    m.isCurrentPurchasePlanAvailable = false
     m.thankYouUpcomingPlanText = invalid
     for i=0 to  m.plan_buttons.content.getChildCount() -1
         for j=0 to  m.plan_buttons.content.getChild(i).getChildCount() - 1
@@ -291,12 +316,25 @@ function SetPurchasePlansDetails() as void
                     else
                         m.plan_buttons.content.getChild(i).getChild(j).planStatus = "Current Plan"
                         m.plan_buttons.content.getChild(i).getChild(j).expiredDate = purchasePlan.expirationDate
+                        m.isCurrentPurchasePlanAvailable = true
                     end if
 
                 end if
             end for
         end for
     end for
+
+    if m.isCurrentPurchasePlanAvailable = false
+      for each purchasePlan in m.top.purchasePlans
+          for each planItem in m.top.allPlans
+                if planItem.code = purchasePlan.code Then
+                    m.isCurrentPlanFree = true
+                    m.currentFreePlanText = "Your current plan is " +planItem.name + "."
+                    exit for
+                end if
+            end for
+        end for
+    end if
     if m.isUpcommingPlanAvailble = false and m.SubscribedPlan <> invalid then
       m.SubscribedPlan.expiredDate = ""
     end if
@@ -396,6 +434,8 @@ function initializers() as object
     self.top.observeField("visible", "onVisibleChange")
     self.isUpcommingPlanAvailble = false
     self.upCommingPlanText = invalid
+	self.isCurrentPlanFree = false
+    self.currentFreePlanText = invalid
     self.thankYouUpcomingPlanText = invalid
     ' SignIn Group for loggin '
     self.signin_group = self.top.findNode("signInGroup")

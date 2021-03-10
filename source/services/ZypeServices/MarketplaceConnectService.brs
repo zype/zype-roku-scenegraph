@@ -34,11 +34,9 @@ Function MarketplaceConnectService() as object
     zypeFilteredPlans = GetLocalFilteredZypePlans(zypePlans, local_subscription_plan_ids)
      for each rokuPlan in rokuPlans
       for each zypePlan in zypeFilteredPlans
-        print "=====================> Roku Plan : " rokuPlan
-        print "Zype Plan : " zypePlan
-        print "Zype Plan marketplace_ids : " zypePlan.marketplace_ids
+        ' print "Zype Plan marketplace_ids : " zypePlan.marketplace_ids
         if zypePlan.marketplace_ids <> invalid and zypePlan.marketplace_ids.roku <> invalid
-          print "Zype Plan roku : " zypePlan.marketplace_ids.roku
+          ' print "Zype Plan roku : " zypePlan.marketplace_ids.roku
           if zypePlan.marketplace_ids.roku = rokuPlan.code
             rokuPlan.zypePlanId = zypePlan._id
             rokuPlan.costValue = GetPlanCostValue(rokuPlan.cost)
@@ -64,11 +62,8 @@ Function MarketplaceConnectService() as object
     zypeFilteredPlans = GetLocalFilteredZypePlans(zypePlans, local_subscription_plan_ids)
 
     for each zypePlan in zypeFilteredPlans
-      print "=====================> Roku Plan Code : " rokuPlanCode
-      print "Zype Plan : " zypePlan
-      print "Zype Plan marketplace_ids : " zypePlan.marketplace_ids
+      ' print "Zype Plan marketplace_ids : " zypePlan.marketplace_ids
       if zypePlan.marketplace_ids <> invalid and zypePlan.marketplace_ids.roku <> invalid
-        print "Zype Plan roku : " zypePlan.marketplace_ids.roku
         if zypePlan.marketplace_ids.roku = rokuPlanCode
           matchingZypePlanID = zypePlan._id
           exit for ' exit zypePlans for loop

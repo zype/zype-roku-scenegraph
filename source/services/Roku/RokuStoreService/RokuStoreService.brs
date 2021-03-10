@@ -23,7 +23,7 @@ function RokuStoreService(store, channelStore, message_port) as object
   this = {}
   this.store = store
   this.channelStore = channelStore
-  this.channelStore.observeField("orderStatus", m.port)  
+  this.channelStore.observeField("orderStatus", m.port)
 
   this.port = message_port
   this.helpers = RokuStoreServiceHelpers()
@@ -34,9 +34,10 @@ function RokuStoreService(store, channelStore, message_port) as object
     return m.helpers.getStoreResponse(m.port)
   end function
 
-  this.getNativeSubscriptionPlans = function() as object
+  this.getNativeSubscriptionPlans = function(allowedFreePlan = true as boolean) as object
     catalog = m.getCatalog()
-    return m.helpers.filterItemsByType(catalog, ["MonthlySub", "YearlySub"])
+    plans = m.helpers.filterItemsByType(catalog, ["MonthlySub", "YearlySub"])
+    return m.helpers.filterItemsByTrial(plans, allowedFreePlan)
   end function
 
   this.getConsumables = function() as object

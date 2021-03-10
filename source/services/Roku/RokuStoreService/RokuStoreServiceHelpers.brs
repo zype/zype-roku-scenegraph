@@ -63,6 +63,20 @@ function RokuStoreServiceHelpers() as object
     return filtered_items
   end function
 
+  this.filterItemsByTrial = function(items as object, allowedFreePlan as boolean) as object
+    filtered_items = []
+
+    for each item in items
+        if allowedFreePlan then
+          filtered_items.push(item)
+        else if item.freeTrialQuantity = 0 then
+          filtered_items.push(item)
+        end if
+    end for
+
+    return filtered_items
+  end function
+
   ' Accepts array of roku store items and array of product types to filter by
   this.filterItemsByCode = function(items as object, code as string) as object
     filtered_items = []
