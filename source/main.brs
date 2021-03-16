@@ -779,14 +779,16 @@ End function
 function setUpPurchasePlan()
 
     m.current_user_info = m.current_user.getInfo()
-    allowedFreePlan = true
+    allowed_trialed_plan = true
     if m.current_user_info <> invalid then
-      if (m.current_user_info.has_trialed <> invalid and m.current_user_info.has_trialed) then allowedFreePlan = false
+      if (m.current_user_info.has_trialed <> invalid and m.current_user_info.has_trialed) then
+          allowed_trialed_plan = false
+      end if
     end if
 
     rokuAllPlans = m.roku_store_service.GetNativeSubscriptionPlans()
     m.filteredAllPlans = m.marketplaceConnect.getSubscriptionPlans(rokuAllPlans, m.global.subscription_plan_ids)
-    rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans(allowedFreePlan)
+    rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans(allowed_trialed_plan)
     m.filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
 
     rokuPurchasePlans = m.roku_store_service.getPurchases()
