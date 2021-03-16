@@ -77,8 +77,8 @@ function RokuStoreServiceHelpers() as object
     end for
     if (allowed_trialed_plan = true)
         for each key in all_keys
-            if Instr(all_keys[key].code,"freeroku.test") = 0
-                trialKey = all_keys[key].code.Replace("roku.test","freeroku.test")
+            if Instr(all_keys[key].code,"-free-trial") = 0
+                trialKey = all_keys[key].code + "-free-trial"
                 if filter_keys.Lookup(trialKey) = invalid then
                   filter_keys[key] = all_keys[key]
                 end if
