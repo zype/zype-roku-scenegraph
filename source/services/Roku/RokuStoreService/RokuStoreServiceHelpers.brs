@@ -63,14 +63,14 @@ function RokuStoreServiceHelpers() as object
     return filtered_items
   end function
 
-  this.filterItemsByTrial = function(items as object, allowed_trialed_plan as boolean) as object
+  this.filterItemsByTrial = function(items as object, allowed_trialed_plan as boolean, all_plan as boolean) as object
     filtered_items = []
     all_keys = CreateObject("roAssociativeArray")
     filter_keys = CreateObject("roAssociativeArray")
     for each item in items
         if (allowed_trialed_plan = true and item.freeTrialQuantity > 0)
             filter_keys[item.code] = item
-        else if (allowed_trialed_plan = false and item.freeTrialQuantity = 0)
+        else if (all_plan = true or (allowed_trialed_plan = false and item.freeTrialQuantity = 0))
             filter_keys[item.code] = item
         end if
         all_keys[item.code] = item

@@ -34,10 +34,10 @@ function RokuStoreService(store, channelStore, message_port) as object
     return m.helpers.getStoreResponse(m.port)
   end function
 
-  this.getNativeSubscriptionPlans = function(allowed_trialed_plan = false as boolean) as object
+  this.getNativeSubscriptionPlans = function(allowed_trialed_plan = false as boolean, all_plan = true as boolean) as object
     catalog = m.getCatalog()
     plans = m.helpers.filterItemsByType(catalog, ["MonthlySub", "YearlySub"])
-    return m.helpers.filterItemsByTrial(plans, allowed_trialed_plan)
+    return m.helpers.filterItemsByTrial(plans, allowed_trialed_plan, all_plan)
   end function
 
   this.getConsumables = function() as object

@@ -268,7 +268,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
       setUpPurchasePlan()
     else
       m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
-	  m.AccountScreen.plans = m.roku_store_service.GetNativeSubscriptionPlans()
+	    m.AccountScreen.plans = m.roku_store_service.GetNativeSubscriptionPlans()
     end if
 
     m.AuthSelection.observeField("itemSelected", m.port)
@@ -788,13 +788,16 @@ function setUpPurchasePlan()
 
     rokuAllPlans = m.roku_store_service.GetNativeSubscriptionPlans()
     m.filteredAllPlans = m.marketplaceConnect.getSubscriptionPlans(rokuAllPlans, m.global.subscription_plan_ids)
-    rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans(allowed_trialed_plan)
+    rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans(allowed_trialed_plan, false)
     m.filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
 
     rokuPurchasePlans = m.roku_store_service.getPurchases()
+    if allowed_trialed_plan = false then
+      m.filteredPlans = m.marketplaceConnect.FilteredPurchasedPlan(m.filteredPlans, rokuPurchasePlans)
+    end if
     allPurchasePlan = m.roku_store_service.getAllPurchases()
     m.filterPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredAllPlans, rokuPurchasePlans)
-    m.filterAllPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filterPurchasePlan, allPurchasePlan)
+    m.filterAllPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredAllPlans, allPurchasePlan)
     m.AuthSelection.plans = m.filteredPlans
     m.AccountScreen.plans = m.filteredPlans
     m.AuthSelection.allPlans = m.filteredAllPlans
