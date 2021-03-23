@@ -153,6 +153,21 @@ Function MarketplaceConnectService() as object
   end function
 
 
+  this.FilteredPurchasedPlan = function(plans as object, purchasedPlans as object) as object
+      filtered_items = []
+      removedPurchasePlan = false
+      for each plan in plans
+          filtered_items.push(plan)
+          for each purchasePlan in purchasedPlans
+            if removedPurchasePlan = false and plan.code+"-free-trial" = purchasePlan.code
+                filtered_items.pop()
+                removedPurchasePlan = true
+            end if
+          end for
+      end for
+      return filtered_items
+  end function
+
   this.GetRokuFilteredZypePurchasePlans = function(zypePurchasePlans as object, rokuPurchasePlans as object) as Object
       localFilteredPlans = []
 

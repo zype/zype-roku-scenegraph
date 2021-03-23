@@ -268,7 +268,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
       setUpPurchasePlan()
     else
       m.AuthSelection.plans = m.roku_store_service.GetNativeSubscriptionPlans()
-	  m.AccountScreen.plans = m.roku_store_service.GetNativeSubscriptionPlans()
+	    m.AccountScreen.plans = m.roku_store_service.GetNativeSubscriptionPlans()
     end if
 
     m.AuthSelection.observeField("itemSelected", m.port)
@@ -779,20 +779,25 @@ End function
 function setUpPurchasePlan()
 
     m.current_user_info = m.current_user.getInfo()
-    allowedFreePlan = true
+    allowed_trialed_plan = true
     if m.current_user_info <> invalid then
-      if (m.current_user_info.has_trialed <> invalid and m.current_user_info.has_trialed) then allowedFreePlan = false
+      if (m.current_user_info.has_trialed <> invalid and m.current_user_info.has_trialed) then
+          allowed_trialed_plan = false
+      end if
     end if
 
     rokuAllPlans = m.roku_store_service.GetNativeSubscriptionPlans()
     m.filteredAllPlans = m.marketplaceConnect.getSubscriptionPlans(rokuAllPlans, m.global.subscription_plan_ids)
-    rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans(allowedFreePlan)
+    rokuPlans = m.roku_store_service.GetNativeSubscriptionPlans(allowed_trialed_plan, false)
     m.filteredPlans = m.marketplaceConnect.getSubscriptionPlans(rokuPlans, m.global.subscription_plan_ids)
 
     rokuPurchasePlans = m.roku_store_service.getPurchases()
+    if allowed_trialed_plan = false then
+      m.filteredPlans = m.marketplaceConnect.FilteredPurchasedPlan(m.filteredPlans, rokuPurchasePlans)
+    end if
     allPurchasePlan = m.roku_store_service.getAllPurchases()
     m.filterPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredAllPlans, rokuPurchasePlans)
-    m.filterAllPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filterPurchasePlan, allPurchasePlan)
+    m.filterAllPurchasePlan = m.marketplaceConnect.GetRokuFilteredZypePurchasePlans(m.filteredAllPlans, allPurchasePlan)
     m.AuthSelection.plans = m.filteredPlans
     m.AccountScreen.plans = m.filteredPlans
     m.AuthSelection.allPlans = m.filteredAllPlans
