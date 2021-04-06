@@ -47,7 +47,7 @@ End Function
 '******************************************************
 Function GetPlaylistThumbnail(attrs As Object) As Object
   properties = attrs
-  src = "pkg:/images/placeholder.png"
+  src = ""
 
   if (properties.thumbnails <> invalid)
       for each item in properties.thumbnails
@@ -64,6 +64,7 @@ Function GetPlaylistThumbnail(attrs As Object) As Object
         src = properties.thumbnails[0].url
       end if
   end if
+  if src = "" then src = "pkg:/images/placeholder.png"
   return src
 End Function
 
@@ -72,7 +73,7 @@ End Function
 '******************************************************
 Function GetPlaylistBackgroundImage(attrs As Object) As Object
   properties = attrs
-  src = "pkg:/images/placeholder.png"
+  src = ""
 
   maxWidth = 0
 
@@ -99,6 +100,6 @@ Function GetPlaylistBackgroundImage(attrs As Object) As Object
         end for
       end if
   end if
-
+  if src = "" then src = "pkg:/images/placeholder.png"
   return src
 End Function
