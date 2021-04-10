@@ -897,7 +897,7 @@ end function
 
 ' Used in playlist deep linking (season, series, episode)
 function transitionToNestedPlaylist(id, index = 0 as integer) as void
-  m.scene.callFunc("AddCurrentPositionToTracker", invalid)
+  m.scene.callFunc("AddCurrentPositionToTracker")
   m.scene.callFunc("PushContentIntoContentStack", m.gridScreen.content)
   m.scene.callFunc("PushScreenIntoScreenStack", m.gridScreen)
 
