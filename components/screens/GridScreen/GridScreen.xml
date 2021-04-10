@@ -134,7 +134,7 @@
             id="RowList"
             itemComponentName="GridScreenItem"
             focusBitmapUri="pkg:/images/focus_grid_light.9.png"
-            translation="[-60, 410]"
+            translation="[-60, 404]"
             itemSize="[1327, 262]"
             numRows="2"
             itemSpacing="[0,0]"
