@@ -3,14 +3,14 @@ function setDeviceInfo()
     device=CreateObject("roDeviceInfo")
     deviceinfo={
                 "model":device.getModel(),
-                "nwType":device.getConnectionInfo().type,
+                "nwType":device.GetConnectionType(),
                 "video_mode":device.GetVideoMode(),
                 "ipAddress":device.getIPAddrs().eth1,
                 "width":device.GetDisplaySize().w,
                 "height":device.GetDisplaySize().h
                 }
-    if device.getConnectionInfo().type="WiFiConnection"
-        deviceinfo.AddReplace("ssid",device.getConnectionInfo().ssid)
+    if device.GetConnectionType()="WiFiConnection"
+        deviceinfo.AddReplace("ssid",device.GetChannelClientId())
     end if
     return deviceinfo
 end function

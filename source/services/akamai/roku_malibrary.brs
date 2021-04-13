@@ -2284,7 +2284,7 @@ return{
         m.pluginDataStore.addUdpateCustomMetrics(customDimensions)
         m.lastLogInterval# = sessionTimer.TotalMilliseconds()/1000
         di = CreateObject("roDeviceInfo")
-        version = di.GetVersion()
+        version = GetOSVersion()
         major = Mid(version, 3, 1)
         minor = Mid(version, 5, 2)
         build = Mid(version, 8, 5)
@@ -2820,7 +2820,7 @@ return{
                     if token[token.count()-1].Instr("m3u8") <> -1
                         print"format is HLS value = "
                         updateParams.addReplace("format","HLS")
-                    else if token[token.count()-1].Instr("mpd") <> -1
+                    else if token[token.count()-1].Instr(".mpd") <> -1
                         print"format is DASH value = "
                         updateParams.addReplace("format","DASH")
                     else if token[token.count()-1].Instr("mp4") <> -1
@@ -3947,16 +3947,16 @@ function AkaMA_GUID() as string
     id1 = CreateObject("roDateTime").asSeconds()
     id2 = Rnd(0)
     di = CreateObject("roDeviceInfo")
-    version = di.GetVersion()
+    version = GetOSVersion()
     major = Mid(version, 3, 1)
     minor = Mid(version, 5, 2)
     build = Mid(version, 8, 5)
     'id3 =  major + minor + build
     print "Device unique id = ";di.GetChannelClientId()
     print "Device model = "; di.GetModel()
-    print "Device version = ";di.GetVersion()
+    print "Device version = ";GetOSVersion()
     id3 = box("")
-    id3 = id3 + di.GetChannelClientId() + di.GetModel() + di.GetVersion()
+    id3 = id3 + di.GetChannelClientId() + di.GetModel() + GetOSVersion()
 
     print"id1 = "; id1
     print"id2 = "; id2
