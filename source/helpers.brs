@@ -19,7 +19,7 @@ function LoadHeroCarousels()
              heroCarouselData.push(item)
           end if
         End For
-        
+
         if heroCarouselData.count() > 0 then
             return heroCarouselData
         end if
@@ -62,7 +62,7 @@ Function firmwareSupportsCachefs() as Boolean
     majorRequirement = 8
     minorRequirement = 0
     buildRequirement = 0
-    version = CreateObject("roDeviceInfo").GetVersion()
+    version = GetOsVersion()
     major = Mid(version, 3, 1)
     minor = Mid(version, 5, 2)
     build = Mid(version, 8, 5)
@@ -72,6 +72,13 @@ Function firmwareSupportsCachefs() as Boolean
     End If
     return supportsCachefs
 End Function
+
+
+Function GetOsVersion() as string
+  version = createObject("roDeviceInfo").GetOSVersion()
+  print "version :: " version
+  return version.major + "." + version.minor + "." + version.revision + "." + version.build
+end Function
 
 Function GetEncryptedUrlString(inputString as String) as String
     ba1 = CreateObject("roByteArray")
