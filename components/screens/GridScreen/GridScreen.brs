@@ -394,22 +394,24 @@ end sub
 ' set proper focus to RowList in case if return from Details Screen
 Sub OnFocusedChildChange()
     if m.top.isInFocusChain() and not m.rowList.hasFocus()  then
-        if m.top.heroCarouselShow=true
-            if m.scene.IsShowAutoPlayBackground = false AND m.top.VideoPlayer.visible = false
-              ' print "OnFocusedChildChange >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-              m.sliderButton.setFocus(true)
-            end if
-            m.sliderGroup.visible=true
-            m.carouselShow.visible=false
+        isRestored = RestoreFocus()
+        if isRestored  = false then
+           if m.top.heroCarouselShow=true
+               if m.scene.IsShowAutoPlayBackground = false AND m.top.VideoPlayer.visible = false
+                 SetFocus(m.sliderButton)
+               end if
+               m.sliderGroup.visible=true
+               m.carouselShow.visible=false
 
-            if (m.sliderTimer <> invalid)
-              m.sliderTimer.control="stop"
-              m.sliderTimer.control="start"
-            end if
-        else
-            m.carouselShow.visible=true
-            m.sliderGroup.visible=false
-            m.rowList.setFocus(true)
+               if (m.sliderTimer <> invalid)
+                     m.sliderTimer.control="stop"
+                     m.sliderTimer.control="start"
+               end if
+           else
+               m.carouselShow.visible=true
+               m.sliderGroup.visible=false
+               SetFocus(m.rowList)
+           end if
         end if
     end if
 End Sub
@@ -569,9 +571,9 @@ sub ClosePlayerAndFocusAvailableGrid()
     m.tVideoHeartBeatTimer.control = "stop"
     m.top.videoPlayer.visible = false
     if m.top.heroCarouselShow=true
-        m.sliderButton.setFocus(true)
+        SetFocus(m.sliderButton)
     else
-        m.rowList.setFocus(true)
+        SetFocus(m.rowList)
     end if
 end sub
 
@@ -588,14 +590,14 @@ function onKeyEvent(key as String, press as Boolean) as Boolean
            if m.sliderButton.hasFocus()
                 m.carouselShow.visible=true
                 m.sliderGroup.visible=false
-                m.rowList.setFocus(true)
+                SetFocus(m.rowList)
                 result=true
             end if
         else if key="up"
             if m.rowList.hasFocus() AND m.top.heroCarouselShow=true
                 m.carouselShow.visible=false
                 m.sliderGroup.visible=true
-                m.sliderButton.setFocus(true)
+                SetFocus(m.sliderButton)
                 result=true
             else if m.global.enable_top_navigation = true then
                 m.scene.callfunc("TriggerShowMenu")

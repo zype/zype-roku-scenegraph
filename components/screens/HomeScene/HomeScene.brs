@@ -286,10 +286,13 @@ End SUb
     '       "col": 4
     '     }
     ' }
-Function AddCurrentPositionToTracker(data = invalid) as Void
+Function AddCurrentPositionToTracker(setFocuseditem = false as boolean) as Void
     rowList = m.gridScreen.findNode("RowList")
-    rowItemSelected = rowList.rowItemSelected
-
+    if setFocuseditem = true then
+      rowItemSelected = rowList.rowItemFocused
+    else
+      rowItemSelected = rowList.rowItemSelected
+    end if
     playlistLevel = Str(m.IndexTracker.count())
 
     m.IndexTracker[playlistLevel] = {}
@@ -461,19 +464,58 @@ function PushContentIntoContentStack(content) as void
 end function
 
 function transitionToScreen() as void
-  if focusedChild() = "GridScreen" then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
+  isGridScreen = false
+  if focusedChild() = "GridScreen" then isGridScreen = true
 
-  m.screenStack.peek().setFocus(false)
-  m.screenStack.peek().visible = false
+  if isGridScreen = true then AddCurrentPositionToTracker() : PushContentIntoContentStack(m.gridScreen.content)
+  currentScreen = m.screenStack.peek()
 
+  currentScreen.setFocus(false)
+  currentScreen.visible = false
   screen = m.top.findNode(m.top.transitionTo)
-
-  PushScreenIntoScreenStack(screen)
-  print "transitionToScreen 1 "
+  if screen.id <> "GridScreen"
+   PushScreenIntoScreenStack(screen)
+  end if
   screen.visible = true
-  print "transitionToScreen 2 "
   screen.setFocus(true)
-  print "transitionToScreen 3 "
+  if screen.id = "GridScreen"
+    m.top.autoplaytimer = 2
+    SetGridPlayListToContentFirstLevel()
+  end if
+
+end function
+
+function GetTopContentFromContentStack()
+  if m.contentStack.count() > 1 then
+    while m.contentStack.count() > 1
+      previousContent = m.contentStack.pop()
+      DeleteLastPositionFromTracker()
+      DeleteLastPosterPlaylists()
+    end while
+  end if
+  return m.contentStack.pop()
+end function
+
+function SetGridPlayListToContentFirstLevel()
+
+  previousContent = GetTopContentFromContentStack()
+  lastPosition = GetLastPositionFromTracker()
+  if (lastPosition <> invalid)
+    lastRowItemSizes = GetLastRowItemSizes()
+    lastRowSpacings = GetLastRowSpacings()
+    m.gridScreen.content = previousContent
+    video_list_stack =  m.top.videoliststack
+    video_list_stack.pop()
+    m.top.videoliststack = video_list_stack
+    m.detailsScreen.videosTree = m.top.videoliststack.peek()
+    DeleteLastPositionFromTracker()
+    DeleteLastPosterPlaylists()
+
+    rowList = m.gridScreen.findNode("RowList")
+    rowList.rowItemSize = lastRowItemSizes
+    rowList.rowSpacings = lastRowSpacings
+    rowList.jumpToRowItem = [lastPosition.row, lastPosition.col]
+  end if
 end function
 
 function resetFocusToScreen() as void
@@ -770,7 +812,7 @@ Function OnKeyEvent(key, press) as Boolean
             end if
             if isSpecialScreen
                     m.gridScreen.heroCarouselShow=false
-                if m.detailsScreen.visible = true and m.gridScreen.visible = false and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false and m.TopMenu.visible = false then
+                if m.detailsScreen.visible = true and m.detailsScreen.videoPlayerVisible = false and m.Search.visible = false and m.infoScreen.visible = false and m.deviceLinking.visible = false and m.Menu.visible = false and m.TopMenu.visible = false then
                     ? "1"
                     ' if detailsScreen is open and video is stopped, details is lastScreen
                     details = m.screenStack.pop()
@@ -893,6 +935,11 @@ Function OnKeyEvent(key, press) as Boolean
                 else
                     m.gExitDialog.visible = true
                     m.gridScreen.exitDialogOpen = true
+                    rowList = m.gridScreen.findNode("RowList")
+                    if rowList.hasFocus() then
+                      AddCurrentPositionToTracker(true)
+                      AddPosterPlaylists()
+                    end if
                     m.exitButtons.setFocus(true)
                     result = true
                 end if
@@ -1006,7 +1053,25 @@ Sub exitButtonSelected()
       print " set visible false for exit"
       m.gExitDialog.visible = false
       m.gridScreen.exitDialogOpen = false
-      resetFocusToScreen()
+      lastPosition = GetLastPositionFromTracker()
+      prevScreen = m.screenStack.peek()
+      if prevScreen <> invalid then
+         prevScreen.visible = true
+         if (lastPosition <> invalid)
+             lastRowItemSizes = GetLastRowItemSizes()
+             lastRowSpacings = GetLastRowSpacings()
+
+             DeleteLastPositionFromTracker()
+             DeleteLastPosterPlaylists()
+             rowList = m.gridScreen.findNode("RowList")
+             rowList.rowItemSize = lastRowItemSizes
+             rowList.rowSpacings = lastRowSpacings
+             rowList.jumpToRowItem = [lastPosition.row, lastPosition.col]
+             rowList.setFocus(true)
+         else
+             prevScreen.setFocus(true)
+         end if
+      end if
     end if
 end sub
 

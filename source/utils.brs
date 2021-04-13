@@ -813,6 +813,20 @@ Function GetRandomBool()
     end if
 End Function
 
+sub SetFocus(component as dynamic)
+    m.focusedItem = component
+    m.focusedItem.setFocus(true)
+end sub
+
+function RestoreFocus() as boolean
+    focusRestored = false
+    if (m.focusedItem <> invalid) then
+        m.focusedItem.setFocus(true)
+        focusRestored = true
+    end if
+    return focusRestored
+end function
+
 function GetSegmentVideoStateEventString(state as dynamic) as string
     print "GetSegmentVideoStateEventString ================================================================> " state
     eventStr = ""
