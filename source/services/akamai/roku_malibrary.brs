@@ -2284,7 +2284,7 @@ return{
         m.pluginDataStore.addUdpateCustomMetrics(customDimensions)
         m.lastLogInterval# = sessionTimer.TotalMilliseconds()/1000
         di = CreateObject("roDeviceInfo")
-        version = GetOSVersion()
+        version = GetOsVersionString()
         major = Mid(version, 3, 1)
         minor = Mid(version, 5, 2)
         build = Mid(version, 8, 5)
@@ -3937,6 +3937,11 @@ End Function
 ' this file provides functions for generating guid and client id for
 ' MA plugin
 
+Function GetOsVersionString() as string
+  version = createObject("roDeviceInfo").GetOSVersion()
+  print "version :: " version
+  return version.major + "." + version.minor + "." + version.revision + "." + version.build
+end Function
 
 'Function       :   AkaMA_GUID
 'Params         :   None
@@ -3947,16 +3952,16 @@ function AkaMA_GUID() as string
     id1 = CreateObject("roDateTime").asSeconds()
     id2 = Rnd(0)
     di = CreateObject("roDeviceInfo")
-    version = GetOSVersion()
+    version = GetOsVersionString()
     major = Mid(version, 3, 1)
     minor = Mid(version, 5, 2)
     build = Mid(version, 8, 5)
     'id3 =  major + minor + build
     print "Device unique id = ";di.GetChannelClientId()
     print "Device model = "; di.GetModel()
-    print "Device version = ";GetOSVersion()
+    print "Device version = ";GetOsVersionString()
     id3 = box("")
-    id3 = id3 + di.GetChannelClientId() + di.GetModel() + GetOSVersion()
+    id3 = id3 + di.GetChannelClientId() + di.GetModel() + GetOsVersionString()
 
     print"id1 = "; id1
     print"id2 = "; id2
