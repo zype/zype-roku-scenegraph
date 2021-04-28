@@ -49,7 +49,12 @@ Function VideoService() as object
                 Language: subtitle.language
             })
         end for
-
+        
+        ' Always add eia608'
+        subtitleTracks.push({
+           TrackName: "eia608/1",
+           Language: "eng"
+        })
         return subtitleTracks
     end function
 

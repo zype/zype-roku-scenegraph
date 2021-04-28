@@ -1020,7 +1020,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       m.scene.callFunc("CreateDialog",m.scene, "Error", playerInfo.errorMessage, ["Close"])
   else
         print "--------------------------------------------------------------------------9 - Play"
-    PrepareVideoPlayerWithSubtitles(screen, playerInfo.subtitles.count() > 0, playerInfo, content)
+    PrepareVideoPlayerWithSubtitles(screen, playerInfo, content)
     playContent = true
 
 '    m.VideoPlayer = screen.VideoPlayer
@@ -1215,7 +1215,7 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
   print "------------------------------------LAST---------------------------------------- : screen.videoPlayerVisible : " screen.videoPlayerVisible
 end sub
 
-sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo, content = invalid)
+sub PrepareVideoPlayerWithSubtitles(screen, playerInfo, content = invalid)
   if content = invalid then content = screen.content
 	' show loading indicator before requesting ad and playing video
 	StartLoader()
@@ -1227,11 +1227,8 @@ sub PrepareVideoPlayerWithSubtitles(screen, subtitleEnabled, playerInfo, content
 
   video_service = VideoService()
 
-	if subtitleEnabled
-	  m.videoPlayer.content.subtitleTracks = video_service.GetSubtitles(playerInfo)
-	else
-	  m.videoPlayer.content.subtitleTracks = []
-	end if
+  ' This will contains both WEBVTT + 608 captions'
+  m.videoPlayer.content.subtitleTracks = video_service.GetSubtitles(playerInfo)
 end sub
 
 sub handleMidrollAd()
