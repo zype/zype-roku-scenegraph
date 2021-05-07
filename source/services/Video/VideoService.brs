@@ -49,12 +49,14 @@ Function VideoService() as object
                 Language: subtitle.language
             })
         end for
-        
-        ' Always add eia608'
-        subtitleTracks.push({
-           TrackName: "eia608/1",
-           Language: "eng"
-        })
+
+        ' Add eia608 when subtitle not available'
+        if subtitleTracks.count() = 0 then
+          subtitleTracks.push({
+             TrackName: "eia608/1",
+             Language: "eng"
+          })
+        end if
         return subtitleTracks
     end function
 
