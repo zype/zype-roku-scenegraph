@@ -364,12 +364,14 @@ Sub carouselSelectDataSelected()
 End SUb
 
 Sub CarouselDeepLinkToDetailPage()
-    m.gridScreen.visible = false
-    m.detailsScreen.autoplay = false
-    m.detailsScreen.content = m.top.DeepLinkToDetailPage
-    m.detailsScreen.setFocus(true)
-    m.detailsScreen.visible = true
-    m.screenStack.push(m.detailsScreen)
+   if m.top.DeepLinkToDetailPage <> invalid then
+      m.gridScreen.visible = false
+      m.detailsScreen.autoplay = false
+      m.detailsScreen.content = m.top.DeepLinkToDetailPage
+      m.detailsScreen.setFocus(true)
+      m.detailsScreen.visible = true
+      m.screenStack.push(m.detailsScreen)
+  end if
 ENd SUb
 
 ' Beacon Events'
