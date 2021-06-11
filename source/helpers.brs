@@ -2,8 +2,8 @@
 
 function LoadLimitStream()
     rawData = GetZObjects({"zobject_type": "limit_livestream"})
-    print rawData.count()
     if rawData <> invalid and rawData.count() > 0
+        rawData.sortBy("priority")
         data = rawData[0]
         SetLimitStreamObject(data)
     end if
@@ -30,6 +30,7 @@ end function
 function LoadAutoPlayHero()
     rawData = GetZObjects({"zobject_type": "autoplay_hero"})
     if rawData <> invalid AND rawData.Count()>0
+      rawData.sortby("priority")
       return rawData
     end if
     return invalid
