@@ -957,3 +957,68 @@ function GetEntitledVideos(urlParams as object) as object
 
     if response <> invalid then return response.response else return invalid
 end function
+
+'******************************************************
+'Get a google ima dai stream data
+'******************************************************
+Function GetGoogleImaDaiStreamData(videoid As String, onAir As boolean, params = {} As Object) As Object
+  print "Video ID: " + videoid
+  streamType = ""
+  if onAir = true
+    streamType = "live"
+  else
+    streamType = "vod"
+  end if
+  streamData = {}
+  streamData.title = ""
+  streamData.assetKey = ""
+  streamData.contentSourceId = ""
+  streamData.videoId = ""
+  streamData.apiKey = ""
+  streamData.type = streamType
+  streamData.errorMessages = ""
+  streamData.statusCode = invalid
+
+  url = GetApiConfigs().google_ima_dai_endpoint + streamType + "/" + videoid + "/"
+
+  print "GetGoogleImaDaiLiveStreamData url > " url
+  print "GetGoogleImaDaiLiveStreamData params > " params
+
+  response = MakeGetRequest(url, params)
+
+  if response.status = 200
+    response = response.body.response
+
+    streamData.statusCode = 200
+
+    if response.DoesExist("body")
+      print "response.body------------> " response.body
+
+      streamData.title = response.body.title
+      
+      if onAir = true
+        streamData.assetKey = response.body.asset_key
+      else
+        streamData.contentSourceId = response.body.content_source_id
+        streamData.videoId = response.body.video_id
+      end if
+      
+      if response.body.DoesExist("api_key")
+        streamData.apiKey = response.body.api_key
+      end if
+    end if
+
+    ' print "Ima Dai Stream Data : " streamData
+  else
+    streamData.statusCode = response.status
+    print "response.body-----------------------------------ERROR--------------------------------------------------------------------------------------------------" response.body
+    if (response.body <> invalid AND response.body.message <> invalid)
+	    streamData.errorMessage = response.body.message
+    else
+      streamData.errorMessage = "There is some error. Please try after sometime."
+      print "Saved crash.......................--------------------------zype_api.brs(604)-----------------------------..."
+    end if
+  end if
+
+  return streamData
+end function

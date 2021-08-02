@@ -1190,8 +1190,25 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       end if
 
             print "--------------------------------------------------------------------------15"
-      m.videoPlayer.control = "play"
-      m.videoPlayer.setFocus(true)
+      
+      if adsEnabled = true
+        streamData = GetGoogleImaDaiStreamData(content.id, playerInfo.on_Air, auth)
+
+        ' If stream data is not available
+        if(streamData.statusCode <> 200)
+          print "--------------------------------------------------------------------------16 - Closed"
+          CloseVideoPlayer(screen)
+            if m.LoadingScreen.visible = true
+              EndLoadingScreen(screen)
+            end if
+          m.scene.callFunc("CreateDialog", m.scene, "Error", streamData.errorMessage, ["Close"])
+        else
+          screen.callFunc("StartPlayer", streamData)
+        end if
+      else
+        m.videoPlayer.control = "play"
+        m.videoPlayer.setFocus(true)
+      end if
 
       if playerInfo.on_Air <> invalid and playerInfo.on_Air = true
         print "seeking live time"

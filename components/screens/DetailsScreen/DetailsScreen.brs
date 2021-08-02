@@ -122,6 +122,8 @@ Function initializeVideoPlayer()
 
   m.lastVideoPlayerState = "None"
   m.lastVideoPositionWhenPaused = -1
+
+  LoadImaSdk()
 End Function
 
 Function OnSquareImageChanged()

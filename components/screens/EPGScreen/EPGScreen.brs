@@ -28,6 +28,8 @@ Function initializeVideoPlayer()
   
   ' Event listener for video player state. Needed to handle video player errors and completion
   m.top.videoPlayer.observeField("state", "OnVideoPlayerStateChange")
+
+  LoadImaSdk()
 End Function
 
 

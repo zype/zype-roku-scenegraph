@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ImaSdkTask" extends="Task">
+	<script type="text/brightscript" uri="ImaSdkTask.brs"/>
+	<interface>
+	  <field id="sdkLoaded" type="Boolean" />
+	  <field id="errors" type="stringarray" />
+	  <field id="urlData" type="assocarray" />
+      <field id="adPlaying" type="Boolean" />
+      <field id="video" type="Node" />
+      <field id="streamData" type="assocarray" />
+      <field id="streamManagerReady" type="Boolean" />
+	</interface>
+</component>

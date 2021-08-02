@@ -9,6 +9,7 @@
   "oauth_endpoint": "https://login.zype.com/",
   "bifrost_endpoint": "https://bifrost.zype.com/",
   "marketplace_connect_endpoint": "https://mkt.zype.com/v1/roku/",
+  "google_ima_dai_endpoint": "<IMA_DAI_ENDPOINT>/",
 
   "version": "1.7.0",
   "theme": "dark",
