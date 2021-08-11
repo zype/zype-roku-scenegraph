@@ -333,10 +333,6 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     startDate = CreateObject("roDateTime")
 
-    ' Deep Linking
-    if (m.contentID <> invalid)
-        HandleDeeplinkEvent(m.contentID, mediaType, false)
-    end if
 
     heroCarousels = LoadHeroCarousels()
     if heroCarousels <> invalid
@@ -357,6 +353,10 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
       if m.global.enable_top_navigation = true then
           m.scene.callFunc("ShowMenuAndStartHideMenuTimer")
       end if
+    end if
+    ' Deep Linking
+    if (m.contentID <> invalid)
+        HandleDeeplinkEvent(m.contentID, mediaType, false)
     end if
 
     'autoPlayHero = LoadAutoPlayHero()
@@ -699,10 +699,13 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
             else if msg.getField() = "state"
                 state = msg.getData()
+                if(state = "playing" and m.videoPlayer.content.on_Air = false)
+                  AddVideoIdForPlayList(m.videoPlayer.content.playlist_id,m.videoPlayer.content.id)
+                end if
                 if m.scene.focusedChild.id = "DetailsScreen"
                   ' autoplay
                   next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
-                  if state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
+                  if m.contentID = invalid and state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
                       m.detailsScreen.triggerPlay = true
                   end if
                 end if
@@ -868,7 +871,7 @@ function goIntoDeviceLinkingFlow() as void
 end function
 
 ' Used in video deep linking (movie, episode, short-form, special, live)
-function transitionToVideoPlayer(videoObject as object) as void
+function transitionToVideoPlayer(videoObject as object, resume_time = "" as string) as void
     linkedVideoObject =  CreateVideoObject(videoObject)
     linkedVideoNode = createObject("roSGNode", "VideoNode")
 
@@ -891,7 +894,7 @@ function transitionToVideoPlayer(videoObject as object) as void
     ' Start playing video if logged in or no monetization
     if is_subscribed = true or ((videoObject.subscription_required = invalid or (videoObject.subscription_required <> invalid and videoObject.subscription_required = false)) and (videoObject.purchase_required = invalid or (videoObject.purchase_required <> invalid and videoObject.purchase_required = false)))
         m.akamai_service.setPlayStartedOnce(true)
-        playRegularVideo(m.detailsScreen, true)
+        playRegularVideo(m.detailsScreen, true, resume_time)
     end if
 end function
 
@@ -903,6 +906,8 @@ function transitionToNestedPlaylist(id, index = 0 as integer) as void
 
   m.gridScreen.playlistItemSelected = false
 
+  m.gridScreen.heroCarouselShow=false
+  m.gridScreen.moveFocusToPlaylist=true
   m.gridScreen.content = ParseContent(GetPlaylistsAsRows(id))
 
   rowList = m.gridScreen.findNode("RowList")
@@ -919,12 +924,12 @@ end function
 '     1- No subscription required for video
 '     2- NSVOD only and user has already purchased a native subscription
 '     3- Both NSVOD and USVOD. User either purchased a native subscription or is linked
-sub playRegularVideo(screen as Object, isDeepLink = false as boolean)
+sub playRegularVideo(screen as Object, isDeepLink = false as boolean, resume_time = "" as string)
     print "PLAY REGULAR VIDEO"
     StartLoadingScreen()
     adsEnable = m.app.avod
     if isDeepLink then adsEnable = false
-    playVideo(screen, getAuth(screen.content), adsEnable)
+    playVideo(screen, getAuth(screen.content), adsEnable, invalid, resume_time)
 end sub
 
 
@@ -966,7 +971,7 @@ function getAuth(content)
 end function
 
 
-sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = invalid)
+sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = invalid, resume_time = "" as string)
 
   if screen.hasField("videoPlayerVisible") then screen.videoPlayerVisible = true
 
@@ -1035,6 +1040,9 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
     if screen.hasField("squareImageWH") then screen.squareImageWH = playerInfo.squareImageWH
 
     m.videoPlayer.content = content
+    if resume_time <> invalid and resume_time <> "" then
+        m.VideoPlayer.seek = resume_time
+    end if
 
         if(adsEnabled AND (not screen.videoPlayerVisible = false))
             'As per client's requirement : Set 9999 for Live stream '
@@ -2875,7 +2883,25 @@ function HandleDeeplinkEvent(contentId as Dynamic, mediaType as Dynamic, isInput
           valid_playlist = (playlists.count() > 0 and playlists[0].active)
 
           if valid_playlist
-            transitionToNestedPlaylist(m.contentID)
+              videoId = GetVideoIdForPlayList(playlists[0]._id)
+              linkedVideo = invalid
+              resume_time = "0"
+              if videoId = invalid or videoId = "noplaylistid" then
+                  if resume_time = "noseektime" then resume_time = "0"
+                  playlistVideos = GetPlaylistVideos(playlists[0]._id, {"dpt": "true", "per_page": m.app.per_page})
+                  for each video in playlistVideos
+                        linkedVideo = GetVideo(video._id)
+                        exit for
+                  end for
+              else
+                  resume_time = GetVideoIdForResumeFromReg(videoId) 
+                  linkedVideo = GetVideo(videoId)
+              end if
+              if linkedVideo <> invalid
+                  transitionToVideoPlayer(linkedVideo, resume_time)
+              else
+                  transitionToNestedPlaylist(m.contentID, 0)
+              end if
           end if
         else if mediaType <> invalid
           linkedVideo = GetVideo(m.contentID)
