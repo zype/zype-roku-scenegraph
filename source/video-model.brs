@@ -50,6 +50,7 @@ Function CreateVideoObject(attrs As Object) As Object
     seasonNumber: properties.season,
     series_id: properties.series_id,
     created_at: properties.created_at,
+    playlist_id: properties.playlist_id
     published_at: properties.published_at,
     updated_at: properties.updated_at,
     keywords: properties.keywords
