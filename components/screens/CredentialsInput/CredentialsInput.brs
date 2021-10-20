@@ -153,7 +153,7 @@ function onVisibleChange() as void
     if m.top.visible = true then
         m.input_keyboard.visible = false
         print "m.top.isSignin "m.top.isSignin
-        if m.top.isSignup
+        if m.top.isSignup or m.top.isRegister
           GetUserInfoForSignUp()
         else if m.top.isSignin
           GetUserInfoForSignIn()
