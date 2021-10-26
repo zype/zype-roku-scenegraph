@@ -11,6 +11,45 @@ sub init()
   m.initializers.initChildren(m)
 end sub
 
+
+sub GetUserInfoForSignIn()
+    m.store = CreateObject("roSGNode", "ChannelStore")
+    ' Set sign-in context for RFI screen
+    info = CreateObject("roSGNode", "ContentNode")
+    info.addFields({context: "signin"})
+    m.store.requestedUserDataInfo = info
+    ' Request user's email for sign-in
+    m.store.requestedUserData = "email"
+    m.store.command = "getUserData"
+    m.store.ObserveField("userData", "OnGetChannelUserData")
+end sub
+
+sub GetUserInfoForSignUp()
+    m.store = CreateObject("roSGNode", "ChannelStore")
+    ' Request several properties for sign-up
+    m.store.requestedUserData = "email"
+    m.store.command = "getUserData"
+    m.store.ObserveField("userData", "OnGetChannelUserData")
+end sub
+
+function OnGetChannelUserData()
+    userEmail = ""
+    if m.store.userData <> invalid then
+        userEmail = m.store.userData.email
+    end if
+    m.private.email = userEmail
+
+    data = {
+      email: m.private.email,
+      password: m.private.password
+    }
+
+    m.helpers.reassignInputs(m, data)
+    m.inputs.setFocus(true)
+
+    m.inputs.jumpToRowItem = [0,0]
+end function
+
 ' Key pressed
 function onKeyEvent(key as string, press as boolean) as boolean
   result = false
@@ -111,7 +150,17 @@ function onSigninSelected() as void
 end function
 
 function onVisibleChange() as void
-  if m.top.visible = true then m.input_keyboard.visible = false : m.inputs.setFocus(true)
+    if m.top.visible = true then
+        m.input_keyboard.visible = false
+        print "m.top.isSignin "m.top.isSignin
+        if m.top.isSignup or m.top.isRegister
+          GetUserInfoForSignUp()
+        else if m.top.isSignin
+          GetUserInfoForSignIn()
+        end if
+    else
+        m.inputs.setFocus(true)
+    end if
 end function
 
 function setHeader() as void

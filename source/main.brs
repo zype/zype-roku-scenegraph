@@ -298,6 +298,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.SignInScreen = m.scene.findNode("SignInScreen")
     m.SignInScreen.isSignup = false
+    m.SignInScreen.isSignin = true
     m.SignInScreen.header = m.global.labels.sign_in_screen_header
     m.SignInScreen.helperMessage = m.global.labels.sign_in_helper_message
     m.SignInScreen.submitButtonText = m.global.labels.sign_in_submit_button
@@ -308,6 +309,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     m.SignUpScreen = m.scene.findNode("SignUpScreen")
     m.SignUpScreen.isSignup = true
+    m.SignUpScreen.isSignin = false
     m.SignUpScreen.header = m.global.labels.sign_up_screen_header
     m.SignUpScreen.helperMessage = m.global.labels.sign_up_helper_message
     m.SignUpScreen.submitButtonText = m.global.labels.sign_up_submit_button
