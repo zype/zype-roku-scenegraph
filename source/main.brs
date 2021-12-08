@@ -1192,19 +1192,8 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
             print "--------------------------------------------------------------------------15"
       
       if adsEnabled = true
-        streamData = GetGoogleImaDaiStreamData(content.id, playerInfo.on_Air, auth)
-
-        ' If stream data is not available
-        if(streamData.statusCode <> 200)
-          print "--------------------------------------------------------------------------16 - Closed"
-          CloseVideoPlayer(screen)
-            if m.LoadingScreen.visible = true
-              EndLoadingScreen(screen)
-            end if
-          m.scene.callFunc("CreateDialog", m.scene, "Error", streamData.errorMessage, ["Close"])
-        else
-          screen.callFunc("StartPlayer", streamData)
-        end if
+        streamData = GetGoogleImaDaiStreamData(content.id, content.title, playerInfo.on_Air, auth)
+        screen.callFunc("StartPlayer", streamData)
       else
         m.videoPlayer.control = "play"
         m.videoPlayer.setFocus(true)

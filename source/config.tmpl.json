@@ -3,13 +3,14 @@
   "client_id": "<CLIENT_ID>",
   "client_secret": "<CLIENT_SECRET>",
   "roku_api_key": "<ROKU_API_KEY>",
+  "google_ima_dai_asset_key": "<IMA_DAI_LIVE_ASSET_KEY>",
+  "google_ima_dai_content_source_id": "<IMA_DAI_VOD_CONTENT_SOURCE_ID>",
 
   "endpoint": "https://api.zype.com/",
   "player_endpoint": "https://player.zype.com/",
   "oauth_endpoint": "https://login.zype.com/",
   "bifrost_endpoint": "https://bifrost.zype.com/",
   "marketplace_connect_endpoint": "https://mkt.zype.com/v1/roku/",
-  "google_ima_dai_endpoint": "<IMA_DAI_ENDPOINT>/",
 
   "version": "1.7.0",
   "theme": "dark",
