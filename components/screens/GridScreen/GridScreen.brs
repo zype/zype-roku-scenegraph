@@ -21,6 +21,7 @@ Function Init()
     m.top.observeField("visible", "onVisibleChange")
     m.top.observeField("focusedChild", "OnFocusedChildChange")
     m.carouselShow=m.top.findNode("carouselShow")
+    m.top.carouselShow=m.carouselShow
     m.sliderButton=m.top.findNode("sliderButton")
     m.top.sliderButton = m.sliderButton
     m.sliderGroup=m.top.findNode("sliderGroup")
@@ -558,6 +559,14 @@ SUb moveFocusToheroCarousel()
       m.sliderGroup.visible=false
       m.rowList.setFocus(true)
   end if
+End Sub
+
+SUb showFocusToPlayList()
+    m.top.moveFocusToPlaylist = false
+    m.sliderButton.setFocus(false)
+    m.carouselShow.visible=true
+    m.sliderGroup.visible=false
+    m.rowList.setFocus(true)
 End Sub
 
 Sub changeSliderImage()

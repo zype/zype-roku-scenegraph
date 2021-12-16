@@ -23,6 +23,7 @@
         <!-- herCarousel Data to be shown or not -->
         <field id="heroCarouselShow" type="bool" />
         <field id="heroCarouselAllowedToShow" type="bool" alwaysNotify="true" onChange="showHideHeroCarousel"/>
+        <field id="moveFocusToPlaylist" type="bool" alwaysNotify="true" onChange="showFocusToPlayList"/>
         <field id="visibleSliderSelector" type="bool" alwaysNotify="true" alias="sliderFocus.visible" onChange="onSliderVisibleChange" />
         <field id="moveFocusToheroCarousel" type="bool" onChange="moveFocusToheroCarousel" />
 
@@ -50,6 +51,7 @@
         <!-- Video Player referencible by HomeScene -->
         <field id="VideoPlayer" type="node" />
         <field id="sliderButton" type="node" />
+        <field id="carouselShow" type="node" />
         <field id="exitDialogOpen" type="bool" value ="false"/>
 
         <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />

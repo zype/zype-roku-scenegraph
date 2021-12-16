@@ -7,6 +7,20 @@ Function GetVideoIdForResumeFromReg(key as String) as String
     return videoID
 End Function
 
+'get videoID from the registry
+Function GetVideoIdForPlayList(key as String) as String
+    videoID = RegRead(key, "PlayListVideo")
+    if videoID = invalid
+        videoID = "noplaylistid"
+    end if
+    return videoID
+End Function
+
+'add playListId to the registry
+Sub AddVideoIdForPlayList(key as String, param_videoID as String)
+    RegWrite(key, param_videoID, "PlayListVideo")
+End Sub
+
 'add videoID to the registry
 Sub AddVideoIdForResumeToReg(key as String,param_videoID as String)
     RegWrite(key, param_videoID, "ResumeVideo")

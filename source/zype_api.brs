@@ -670,6 +670,9 @@ function GetPlaylistVideos(playlist_id as String, urlParams = {} as Object) as O
   response = MakeRequest(url, params)
   if response <> invalid
     data = response.response
+    for each item in data
+      item["playlist_id"] = playlist_id
+    end for
   end if
 
   return data
