@@ -140,7 +140,7 @@ Function Init()
     m.playListFromHeroSlider=false
     m.playListDetailFromHeroSlider=false
 
-    m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
+    ' m.nextVideoNode = CreateObject("roSGNode", "VideoNode")
 
     'timer for autoplay
     m.autoplayMessageTimer = m.top.findNode("autoplayMessageTimer")
@@ -417,11 +417,11 @@ Function OnRowItemSelected()
         ? "[HomeScene] Detail Screen"
         m.gridScreen.visible = false
 
-        for each key in m.gridScreen.focusedContent.keys()
-          if m.nextVideoNode[key] <> invalid
-          m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
-          end if
-        end for
+        ' for each key in m.gridScreen.focusedContent.keys()
+        '   if m.nextVideoNode[key] <> invalid
+        '   m.nextVideoNode[key] = m.gridScreen.focusedContent[key]
+        '   end if
+        ' end for
 
         rowItemSelected = m.gridScreen.findNode("RowList").rowItemSelected
         m.detailsScreen.PlaylistRowIndex = rowItemSelected[0]
@@ -434,7 +434,7 @@ Function OnRowItemSelected()
             print "Saved crash.......................--------------------------HomeScene.brs(226)-----------------------------..."
         end if
 
-        m.gridScreen.focusedContent = m.nextVideoNode
+        ' m.gridScreen.focusedContent = m.nextVideoNode
 
         m.gridScreen.focusedContent.inFavorites = m.global.favorite_ids.DoesExist(m.gridScreen.focusedContent.id)
 
