@@ -770,7 +770,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 end if
                 if (messageInfo.type <> invalid and messageInfo.type = "transport") then
                    eventStatus = {status: "unhandled"}
-                   if screen.videoPlayer <> invalid and screen.videoPlayer.visible = true or imessageInfonfo.command = "play"
+                   if m.videoPlayer <> invalid and m.videoPlayer.visible = true or messageInfo.command = "play"
                      handleTransport(messageInfo)
                    end if
                    eventStatus.id = messageInfo.id
@@ -790,7 +790,6 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 End function
 
 function handleTransport (evt as object)
-             m.videoPlayer = screen.videoPlayer
              cmd = evt.command
              ret = {status: "unhandled"}
              m.isVoicePlay = false
