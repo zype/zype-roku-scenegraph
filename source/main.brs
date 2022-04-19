@@ -795,7 +795,7 @@ function handleTransport (evt as object)
              m.isVoicePlay = false
              ?"cmdcmdcmdcmdcmd>>>>>>>>>>>>>>>",cmd
              if cmd = "play"
-                if m.videoPlayer.visible = true
+                if m.videoPlayer <> invalid and m.videoPlayer.visible = true
                    m.isVoicePlay = true
                    m.videoPlayer.control = "resume"
                 else
