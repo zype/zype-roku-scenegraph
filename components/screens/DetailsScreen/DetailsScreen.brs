@@ -314,22 +314,22 @@ end Sub
 
 sub OnVideoPlayerPositionChange()
 
-    twentyFivePercentOffset = (m.top.videoPlayer.content.LENGTH * 25) \ 100
-    fiftyPercentOffset = (m.top.videoPlayer.content.LENGTH * 50) \ 100
-    seventyFivePercentOffset = (m.top.videoPlayer.content.LENGTH * 75) \ 100
+    if m.top.videoPlayer <> invalid and m.top.videoPlayer.content <> invalid
+       twentyFivePercentOffset = (m.top.videoPlayer.content.LENGTH * 25) \ 100
+       fiftyPercentOffset = (m.top.videoPlayer.content.LENGTH * 50) \ 100
+       seventyFivePercentOffset = (m.top.videoPlayer.content.LENGTH * 75) \ 100
 
-    if int(m.top.videoPlayer.position) = twentyFivePercentOffset then
-        scene = m.top.getScene()
-        scene.segmentEvent = GetSegmentVideoEventInfo("25PercentPlaybackCompleted")
-    else if int(m.top.videoPlayer.position) = fiftyPercentOffset then
-        scene = m.top.getScene()
-        scene.segmentEvent = GetSegmentVideoEventInfo("50PercentPlaybackCompleted")
-    else if int(m.top.videoPlayer.position) = seventyFivePercentOffset then
-        scene = m.top.getScene()
-        scene.segmentEvent = GetSegmentVideoEventInfo("75PercentPlaybackCompleted")
+       if int(m.top.videoPlayer.position) = twentyFivePercentOffset then
+           scene = m.top.getScene()
+           scene.segmentEvent = GetSegmentVideoEventInfo("25PercentPlaybackCompleted")
+       else if int(m.top.videoPlayer.position) = fiftyPercentOffset then
+           scene = m.top.getScene()
+           scene.segmentEvent = GetSegmentVideoEventInfo("50PercentPlaybackCompleted")
+       else if int(m.top.videoPlayer.position) = seventyFivePercentOffset then
+           scene = m.top.getScene()
+           scene.segmentEvent = GetSegmentVideoEventInfo("75PercentPlaybackCompleted")
+       end if
     end if
-
-
 end sub
 
 ' event handler of Video player msg

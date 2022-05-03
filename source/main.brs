@@ -704,7 +704,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 if(state = "playing" and m.videoPlayer.content.on_Air = false)
                   AddVideoIdForPlayList(m.videoPlayer.content.playlist_id,m.videoPlayer.content.id)
                 end if
-                if m.scene.focusedChild.id = "DetailsScreen"
+                if m.scene.focusedChild <> invalid and m.scene.focusedChild.id = "DetailsScreen"
                   ' autoplay
                   next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
                   if m.contentID = invalid and state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
@@ -792,25 +792,31 @@ End function
 function handleTransport (evt as object)
              cmd = evt.command
              ret = {status: "unhandled"}
-             m.isVoicePlay = false
              ?"cmdcmdcmdcmdcmd>>>>>>>>>>>>>>>",cmd
              if cmd = "play"
                 if m.videoPlayer <> invalid and m.videoPlayer.visible = true
-                   m.isVoicePlay = true
                    m.videoPlayer.control = "resume"
+                   sleep(500)
+                   m.videoPlayer.control = "resume"
+                else if m.detailsScreen.visible = true
+                   m.detailsScreen.itemSelectedRole = "play"
+                   handleButtonEvents(0, m.detailsScreen)
                 else
-
+                   m.scene.rowItemSelected = [0, 0]
                 end if
                 ret.status = "success"
              else if cmd = "pause"
                 m.videoPlayer.control = "pause"
                 ret.status = "success"
              else if cmd = "stop"
-                hideVideo()
-                ret.status = "success"
-             else if (cmd = "next" or cmd = "skip")
-                m.videoPlayer.control = "stop"
-                playNextVideo(false)
+                if (m.videoPlayer <> invalid and m.videoPlayer.visible = true)
+                   m.videoPlayer.control = "stop"
+                   m.videoPlayer.visible = false
+                   m.videoPlayer.setFocus(false)
+                   m.scene.resetFocus = true
+                   content = m.detailsScreen.content
+                   m.detailsScreen.content = content
+                end if
                 ret.status = "success"
              else if cmd = "forward"
                 m.videoPlayer.seek = m.videoPlayer.position + 10
