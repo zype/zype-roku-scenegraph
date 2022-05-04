@@ -953,6 +953,14 @@ Function OnKeyEvent(key, press) as Boolean
     ' press = false when key event happens to component inside children
     if press = false then
 
+        if m.Search.visible = true and key = "up" and m.global.enable_top_navigation = true and m.TopMenu.visible = false
+           searchKeyBoard = m.Search.findNode("Keyboard")
+           if searchKeyBoard.textEditBox <> invalid and searchKeyBoard.textEditBox.hasFocus() = true
+              TriggerShowMenu()
+              result = true
+           end if
+        end if
+
         print "Dialog: "; m.top.dialog
         if key = "back" and ((m.top.loadingIndicator.control = "start" or m.top.loadingScreen.visible = true) or m.gExitDialog.visible = true)then
               return true

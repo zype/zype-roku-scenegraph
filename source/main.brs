@@ -128,7 +128,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
 
     inputObject = CreateObject("roInput")
     inputObject.SetMessagePort(m.port)
-
+    inputObject.EnableTransportEvents()
     screen.SetMessagePort(m.port)
     screen.Show()
 
@@ -704,7 +704,7 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 if(state = "playing" and m.videoPlayer.content.on_Air = false)
                   AddVideoIdForPlayList(m.videoPlayer.content.playlist_id,m.videoPlayer.content.id)
                 end if
-                if m.scene.focusedChild.id = "DetailsScreen"
+                if m.scene.focusedChild <> invalid and m.scene.focusedChild.id = "DetailsScreen"
                   ' autoplay
                   next_video = m.detailsScreen.videosTree[m.detailsScreen.PlaylistRowIndex][m.detailsScreen.CurrentVideoIndex]
                   if m.contentID = invalid and state = "finished" and m.detailsScreen.autoplay = true and m.detailsScreen.canWatchVideo = true and next_video <> invalid
@@ -768,6 +768,14 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
                 if (messageInfo.contentId <> invalid and messageInfo.mediaType <> invalid) then
                     HandleDeeplinkEvent(messageInfo.contentId, messageInfo.mediaType, true)
                 end if
+                if (messageInfo.type <> invalid and messageInfo.type = "transport") then
+                   eventStatus = {status: "unhandled"}
+                   if m.videoPlayer <> invalid and m.videoPlayer.visible = true or messageInfo.command = "play"
+                     handleTransport(messageInfo)
+                   end if
+                   eventStatus.id = messageInfo.id
+                   inputObject.EventResponse(eventStatus)
+                end if
             end if
         end if
     end while
@@ -780,6 +788,67 @@ function SetHomeScene(contentID = invalid, mediaType = invalid)
     end if
     return ""
 End function
+
+function handleTransport (evt as object)
+             cmd = evt.command
+             ret = {status: "unhandled"}
+             ?"cmdcmdcmdcmdcmd>>>>>>>>>>>>>>>",cmd
+             if cmd = "play"
+                if m.videoPlayer <> invalid and m.videoPlayer.visible = true
+                   m.videoPlayer.control = "resume"
+                   sleep(500)
+                   m.videoPlayer.control = "resume"
+                else if m.detailsScreen.visible = true
+                   m.detailsScreen.itemSelectedRole = "play"
+                   handleButtonEvents(0, m.detailsScreen)
+                else
+                   m.scene.rowItemSelected = [0, 0]
+                end if
+                ret.status = "success"
+             else if cmd = "pause"
+                m.videoPlayer.control = "pause"
+                ret.status = "success"
+             else if cmd = "stop"
+                if (m.videoPlayer <> invalid and m.videoPlayer.visible = true)
+                   m.videoPlayer.control = "stop"
+                   m.videoPlayer.visible = false
+                   m.videoPlayer.setFocus(false)
+                   m.scene.resetFocus = true
+                   content = m.detailsScreen.content
+                   m.detailsScreen.content = content
+                end if
+                ret.status = "success"
+             else if cmd = "forward"
+                m.videoPlayer.seek = m.videoPlayer.position + 10
+                ret.status = "success"
+             else if cmd = "rewind"
+                m.videoPlayer.seek = m.videoPlayer.position - 10
+                ret.status = "success"
+             else if cmd = "startover"
+                m.videoPlayer.seek = 0
+                ret.status = "success"
+             else if cmd = "replay"
+                m.videoPlayer.seek =  m.videoPlayer.position - 20
+                ret.status = "success"
+             else if cmd = "seek"
+                duration = evt.duration.toInt()
+                if evt.direction = "backward" then duration = -duration
+                   seekPosition = m.videoPlayer.position + duration
+                if seekPosition > m.videoPlayer.duration then
+                   ret = "success.seek-end"
+                   seekPosition = m.videoPlayer.duration - 30
+                else if seekPosition < 0 then
+                   ret = "success.seek-start"
+                   seekPosition = 0
+                end if
+                m.seekPosition = seekPosition
+                m.videoPlayer.seek =  m.seekPosition
+                ret.status = "success"
+             else
+               ret.status = "unhandled"
+             end if
+             return ret
+    end function
 
 function setUpPurchasePlan()
 

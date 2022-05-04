@@ -50,7 +50,7 @@
             <Font id="RowListFont" role="font" uri="pkg:/fonts/Roboto-Regular.ttf" size="18"/>
         </Label>
 
-        <Keyboard
+        <DynamicKeyboard
            id="Keyboard"
            keyColor="0xf5f5f5"
            focusedKeyColor="0x151515"

@@ -151,6 +151,7 @@ end sub
 
 Sub OnTopVisibilityChange()
     if m.top.visible = true
+        m.keyboard.textEditBox.voiceEnabled = true
         m.keyboard.setFocus(true)
         m.gridScreen.visible = true
     end if

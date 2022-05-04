@@ -58,6 +58,7 @@ function initializers() as object
     self.header.color = self.global.theme.primary_text_color
 
     self.keyboard = self.top.findNode("Keyboard")
+    self.keyboard.textEditBox.voiceEnabled = true
     self.keyboard.keyColor = self.global.theme.primary_text_color
     self.keyboard.focusedKeyColor = self.global.brand_color
     self.keyboard.textEditBox.textColor = self.global.theme.primary_text_color

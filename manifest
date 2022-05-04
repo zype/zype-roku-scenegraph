@@ -13,3 +13,8 @@ ui_resolutions=hd
 bs_libs_required=roku_ads_lib
 supports_input_launch=1
 uri_resolution_autosub=$$RES$$,sd,hd,fhd
+
+supports_voice_roinput=1
+supports_etc_seek=1
+supports_etc_next=1
+bs_const=enableNextCmd=True
