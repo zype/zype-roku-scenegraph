@@ -7,6 +7,8 @@
  -->
 <component name="DetailsScreen" extends="Group" initialFocus="Buttons" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
     <script type="text/brightscript" uri="pkg:/source/helpers.brs" />
+    <script type="text/brightscript" uri="pkg:/source/ads/GoogleImaDai.brs" />
+    
     <interface>
         <!-- Button press handler -->
         <field id="itemSelected" type="integer" alwaysnotify="true" alias="Buttons.itemSelected" onChange="onItemSelected" />
@@ -51,6 +53,8 @@
         <field id="totalVideosCount" type="integer" />
 
         <function name="currentButtonSelected" />
+
+        <function name="StartPlayer" />
     </interface>
 
     <!-- helpers -->

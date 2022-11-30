@@ -960,3 +960,26 @@ function GetEntitledVideos(urlParams as object) as object
 
     if response <> invalid then return response.response else return invalid
 end function
+
+'******************************************************
+'Get a google ima dai stream data
+'******************************************************
+Function GetGoogleImaDaiStreamData(videoId as String, videoTitle as String, onAir as boolean, params = {} as Object) as Object
+  print "Video Title: " + videoTitle
+  print "Video ID: " + videoId
+  if onAir = true
+    return {
+      title: videoTitle,
+      assetKey: GetApiConfigs().google_ima_dai_asset_key,
+      apiKey: "",
+      type: "live"
+    }
+  end if
+  return {
+    title: videoTitle,
+    contentSourceId: GetApiConfigs().google_ima_dai_content_source_id,
+    videoId: videoId,
+    apiKey: "",
+    type: "vod"
+  }
+end function

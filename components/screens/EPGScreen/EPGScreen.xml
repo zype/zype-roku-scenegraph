@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <component name="EPGScreen" extends="BaseGroup" xsi:noNamespaceSchemaLocation="http://rokudev.roku.com/rokudev/schema/RokuSceneGraph.xsd">
+  <script type="text/brightscript" uri="pkg:/source/ads/GoogleImaDai.brs" />
+
   <interface>
     <field id="timelineStartTime" alias="fullGuideGrid.timelineStartTime" onChange="setupTimelineStartTime" />
 
@@ -8,6 +10,8 @@
     <field id="RemakeVideoPlayer" type="bool" alwaysNotify="true" onChange="ReinitializeVideoPlayer" />
     <field id="startStream" type="assocarray" alwaysNotify="true" />
     <field id="reset" alias="fullGuideGrid.reset" />
+    
+    <function name="StartPlayer" />
   </interface>
   <script type="text/brightscript" uri="EPGScreen.brs" />
   <children>

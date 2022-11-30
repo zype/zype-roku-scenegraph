@@ -89,6 +89,8 @@ Function initializeVideoPlayer()
   m.lastVideoPlayerState = "None"
   m.lastVideoPositionWhenPaused = -1
   m.firstTimeVideo = true
+
+  LoadImaSdk()
 End Function
 
 sub OnVideoPlayerPositionChange()

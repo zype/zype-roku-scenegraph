@@ -1269,8 +1269,14 @@ sub playVideo(screen as Object, auth As Object, adsEnabled = false, content = in
       end if
 
             print "--------------------------------------------------------------------------15"
-      m.videoPlayer.control = "play"
-      m.videoPlayer.setFocus(true)
+      
+      if adsEnabled = true
+        streamData = GetGoogleImaDaiStreamData(content.id, content.title, playerInfo.on_Air, auth)
+        screen.callFunc("StartPlayer", streamData)
+      else
+        m.videoPlayer.control = "play"
+        m.videoPlayer.setFocus(true)
+      end if
 
       if playerInfo.on_Air <> invalid and playerInfo.on_Air = true
         print "seeking live time"
